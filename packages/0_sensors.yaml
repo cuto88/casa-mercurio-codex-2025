@@ -1,0 +1,220 @@
+###############################################################################
+# 0_sensors.yaml — KPI canonici (senza mapping)
+# SORGENTI (solo sensori attivi):
+#  - Temperature:  sensor.t_in_giorno, sensor.t_in_notte1, sensor.t_in_bagno, sensor.t_out
+#  - Umidità:      sensor.ur_in_giorno, sensor.ur_in_notte1, sensor.ur_in_bagno, sensor.ur_out
+#  - Switch VMC:   switch.vmc_vel_0/1/2/3
+#  - Switch AC:    switch.ac_notte, switch.ac_giorno
+###############################################################################
+
+# ==================== LISTA ENTIÀ DEFINITIVE ================================
+# --- SENSORI BASE ------------------------------------------------------------
+#   sensor.t_in_giorno
+#   sensor.t_in_notte1
+#   sensor.t_in_bagno
+#   sensor.t_out
+#   sensor.ur_in_giorno
+#   sensor.ur_in_notte1
+#   sensor.ur_in_bagno
+#   sensor.ur_out
+# --- DERIVATI CLIMATICI -----------------------------------------------------
+#   sensor.t_in_media
+#   sensor.ur_in_media
+#   sensor.ur_in_min
+#   sensor.ah_in
+#   sensor.ah_out
+#   sensor.dewpoint_in
+#   sensor.delta_t_in_out
+#   sensor.delta_ah_in_out
+# --- DIAGNOSTICA / LOGICHE --------------------------------------------------
+#   sensor.vmc_priority
+#   sensor.vmc_reason
+#   sensor.vmc_last_event
+#   binary_sensor.stagione_calda
+#   binary_sensor.stagione_fredda
+# --- SWITCH -----------------------------------------------------------------
+#   switch.vmc_vel_0
+#   switch.vmc_vel_1
+#   switch.vmc_vel_2
+#   switch.vmc_vel_3
+#   switch.ac_notte
+#   switch.ac_giorno
+###############################################################################
+
+template:
+  - sensor:
+      # ==================== MEDIE / MINIMI INTERNE ===========================
+      - name: "t_in_media"
+        unit_of_measurement: "°C"
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_in_giorno') not in ['unknown','unavailable','', none] or
+             states('sensor.t_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.t_in_bagno') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set e_list = ['sensor.t_in_giorno','sensor.t_in_notte1','sensor.t_in_bagno'] %}
+          {% set ns = namespace(vals=[]) %}
+          {% for e in e_list %}
+            {% set v = states(e) %}
+            {% if v not in ['unknown','unavailable','', none] %}
+              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.vals|sum / ns.vals|length)|round(1) if (ns.vals|length)>0 else 'unavailable' }}
+
+      - name: "ur_in_media"
+        unit_of_measurement: "%"
+        device_class: humidity
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set e_list = ['sensor.ur_in_giorno','sensor.ur_in_notte1','sensor.ur_in_bagno'] %}
+          {% set ns = namespace(vals=[]) %}
+          {% for e in e_list %}
+            {% set v = states(e) %}
+            {% if v not in ['unknown','unavailable','', none] %}
+              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.vals|sum / ns.vals|length)|round(0) if (ns.vals|length)>0 else 'unavailable' }}
+
+      - name: "ur_in_min"
+        unit_of_measurement: "%"
+        device_class: humidity
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set e_list = ['sensor.ur_in_giorno','sensor.ur_in_notte1','sensor.ur_in_bagno'] %}
+          {% set ns = namespace(vals=[]) %}
+          {% for e in e_list %}
+            {% set v = states(e) %}
+            {% if v not in ['unknown','unavailable','', none] %}
+              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.vals|min)|round(0) if (ns.vals|length)>0 else 'unavailable' }}
+
+      # ==================== UMIDITÀ ASSOLUTA ================================
+      - name: "ah_in"
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water
+        availability: >-
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
+             states('sensor.ur_in_media') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set T = states('sensor.t_in_media')|float(none) %}
+          {% set RH = states('sensor.ur_in_media')|float(none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [RH, 1]|max %}
+            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set pv = RHc/100 * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}unavailable{% endif %}
+
+      - name: "ah_out"
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-outline
+        availability: >-
+          {{ states('sensor.t_out') not in ['unknown','unavailable','', none] and
+             states('sensor.ur_out') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set T = states('sensor.t_out')|float(none) %}
+          {% set RH = states('sensor.ur_out')|float(none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [RH, 1]|max %}
+            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set pv = RHc/100 * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}unavailable{% endif %}
+
+      # ==================== DEW POINT & DELTE ================================
+      - name: "dewpoint_in"
+        unit_of_measurement: "°C"
+        state_class: measurement
+        icon: mdi:thermometer-alert
+        availability: >-
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
+             states('sensor.ur_in_media') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {% set T = states('sensor.t_in_media')|float(none) %}
+          {% set RH = states('sensor.ur_in_media')|float(none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [RH, 1]|max %}
+            {% set b = 17.62 %}{% set c = 243.12 %}
+            {% set gamma = (b*T/(c+T)) + log(RHc/100) %}
+            {{ (c*gamma / (b - gamma)) | round(1) }}
+          {% else %}unavailable{% endif %}
+
+      - name: "delta_t_in_out"
+        unit_of_measurement: "°C"
+        icon: mdi:delta
+        availability: >-
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
+             states('sensor.t_out') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {{ (states('sensor.t_in_media')|float(0) - states('sensor.t_out')|float(0)) | round(1) }}
+
+      - name: "delta_ah_in_out"
+        unit_of_measurement: "g/m³"
+        icon: mdi:delta
+        availability: >-
+          {{ states('sensor.ah_in') not in ['unknown','unavailable','', none] and
+             states('sensor.ah_out') not in ['unknown','unavailable','', none] }}
+        state: >-
+          {{ (states('sensor.ah_in')|float(0) - states('sensor.ah_out')|float(0)) | round(2) }}
+
+      # ==================== INFO/DIAGNOSTICA VMC ==============================
+      - name: "VMC Priority"
+        icon: mdi:arrow-top-right-bold-outline
+        state: >
+          {% if is_state('switch.vmc_vel_3','on') %}P1 — Bagno/BOOST
+          {% elif is_state('switch.vmc_vel_2','on') %}P2 — Free-cooling
+          {% elif is_state('binary_sensor.vmc_p3_anti_secco_attivo','on') %}P3 — Anti-secco
+          {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
+          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
+          {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
+          {% else %}—{% endif %}
+
+      - name: "VMC Reason"
+        icon: mdi:text
+        state: >
+          {% set Tin = states('sensor.t_in_media')|float(0) %}
+          {% set Tout = states('sensor.t_out')|float(0) %}
+          {% set AHin = states('sensor.ah_in')|float(0) %}
+          {% set AHout = states('sensor.ah_out')|float(0) %}
+          {% set URb = states('sensor.ur_in_bagno')|float(0) %}
+          {% set URo = states('sensor.ur_out')|float(0) %}
+          {% if is_state('switch.vmc_vel_3','on') %}
+            Boost bagno: UR_bagno={{URb|round(1)}}% (ΔUR={{(URb-URo)|round(1)}}%)
+          {% elif is_state('switch.vmc_vel_2','on') %}
+            Free-cooling: Tin {{Tin|round(1)}}°C > T_on e Tout {{Tout|round(1)}}°C < Tin; AH_out {{AHout|round(1)}} < AH_in {{AHin|round(1)}}
+          {% elif is_state('binary_sensor.vmc_p3_anti_secco_attivo','on') %}
+            Anti-secco: UR_interna_min ≤ soglia notturna
+          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}
+            Override: AC notte = DRY → VMC vel_0
+          {% elif is_state('switch.vmc_vel_1','on') %}
+            Nessuna condizione prioritaria → baseline
+          {% elif is_state('switch.vmc_vel_0','on') %}
+            Failsafe/spegnimento forzato
+          {% else %}—{% endif %}
+
+      - name: "VMC Last Event"
+        icon: mdi:clock-outline
+        state: "{{ states('input_text.vmc_last_event') if states('input_text.vmc_last_event') not in ['unknown','unavailable'] else '—' }}"
+
+  - binary_sensor:
+      - name: "Stagione calda"
+        state: >
+          {{ now().month in [5,6,7,8,9] }}
+      - name: "Stagione fredda"
+        state: >
+          {{ now().month in [11,12,1,2,3] }}

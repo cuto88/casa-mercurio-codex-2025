@@ -1,0 +1,383 @@
+###############################################################################
+# 0_helpers_sensors.yaml — Mapping sensori fisici (anti-rottura)
+###############################################################################
+# Scopo: disaccoppiare le logiche dai nomi reali dei sensori fisici.
+# - Compila gli input_text con gli entity_id reali.
+# - Le logiche leggono gli alias "mapped_*".
+# - Diagnostica con binary_sensor map_ok_* e group riassuntivo.
+###############################################################################
+
+# ============================== 1) HELPER MAP ================================
+input_text:
+  # --- Temperatura ------------------------------------------------------------
+  it_sensor_temp_giorno_entity:
+    name: "Sensore T Giorno (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.temperatura_giorno"
+  it_sensor_temp_notte_entity:
+    name: "Sensore T Notte (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.temperatura_notte1"
+  it_sensor_temp_bagno_entity:
+    name: "Sensore T Bagno (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.temperatura_bagno"
+  it_sensor_temp_esterna_entity:
+    name: "Sensore T Esterna (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.temperatura_esterna"
+
+  # Estensioni zone aggiuntive -------------------------------------------------
+  it_sensor_temp_notte2_entity:
+    name: "Sensore T Notte2 (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.temperatura_notte2"
+  it_sensor_temp_notte3_entity:
+    name: "Sensore T Notte3 (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.temperatura_notte3"
+  it_sensor_temp_lavanderia_entity:
+    name: "Sensore T Lavanderia (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.temperatura_lavanderia"
+
+  # --- Umidità relativa -------------------------------------------------------
+  it_sensor_ur_giorno_entity:
+    name: "Sensore UR Giorno (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.umidita_giorno"
+  it_sensor_ur_notte_entity:
+    name: "Sensore UR Notte (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.umidita_notte1"
+  it_sensor_ur_bagno_entity:
+    name: "Sensore UR Bagno (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.umidita_bagno"
+  it_sensor_ur_esterna_entity:
+    name: "Sensore UR Esterna (entity)"
+    max: 120
+    mode: text
+    # mapped to your real entity from screenshots
+    initial: "sensor.umidita_esterna"
+
+  # Estensioni zone aggiuntive -------------------------------------------------
+  it_sensor_ur_notte2_entity:
+    name: "Sensore UR Notte2 (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.umidita_notte2"
+  it_sensor_ur_notte3_entity:
+    name: "Sensore UR Notte3 (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.umidita_notte3"
+  it_sensor_ur_lavanderia_entity:
+    name: "Sensore UR Lavanderia (entity)"
+    max: 120
+    mode: text
+    initial: "sensor.umidita_lavanderia"
+
+  # --- CO2 (opzionali) -------------------------------------------------------
+  it_sensor_co2_giorno_entity:
+    name: "Sensore CO2 Giorno (entity)"
+    max: 120
+    mode: text
+  it_sensor_co2_notte_entity:
+    name: "Sensore CO2 Notte (entity)"
+    max: 120
+    mode: text
+
+  # --- PM2.5 esterna (opzionale) ---------------------------------------------
+  it_sensor_pm25_esterna_entity:
+    name: "Sensore PM2.5 Esterno (entity)"
+    max: 120
+    mode: text
+
+# ============================== 2) ALIAS MAPPED ===============================
+template:
+  - sensor:
+      # --- Temperatura (mapped) -----------------------------------------------
+      - name: "Temperatura — Giorno (mapped)"
+        unique_id: mapped_temp_zona_giorno
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_giorno_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Notte (mapped)"
+        unique_id: mapped_temp_zona_notte
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Bagno (mapped)"
+        unique_id: mapped_temp_bagno
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_bagno_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Esterna (mapped)"
+        unique_id: mapped_temp_esterna
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_esterna_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Notte2 (mapped)"
+        unique_id: mapped_temp_zona_notte2
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte2_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Notte3 (mapped)"
+        unique_id: mapped_temp_zona_notte3
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte3_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "Temperatura — Lavanderia (mapped)"
+        unique_id: mapped_temp_lavanderia
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_lavanderia_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      # --- Umidità relativa (mapped) -----------------------------------------
+      - name: "UR — Giorno (mapped)"
+        unique_id: mapped_ur_zona_giorno
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_giorno_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Notte (mapped)"
+        unique_id: mapped_ur_zona_notte
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Bagno (mapped)"
+        unique_id: mapped_ur_bagno
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_bagno_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Esterna (mapped)"
+        unique_id: mapped_ur_esterna
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_esterna_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Notte2 (mapped)"
+        unique_id: mapped_ur_zona_notte2
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte2_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Notte3 (mapped)"
+        unique_id: mapped_ur_zona_notte3
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte3_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+      - name: "UR — Lavanderia (mapped)"
+        unique_id: mapped_ur_lavanderia
+        device_class: humidity
+        unit_of_measurement: "%"
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_lavanderia_entity') %}
+          {% if not e or e in ['unknown','unavailable'] or states(e) in ['unknown','unavailable', none] %}unknown{% else %}{{ states(e) }}{% endif %}
+
+  - binary_sensor:
+      # Ogni flag = TRUE se il mapping punta a un'entità esistente e disponibile
+      - name: "Map OK — T Giorno"
+        unique_id: map_ok_temp_giorno
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_giorno_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Notte"
+        unique_id: map_ok_temp_notte
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Bagno"
+        unique_id: map_ok_temp_bagno
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_bagno_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Esterna"
+        unique_id: map_ok_temp_esterna
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_esterna_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Notte2"
+        unique_id: map_ok_temp_notte2
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte2_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Notte3"
+        unique_id: map_ok_temp_notte3
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_notte3_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — T Lavanderia"
+        unique_id: map_ok_temp_lavanderia
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_temp_lavanderia_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Giorno"
+        unique_id: map_ok_ur_giorno
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_giorno_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Notte"
+        unique_id: map_ok_ur_notte
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Bagno"
+        unique_id: map_ok_ur_bagno
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_bagno_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Esterna"
+        unique_id: map_ok_ur_esterna
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_esterna_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Notte2"
+        unique_id: map_ok_ur_notte2
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte2_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Notte3"
+        unique_id: map_ok_ur_notte3
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_notte3_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — UR Lavanderia"
+        unique_id: map_ok_ur_lavanderia
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_ur_lavanderia_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — CO2 Giorno"
+        unique_id: map_ok_co2_giorno
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_co2_giorno_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — CO2 Notte"
+        unique_id: map_ok_co2_notte
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_co2_notte_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+      - name: "Map OK — PM2.5 Esterna"
+        unique_id: map_ok_pm25_esterna
+        device_class: connectivity
+        state: >-
+          {% set e = states('input_text.it_sensor_pm25_esterna_entity') %}
+          {{ e not in ['', none] and states(e) not in ['unknown','unavailable', none] }}
+
+# ============================== 3) GROUP DIAGNOSTIC ===========================
+group:
+  helpers_sensors_mapping_ok:
+    name: "Helpers — Sensors Mapping OK"
+    entities:
+      - binary_sensor.map_ok_temp_giorno
+      - binary_sensor.map_ok_temp_notte
+      - binary_sensor.map_ok_temp_bagno
+      - binary_sensor.map_ok_temp_esterna
+      - binary_sensor.map_ok_temp_notte2
+      - binary_sensor.map_ok_temp_notte3
+      - binary_sensor.map_ok_temp_lavanderia
+      - binary_sensor.map_ok_ur_giorno
+      - binary_sensor.map_ok_ur_notte
+      - binary_sensor.map_ok_ur_bagno
+      - binary_sensor.map_ok_ur_esterna
+      - binary_sensor.map_ok_ur_notte2
+      - binary_sensor.map_ok_ur_notte3
+      - binary_sensor.map_ok_ur_lavanderia
+      - binary_sensor.map_ok_co2_giorno
+      - binary_sensor.map_ok_co2_notte
+      - binary_sensor.map_ok_pm25_esterna
+
+###############################################################################
+# Uso nei template:
+#   {% set e = states('input_text.it_sensor_temp_giorno_entity') %}
+#   {{ states(e) | float(0) }}
+# Oppure gli alias:
+#   sensor.mapped_temp_zona_giorno, sensor.mapped_ur_zona_giorno, ...
+###############################################################################
+
+

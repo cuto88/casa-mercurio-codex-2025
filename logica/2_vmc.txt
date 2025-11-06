@@ -1,0 +1,121 @@
+###############################################################################
+# VMC — CORE LOGIC (rev. con free-cooling sdoppiato e override AC notte=DRY)
+###############################################################################
+
+# ARCHITETTURA DELLE PRIORITÀ
+# ---------------------------------------------------------------------------
+#   P0) FAILSAFE / EMERGENCY        → vel_0
+#   OVERRIDE) AC zona notte = DRY   → vel_0
+#   P1) BAGNO / BOOST               → vel_3 (lock + isteresi)
+#   P2) FREE-COOLING                → vel_2 (sdoppiato: PASSIVHAUS / MACCHINA)
+#   P3) INVERNO / ANTI-SECCO        → vel_0 (+ duty 5’/30’)
+#   P4) BASELINE                    → vel_1
+#
+# Arbitraggio: valutazione top-down; il primo stato TRUE prende controllo.
+# ---------------------------------------------------------------------------
+
+###############################################################################
+# [P0] FAILSAFE / EMERGENCY
+###############################################################################
+# Se sensori non disponibili, errori o mismatch critici:
+#   → forza vel_0 (modalità sicura)
+# Gestito da binary_sensor.vmc_failsafe_sensors_bad
+# Watchdog sempre attivo: se nessuna condizione vera >10 min → fallback vel_1
+
+###############################################################################
+# [OVERRIDE] AC NOTTE = DRY
+###############################################################################
+# Condizione: AC zona notte in modalità DRY attiva
+#   → forza VMC vel_0
+# Uscita override: quando AC notte non è più in DRY
+# Motivazione: evitare immissione aria esterna umida che vanifica deumidifica.
+# Priorità: immediatamente sotto P0, sopra P1/P2.
+
+###############################################################################
+# [P1] BAGNO / BOOST
+###############################################################################
+Sensore: sensor.umidita_bagno (UR bagno).
+  Ingresso (start):
+    - UR bagno ≥ 75%   OPPURE   (UR bagno – UR esterna) ≥ 10%.
+  Uscita (stop):
+    - UR bagno ≤ 65%   E   (UR bagno ~ UR esterna) con differenza ≤ 5%.
+  Anti-ciclo:
+    - LOCK minimo 10 minuti dall’ingresso (anche se lo stop diventa vero prima).
+    - COOLDOWN 5 minuti prima di poter ri-attivare.
+  Cicli ripetuti (resistenza del vapore):
+    - Se in ≤ 30 min non si scende sotto 65% → considera 1 “ciclo” fallito.
+    - Dopo 3 cicli falliti consecutivi:
+        a) Se aria esterna è favorevole (vedi FREE-COOLING calcolato) → passa a vel_2.
+        b) Altrimenti preferisci asciugatura con AC in DRY su ac_notte:
+             - switch.ac_notte ON (se esiste modalità DRY, mappala su questo switch)
+             - mantieni VMC a vel_1 per IAQ.
+        c) Dopo 20 min rivaluta P1 e FREE-COOLING.
+  Note:
+    - In fase BOOST, P1 scavalca P2–P4.
+    - Logga inizio/fine evento con UR iniziale/finale e durata.
+
+###############################################################################
+# [P2] FREE-COOLING (SDOPPIATO)
+###############################################################################
+
+# --- 2.1 PASSIVHAUS (criteri PH con controllo latente) ----------------------
+# ON se tutte vere:
+#   - T_in > 24.0 °C
+#   - T_out < T_in
+#   - AH_out < AH_in   (umidità assoluta esterna < interna)
+# OFF se:
+#   - T_in ≤ 23.2 °C  OR
+#   - T_out ≥ T_in     OR
+#   - AH_out ≥ AH_in
+# Azione:
+#   → vel_2
+# Note:
+#   - Lock 15 min ad ogni ingresso
+#   - Usa sensori canonici sensor.temperatura_interna_media, sensor.temperatura_esterna,
+#     sensor.ah_interna, sensor.ah_esterna
+
+# --- 2.2 MACCHINA (criteri macchina, solo termico) --------------------------
+# ON se tutte vere:
+#   - T_in > 24.0 °C
+#   - T_out < T_in
+#   - T_out > 20.0 °C
+# OFF se:
+#   - T_in ≤ 23.2 °C  OR
+#   - T_out ≤ 20.0 °C OR
+#   - T_out ≥ T_in
+# Azione:
+#   → vel_2
+# Note:
+#   - Lock 15 min ad ogni ingresso
+#   - Usa sensori canonici sensor.temperatura_interna_media, sensor.temperatura_esterna
+
+# --- 2.3 Priorità interna PASSIVHAUS vs MACCHINA ----------------------------
+#   - Se entrambe vere → prevale PASSIVHAUS
+#   - Se PASSIVHAUS falsa e MACCHINA vera → usa MACCHINA
+#   - Se entrambe false → rilascio controllo
+
+###############################################################################
+# [P3] INVERNO / ANTI-SECCO
+###############################################################################
+ Finestra temporale:
+    - Mesi: novembre–marzo (11,12,1,2,3).
+    - Ore: 23:00–07:00.
+  Condizione:
+    - sensor.umidita_interna_min ≤ 40%
+    - Solo se P1 (bagno) NON attivo.
+  Azione:
+    - imposta vel_0.
+    - per preservare IAQ: duty-cycle minimo (5’ ON a vel_1 ogni 30’).
+  Uscita:
+    - Fine finestra oraria/mensile OPPURE umidità risale > 42%.
+
+###############################################################################
+# [P4] BASELINE
+###############################################################################
+# Nessuna condizione attiva:
+#   → vel_1 (ricambio minimo continuo, ~0.5 vol/h)
+# Funzione anche di fallback se watchdog segnala inattività logiche >10 min.
+
+
+FINE GUIDA
+===============================================================

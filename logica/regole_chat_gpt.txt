@@ -1,0 +1,99 @@
+###############################################################################
+# REGOLE CHAT GPT — SISTEMI CASA SILEA (PASSIVHAUS ORIENTED)
+#
+# SCOPO
+#   Definire come GPT deve rispondere e operare nelle chat relative ai file
+#   Home Assistant (YAML / Lovelace / logiche), garantendo coerenza tra
+#   logica, plancia e documentazione tecnica.
+###############################################################################
+
+## 1️⃣ STRUTTURA GENERALE DEL LAVORO
+
+- Ogni sistema (VMC, AC, riscaldamento, ventilazione, energia) è indipendente.
+- Esistono sempre tre livelli collegati:
+  1. **File .txt** → regole e spiegazione umana (“cosa deve fare”)
+  2. **File .yaml** → logica operativa Home Assistant (“come lo fa”)
+  3. **Plancia .yaml** → interfaccia visiva Lovelace (“come lo si vede”)
+
+GPT deve sempre assicurarsi che questi tre livelli siano coerenti tra loro.
+
+---
+
+## 2️⃣ COME GPT DEVE RISPONDERE
+
+1. **Usare sempre il Canvas**  
+   Quando la chat riguarda codice YAML o Lovelace → rispondere *solo* nel canvas  
+   con il **file completo** (niente frammenti o “aggiungi questo pezzo”).  
+
+2. **Un file per volta**  
+   Il canvas deve contenere *solo* il codice del file richiesto.  
+   Se servono modifiche ad altri file, GPT le scrive fuori dal canvas come testo.
+
+3. **Nomi chiari e coerenti**  
+   Usare le entità standard (es. `sensor.temperatura_zona_giorno`,  
+   `switch.vmc_vel_1`, `input_number.vmc_bagno_on`, ecc.)  
+   e controllare che corrispondano ai nomi nei file .txt o già esistenti.
+
+4. **Logica invariata se non richiesto**  
+   GPT non cambia la logica del sistema a meno che non venga esplicitamente chiesto.  
+   Può ottimizzare leggibilità, diagnostica, o coerenza visiva.
+
+5. **Spiegare sempre le modifiche**  
+   Ogni risposta deve dire chiaramente cosa è stato fatto e perché (1–2 righe
+   tecniche, 1 riga di spiegazione “umana”).
+
+6. **Controllo di coerenza**  
+   Se si parla di logica → confrontare con il file `.txt` associato.  
+   Se si parla di interfaccia → seguire le “Regole Plancia v2”.
+
+---
+
+## 3️⃣ LINEE GUIDA PER LE PLANCIE (Lovelace)
+
+- Rispettare `regole_plancia2.txt` in tutto:
+  - 3 sezioni fisse: **Stato/Comandi**, **KPI**, **Trend/Lock**
+  - Layout mobile-first con `sections:` e `max_columns`
+  - Color coding coerente:
+    - Rosso → Esterno  
+    - Giallo → Zona giorno  
+    - Blu → Zona notte  
+    - Verde → Bagno  
+    - Neutro → Derivate o logiche speciali
+
+- **Grafici**
+  - Preferire grafici standard (`history-graph`, `statistics-graph`) se chiari e coerenti.
+  - Usare `mini-graph-card` solo dove serve compattezza, confronto o soglie dinamiche.
+  - Le linee devono restare leggibili e *senza riempimento*.
+  - Le soglie devono apparire come linee, con nome visibile.
+
+- **Markdown “Come decide”**
+  - Ogni plancia deve includere la card che spiega in linguaggio umano
+    la logica di funzionamento (copiata o adattata dal `.txt` del sistema).
+
+- **Debug**
+  - In fondo o nascosto, per sensori grezzi e diagnostica.
+
+---
+
+## 4️⃣ COMPORTAMENTO OPERATIVO DI GPT
+
+- Se chiedo “controlla coerenza” → confronta logica YAML vs testo nel file .txt  
+- Se chiedo “aggiorna la plancia” → applica regole visive e riporta file completo  
+- Se chiedo “aggiungi sensori” → crea blocco `template:` coerente e ben indentato  
+- Se chiedo “spiegami perché si comporta così” → rispondi con interpretazione umana  
+  (non codice) basata sulla logica nel `.txt`  
+- Se GPT rileva conflitto tra moduli (es. VMC vs AC) → lo segnala e propone soluzione  
+
+---
+
+## 5️⃣ FILOSOFIA GENERALE
+
+- **Trasparenza prima di tutto:** ogni logica deve essere leggibile e spiegabile.  
+- **Indipendenza:** ogni modulo deve funzionare anche se gli altri sono spenti.  
+- **Armonia Passivhaus:** comfort termico con consumo minimo.  
+- **Niente duplicati:** ogni entità o funzione appare una volta sola.  
+- **Documentazione sincronizzata:** .txt e .yaml devono sempre raccontare la stessa storia.
+
+###############################################################################
+# Fine regole_chat_gpt.txt
+###############################################################################

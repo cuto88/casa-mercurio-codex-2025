@@ -1,0 +1,77 @@
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+homeassistant:
+  packages: !include_dir_named packages
+  
+
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+      type: module
+
+  dashboards:
+
+    9-debug-sistema:
+      mode: yaml
+      title: "9 DEBUG Sistema"
+      icon: mdi:test-tube
+      show_in_sidebar: true
+      filename: lovelace/debug_sistema_plancia.yaml
+
+#    9-test-plancia:
+#      mode: yaml
+#      title: "TEST Plancia"
+#      icon: mdi:flask-outline
+#      show_in_sidebar: false
+#      filename: lovelace/test_plancia.yaml
+
+    1-ventilazione:
+      mode: yaml
+      title: "1 Ventilazione"
+      icon: mdi:fan
+      show_in_sidebar: true
+      filename: lovelace/1_vent_plancia.yaml
+
+    2-vmc:
+      mode: yaml
+      title: "2 VMC"
+      icon: mdi:air-filter
+      show_in_sidebar: true
+      filename: lovelace/2_vmc_plancia.yaml
+
+    3-heating:
+      mode: yaml
+      title: "3 Riscaldamento"
+      icon: mdi:radiator
+      show_in_sidebar: true
+      filename: lovelace/3_heating_plancia.yaml
+
+    4-ac:
+      mode: yaml
+      title: "4 Clima"
+      icon: mdi:snowflake
+      show_in_sidebar: true
+      filename: lovelace/4_ac_plancia.yaml
+
+    5-powermeter:
+      mode: yaml
+      title: "5 Consumi"
+      icon: mdi:lightning-bolt
+      show_in_sidebar: true
+      filename: lovelace/5_pm_plancia.yaml
+
+    6-energia:
+      mode: yaml
+      title: "6 Energia"
+      icon: mdi:solar-power
+      show_in_sidebar: true
+      filename: lovelace/6_energia_plancia.yaml
+

@@ -1,0 +1,17 @@
+# /config/lovelace/test.yaml
+views:
+  - title: "Test"
+    path: test
+    cards:
+      - type: markdown
+        content: "OK: dashboard Test attiva."
+
+      - type: custom:mini-graph-card
+        name: MiniGraph test
+        entities:
+          - entity: sensor.temperatura_zona_giorno
+        hours_to_show: 6
+        points_per_hour: 6
+        show:
+          extrema: true
+          labels: true

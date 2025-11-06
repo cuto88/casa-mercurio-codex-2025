@@ -1,0 +1,199 @@
+views:
+  - title: Riscaldamento
+    path: heating
+    icon: mdi:radiator
+    type: sections
+    max_columns: 3
+
+    sections:
+      # 1) Stato & Comandi
+      - type: grid
+        cards:
+          - type: glance
+            title: Stato logiche
+            show_state: true
+            entities:
+              - entity: binary_sensor.heating_should_run
+                name: Decisione finale
+                icon: mdi:robot
+              - entity: binary_sensor.heating_finestra_oraria
+                name: Fascia 10–16
+                icon: mdi:clock-time-ten
+              - entity: binary_sensor.heating_esterna_fredda
+                name: Ext fredda
+                icon: mdi:snowflake
+              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
+                name: Sotto target
+                icon: mdi:thermometer-alert
+              - entity: binary_sensor.heating_lock_min_on_ok
+                name: Lock ON ok
+                icon: mdi:lock-open-variant
+              - entity: binary_sensor.heating_lock_min_off_ok
+                name: Lock OFF ok
+                icon: mdi:lock-open-variant
+
+          - type: markdown
+            title: "Come decide (logica)"
+            content: |
+              **Target comfort**: 21 °C (regolabile) — impianto a pavimento (alta inerzia).
+              **Finestra ottimale**: 10:00–16:00 (sfrutta FV/guadagni solari).
+
+              **Accende solo se T<sub>stanza</sub> < Target − T<sub>tol</sub>** *e*:
+              - siamo **in finestra** (10–16),
+              - **esterna fredda** rispetto ai criteri (dispersione significativa),
+              - **lock anti‑ciclo** rispettati.
+
+              **Spegne** quando tutte le stanze sono ≥ Target, oppure fuori finestra o lock.
+
+              *Strategia*: caricare l’edificio nelle ore favorevoli per ridurre le ore ON totali.
+
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Abilita
+                entity: input_boolean.heating_enable
+                tap_action: { action: toggle }
+                icon: mdi:radiator
+              - type: button
+                name: Forza ON
+                entity: input_boolean.heating_force_on
+                tap_action: { action: toggle }
+                icon: mdi:flash
+              - type: button
+                name: Forza OFF
+                entity: input_boolean.heating_force_off
+                tap_action: { action: toggle }
+                icon: mdi:cancel
+
+          - type: tile
+            entity: switch.4_ch_interrutore_3
+            name: Interruttore Generale
+
+      # 2) KPI + toggle stanze
+      - type: grid
+        cards:
+          - type: tile
+            entity: sensor.temperatura_interna_media
+            name: T_in media
+            graph: line
+          - type: tile
+            entity: sensor.heating_t_in_min
+            name: T_in minima
+            graph: line
+          - type: tile
+            entity: sensor.temperatura_esterna
+            name: T_esterna
+            graph: line
+          - type: tile
+            entity: input_number.temp_target_risc
+            name: Target °C
+          - type: tile
+            entity: sensor.heating_minutes_since_change
+            name: Min da ultimo cambio
+          - type: tile
+            entity: sensor.heating_target_state_label
+            name: Stato target
+          - type: entities
+            title: Stanze incluse (toggle)
+            entities:
+              - input_boolean.heating_use_giorno
+              - input_boolean.heating_use_notte1
+              - input_boolean.heating_use_notte2
+              - input_boolean.heating_use_bagno
+              - sensor.heating_rooms_active
+
+      # 3) Trend & Lock
+      - type: grid
+        cards:
+          - type: history-graph
+            title: Trend 24h — Temperature
+            hours_to_show: 24
+            entities:
+              - entity: sensor.temperatura_giorno
+                name: T Giorno
+              - entity: sensor.temperatura_notte1
+                name: T Notte1
+              - entity: sensor.temperatura_notte2
+                name: T Notte2
+              - entity: sensor.temperatura_bagno
+                name: T Bagno
+              - entity: sensor.temperatura_esterna
+                name: T Esterna
+              - entity: sensor.temperatura_interna_media
+                name: T Media Int.
+
+          - type: history-graph
+            title: Trend 24h — Decisioni
+            hours_to_show: 24
+            entities:
+              - binary_sensor.heating_should_run
+              - binary_sensor.heating_base_ok
+              - binary_sensor.heating_finestra_oraria
+              - binary_sensor.heating_esterna_fredda
+              - binary_sensor.heating_almeno_una_stanza_sotto_target
+
+          - type: statistics-graph
+            title: 7 giorni — Temperature (media/min/max)
+            days_to_show: 7
+            period: hour
+            stat_types: [mean, min, max]
+            entities:
+              - entity: sensor.temperatura_giorno
+                name: T Giorno
+              - entity: sensor.temperatura_notte1
+                name: T Notte1
+              - entity: sensor.temperatura_notte2
+                name: T Notte2
+              - entity: sensor.temperatura_bagno
+                name: T Bagno
+              - entity: sensor.temperatura_esterna
+                name: T Esterna
+
+          - type: statistics-graph
+            title: 30 giorni — Ore ON riscaldamento (giornaliere)
+            days_to_show: 30
+            period: day
+            stat_types: [mean]
+            entities:
+              - entity: input_number.heating_hours_on_daily
+                name: Ore ON/die
+
+          - type: entities
+            title: Soglie & Lock
+            entities:
+              - input_datetime.heating_window_start
+              - input_datetime.heating_window_end
+              - input_number.temp_target_risc
+              - input_number.heating_tolerance
+              - input_number.heating_ext_cold_threshold
+              - input_number.heating_min_on_minutes
+              - input_number.heating_min_off_minutes
+
+      # 4) Diagnostica
+      - type: grid
+        cards:
+          - type: entity-filter
+            title: Stati anomali (live)
+            show_empty: false
+            state_filter: ['unknown','unavailable']
+            entities:
+              - switch.4_ch_interrutore_3
+              - sensor.temperatura_giorno
+              - sensor.temperatura_notte1
+              - sensor.temperatura_notte2
+              - sensor.temperatura_bagno
+              - sensor.temperatura_esterna
+              - sensor.temperatura_interna_media
+              - sensor.heating_t_in_min
+              - sensor.heating_minutes_since_change
+              - sensor.heating_target_state_label
+              - input_datetime.heating_window_start
+              - input_datetime.heating_window_end
+              - binary_sensor.heating_finestra_oraria
+              - binary_sensor.heating_esterna_fredda
+              - binary_sensor.heating_almeno_una_stanza_sotto_target
+              - binary_sensor.heating_lock_min_on_ok
+              - binary_sensor.heating_lock_min_off_ok
+              - binary_sensor.heating_base_ok
+              - binary_sensor.heating_should_run
+              - binary_sensor.heating_should_stop

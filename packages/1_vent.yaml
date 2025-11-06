@@ -1,0 +1,88 @@
+###############################################################################
+# 1_vent.yaml — Ventilazione estiva (allineato ai KPI canonici definitivi)
+# Canonici attesi da 0_sensors.yaml:
+#  - sensor.t_in_media
+#  - sensor.ur_in_media
+#  - sensor.ur_in_min
+#  - sensor.ah_in
+#  - sensor.ah_out
+#  - sensor.dewpoint_in
+#  - sensor.delta_t_in_out   (Ti - To)
+#  - sensor.delta_ah_in_out  (Ai - Ao)
+###############################################################################
+
+template:
+  - sensor:
+
+      # Riferimenti / mirror dei KPI canonici (niente ricalcoli)
+      - name: "vent_ah_esterna_ref"
+        unique_id: vent_ah_esterna_ref
+        unit_of_measurement: "g/m³"
+        icon: mdi:water-percent
+        state_class: measurement
+        state: "{{ states('sensor.ah_out') }}"
+        availability: >
+          {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_deltaAH_in_out"
+        unique_id: vent_deltaah_in_out
+        unit_of_measurement: "g/m³"
+        icon: mdi:water-percent
+        state_class: measurement
+        state: "{{ states('sensor.delta_ah_in_out') }}"
+        availability: >
+          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_deltaT_in_out"
+        unique_id: vent_deltat_in_out
+        unit_of_measurement: "°C"
+        device_class: temperature
+        icon: mdi:thermometer
+        state_class: measurement
+        state: "{{ states('sensor.delta_t_in_out') }}"
+        availability: >
+          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
+
+      # (comodo) Temperatura esterna calcolata da canonici (To = Ti - ΔT)
+      - name: "vent_t_esterna_calc"
+        unique_id: vent_t_esterna_calc
+        unit_of_measurement: "°C"
+        device_class: temperature
+        icon: mdi:thermometer
+        state_class: measurement
+        state: >
+          {% set Ti = states('sensor.t_in_media')|float(none) %}
+          {% set dT = states('sensor.delta_t_in_out')|float(none) %}
+          {{ (Ti - dT)|round(1) if Ti is number and dT is number else 'unavailable' }}
+        availability: >
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and
+             states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
+
+  - binary_sensor:
+
+      # Free-cooling calcolato (criteri semplificati)
+      # Regola: Ti>24°C & To<Ti & To>20°C & ΔAH<0
+      - name: "vent_freecooling_calcolato"
+        unique_id: vent_freecooling_calcolato
+        device_class: cold
+        state: >
+          {% set Ti  = states('sensor.t_in_media')|float(none) %}
+          {% set dT  = states('sensor.delta_t_in_out')|float(none) %}
+          {% set dAH = states('sensor.delta_ah_in_out')|float(none) %}
+          {% if Ti is number and dT is number and dAH is number %}
+            {% set To = Ti - dT %}
+            {{ Ti > 24 and To < Ti and To > 20 and dAH < 0 }}
+          {% else %}false{% endif %}
+        availability: >
+          {{ states('sensor.t_in_media')        not in ['unknown','unavailable',''] and
+             states('sensor.delta_t_in_out')    not in ['unknown','unavailable',''] and
+             states('sensor.delta_ah_in_out')   not in ['unknown','unavailable',''] }}
+
+      # Stagioni logiche
+      - name: "Stagione calda"
+        unique_id: stagione_calda
+        state: "{{ now().month in [5,6,7,8,9] }}"
+
+      - name: "Stagione fredda"
+        unique_id: stagione_fredda
+        state: "{{ now().month in [11,12,1,2,3] }}"

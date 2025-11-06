@@ -1,0 +1,225 @@
+# lovelace/4_ac_plancia.yaml
+# Struttura allineata allo stile di 2_vmc_plancia.yaml
+# (usa view `type: sections`, con blocchi tematici, titoli e spiegazioni)
+
+views:
+  - title: "AC — Plancia"
+    type: sections
+    max_columns: 3
+    icon: mdi:air-conditioner
+
+    sections:
+      # -------------------------------------------------------------------
+      # 1) STATO & COMANDI RAPIDI
+      # -------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: glance
+            title: Stato logiche / Attuatori
+            show_name: true
+            show_state: true
+            entities:
+              - entity: binary_sensor.ac_should_run
+                name: AC RUN
+                icon: mdi:robot
+              - entity: binary_sensor.ac_need_cool
+                name: COOL?
+                icon: mdi:snowflake
+              - entity: binary_sensor.ac_need_dry
+                name: DRY?
+                icon: mdi:water-percent
+              - entity: binary_sensor.ac_fascia_ok
+                name: Fascia OK
+                icon: mdi:clock-check
+              - entity: binary_sensor.ac_blocco_vmc
+                name: Blocco VMC
+                icon: mdi:fan-alert
+              - entity: switch.ac_giorno
+                name: AC Giorno
+                icon: mdi:weather-sunny
+              - entity: switch.ac_notte
+                name: AC Notte (DRY)
+                icon: mdi:weather-night
+
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Forza AC Giorno
+                icon: mdi:weather-sunny
+                tap_action:
+                  action: call-service
+                  service: switch.toggle
+                  service_data:
+                    entity_id: switch.ac_giorno
+              - type: button
+                name: Forza AC Notte
+                icon: mdi:weather-night
+                tap_action:
+                  action: call-service
+                  service: switch.toggle
+                  service_data:
+                    entity_id: switch.ac_notte
+
+          - type: entities
+            title: Modalità manuale
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.ac_manual
+                name: Manuale attivo
+              - entity: input_select.ac_manual_mode
+                name: Modalità manuale (OFF/DRY/COOL)
+              - entity: timer.ac_manual_timeout
+                name: Timeout manuale (opz.)
+                secondary_info: last-changed
+
+      # -------------------------------------------------------------------
+      # 2) KPI PRINCIPALI
+      # -------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: tile
+                entity: sensor.temp_zona_giorno
+                name: T Giorno
+                icon: mdi:home-thermometer
+                state_content: current
+                graph: line
+              - type: tile
+                entity: sensor.temp_zona_notte
+                name: T Notte
+                icon: mdi:bed-queen
+                state_content: current
+                graph: line
+              - type: tile
+                entity: sensor.temperatura_esterna
+                name: T Esterna
+                icon: mdi:thermometer-lines
+                state_content: current
+                graph: line
+
+          - type: grid
+            columns: 3
+            square: false
+            cards:
+              - type: tile
+                entity: sensor.rh_zona_giorno
+                name: UR Giorno
+                icon: mdi:water-percent
+                state_content: current
+                graph: line
+              - type: tile
+                entity: sensor.rh_zona_notte
+                name: UR Notte
+                icon: mdi:water-percent
+                state_content: current
+                graph: line
+              - type: tile
+                entity: sensor.umidita_esterna
+                name: UR Esterna
+                icon: mdi:water-percent
+                state_content: current
+                graph: line
+
+          - type: entities
+            title: Lock & tempi min/max (info)
+            show_header_toggle: false
+            entities:
+              - entity: input_number.ac_min_on
+                name: Min ON (min)
+              - entity: input_number.ac_min_off
+                name: Min OFF (min)
+              - entity: input_number.ac_max_run
+                name: Max RUN (min)
+              - entity: input_number.ac_t_cool_on
+                name: T COOL ON (°C)
+              - entity: input_number.ac_ur_high
+                name: UR alta DRY ON (%)
+
+      # -------------------------------------------------------------------
+      # 3) TREND & CONTATORI
+      # -------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: history-graph
+            title: Stato AC — 24h
+            hours_to_show: 24
+            refresh_interval: 30
+            entities:
+              - entity: switch.ac_giorno
+                name: AC Giorno
+              - entity: switch.ac_notte
+                name: AC Notte
+
+          - type: history-graph
+            title: Domanda (need_cool / need_dry) — 24h
+            hours_to_show: 24
+            refresh_interval: 30
+            entities:
+              - entity: binary_sensor.ac_need_cool
+                name: need_cool
+              - entity: binary_sensor.ac_need_dry
+                name: need_dry
+
+          - type: entities
+            title: Contatori separati (oggi)
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ac_giorno_tempo_on_oggi
+                name: Giorno — Tempo ON (h)
+              - entity: sensor.ac_giorno_cicli_on_oggi
+                name: Giorno — Cicli ON (n)
+              - entity: sensor.ac_giorno_ultimo_on
+                name: Giorno — Ultimo ON
+              - entity: sensor.ac_giorno_ultimo_off
+                name: Giorno — Ultimo OFF
+              - type: divider
+              - entity: sensor.ac_notte_tempo_on_oggi
+                name: Notte — Tempo ON (h)
+              - entity: sensor.ac_notte_cicli_on_oggi
+                name: Notte — Cicli ON (n)
+              - entity: sensor.ac_notte_ultimo_on
+                name: Notte — Ultimo ON
+              - entity: sensor.ac_notte_ultimo_off
+                name: Notte — Ultimo OFF
+
+      # -------------------------------------------------------------------
+      # 4) PERCHÉ ADESSO? / LOGICA / NOTE
+      # -------------------------------------------------------------------
+      - type: grid
+        cards:
+          - type: markdown
+            title: Perché adesso?
+            content: |
+              **Target**: comfort ≈ **26°C** e **UR < 60%**.
+              - **COOL ON** se `T_in ≥ ac_t_cool_on` (default 27°C) oppure `T_in ≥ 26°C` e `UR ≥ 65%`.
+              - **DRY ON** se `UR ≥ ac_ur_high` e `T_in < ac_t_cool_on`.
+              - **COOL OFF** verso ~26.2°C (isteresi ≈0.8°C). **DRY OFF** a UR ≤ 60% o T_in ≤ 24°C.
+              - **Arbitraggio**: COOL > DRY > OFF; rispetto **min ON/OFF** e **max RUN**.
+
+          - type: entities
+            title: Diagnostica entità
+            show_header_toggle: false
+            entities:
+              - sensor.temp_zona_giorno
+              - sensor.temp_zona_notte
+              - sensor.temperatura_esterna
+              - sensor.rh_zona_giorno
+              - sensor.rh_zona_notte
+              - sensor.umidita_esterna
+              - switch.ac_giorno
+              - switch.ac_notte
+              - binary_sensor.ac_need_cool
+              - binary_sensor.ac_need_dry
+              - binary_sensor.ac_should_run
+              - binary_sensor.ac_fascia_ok
+              - binary_sensor.ac_blocco_vmc
+
+          - type: markdown
+            title: Note operative
+            content: |
+              • Vista **nativa**: solo card standard (nessuna custom card).  
+              • I contatori si basano su `switch.ac_giorno` e `switch.ac_notte` (history_stats + template).  
+              • Colori concettuali: **Giallo → Giorno**, **Blu → Notte**, **Rosso → Esterno** (coerenza cross-plancia).
