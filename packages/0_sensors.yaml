@@ -1,4 +1,5 @@
 ###############################################################################
+# Test Codex → GitHub → HA OK ✅
 # 0_sensors.yaml — KPI canonici (senza mapping)
 # SORGENTI (solo sensori attivi):
 #  - Temperature:  sensor.t_in_giorno, sensor.t_in_notte1, sensor.t_in_bagno, sensor.t_out
