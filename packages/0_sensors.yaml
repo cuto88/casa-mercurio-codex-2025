@@ -116,7 +116,7 @@ template:
           {% if T is number and RH is number %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
             {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}unavailable{% endif %}
@@ -134,7 +134,7 @@ template:
           {% if T is number and RH is number %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
             {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}unavailable{% endif %}

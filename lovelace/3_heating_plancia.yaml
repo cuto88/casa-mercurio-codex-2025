@@ -65,6 +65,20 @@ views:
                 tap_action: { action: toggle }
                 icon: mdi:cancel
 
+          - type: horizontal-stack
+            cards:
+              - type: button
+                name: Manuale
+                entity: input_boolean.heating_manual_active
+                tap_action: { action: toggle }
+                icon: mdi:hand-back-right
+              - type: tile
+                entity: input_select.heating_manual_mode
+                name: Modalità manuale
+              - type: tile
+                entity: timer.heating_manual_timeout
+                name: Timeout manuale
+
           - type: tile
             entity: switch.4_ch_interrutore_3
             name: Interruttore Generale
