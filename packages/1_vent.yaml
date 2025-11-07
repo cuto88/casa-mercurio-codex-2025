@@ -163,39 +163,6 @@ rest:
 template:
   - sensor:
       # ------------------------- Indoor di riferimento -------------------------
-      - name: "vent_t_in_ref"
-        unique_id: vent_t_in_ref
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        icon: mdi:thermometer
-        state: >-
-          {% set t_in = states('sensor.t_in_media') %}
-          {% if t_in not in ['unknown','unavailable',''] %}
-            {{ t_in|float|round(1) }}
-          {% else %}
-            {{ states('input_number.vent_backup_t_in')|float|round(1) }}
-          {% endif %}
-        availability: >-
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] or
-             states('input_number.vent_backup_t_in') not in ['unknown','unavailable',''] }}
-
-      - name: "vent_ur_in_ref"
-        unique_id: vent_ur_in_ref
-        unit_of_measurement: "%"
-        device_class: humidity
-        icon: mdi:water-percent
-        state: >-
-          {% set ur_in = states('sensor.ur_in_media') %}
-          {% if ur_in not in ['unknown','unavailable',''] %}
-            {{ ur_in|float|round(0) }}
-          {% else %}
-            {{ states('input_number.vent_backup_ur_in')|float|round(0) }}
-          {% endif %}
-        availability: >-
-          {{ states('sensor.ur_in_media') not in ['unknown','unavailable',''] or
-             states('input_number.vent_backup_ur_in') not in ['unknown','unavailable',''] }}
-
       - name: "vent_ah_in"
         unique_id: vent_ah_in
         unit_of_measurement: "g/m³"
@@ -211,7 +178,7 @@ template:
             {% if T is number and RH is number %}
               {% set RHc = [RH, 100]|min %}
               {% set RHc = [RHc, 1]|max %}
-              {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+              {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
               {% set pv = RHc/100 * es %}
               {{ (216.7 * pv / (T + 273.15)) | round(2) }}
             {% else %}unavailable{% endif %}
@@ -249,19 +216,105 @@ template:
         availability: >-
           {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] }}
 
-      - name: "vent_t_esterna_calc"
-        unique_id: vent_t_esterna_calc
+      - name: "vent_meteo_temp"
+        unique_id: vent_meteo_temp
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-        icon: mdi:thermometer-low
+        icon: mdi:thermometer
         state: >-
-          {% set Ti = states('sensor.t_in_media')|float(default=none) %}
-          {% set dT = states('sensor.delta_t_in_out')|float(default=none) %}
-          {{ (Ti - dT)|round(1) if Ti is number and dT is number else 'unavailable' }}
+          {% set value = states('sensor.vent_meteo_silea') %}
+          {% if value not in ['unknown', 'unavailable', ''] %}
+            {{ value|float|round(1) }}
+          {% else %}unavailable{% endif %}
         availability: >-
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and
-             states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.vent_meteo_silea') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_meteo_rh"
+        unique_id: vent_meteo_rh
+        unit_of_measurement: "%"
+        device_class: humidity
+        icon: mdi:water-percent
+        state: >-
+          {% set value = state_attr('sensor.vent_meteo_silea','relative_humidity_2m') %}
+          {% if value not in [none, 'unknown', 'unavailable', ''] %}
+            {{ value|float|round(0) }}
+          {% else %}unavailable{% endif %}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','relative_humidity_2m') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_meteo_precip"
+        unique_id: vent_meteo_precip
+        unit_of_measurement: "mm/h"
+        icon: mdi:weather-pouring
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','precipitation') %}
+          {{ attr|float|round(2) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','precipitation') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_meteo_vento"
+        unique_id: vent_meteo_vento
+        unit_of_measurement: "m/s"
+        icon: mdi:weather-windy
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','wind_speed_10m') %}
+          {{ attr|float|round(1) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','wind_speed_10m') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_meteo_pm25"
+        unique_id: vent_meteo_pm25
+        unit_of_measurement: "µg/m³"
+        icon: mdi:blur
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','pm2_5') %}
+          {{ attr|float|round(1) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','pm2_5') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_finestre_aperte"
+        unique_id: vent_finestre_aperte
+        unit_of_measurement: "finestre"
+        icon: mdi:window-open
+        state: >-
+          {% set toggles = [
+            'input_boolean.vent_finestra_giorno_aperta',
+            'input_boolean.vent_finestra_notte1_aperta',
+            'input_boolean.vent_finestra_notte2_aperta',
+            'input_boolean.vent_finestra_notte3_aperta',
+            'input_boolean.vent_finestra_bagno_aperta'
+          ] %}
+          {% set count = namespace(total=0) %}
+          {% for toggle in toggles %}
+            {% if is_state(toggle,'on') %}
+              {% set count.total = count.total + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ count.total }}
+
+      - name: "vent_finestre_state"
+        unique_id: vent_finestre_state
+        icon: mdi:text
+        state: >-
+          {% set labels = {
+            'input_boolean.vent_finestra_giorno_aperta': 'Zona giorno',
+            'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
+            'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
+            'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
+            'input_boolean.vent_finestra_bagno_aperta': 'Bagno'
+          } %}
+          {% set parts = [] %}
+          {% for entity, label in labels.items() %}
+            {% if is_state(entity,'on') %}
+              {% set parts = parts + [label] %}
+            {% endif %}
+          {% endfor %}
+          {% if parts %}
+            {{ ', '.join(parts) }}
+          {% else %}
+            Chiuse
+          {% endif %}
 
       - name: "vent_meteo_temp"
         unique_id: vent_meteo_temp

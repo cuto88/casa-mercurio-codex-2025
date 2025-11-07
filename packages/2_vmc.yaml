@@ -764,9 +764,6 @@ automation:
       - service: switch.turn_on
         target: { entity_id: switch.vmc_vel_1 }
 
-# =============================
-# 4) TEMPLATE SENSOR (stato anti-secco/DRY + soglie + comfort)
-# =============================
 template:
   - binary_sensor:
       - name: "VMC Failsafe sensori KO"
@@ -864,6 +861,9 @@ template:
                          | max(default=none) %}
             {% if ts %}{{ ((now() - ts).total_seconds() / 60) | round(0) }}{% else %}0{% endif %}
 
+# =============================
+# 4) TEMPLATE SENSOR (stato anti-secco/DRY + velocità target)
+# =============================
   - sensor:
       - name: "VMC Vel target"
         object_id: vmc_vel_target
@@ -875,35 +875,6 @@ template:
           {% elif is_state('switch.vmc_vel_1','on') %}vel_1
           {% elif is_state('switch.vmc_vel_0','on') %}vel_0
           {% else %}off{% endif %}
-
-      - name: "VMC Bagno Soglia ON"
-        unique_id: vmc_bagno_on_threshold
-        unit_of_measurement: "%"
-        state: "{{ states('input_number.vmc_bagno_on') }}"
-      - name: "VMC Bagno Soglia OFF"
-        unique_id: vmc_bagno_off_threshold
-        unit_of_measurement: "%"
-        state: "{{ states('input_number.vmc_bagno_off') }}"
-
-      - name: "VMC FC PH Tin ON"
-        unique_id: vmc_fc_ph_tin_on_sensor
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: "{{ states('input_number.vmc_fc_ph_tin_on') }}"
-
-      - name: "Comfort Tmin"
-        unique_id: comfort_tmin
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: "20"
-      - name: "Comfort Tmax"
-        unique_id: comfort_tmax
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: "24"
 
 
 # =============================
