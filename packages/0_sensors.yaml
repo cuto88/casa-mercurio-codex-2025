@@ -52,9 +52,15 @@ template:
         availability: >-
           {{ states('sensor.t_in_giorno') not in ['unknown','unavailable','', none] or
              states('sensor.t_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.t_in_notte2') not in ['unknown','unavailable','', none] or
              states('sensor.t_in_bagno') not in ['unknown','unavailable','', none] }}
         state: >-
-          {% set e_list = ['sensor.t_in_giorno','sensor.t_in_notte1','sensor.t_in_bagno'] %}
+          {% set e_list = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno'
+          ] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
             {% set v = states(e) %}
@@ -71,9 +77,15 @@ template:
         availability: >-
           {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
              states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_notte2') not in ['unknown','unavailable','', none] or
              states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
         state: >-
-          {% set e_list = ['sensor.ur_in_giorno','sensor.ur_in_notte1','sensor.ur_in_bagno'] %}
+          {% set e_list = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno'
+          ] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
             {% set v = states(e) %}
@@ -90,9 +102,15 @@ template:
         availability: >-
           {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
              states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
+             states('sensor.ur_in_notte2') not in ['unknown','unavailable','', none] or
              states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
         state: >-
-          {% set e_list = ['sensor.ur_in_giorno','sensor.ur_in_notte1','sensor.ur_in_bagno'] %}
+          {% set e_list = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno'
+          ] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
             {% set v = states(e) %}
@@ -116,7 +134,7 @@ template:
           {% if T is number and RH is number %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
             {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}unavailable{% endif %}
@@ -134,7 +152,7 @@ template:
           {% if T is number and RH is number %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * exp((17.67*T)/(T+243.5)) %}
+            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
             {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}unavailable{% endif %}
@@ -176,66 +194,3 @@ template:
         state: >-
           {{ (states('sensor.ah_in')|float(0) - states('sensor.ah_out')|float(0)) | round(2) }}
 
-      # ==================== INFO/DIAGNOSTICA VMC ==============================
-      - name: "VMC Priority"
-        icon: mdi:arrow-top-right-bold-outline
-        state: >
-          {% if is_state('switch.vmc_vel_3','on') %}P1 — Bagno/BOOST
-          {% elif is_state('switch.vmc_vel_2','on') %}P2 — Free-cooling
-          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}P3 — Anti-secco
-          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
-          {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
-          {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
-          {% else %}—{% endif %}
-
-      - name: "VMC Reason"
-        icon: mdi:text
-        state: >
-          {% set Tin = states('sensor.t_in_media') %}
-          {% set Tin = Tin|float(default=none) if Tin not in ['unknown','unavailable','', none] else none %}
-          {% set Tout = states('sensor.t_out') %}
-          {% set Tout = Tout|float(default=none) if Tout not in ['unknown','unavailable','', none] else none %}
-          {% set AHin = states('sensor.ah_in') %}
-          {% set AHin = AHin|float(default=none) if AHin not in ['unknown','unavailable','', none] else none %}
-          {% set AHout = states('sensor.ah_out') %}
-          {% set AHout = AHout|float(default=none) if AHout not in ['unknown','unavailable','', none] else none %}
-          {% set URb = states('sensor.ur_in_bagno') %}
-          {% set URb = URb|float(default=none) if URb not in ['unknown','unavailable','', none] else none %}
-          {% set URo = states('sensor.ur_out') %}
-          {% set URo = URo|float(default=none) if URo not in ['unknown','unavailable','', none] else none %}
-          {% set URmin = states('sensor.ur_in_min') %}
-          {% set URmin = URmin|float(default=none) if URmin not in ['unknown','unavailable','', none] else none %}
-          {% set soglia_anti_secco = states('input_number.vmc_anti_secco_ur_min') %}
-          {% set soglia_anti_secco = soglia_anti_secco|float(default=none) if soglia_anti_secco not in ['unknown','unavailable','', none] else none %}
-          {% set delta_ur = (URb - URo) if (URb is not none and URo is not none) else none %}
-          {% if is_state('switch.vmc_vel_3','on') %}
-            Boost bagno: UR_bagno={{ URb|round(1) if URb is not none else 'n/d' }}% (ΔUR={{ delta_ur|round(1) if delta_ur is not none else 'n/d' }}%)
-          {% elif is_state('switch.vmc_vel_2','on') %}
-            {% set Tin_txt = Tin|round(1) if Tin is not none else 'n/d' %}
-            {% set Tout_txt = Tout|round(1) if Tout is not none else 'n/d' %}
-            {% set AHout_txt = AHout|round(1) if AHout is not none else 'n/d' %}
-            {% set AHin_txt = AHin|round(1) if AHin is not none else 'n/d' %}
-            Free-cooling: Tin {{ Tin_txt }}°C > T_on e Tout {{ Tout_txt }}°C < Tin; AH_out {{ AHout_txt }} < AH_in {{ AHin_txt }}
-          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
-            {% set URmin_txt = URmin|round(0) if URmin is not none else 'n/d' %}
-            {% set soglia_txt = soglia_anti_secco|round(0) if soglia_anti_secco is not none else 'n/d' %}
-            Anti-secco: UR_interna_min {{ URmin_txt }}% ≤ soglia notturna ({{ soglia_txt }}%)
-          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}
-            Override: AC notte = DRY → VMC vel_0
-          {% elif is_state('switch.vmc_vel_1','on') %}
-            Nessuna condizione prioritaria → baseline
-          {% elif is_state('switch.vmc_vel_0','on') %}
-            Failsafe/spegnimento forzato
-          {% else %}—{% endif %}
-
-      - name: "VMC Last Event"
-        icon: mdi:clock-outline
-        state: "{{ states('input_text.vmc_last_event') if states('input_text.vmc_last_event') not in ['unknown','unavailable'] else '—' }}"
-
-  - binary_sensor:
-      - name: "Stagione calda"
-        state: >
-          {{ now().month in [5,6,7,8,9] }}
-      - name: "Stagione fredda"
-        state: >
-          {{ now().month in [11,12,1,2,3] }}
