@@ -82,19 +82,19 @@ views:
             square: false
             cards:
               - type: tile
-                entity: sensor.temp_zona_giorno
+                entity: sensor.t_in_giorno
                 name: T Giorno
                 icon: mdi:home-thermometer
                 state_content: current
                 graph: line
               - type: tile
-                entity: sensor.temp_zona_notte
+                entity: sensor.t_in_notte1
                 name: T Notte
                 icon: mdi:bed-queen
                 state_content: current
                 graph: line
               - type: tile
-                entity: sensor.temperatura_esterna
+                entity: sensor.t_out
                 name: T Esterna
                 icon: mdi:thermometer-lines
                 state_content: current
@@ -105,19 +105,19 @@ views:
             square: false
             cards:
               - type: tile
-                entity: sensor.rh_zona_giorno
+                entity: sensor.ur_in_giorno
                 name: UR Giorno
                 icon: mdi:water-percent
                 state_content: current
                 graph: line
               - type: tile
-                entity: sensor.rh_zona_notte
+                entity: sensor.ur_in_notte1
                 name: UR Notte
                 icon: mdi:water-percent
                 state_content: current
                 graph: line
               - type: tile
-                entity: sensor.umidita_esterna
+                entity: sensor.ur_out
                 name: UR Esterna
                 icon: mdi:water-percent
                 state_content: current
@@ -203,12 +203,12 @@ views:
             title: Diagnostica entità
             show_header_toggle: false
             entities:
-              - sensor.temp_zona_giorno
-              - sensor.temp_zona_notte
-              - sensor.temperatura_esterna
-              - sensor.rh_zona_giorno
-              - sensor.rh_zona_notte
-              - sensor.umidita_esterna
+              - sensor.t_in_giorno
+              - sensor.t_in_notte1
+              - sensor.t_out
+              - sensor.ur_in_giorno
+              - sensor.ur_in_notte1
+              - sensor.ur_out
               - switch.ac_giorno
               - switch.ac_notte
               - binary_sensor.ac_need_cool

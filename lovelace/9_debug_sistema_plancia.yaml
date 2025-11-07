@@ -72,11 +72,11 @@ views:
           - type: glance
             title: "Vent naturale — Consigli"
             entities:
-              - entity: binary_sensor.vent_recommendation_open
+              - entity: binary_sensor.vent_recommend_open
                 name: Apri
-              - entity: binary_sensor.vent_recommendation_close
+              - entity: binary_sensor.vent_recommend_close
                 name: Chiudi
-              - entity: input_text.vent_advice_message
+              - entity: input_text.vent_messaggio_consiglio
                 name: Messaggio
 
           # --- Pulsanti rapidi (override/debug manuale) ---

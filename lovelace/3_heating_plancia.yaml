@@ -81,7 +81,7 @@ views:
             name: T_in minima
             graph: line
           - type: tile
-            entity: sensor.temperatura_esterna
+            entity: sensor.t_out
             name: T_esterna
             graph: line
           - type: tile
@@ -109,15 +109,15 @@ views:
             title: Trend 24h — Temperature
             hours_to_show: 24
             entities:
-              - entity: sensor.temperatura_giorno
+              - entity: sensor.t_in_giorno
                 name: T Giorno
-              - entity: sensor.temperatura_notte1
+              - entity: sensor.t_in_notte1
                 name: T Notte1
-              - entity: sensor.temperatura_notte2
+              - entity: sensor.t_in_notte2
                 name: T Notte2
-              - entity: sensor.temperatura_bagno
+              - entity: sensor.t_in_bagno
                 name: T Bagno
-              - entity: sensor.temperatura_esterna
+              - entity: sensor.t_out
                 name: T Esterna
               - entity: sensor.temperatura_interna_media
                 name: T Media Int.
@@ -138,15 +138,15 @@ views:
             period: hour
             stat_types: [mean, min, max]
             entities:
-              - entity: sensor.temperatura_giorno
+              - entity: sensor.t_in_giorno
                 name: T Giorno
-              - entity: sensor.temperatura_notte1
+              - entity: sensor.t_in_notte1
                 name: T Notte1
-              - entity: sensor.temperatura_notte2
+              - entity: sensor.t_in_notte2
                 name: T Notte2
-              - entity: sensor.temperatura_bagno
+              - entity: sensor.t_in_bagno
                 name: T Bagno
-              - entity: sensor.temperatura_esterna
+              - entity: sensor.t_out
                 name: T Esterna
 
           - type: statistics-graph
@@ -178,11 +178,11 @@ views:
             state_filter: ['unknown','unavailable']
             entities:
               - switch.4_ch_interrutore_3
-              - sensor.temperatura_giorno
-              - sensor.temperatura_notte1
-              - sensor.temperatura_notte2
-              - sensor.temperatura_bagno
-              - sensor.temperatura_esterna
+              - sensor.t_in_giorno
+              - sensor.t_in_notte1
+              - sensor.t_in_notte2
+              - sensor.t_in_bagno
+              - sensor.t_out
               - sensor.temperatura_interna_media
               - sensor.heating_t_in_min
               - sensor.heating_minutes_since_change
