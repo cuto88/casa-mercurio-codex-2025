@@ -3,7 +3,7 @@
 # ===============================
 ###############################################################################
 # 3_heating.yaml — Riscaldamento a pavimento (solo logica e automazioni)
-# Sensori reali: sensor.temperatura_giorno, _notte1, _notte2, _bagno
+# Sensori reali: sensor.t_in_giorno, _notte1, _notte2, _bagno
 ###############################################################################
 
 homeassistant:
@@ -108,10 +108,10 @@ template:
         availability: "true"
         state: >-
           {% set rooms = [
-            ('Zona Giorno','sensor.temperatura_giorno','input_boolean.heating_use_giorno'),
-            ('Notte1','sensor.temperatura_notte1','input_boolean.heating_use_notte1'),
-            ('Notte2','sensor.temperatura_notte2','input_boolean.heating_use_notte2'),
-            ('Bagno','sensor.temperatura_bagno','input_boolean.heating_use_bagno')
+            ('Zona Giorno','sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('Notte1','sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('Notte2','sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('Bagno','sensor.t_in_bagno','input_boolean.heating_use_bagno')
           ] %}
           {% set active = [] %}
           {% for label, sid, tog in rooms %}
@@ -127,10 +127,10 @@ template:
         device_class: temperature
         availability: >-
           {% set rooms = [
-            ('sensor.temperatura_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.temperatura_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.temperatura_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.temperatura_bagno','input_boolean.heating_use_bagno')
+            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
           ] %}
           {% set vals = [] %}
           {% for sid, tog in rooms %}
@@ -141,10 +141,10 @@ template:
           {{ vals|length > 0 }}
         state: >-
           {% set rooms = [
-            ('sensor.temperatura_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.temperatura_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.temperatura_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.temperatura_bagno','input_boolean.heating_use_bagno')
+            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
           ] %}
           {% set vals = [] %}
           {% for sid, tog in rooms %}
@@ -160,10 +160,10 @@ template:
         device_class: temperature
         availability: >-
           {% set rooms = [
-            ('sensor.temperatura_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.temperatura_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.temperatura_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.temperatura_bagno','input_boolean.heating_use_bagno')
+            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
           ] %}
           {% set vals = [] %}
           {% for sid, tog in rooms %}
@@ -174,10 +174,10 @@ template:
           {{ vals|length > 0 }}
         state: >-
           {% set rooms = [
-            ('sensor.temperatura_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.temperatura_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.temperatura_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.temperatura_bagno','input_boolean.heating_use_bagno')
+            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
           ] %}
           {% set vals = [] %}
           {% for sid, tog in rooms %}
@@ -238,11 +238,11 @@ template:
       - name: "Heating — esterna fredda"
         unique_id: heating_ext_cold
         availability: >-
-          {{ states('sensor.temperatura_esterna') not in ['unknown','unavailable','']
+          {{ states('sensor.t_out') not in ['unknown','unavailable','']
              and states('input_number.heating_ext_cold_threshold') not in ['unknown','unavailable',''] }}
         state: >-
           {% set th = states('input_number.heating_ext_cold_threshold')|float(16) %}
-          {{ states('sensor.temperatura_esterna')|float(99) <= th }}
+          {{ states('sensor.t_out')|float(99) <= th }}
 
       # Lock: posso spegnere? (rispettato min ON)
       - name: "Heating — lock MIN ON ok"
@@ -334,7 +334,7 @@ automation:
           - input_boolean.heating_use_bagno
           - sensor.temperatura_interna_media
           - sensor.heating_t_in_min
-          - sensor.temperatura_esterna
+          - sensor.t_out
           - binary_sensor.heating_finestra_oraria
     action:
       - choose:
