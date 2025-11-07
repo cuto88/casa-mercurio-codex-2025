@@ -1,24 +1,28 @@
-# === pull_repo.ps1 ===
-Write-Host "🔍 Controllo stato repository..." -ForegroundColor Cyan
+# pull_repo.ps1  — PS 5.1 safe (no emoji, no &&)
+Write-Host "Controllo stato repository..."
 
-# Ignora untracked; blocca se ci sono modifiche effettive non committate
+# 1) blocca se ci sono modifiche locali non committate (ignora gli untracked)
 git diff --quiet
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "⚠️  Modifiche locali non committate (worktree). Fai: git add . && git commit -m \"msg\"" -ForegroundColor Yellow
+    Write-Host "ATTENZIONE: modifiche locali non committate (worktree)." -ForegroundColor Yellow
+    Write-Host 'Esegui:  git add .  ;  git commit -m "msg"' -ForegroundColor Yellow
     exit 1
 }
 git diff --cached --quiet
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "⚠️  Modifiche in stage. Fai: git commit -m \"msg\"" -ForegroundColor Yellow
+    Write-Host "ATTENZIONE: ci sono file in stage (index)." -ForegroundColor Yellow
+    Write-Host 'Esegui:  git commit -m "msg"' -ForegroundColor Yellow
     exit 1
 }
 
-Write-Host "⬇️  Pull --rebase da origin/main..." -ForegroundColor Cyan
+# 2) pull con rebase
+Write-Host "Eseguo: git pull --rebase origin main"
 git pull --rebase origin main
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "✅ Repo locale aggiornato." -ForegroundColor Green
-} else {
-    Write-Host "❌ Pull fallito (conflitti?). Risolvi e riprova." -ForegroundColor Red
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "ERRORE: pull fallito (probabili conflitti). Risolvi e riprova." -ForegroundColor Red
+    Read-Host "Premi INVIO per chiudere..."
     exit 1
 }
+
+Write-Host "OK: repository locale aggiornato." -ForegroundColor Green
+Read-Host "Premi INVIO per chiudere..."
