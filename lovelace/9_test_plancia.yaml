@@ -9,7 +9,7 @@ views:
       - type: custom:mini-graph-card
         name: MiniGraph test
         entities:
-          - entity: sensor.temperatura_zona_giorno
+          - entity: sensor.t_in_giorno
         hours_to_show: 6
         points_per_hour: 6
         show:

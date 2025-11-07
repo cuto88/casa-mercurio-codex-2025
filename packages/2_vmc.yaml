@@ -192,6 +192,7 @@ automation:
             - automation.vmc_p2_freecooling_macchina_off
             - automation.vmc_p3_anti_secco_on
             - automation.vmc_p3_anti_secco_off
+            - automation.vmc_p3_anti_secco_duty_cycle
             - automation.vmc_p4_baseline_watchdog
 
   - id: vmc_manual_restore_auto
@@ -225,6 +226,7 @@ automation:
             - automation.vmc_p2_freecooling_macchina_off
             - automation.vmc_p3_anti_secco_on
             - automation.vmc_p3_anti_secco_off
+            - automation.vmc_p3_anti_secco_duty_cycle
             - automation.vmc_p4_baseline_watchdog
 
   # ------------------------ P0 — FAILSAFE ------------------------
@@ -290,12 +292,15 @@ automation:
         value_template: >
           {% set ur_b = states('sensor.ur_in_bagno')|float(0) %}
           {% set s_on = states('input_number.vmc_bagno_on')|float(75) %}
-          {{ ur_b >= s_on }}
+          {% set ur_o_raw = states('sensor.ur_out') %}
+          {% set ur_o = ur_o_raw|float if ur_o_raw not in ['unknown','unavailable','', none] else none %}
+          {% set delta_ok = (ur_o is not none) and ((ur_b - ur_o) >= 10) %}
+          {{ (ur_b >= s_on) or delta_ok }}
     conditions:
       - condition: template
         value_template: >
           {% set sw = states.switch.vmc_vel_3 %}
-          {{ sw is not none and ( (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=1)) ) }}
+          {{ sw is not none and (now() - sw.last_changed > timedelta(minutes=5)) }}
       - condition: state
         entity_id: switch.vmc_vel_3
         state: "off"
@@ -318,15 +323,14 @@ automation:
       - trigger: template
         for: { seconds: 60 }
         value_template: >
-          {% set ur_b  = states('sensor.ur_in_bagno')|float(100) %}
-          {% set ur_o  = states('sensor.ur_out')|float(100) %}
+          {% set ur_b_raw  = states('sensor.ur_in_bagno') %}
+          {% set ur_b = ur_b_raw|float(100) if ur_b_raw not in ['unknown','unavailable','', none] else 100 %}
+          {% set ur_o_raw  = states('sensor.ur_out') %}
+          {% set ur_o = ur_o_raw|float if ur_o_raw not in ['unknown','unavailable','', none] else none %}
           {% set s_off = states('input_number.vmc_bagno_off')|float(65) %}
-          {% set dUR   = (ur_b - ur_o) %}
-          {% set AHin  = states('sensor.ah_in')|float(0) %}
-          {% set AHout = states('sensor.ah_out')|float(0) %}
-          {% set sw    = states.switch.vmc_vel_3 %}
-          {% set onmin = ( (now() - sw.last_changed).total_seconds()/60 ) if sw is not none and sw.state=='on' else 0 %}
-          {{ (ur_b <= s_off) and ( dUR <= 8 or onmin >= 6 or AHout >= AHin ) }}
+          {% set delta = (ur_b - ur_o) if ur_o is not none else none %}
+          {% set delta_abs = delta|abs if delta is not none else none %}
+          {{ (ur_b <= s_off) and (delta_abs is none or delta_abs <= 5) }}
     conditions:
       - condition: state
         entity_id: switch.vmc_vel_3
@@ -334,7 +338,7 @@ automation:
       - condition: template
         value_template: >
           {% set sw = states.switch.vmc_vel_3 %}
-          {{ sw is not none and (now() - sw.last_changed > timedelta(minutes=3)) }}
+          {{ sw is not none and (now() - sw.last_changed > timedelta(minutes=10)) }}
     actions:
       - service: switch.turn_off
         target: { entity_id: switch.vmc_vel_3 }
@@ -566,6 +570,66 @@ automation:
       - service: switch.turn_off
         target: { entity_id: switch.vmc_vel_0 }
 
+  - id: vmc_p3_anti_secco_duty_cycle
+    alias: "VMC P3 — Duty-cycle ventilazione notturna"
+    mode: single
+    triggers:
+      - trigger: time_pattern
+        minutes: "/30"
+    conditions:
+      - condition: template
+        value_template: >
+          {% set ur_min = states('sensor.ur_in_min')|float(100) %}
+          {% set s_min = states('input_number.vmc_anti_secco_ur_min')|float(40) %}
+          {% set mese = now().month %}
+          {% set notte = now().hour >= 23 or now().hour < 7 %}
+          {{ (mese in [11,12,1,2,3]) and notte and (ur_min <= s_min) }}
+      - condition: template
+        value_template: "{{ states('switch.ac_notte') != 'on' and states('switch.ac_giorno') != 'on' }}"
+      - condition: state
+        entity_id: switch.vmc_vel_3
+        state: "off"
+      - condition: state
+        entity_id: switch.vmc_vel_2
+        state: "off"
+      - condition: state
+        entity_id: switch.vmc_vel_1
+        state: "off"
+      - condition: state
+        entity_id: switch.vmc_vel_0
+        state: "on"
+    actions:
+      - service: switch.turn_off
+        target: { entity_id: switch.vmc_vel_0 }
+      - service: switch.turn_on
+        target: { entity_id: switch.vmc_vel_1 }
+      - delay: "00:05:00"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set ur_min = states('sensor.ur_in_min')|float(100) %}
+                  {% set s_min = states('input_number.vmc_anti_secco_ur_min')|float(40) %}
+                  {% set mese = now().month %}
+                  {% set notte = now().hour >= 23 or now().hour < 7 %}
+                  {{ (mese in [11,12,1,2,3]) and notte and (ur_min <= s_min) }}
+              - condition: template
+                value_template: "{{ states('switch.ac_notte') != 'on' and states('switch.ac_giorno') != 'on' }}"
+              - condition: state
+                entity_id: switch.vmc_vel_3
+                state: "off"
+              - condition: state
+                entity_id: switch.vmc_vel_2
+                state: "off"
+            sequence:
+              - service: switch.turn_off
+                target: { entity_id: switch.vmc_vel_1 }
+              - service: switch.turn_on
+                target: { entity_id: switch.vmc_vel_0 }
+        default:
+          - service: switch.turn_off
+            target: { entity_id: switch.vmc_vel_1 }
+
   # ------------------------ P4 — Baseline watchdog ------------------------
   - id: vmc_p4_baseline_watchdog
     alias: "VMC P4 — Baseline vel_1"
@@ -705,9 +769,81 @@ automation:
 # =============================
 template:
   - binary_sensor:
-      - name: "VMC P3 Anti-secco attivo"
-        object_id: vmc_p3_anti_secco_attivo
-        unique_id: vmc_p3_anti_secco_attivo
+      - name: "VMC Failsafe sensori KO"
+        object_id: vmc_failsafe_sensors_bad
+        unique_id: vmc_failsafe_sensors_bad
+        icon: mdi:alert-circle
+        state: >
+          {% set required = [
+            states('sensor.ur_in_bagno'),
+            states('sensor.t_in_media'),
+            states('sensor.t_out'),
+            states('sensor.ah_in'),
+            states('sensor.ah_out')
+          ] %}
+          {{ required | select('in', ['unknown','unavailable','', none]) | list | count > 0 }}
+
+      - name: "VMC Override AC notte = DRY"
+        object_id: vmc_override_ac_dry
+        unique_id: vmc_override_ac_dry
+        icon: mdi:shield-refresh
+        state: >
+          {{ is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') }}
+
+      - name: "VMC Bagno Boost attivo"
+        object_id: vmc_bagno_boost
+        unique_id: vmc_bagno_boost
+        icon: mdi:fan-speed-3
+        state: >
+          {{ is_state('switch.vmc_vel_3','on') }}
+
+      - name: "VMC Free-cooling PH attivo"
+        object_id: vmc_free_cooling_ph
+        unique_id: vmc_free_cooling_ph
+        icon: mdi:snowflake-thermometer
+        state: >
+          {% set Tin_raw  = states('sensor.t_in_media') %}
+          {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set Tout_raw = states('sensor.t_out') %}
+          {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHin_raw  = states('sensor.ah_in') %}
+          {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHout_raw = states('sensor.ah_out') %}
+          {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+          {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+          {{ Tin is not none and Tout is not none and AHin is not none and AHout is not none and
+             Tin > T_on and Tout < Tin and AHout < AHin and
+             is_state('switch.vmc_vel_3','off') and is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and
+             is_state('switch.vmc_vel_2','on') }}
+
+      - name: "VMC Free-cooling Macchina attivo"
+        object_id: vmc_free_cooling_machine
+        unique_id: vmc_free_cooling_machine
+        icon: mdi:home-thermometer-outline
+        state: >
+          {% set Tin_raw  = states('sensor.t_in_media') %}
+          {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set Tout_raw = states('sensor.t_out') %}
+          {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+          {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+          {% set T_min_raw = states('input_number.vmc_fc_macchina_tout_min') %}
+          {% set T_min = T_min_raw|float(20) if T_min_raw not in ['unknown','unavailable','', none] else 20 %}
+          {% set AHin_raw  = states('sensor.ah_in') %}
+          {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHout_raw = states('sensor.ah_out') %}
+          {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ph = Tin is not none and Tout is not none and AHin is not none and AHout is not none and
+                     Tin > T_on and Tout < Tin and AHout < AHin %}
+          {% set macchina = Tin is not none and Tout is not none and Tin > T_on and Tout < Tin and Tout > T_min %}
+          {{ macchina and not ph and is_state('switch.vmc_vel_3','off') and
+             is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and is_state('switch.vmc_vel_2','on') }}
+
+      - name: "VMC Anti-secco attivo"
+        object_id: vmc_anti_secco
+        unique_id: vmc_anti_secco
+        icon: mdi:water-percent-alert
         state: >
           {% set m = now().month %}
           {% set notte = now().hour >= 23 or now().hour < 7 %}
@@ -717,6 +853,7 @@ template:
 
       - name: "VMC DRY attivo (P1B)"
         unique_id: vmc_dry_active
+        icon: mdi:water-remove
         state: >
           {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
         attributes:
@@ -728,6 +865,17 @@ template:
             {% if ts %}{{ ((now() - ts).total_seconds() / 60) | round(0) }}{% else %}0{% endif %}
 
   - sensor:
+      - name: "VMC Vel target"
+        object_id: vmc_vel_target
+        unique_id: vmc_vel_target
+        icon: mdi:fan
+        state: >
+          {% if is_state('switch.vmc_vel_3','on') %}vel_3
+          {% elif is_state('switch.vmc_vel_2','on') %}vel_2
+          {% elif is_state('switch.vmc_vel_1','on') %}vel_1
+          {% elif is_state('switch.vmc_vel_0','on') %}vel_0
+          {% else %}off{% endif %}
+
       - name: "VMC Bagno Soglia ON"
         unique_id: vmc_bagno_on_threshold
         unit_of_measurement: "%"
@@ -777,7 +925,7 @@ template:
             Boost bagno: UR_bagno={{URb|round(1)}}% (ΔUR={{(URb-URo)|round(1)}}%)
           {% elif is_state('switch.vmc_vel_2','on') %}
             Free-cooling: Tin {{Tin|round(1)}}°C > T_on e Tout {{Tout|round(1)}}°C < Tin; AH_out {{AHout|round(1)}} < AH_in {{AHin|round(1)}}
-          {% elif is_state('binary_sensor.vmc_p3_anti_secco_attivo','on') %}
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
             Anti-secco: UR_interna_min ≤ soglia notturna
           {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}
             Override: AC notte = DRY → VMC vel_0
@@ -815,7 +963,7 @@ template:
         state: >
           {% if is_state('switch.vmc_vel_3','on') %}P1 — Bagno/BOOST
           {% elif is_state('switch.vmc_vel_2','on') %}P2 — Free-cooling
-          {% elif is_state('binary_sensor.vmc_p3_anti_secco_attivo','on') %}P3 — Anti-secco
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}P3 — Anti-secco
           {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
           {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
           {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
