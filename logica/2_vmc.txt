@@ -7,8 +7,10 @@
 #   P0) FAILSAFE / EMERGENCY        → vel_0
 #   OVERRIDE) AC zona notte = DRY   → vel_0
 #   P1) BAGNO / BOOST               → vel_3 (lock + isteresi)
+#   P1-Lite) BAGNO ΔUR alto         → vel_2 (solo differenziale UR)
+#   P1B) ESCALATION DRY             → supporto AC dopo boost prolungato
 #   P2) FREE-COOLING                → vel_2 (sdoppiato: PASSIVHAUS / MACCHINA)
-#   P3) INVERNO / ANTI-SECCO        → vel_0 (+ duty 5’/30’)
+#   P3) INVERNO / ANTI-SECCO        → vel_0 (duty 5’ vel_1 ogni 30’)
 #   P4) BASELINE                    → vel_1
 #
 # Arbitraggio: valutazione top-down; il primo stato TRUE prende controllo.
@@ -36,23 +38,16 @@
 ###############################################################################
 Sensore: sensor.umidita_bagno (UR bagno).
   Ingresso (start):
-    - UR bagno ≥ 75%   OPPURE   (UR bagno – UR esterna) ≥ 10%.
+    - UR bagno ≥ soglia ON (default 75%)
+      OPPURE (UR bagno – UR esterna) ≥ 10% (se UR esterna disponibile).
   Uscita (stop):
-    - UR bagno ≤ 65%   E   (UR bagno ~ UR esterna) con differenza ≤ 5%.
+    - UR bagno ≤ soglia OFF (default 65%) E differenza assoluta con UR esterna ≤ 5%.
   Anti-ciclo:
     - LOCK minimo 10 minuti dall’ingresso (anche se lo stop diventa vero prima).
-    - COOLDOWN 5 minuti prima di poter ri-attivare.
-  Cicli ripetuti (resistenza del vapore):
-    - Se in ≤ 30 min non si scende sotto 65% → considera 1 “ciclo” fallito.
-    - Dopo 3 cicli falliti consecutivi:
-        a) Se aria esterna è favorevole (vedi FREE-COOLING calcolato) → passa a vel_2.
-        b) Altrimenti preferisci asciugatura con AC in DRY su ac_notte:
-             - switch.ac_notte ON (se esiste modalità DRY, mappala su questo switch)
-             - mantieni VMC a vel_1 per IAQ.
-        c) Dopo 20 min rivaluta P1 e FREE-COOLING.
+    - COOLDOWN 5 minuti prima di poter riattivare dopo uno stop.
   Note:
     - In fase BOOST, P1 scavalca P2–P4.
-    - Logga inizio/fine evento con UR iniziale/finale e durata.
+    - Se il differenziale UR è alto ma la soglia ON non è stata raggiunta, vedi P1-Lite.
 
 ###############################################################################
 # [P2] FREE-COOLING (SDOPPIATO)
@@ -71,8 +66,8 @@ Sensore: sensor.umidita_bagno (UR bagno).
 #   → vel_2
 # Note:
 #   - Lock 15 min ad ogni ingresso
-#   - Usa sensori canonici sensor.temperatura_interna_media, sensor.temperatura_esterna,
-#     sensor.ah_interna, sensor.ah_esterna
+#   - Usa sensori canonici sensor.t_in_media, sensor.t_out,
+#     sensor.ah_in, sensor.ah_out
 
 # --- 2.2 MACCHINA (criteri macchina, solo termico) --------------------------
 # ON se tutte vere:
@@ -87,12 +82,37 @@ Sensore: sensor.umidita_bagno (UR bagno).
 #   → vel_2
 # Note:
 #   - Lock 15 min ad ogni ingresso
-#   - Usa sensori canonici sensor.temperatura_interna_media, sensor.temperatura_esterna
+#   - Usa sensori canonici sensor.t_in_media, sensor.t_out
 
 # --- 2.3 Priorità interna PASSIVHAUS vs MACCHINA ----------------------------
 #   - Se entrambe vere → prevale PASSIVHAUS
 #   - Se PASSIVHAUS falsa e MACCHINA vera → usa MACCHINA
 #   - Se entrambe false → rilascio controllo
+
+###############################################################################
+# [P1-Lite] BAGNO ΔUR ALTO
+###############################################################################
+Sensore: sensor.umidita_bagno.
+  Ingresso (start):
+    - UR bagno < soglia ON ma (UR bagno – UR esterna) ≥ 6%.
+  Uscita (stop):
+    - UR bagno ≤ soglia OFF  OPPURE  ΔUR ≤ 5%  OPPURE runtime ≥ 6 minuti
+      OPPURE l’aria esterna è più umida (AH_out ≥ AH_in).
+  Azione:
+    - Velocità 2, resta subordinato alle logiche P1 e P2.
+  Uso:
+    - Copre casi con bagno relativamente asciutto ma esterno molto più secco.
+
+###############################################################################
+# [P1B] ESCALATION DRY (SUPPORTO AC)
+###############################################################################
+  Condizione:
+    - Boost bagno (P1) attivo da ≥ 75 minuti e UR bagno oltre soglia OFF + 2%.
+  Azione:
+    - Accende AC notte (e giorno se necessario) in DRY, mantenendo la VMC a vel_1.
+  Uscita:
+    - Umidità rientrata sotto soglia OFF − 1% con vincolo minimo ON di 30 minuti
+      OPPURE runtime massimo 120 minuti raggiunto.
 
 ###############################################################################
 # [P3] INVERNO / ANTI-SECCO
@@ -105,7 +125,7 @@ Sensore: sensor.umidita_bagno (UR bagno).
     - Solo se P1 (bagno) NON attivo.
   Azione:
     - imposta vel_0.
-    - per preservare IAQ: duty-cycle minimo (5’ ON a vel_1 ogni 30’).
+    - duty-cycle automatico: ogni 30 minuti accende vel_1 per 5 minuti.
   Uscita:
     - Fine finestra oraria/mensile OPPURE umidità risale > 42%.
 

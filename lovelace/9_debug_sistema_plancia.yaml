@@ -50,9 +50,9 @@ views:
                 name: Anti-ciclo OK
               - entity: sensor.ac_mode_current
                 name: Modalità attuale
-              - entity: switch.switch_ac_giorno
+              - entity: switch.ac_giorno
                 name: AC Giorno
-              - entity: switch.switch_ac_notte
+              - entity: switch.ac_notte
                 name: AC Notte
 
           # --- Chip/Glance: Heating (inerzia + finestra PV) ---
@@ -105,23 +105,23 @@ views:
           - type: entities
             title: "KPI microclima (base)"
             entities:
-              - entity: sensor.temperatura_zona_giorno
+              - entity: sensor.t_in_giorno
                 name: T Giorno (°C)
-              - entity: sensor.temperatura_zona_notte
+              - entity: sensor.t_in_notte1
                 name: T Notte (°C)
-              - entity: sensor.temperatura_bagno
+              - entity: sensor.t_in_bagno
                 name: T Bagno (°C)
-              - entity: sensor.temperatura_esterna
+              - entity: sensor.t_out
                 name: T Esterna (°C)
-              - entity: sensor.umidita_interna_media
+              - entity: sensor.ur_in_media
                 name: UR interna (%)
-              - entity: sensor.umidita_bagno
+              - entity: sensor.ur_in_bagno
                 name: UR Bagno (%)
-              - entity: sensor.umidita_esterna
+              - entity: sensor.ur_out
                 name: UR esterna (%)
-              - entity: sensor.ah_interna
+              - entity: sensor.ah_in
                 name: AH interna (g/m³)
-              - entity: sensor.ah_esterna
+              - entity: sensor.ah_out
                 name: AH esterna (g/m³)
 
           # --- Trend 24h: Temperature ---
@@ -130,27 +130,27 @@ views:
             hours_to_show: 24
             refresh_interval: 0
             entities:
-              - sensor.temperatura_zona_giorno
-              - sensor.temperatura_zona_notte
-              - sensor.temperatura_bagno
-              - sensor.temperatura_esterna
+              - sensor.t_in_giorno
+              - sensor.t_in_notte1
+              - sensor.t_in_bagno
+              - sensor.t_out
 
           # --- Trend 24h: Umidità ---
           - type: history-graph
             title: "Trend 24h — Umidità relativa"
             hours_to_show: 24
             entities:
-              - sensor.umidita_interna_media
-              - sensor.umidita_bagno
-              - sensor.umidita_esterna
+              - sensor.ur_in_media
+              - sensor.ur_in_bagno
+              - sensor.ur_out
 
           # --- Trend 24h: Umidità assoluta ---
           - type: history-graph
             title: "Trend 24h — Umidità assoluta (AH)"
             hours_to_show: 24
             entities:
-              - sensor.ah_interna
-              - sensor.ah_esterna
+              - sensor.ah_in
+              - sensor.ah_out
 
           # --- Trend 24h: Logiche VMC ---
           - type: history-graph
@@ -183,9 +183,9 @@ views:
             title: "Soglie & Target (regolabili)"
             entities:
               # Vent naturale (da 1_vent.txt)
-              - entity: input_number.vent_delta_t_min
+              - entity: input_number.vent_deltat_min
                 name: ΔT_min (°C) — Vent
-              - entity: input_number.vent_delta_ah_min
+              - entity: input_number.vent_deltaah_min
                 name: ΔAH_min (g/m³) — Vent
               - entity: input_number.vent_vento_max
                 name: Vento max (m/s) — Vent
@@ -195,9 +195,9 @@ views:
               - entity: input_number.vmc_fc_t_out_min
                 name: FC — T_out > (°C)
               # AC (dry/cool)
-              - entity: input_number.ac_soglia_ur_alta
+              - entity: input_number.ac_ur_high
                 name: AC — UR alta (%)
-              - entity: input_number.ac_target_ur
+              - entity: input_number.ac_ur_target
                 name: AC — UR target (%)
               - entity: input_number.ac_t_cool_on
                 name: AC — T COOL ON (°C)
@@ -231,15 +231,15 @@ views:
               type: entities
             entities:
               # Microclima base
-              - sensor.temperatura_zona_giorno
-              - sensor.temperatura_zona_notte
-              - sensor.temperatura_bagno
-              - sensor.temperatura_esterna
-              - sensor.umidita_interna_media
-              - sensor.umidita_bagno
-              - sensor.umidita_esterna
-              - sensor.ah_interna
-              - sensor.ah_esterna
+              - sensor.t_in_giorno
+              - sensor.t_in_notte1
+              - sensor.t_in_bagno
+              - sensor.t_out
+              - sensor.ur_in_media
+              - sensor.ur_in_bagno
+              - sensor.ur_out
+              - sensor.ah_in
+              - sensor.ah_out
               # Logiche/Flag chiave
               - binary_sensor.vmc_failsafe_sensors_bad
               - binary_sensor.vmc_bagno_boost
