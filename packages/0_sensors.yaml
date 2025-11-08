@@ -50,10 +50,11 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_in_giorno') not in ['unknown','unavailable','', none] or
-             states('sensor.t_in_notte1') not in ['unknown','unavailable','', none] or
-             states('sensor.t_in_notte2') not in ['unknown','unavailable','', none] or
-             states('sensor.t_in_bagno') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.t_in_giorno')|lower not in invalid or
+             states('sensor.t_in_notte1')|lower not in invalid or
+             states('sensor.t_in_notte2')|lower not in invalid or
+             states('sensor.t_in_bagno')|lower not in invalid }}
         state: >-
           {% set e_list = [
             'sensor.t_in_giorno',
@@ -61,11 +62,13 @@ template:
             'sensor.t_in_notte2',
             'sensor.t_in_bagno'
           ] %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
-            {% set v = states(e) %}
-            {% if v not in ['unknown','unavailable','', none] %}
-              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% set raw = states(e) %}
+            {% set v = raw|string %}
+            {% if v|lower not in invalid %}
+              {% set ns.vals = ns.vals + [ raw|float(0) ] %}
             {% endif %}
           {% endfor %}
           {{ (ns.vals|sum / ns.vals|length)|round(1) if (ns.vals|length)>0 else 'unavailable' }}
@@ -75,10 +78,11 @@ template:
         device_class: humidity
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_notte2') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.ur_in_giorno')|lower not in invalid or
+             states('sensor.ur_in_notte1')|lower not in invalid or
+             states('sensor.ur_in_notte2')|lower not in invalid or
+             states('sensor.ur_in_bagno')|lower not in invalid }}
         state: >-
           {% set e_list = [
             'sensor.ur_in_giorno',
@@ -86,11 +90,13 @@ template:
             'sensor.ur_in_notte2',
             'sensor.ur_in_bagno'
           ] %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
-            {% set v = states(e) %}
-            {% if v not in ['unknown','unavailable','', none] %}
-              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% set raw = states(e) %}
+            {% set v = raw|string %}
+            {% if v|lower not in invalid %}
+              {% set ns.vals = ns.vals + [ raw|float(0) ] %}
             {% endif %}
           {% endfor %}
           {{ (ns.vals|sum / ns.vals|length)|round(0) if (ns.vals|length)>0 else 'unavailable' }}
@@ -100,10 +106,11 @@ template:
         device_class: humidity
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_giorno') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_notte1') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_notte2') not in ['unknown','unavailable','', none] or
-             states('sensor.ur_in_bagno') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.ur_in_giorno')|lower not in invalid or
+             states('sensor.ur_in_notte1')|lower not in invalid or
+             states('sensor.ur_in_notte2')|lower not in invalid or
+             states('sensor.ur_in_bagno')|lower not in invalid }}
         state: >-
           {% set e_list = [
             'sensor.ur_in_giorno',
@@ -111,11 +118,13 @@ template:
             'sensor.ur_in_notte2',
             'sensor.ur_in_bagno'
           ] %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
           {% set ns = namespace(vals=[]) %}
           {% for e in e_list %}
-            {% set v = states(e) %}
-            {% if v not in ['unknown','unavailable','', none] %}
-              {% set ns.vals = ns.vals + [ v|float(0) ] %}
+            {% set raw = states(e) %}
+            {% set v = raw|string %}
+            {% if v|lower not in invalid %}
+              {% set ns.vals = ns.vals + [ raw|float(0) ] %}
             {% endif %}
           {% endfor %}
           {{ (ns.vals|min)|round(0) if (ns.vals|length)>0 else 'unavailable' }}
@@ -126,36 +135,58 @@ template:
         state_class: measurement
         icon: mdi:water
         availability: >-
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
-             states('sensor.ur_in_media') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.t_in_media')|lower not in invalid and
+             states('sensor.ur_in_media')|lower not in invalid }}
         state: >-
-          {% set T = states('sensor.t_in_media')|float(default=none) %}
-          {% set RH = states('sensor.ur_in_media')|float(default=none) %}
-          {% if T is number and RH is number %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
+          {% set T_raw = states('sensor.t_in_media') %}
+          {% set RH_raw = states('sensor.ur_in_media') %}
+          {% if T_raw|string|lower in invalid or RH_raw|string|lower in invalid %}
+            unavailable
+          {% else %}
+            {% set T = T_raw|float %}
+            {% set RH = RH_raw|float %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
-            {% set pv = RHc/100 * es %}
-            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-          {% else %}unavailable{% endif %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% if exponent|abs > 100 %}
+              unavailable
+            {% else %}
+              {% set es = 6.112 * (2.718281828 ** exponent) %}
+              {% set pv = RHc/100 * es %}
+              {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+            {% endif %}
+          {% endif %}
 
       - name: "ah_out"
         unit_of_measurement: "g/m³"
         state_class: measurement
         icon: mdi:water-outline
         availability: >-
-          {{ states('sensor.t_out') not in ['unknown','unavailable','', none] and
-             states('sensor.ur_out') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.t_out')|lower not in invalid and
+             states('sensor.ur_out')|lower not in invalid }}
         state: >-
-          {% set T = states('sensor.t_out')|float(default=none) %}
-          {% set RH = states('sensor.ur_out')|float(default=none) %}
-          {% if T is number and RH is number %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
+          {% set T_raw = states('sensor.t_out') %}
+          {% set RH_raw = states('sensor.ur_out') %}
+          {% if T_raw|string|lower in invalid or RH_raw|string|lower in invalid %}
+            unavailable
+          {% else %}
+            {% set T = T_raw|float %}
+            {% set RH = RH_raw|float %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
-            {% set es = 6.112 * pow(2.718281828, (17.67*T)/(T+243.5)) %}
-            {% set pv = RHc/100 * es %}
-            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-          {% else %}unavailable{% endif %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% if exponent|abs > 100 %}
+              unavailable
+            {% else %}
+              {% set es = 6.112 * (2.718281828 ** exponent) %}
+              {% set pv = RHc/100 * es %}
+              {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+            {% endif %}
+          {% endif %}
 
       # ==================== DEW POINT & DELTE ================================
       - name: "dewpoint_in"
@@ -163,25 +194,32 @@ template:
         state_class: measurement
         icon: mdi:thermometer-alert
         availability: >-
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
-             states('sensor.ur_in_media') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.t_in_media')|lower not in invalid and
+             states('sensor.ur_in_media')|lower not in invalid }}
         state: >-
-          {% set T = states('sensor.t_in_media')|float(default=none) %}
-          {% set RH = states('sensor.ur_in_media')|float(default=none) %}
-          {% if T is number and RH is number %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
+          {% set T_raw = states('sensor.t_in_media') %}
+          {% set RH_raw = states('sensor.ur_in_media') %}
+          {% if T_raw|string|lower in invalid or RH_raw|string|lower in invalid %}
+            unavailable
+          {% else %}
+            {% set T = T_raw|float %}
+            {% set RH = RH_raw|float %}
             {% set RHc = [RH, 100]|min %}
             {% set RHc = [RHc, 1]|max %}
             {% set b = 17.62 %}{% set c = 243.12 %}
             {% set gamma = (b*T/(c+T)) + log(RHc/100) %}
             {{ (c*gamma / (b - gamma)) | round(1) }}
-          {% else %}unavailable{% endif %}
+          {% endif %}
 
       - name: "delta_t_in_out"
         unit_of_measurement: "°C"
         icon: mdi:delta
         availability: >-
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable','', none] and
-             states('sensor.t_out') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', none, 'nan'] %}
+          {{ states('sensor.t_in_media')|lower not in invalid and
+             states('sensor.t_out')|lower not in invalid }}
         state: >-
           {{ (states('sensor.t_in_media')|float(0) - states('sensor.t_out')|float(0)) | round(1) }}
 
@@ -189,8 +227,9 @@ template:
         unit_of_measurement: "g/m³"
         icon: mdi:delta
         availability: >-
-          {{ states('sensor.ah_in') not in ['unknown','unavailable','', none] and
-             states('sensor.ah_out') not in ['unknown','unavailable','', none] }}
+          {% set invalid = ['unknown','unavailable','', none, 'nan'] %}
+          {{ states('sensor.ah_in')|lower not in invalid and
+             states('sensor.ah_out')|lower not in invalid }}
         state: >-
           {{ (states('sensor.ah_in')|float(0) - states('sensor.ah_out')|float(0)) | round(2) }}
 
