@@ -145,17 +145,21 @@ rest:
     sensor:
       - name: "Vent Meteo Silea"
         unique_id: vent_meteo_silea
-        value_template: "{{ value_json.current.temperature_2m }}"
+        value_template: >-
+          {% set payload = value_json if value_json is defined and value_json is mapping else {} %}
+          {% set current = payload.get('current') if payload else none %}
+          {% if current is mapping and current.get('temperature_2m') is not none %}
+            {{ current.get('temperature_2m') }}
+          {% else %}
+            {{ 'unavailable' }}
+          {% endif %}
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-        json_attributes_path: "$.current"
-        json_attributes:
-          - time
-          - relative_humidity_2m
-          - precipitation
-          - wind_speed_10m
-          - pm2_5
+        json_attributes_template: >-
+          {% set payload = value_json if value_json is defined and value_json is mapping else {} %}
+          {% set current = payload.get('current') if payload else none %}
+          {{ (current if current is mapping else {}) | tojson }}
 
 # =============================
 # 3) TEMPLATE SENSORI & BINARY

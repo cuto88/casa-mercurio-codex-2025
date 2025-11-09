@@ -54,6 +54,19 @@ views:
               - entity: switch.ac_notte
                 name: AC notte
 
+          # -- Modalità manuale
+          - type: entities
+            title: "Modalità manuale"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.vmc_manual
+                name: "Override attivo"
+              - entity: input_select.vmc_manual_speed
+                name: "Velocità forzata"
+              - entity: timer.vmc_manual_timeout
+                name: "Timer override"
+                icon: mdi:timer-outline
+
           # -- Spiegazione umana (Come decide)
           - type: markdown
             title: "Come decide"
@@ -68,6 +81,19 @@ views:
                 - Se entrambe vere → prevale **Passivhaus**.
               - **P3 — Anti‑secco (inverno, notte)** → `vel_0` con duty (5' ON/30').
               - **P4 — Baseline** → `vel_1`.
+
+          # -- Perché siamo qui (dinamico)
+          - type: markdown
+            title: "Come succede"
+            content: >-
+              {% set manual = is_state('input_boolean.vmc_manual','on') %}
+              {% set priority = states('sensor.vmc_priority') %}
+              {% set reason = states('sensor.vmc_reason') %}
+              {% if manual %}
+              **Manuale attivo:** le automazioni restano spente finché l'override non viene disabilitato o scade il timer.
+              {% else %}
+              **Priorità corrente:** {{ priority }}. Ultima motivazione → {{ reason }}.
+              {% endif %}
 
       # =====================================================
       # COLONNA 2 — KPI PRINCIPALI (tile con grafico)
@@ -151,25 +177,6 @@ views:
               - entity: sensor.dewpoint_in
                 name: Dew point in
                 color: purple
-
-          # --- Differenziali Passivhaus
-          - type: custom:mini-graph-card
-            name: "Differenziali ΔT / ΔAH (24h)"
-            hours_to_show: 24
-            points_per_hour: 4
-            line_width: 2
-            height: 140
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.delta_t_in_out
-                name: ΔT (in-out)
-                color: orange
-              - entity: sensor.delta_ah_in_out
-                name: ΔAH (in-out)
-                color: cyan
 
       # =====================================================
       # COLONNA 3 — TREND & LOCK / DIAGNOSTICA

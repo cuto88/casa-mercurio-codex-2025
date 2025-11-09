@@ -336,8 +336,14 @@ template:
             'input_number.ac_hyst_off','input_number.ac_min_on',
             'input_number.ac_min_off','input_number.ac_max_run'
           ] %}
-          {% set miss = expected | select('reject', 'in', states | map(attribute='entity_id') | list) | list %}
-          {{ 'OK' if miss | length == 0 else miss | join(', ') }}
+          {% set existing = states | map(attribute='entity_id') | list %}
+          {% set ns = namespace(missing=[]) %}
+          {% for entity_id in expected %}
+            {% if entity_id not in existing %}
+              {% set ns.missing = ns.missing + [entity_id] %}
+            {% endif %}
+          {% endfor %}
+          {{ 'OK' if ns.missing | length == 0 else ns.missing | join(', ') }}
         attributes:
           missing_count: >
             {% set expected = [
@@ -352,8 +358,14 @@ template:
               'input_number.ac_hyst_off','input_number.ac_min_on',
               'input_number.ac_min_off','input_number.ac_max_run'
             ] %}
-            {% set miss = expected | select('reject', 'in', states | map(attribute='entity_id') | list) | list %}
-            {{ miss | length }}
+            {% set existing = states | map(attribute='entity_id') | list %}
+            {% set ns = namespace(missing=0) %}
+            {% for entity_id in expected %}
+              {% if entity_id not in existing %}
+                {% set ns.missing = ns.missing + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.missing }}
 
   - binary_sensor:
       - name: "AC - configurazione OK"
@@ -372,8 +384,14 @@ template:
             'input_number.ac_hyst_off','input_number.ac_min_on',
             'input_number.ac_min_off','input_number.ac_max_run'
           ] %}
-          {% set miss = expected | select('reject', 'in', states | map(attribute='entity_id') | list) | list %}
-          {{ miss | length == 0 }}
+          {% set existing = states | map(attribute='entity_id') | list %}
+          {% set ns = namespace(missing=[]) %}
+          {% for entity_id in expected %}
+            {% if entity_id not in existing %}
+              {% set ns.missing = ns.missing + [entity_id] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.missing | length == 0 }}
         attributes:
           missing_count: >
             {% set expected = [
@@ -388,5 +406,11 @@ template:
               'input_number.ac_hyst_off','input_number.ac_min_on',
               'input_number.ac_min_off','input_number.ac_max_run'
             ] %}
-            {% set miss = expected | select('reject', 'in', states | map(attribute='entity_id') | list) | list %}
-            {{ miss | length }}
+            {% set existing = states | map(attribute='entity_id') | list %}
+            {% set ns = namespace(count=0) %}
+            {% for entity_id in expected %}
+              {% if entity_id not in existing %}
+                {% set ns.count = ns.count + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.count }}

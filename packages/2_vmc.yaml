@@ -857,11 +857,29 @@ template:
           {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
         attributes:
           started_minutes_ago: >
-            {% set ts = [states.switch.ac_notte, states.switch.ac_giorno]
-                         | select('defined')
-                         | map(attribute='last_changed')
-                         | max(default=none) %}
-            {% if ts %}{{ ((now() - ts).total_seconds() / 60) | round(0) }}{% else %}0{% endif %}
+            {% set ns = namespace(times=[]) %}
+            {% set ent_n = states.switch.ac_notte if states.switch.ac_notte is defined else none %}
+            {% set ent_g = states.switch.ac_giorno if states.switch.ac_giorno is defined else none %}
+            {% for obj in [ent_n, ent_g] %}
+              {% if obj is not none %}
+                {% set ns.times = ns.times + [obj.last_changed] %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.times %}
+              {{ ((now() - (ns.times | max)).total_seconds() / 60) | round(0) }}
+            {% else %}
+              0
+            {% endif %}
+
+      - name: "Stagione calda"
+        unique_id: stagione_calda
+        state: >
+          {{ now().month in [5,6,7,8,9] }}
+
+      - name: "Stagione fredda"
+        unique_id: stagione_fredda
+        state: >
+          {{ now().month in [11,12,1,2,3] }}
 
       - name: "Stagione calda"
         unique_id: stagione_calda
