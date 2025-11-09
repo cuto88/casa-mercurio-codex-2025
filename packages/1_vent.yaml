@@ -1,88 +1,548 @@
 ###############################################################################
-# 1_vent.yaml — Ventilazione estiva (allineato ai KPI canonici definitivi)
-# Canonici attesi da 0_sensors.yaml:
-#  - sensor.t_in_media
-#  - sensor.ur_in_media
-#  - sensor.ur_in_min
-#  - sensor.ah_in
-#  - sensor.ah_out
-#  - sensor.dewpoint_in
-#  - sensor.delta_t_in_out   (Ti - To)
-#  - sensor.delta_ah_in_out  (Ai - Ao)
+# 1_vent.yaml — Ventilazione estiva passiva (Casa Silea)
+# Modulo autonomo: helper, sensori meteo, derivate, raccomandazioni
+# Canonici utilizzati (da 0_sensors.yaml):
+#   sensor.t_in_media, sensor.ur_in_media, sensor.ah_in, sensor.ah_out,
+#   sensor.delta_t_in_out, sensor.delta_ah_in_out, binary_sensor.stagione_calda
 ###############################################################################
 
+# =============================
+# 1) HELPER & COMANDI MANUALI
+# =============================
+input_boolean:
+  vent_override_estate:
+    name: "Ventilazione — Forza stagione estiva"
+    icon: mdi:weather-sunny
+  vent_notifiche_attive:
+    name: "Ventilazione — Notifiche abilitate"
+    icon: mdi:bell-alert
+    initial: true
+  vent_finestra_giorno_aperta:
+    name: "Ventilazione — Finestra zona giorno"
+    icon: mdi:window-open-variant
+  vent_finestra_notte1_aperta:
+    name: "Ventilazione — Finestra zona notte 1"
+    icon: mdi:window-open-variant
+  vent_finestra_notte2_aperta:
+    name: "Ventilazione — Finestra zona notte 2"
+    icon: mdi:window-open-variant
+  vent_finestra_notte3_aperta:
+    name: "Ventilazione — Finestra zona notte 3"
+    icon: mdi:window-open-variant
+  vent_finestra_bagno_aperta:
+    name: "Ventilazione — Finestra bagno"
+    icon: mdi:window-open-variant
+
+input_number:
+  vent_deltat_min:
+    name: "Ventilazione — ΔT minimo"
+    min: 0.5
+    max: 5
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-down
+    initial: 1.5
+  vent_deltaah_min:
+    name: "Ventilazione — ΔAH minimo"
+    min: 0.1
+    max: 5
+    step: 0.1
+    unit_of_measurement: "g/m³"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 1.0
+  vent_vento_max:
+    name: "Ventilazione — Vento massimo"
+    min: 1
+    max: 20
+    step: 0.5
+    unit_of_measurement: "m/s"
+    mode: slider
+    icon: mdi:weather-windy
+    initial: 6.0
+  vent_pm25_max:
+    name: "Ventilazione — PM2.5 massimo"
+    min: 5
+    max: 100
+    step: 1
+    unit_of_measurement: "µg/m³"
+    mode: slider
+    icon: mdi:chemical-weapon
+    initial: 25
+  vent_backup_t_in:
+    name: "Ventilazione — Backup T interna"
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+    initial: 26
+  vent_backup_ur_in:
+    name: "Ventilazione — Backup UR interna"
+    min: 20
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 55
+
+input_text:
+  vent_messaggio_consiglio:
+    name: "Ventilazione — Messaggio di consiglio"
+    max: 255
+    initial: "Sistema inizializzato: in attesa dati sensori."
+
+input_datetime:
+  vent_night_flush_start:
+    name: "Ventilazione — Night flush start"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-night
+    initial: "21:00"
+  vent_night_flush_end:
+    name: "Ventilazione — Night flush end"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-sunset-up
+    initial: "08:00"
+  vent_last_change_giorno:
+    name: "Ventilazione — Ultimo cambio zona giorno"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte1:
+    name: "Ventilazione — Ultimo cambio zona notte 1"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte2:
+    name: "Ventilazione — Ultimo cambio zona notte 2"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte3:
+    name: "Ventilazione — Ultimo cambio zona notte 3"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_bagno:
+    name: "Ventilazione — Ultimo cambio bagno"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+
+# =============================
+# 2) METEO ESTERNO (Open-Meteo)
+# =============================
+rest:
+  - resource: >-
+      https://api.open-meteo.com/v1/forecast?latitude=45.646&longitude=12.273&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,pm2_5&timezone=Europe%2FRome&windspeed_unit=ms
+    scan_interval: 600
+    timeout: 30
+    sensor:
+      - name: "Vent Meteo Silea"
+        unique_id: vent_meteo_silea
+        value_template: >-
+          {% set payload = value_json if value_json is defined and value_json is mapping else {} %}
+          {% set current = payload.get('current') if payload else none %}
+          {% set value = current.get('temperature_2m') if current is mapping else none %}
+          {% if value is number %}
+            {{ value }}
+          {% else %}
+            unknown
+          {% endif %}
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        json_attributes_path: "$.current"
+        json_attributes:
+          - temperature_2m
+          - relative_humidity_2m
+          - precipitation
+          - wind_speed_10m
+          - pm2_5
+
+# =============================
+# 3) TEMPLATE SENSORI & BINARY
+# =============================
 template:
   - sensor:
-
-      # Riferimenti / mirror dei KPI canonici (niente ricalcoli)
-      - name: "vent_ah_esterna_ref"
-        unique_id: vent_ah_esterna_ref
+      # ------------------------- Indoor di riferimento -------------------------
+      - name: "vent_ah_in"
+        unique_id: vent_ah_in
         unit_of_measurement: "g/m³"
-        icon: mdi:water-percent
         state_class: measurement
-        state: "{{ states('sensor.ah_out') }}"
-        availability: >
+        icon: mdi:water
+        state: >-
+          {% set ah_in = states('sensor.ah_in') %}
+          {% if ah_in not in ['unknown','unavailable',''] %}
+            {{ ah_in|float|round(2) }}
+          {% else %}
+            {% set T = states('input_number.vent_backup_t_in')|float(default=none) %}
+            {% set RH = states('input_number.vent_backup_ur_in')|float(default=none) %}
+            {% if T is number and RH is number %}
+              {% set RHc = [RH, 100]|min %}
+              {% set RHc = [RHc, 1]|max %}
+              {% set exponent = (17.67*T)/(T+243.5) %}
+              {% set es = 6.112 * (2.718281828 ** exponent) %}
+              {% set pv = RHc/100 * es %}
+              {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+            {% else %}unavailable{% endif %}
+          {% endif %}
+        availability: >-
+          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] or
+             (states('input_number.vent_backup_t_in') not in ['unknown','unavailable',''] and
+              states('input_number.vent_backup_ur_in') not in ['unknown','unavailable','']) }}
+
+      - name: "vent_ah_out"
+        unique_id: vent_ah_out
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-outline
+        state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unavailable' }}"
+        availability: >-
           {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
 
-      - name: "vent_deltaAH_in_out"
-        unique_id: vent_deltaah_in_out
-        unit_of_measurement: "g/m³"
+      - name: "vent_meteo_temp"
+        unique_id: vent_meteo_temp
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        state: >-
+          {% set value = states('sensor.vent_meteo_silea') %}
+          {% if value not in ['unknown', 'unavailable', ''] %}
+            {{ value|float|round(1) }}
+          {% else %}unavailable{% endif %}
+        availability: >-
+          {{ states('sensor.vent_meteo_silea') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_meteo_rh"
+        unique_id: vent_meteo_rh
+        unit_of_measurement: "%"
+        device_class: humidity
         icon: mdi:water-percent
-        state_class: measurement
-        state: "{{ states('sensor.delta_ah_in_out') }}"
-        availability: >
-          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set value = state_attr('sensor.vent_meteo_silea','relative_humidity_2m') %}
+          {% if value not in [none, 'unknown', 'unavailable', ''] %}
+            {{ value|float|round(0) }}
+          {% else %}unavailable{% endif %}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','relative_humidity_2m') not in [none, 'unknown', 'unavailable', ''] }}
 
-      - name: "vent_deltaT_in_out"
-        unique_id: vent_deltat_in_out
-        unit_of_measurement: "°C"
-        device_class: temperature
-        icon: mdi:thermometer
-        state_class: measurement
-        state: "{{ states('sensor.delta_t_in_out') }}"
-        availability: >
-          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
+      - name: "vent_meteo_precip"
+        unique_id: vent_meteo_precip
+        unit_of_measurement: "mm/h"
+        icon: mdi:weather-pouring
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','precipitation') %}
+          {{ attr|float|round(2) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','precipitation') not in [none, 'unknown', 'unavailable', ''] }}
 
-      # (comodo) Temperatura esterna calcolata da canonici (To = Ti - ΔT)
-      - name: "vent_t_esterna_calc"
-        unique_id: vent_t_esterna_calc
-        unit_of_measurement: "°C"
-        device_class: temperature
-        icon: mdi:thermometer
-        state_class: measurement
-        state: >
-          {% set Ti = states('sensor.t_in_media')|float(none) %}
-          {% set dT = states('sensor.delta_t_in_out')|float(none) %}
-          {{ (Ti - dT)|round(1) if Ti is number and dT is number else 'unavailable' }}
-        availability: >
-          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and
-             states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
+      - name: "vent_meteo_vento"
+        unique_id: vent_meteo_vento
+        unit_of_measurement: "m/s"
+        icon: mdi:weather-windy
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','wind_speed_10m') %}
+          {{ attr|float|round(1) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','wind_speed_10m') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_meteo_pm25"
+        unique_id: vent_meteo_pm25
+        unit_of_measurement: "µg/m³"
+        icon: mdi:blur
+        state: >-
+          {% set attr = state_attr('sensor.vent_meteo_silea','pm2_5') %}
+          {{ attr|float|round(1) if attr not in [none, 'unknown', 'unavailable', ''] else 'unavailable' }}
+        availability: >-
+          {{ state_attr('sensor.vent_meteo_silea','pm2_5') not in [none, 'unknown', 'unavailable', ''] }}
+
+      - name: "vent_finestre_aperte"
+        unique_id: vent_finestre_aperte
+        unit_of_measurement: "finestre"
+        icon: mdi:window-open
+        state: >-
+          {% set toggles = [
+            'input_boolean.vent_finestra_giorno_aperta',
+            'input_boolean.vent_finestra_notte1_aperta',
+            'input_boolean.vent_finestra_notte2_aperta',
+            'input_boolean.vent_finestra_notte3_aperta',
+            'input_boolean.vent_finestra_bagno_aperta'
+          ] %}
+          {% set count = namespace(total=0) %}
+          {% for toggle in toggles %}
+            {% if is_state(toggle,'on') %}
+              {% set count.total = count.total + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ count.total }}
+
+      - name: "vent_finestre_state"
+        unique_id: vent_finestre_state
+        icon: mdi:text
+        state: >-
+          {% set labels = {
+            'input_boolean.vent_finestra_giorno_aperta': 'Zona giorno',
+            'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
+            'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
+            'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
+            'input_boolean.vent_finestra_bagno_aperta': 'Bagno'
+          } %}
+          {% set parts = [] %}
+          {% for entity, label in labels.items() %}
+            {% if is_state(entity,'on') %}
+              {% set parts = parts + [label] %}
+            {% endif %}
+          {% endfor %}
+          {% if parts %}
+            {{ ', '.join(parts) }}
+          {% else %}
+            Chiuse
+          {% endif %}
 
   - binary_sensor:
+      - name: "vent_flag_estate"
+        unique_id: vent_flag_estate
+        icon: mdi:weather-sunny-alert
+        state: >-
+          {{ is_state('input_boolean.vent_override_estate','on') or is_state('binary_sensor.stagione_calda','on') }}
 
-      # Free-cooling calcolato (criteri semplificati)
-      # Regola: Ti>24°C & To<Ti & To>20°C & ΔAH<0
-      - name: "vent_freecooling_calcolato"
-        unique_id: vent_freecooling_calcolato
-        device_class: cold
-        state: >
-          {% set Ti  = states('sensor.t_in_media')|float(none) %}
-          {% set dT  = states('sensor.delta_t_in_out')|float(none) %}
-          {% set dAH = states('sensor.delta_ah_in_out')|float(none) %}
-          {% if Ti is number and dT is number and dAH is number %}
-            {% set To = Ti - dT %}
-            {{ Ti > 24 and To < Ti and To > 20 and dAH < 0 }}
-          {% else %}false{% endif %}
-        availability: >
-          {{ states('sensor.t_in_media')        not in ['unknown','unavailable',''] and
-             states('sensor.delta_t_in_out')    not in ['unknown','unavailable',''] and
-             states('sensor.delta_ah_in_out')   not in ['unknown','unavailable',''] }}
+      - name: "vent_night_flush_now"
+        unique_id: vent_night_flush_now
+        icon: mdi:weather-night
+        state: >-
+          {% set start_ts = state_attr('input_datetime.vent_night_flush_start','timestamp') %}
+          {% set end_ts = state_attr('input_datetime.vent_night_flush_end','timestamp') %}
+          {% if start_ts is none or end_ts is none %}
+            false
+          {% else %}
+            {% set now_ts = now().hour * 3600 + now().minute * 60 + now().second %}
+            {% if start_ts <= end_ts %}
+              {{ start_ts <= now_ts <= end_ts }}
+            {% else %}
+              {{ now_ts >= start_ts or now_ts <= end_ts }}
+            {% endif %}
+          {% endif %}
 
-      # Stagioni logiche
-      - name: "Stagione calda"
-        unique_id: stagione_calda
-        state: "{{ now().month in [5,6,7,8,9] }}"
+      - name: "vent_pioggia"
+        unique_id: vent_pioggia
+        device_class: moisture
+        state: >-
+          {% set prec = states('sensor.vent_meteo_precip')|float(default=0) %}
+          {{ prec >= 0.1 }}
+        availability: >-
+          {{ states('sensor.vent_meteo_precip') not in ['unknown','unavailable',''] }}
 
-      - name: "Stagione fredda"
-        unique_id: stagione_fredda
-        state: "{{ now().month in [11,12,1,2,3] }}"
+      - name: "vent_vento_blocco"
+        unique_id: vent_vento_blocco
+        icon: mdi:weather-windy
+        state: >-
+          {% set vento = states('sensor.vent_meteo_vento')|float(default=none) %}
+          {% set soglia = states('input_number.vent_vento_max')|float(default=none) %}
+          {{ vento is number and soglia is number and vento > soglia }}
+        availability: >-
+          {{ states('sensor.vent_meteo_vento') not in ['unknown','unavailable',''] and
+             states('input_number.vent_vento_max') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_air_quality_ok"
+        unique_id: vent_air_quality_ok
+        icon: mdi:blur
+        state: >-
+          {% set pm = states('sensor.vent_meteo_pm25')|float(default=none) %}
+          {% set soglia = states('input_number.vent_pm25_max')|float(default=none) %}
+          {% if pm is number and soglia is number %}
+            {{ pm <= soglia }}
+          {% else %}
+            true
+          {% endif %}
+
+      - name: "vent_deltat_ok"
+        unique_id: vent_deltat_ok
+        device_class: heat
+        state: >-
+          {% set delta = states('sensor.delta_t_in_out')|float(default=none) %}
+          {% set soglia = states('input_number.vent_deltat_min')|float(default=none) %}
+          {{ delta is number and soglia is number and delta >= soglia }}
+        availability: >-
+          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] and
+             states('input_number.vent_deltat_min') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_deltaah_ok"
+        unique_id: vent_deltaah_ok
+        state: >-
+          {% set delta = states('sensor.delta_ah_in_out')|float(default=none) %}
+          {% set soglia = states('input_number.vent_deltaah_min')|float(default=none) %}
+          {{ delta is number and soglia is number and delta >= soglia }}
+        availability: >-
+          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] and
+             states('input_number.vent_deltaah_min') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_condizioni_meteo_ok"
+        unique_id: vent_condizioni_meteo_ok
+        state: >-
+          {{ is_state('binary_sensor.vent_pioggia','off') and
+             is_state('binary_sensor.vent_vento_blocco','off') and
+             is_state('binary_sensor.vent_air_quality_ok','on') }}
+
+      - name: "vent_condizioni_termiche_ok"
+        unique_id: vent_condizioni_termiche_ok
+        state: >-
+          {{ is_state('binary_sensor.vent_deltat_ok','on') and
+             is_state('binary_sensor.vent_deltaah_ok','on') }}
+
+      - name: "vent_recommend_open"
+        unique_id: vent_recommend_open
+        device_class: opening
+        state: >-
+          {{ is_state('binary_sensor.vent_flag_estate','on') and
+             is_state('binary_sensor.vent_condizioni_meteo_ok','on') and
+             is_state('binary_sensor.vent_condizioni_termiche_ok','on') }}
+
+      - name: "vent_recommend_close"
+        unique_id: vent_recommend_close
+        device_class: opening
+        state: >-
+          {{ not is_state('binary_sensor.vent_recommend_open','on') }}
+
+      - name: "vent_weather_block"
+        unique_id: vent_weather_block
+        icon: mdi:alert-octagon
+        state: >-
+          {{ not is_state('binary_sensor.vent_condizioni_meteo_ok','on') }}
+
+# =============================
+# 4) AUTOMAZIONI
+# =============================
+automation:
+  - id: vent_timestamp_finestre
+    alias: "Ventilazione — Timestamp finestre manuali"
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id:
+          - input_boolean.vent_finestra_giorno_aperta
+          - input_boolean.vent_finestra_notte1_aperta
+          - input_boolean.vent_finestra_notte2_aperta
+          - input_boolean.vent_finestra_notte3_aperta
+          - input_boolean.vent_finestra_bagno_aperta
+    actions:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_giorno
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte1_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte1
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte2_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte2
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte3_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte3
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_bagno_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_bagno
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+
+  - id: vent_aggiorna_messaggio
+    alias: "Ventilazione — Aggiorna messaggio consiglio"
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.vent_recommend_open
+          - binary_sensor.vent_weather_block
+          - sensor.vent_finestre_aperte
+          - binary_sensor.vent_night_flush_now
+      - trigger: time_pattern
+        minutes: "/15"
+    actions:
+      - variables:
+          delta_t: "{{ states('sensor.delta_t_in_out') }}"
+          delta_ah: "{{ states('sensor.delta_ah_in_out') }}"
+          vento: "{{ states('sensor.vent_meteo_vento') }}"
+          pm25: "{{ states('sensor.vent_meteo_pm25') }}"
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.vent_messaggio_consiglio
+        data:
+          value: >-
+            {% set flush = ' (night flush)' if is_state('binary_sensor.vent_night_flush_now','on') else '' %}
+            {% if is_state('binary_sensor.vent_recommend_open','on') %}
+              Apri le finestre: ΔT={{ delta_t }}°C, ΔAH={{ delta_ah }} g/m³. Condizioni favorevoli{{ flush }}.
+            {% elif is_state('binary_sensor.vent_weather_block','on') %}
+              Mantieni chiuse: meteo sfavorevole (pioggia/vento/PM). Vento {{ vento }} m/s, PM2.5 {{ pm25 }} µg/m³.
+            {% else %}
+              Mantieni chiuse: criteri ΔT/ΔAH non soddisfatti (ΔT={{ delta_t }}°C, ΔAH={{ delta_ah }} g/m³).
+            {% endif %}
+
+  - id: vent_notifica_persistente
+    alias: "Ventilazione — Notifica persistente"
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.vent_recommend_open
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.vent_recommend_open
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.vent_notifiche_attive
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.vent_finestre_aperte
+                below: 1
+            sequence:
+              - service: persistent_notification.create
+                data:
+                  title: "Ventilazione — Apri le finestre"
+                  message: >-
+                    ΔT={{ states('sensor.delta_t_in_out') }}°C, ΔAH={{ states('sensor.delta_ah_in_out') }} g/m³.
+                    Condizioni meteo OK. Avvia il night flush.
+                  notification_id: vent_raccomandazione
+        default:
+          - service: persistent_notification.dismiss
+            data:
+              notification_id: vent_raccomandazione
