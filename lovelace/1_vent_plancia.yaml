@@ -3,7 +3,7 @@
 # Allineata all'ultimo 1_vent.yaml e ai sensori canonici di 0_sensors.yaml
 #  - Temperature:  sensor.t_out, sensor.t_in_media
 #  - Umidità ass.: sensor.ah_out, sensor.ah_in
-#  - KPI vent:     sensor.vent_deltaT_in_out, sensor.vent_deltaAH_in_out
+#  - KPI vent:     sensor.delta_t_in_out, sensor.delta_ah_in_out
 #  - Logiche:      binary_sensor.vent_recommend_open / _close, vent_flag_estate,
 #                  vent_night_flush_now; input_* per soglie/override/notifiche
 ###############################################################################
@@ -107,7 +107,7 @@ views:
               - entity: sensor.t_in_media
                 name: "T in media (°C)"
                 icon: mdi:home-thermometer
-              - entity: sensor.vent_deltaT_in_out
+              - entity: sensor.delta_t_in_out
                 name: "ΔT (in − out) (°C)"
                 icon: mdi:thermometer-lines
 
@@ -135,7 +135,7 @@ views:
               - entity: sensor.ah_in
                 name: "AH in (g/m³)"
                 icon: mdi:water-percent
-              - entity: sensor.vent_deltaAH_in_out
+              - entity: sensor.delta_ah_in_out
                 name: "ΔAH (in − out) (g/m³)"
                 icon: mdi:water-minus
 

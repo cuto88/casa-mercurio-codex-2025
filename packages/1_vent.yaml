@@ -197,25 +197,6 @@ template:
         availability: >-
           {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
 
-      - name: "vent_deltaT_in_out"
-        unique_id: vent_deltaT_in_out
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        icon: mdi:delta
-        state: "{{ states('sensor.delta_t_in_out') }}"
-        availability: >-
-          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] }}
-
-      - name: "vent_deltaAH_in_out"
-        unique_id: vent_deltaAH_in_out
-        unit_of_measurement: "g/m³"
-        state_class: measurement
-        icon: mdi:delta
-        state: "{{ states('sensor.delta_ah_in_out') }}"
-        availability: >-
-          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] }}
-
       - name: "vent_meteo_temp"
         unique_id: vent_meteo_temp
         unit_of_measurement: "°C"
@@ -376,21 +357,21 @@ template:
         unique_id: vent_deltat_ok
         device_class: heat
         state: >-
-          {% set delta = states('sensor.vent_deltaT_in_out')|float(default=none) %}
+          {% set delta = states('sensor.delta_t_in_out')|float(default=none) %}
           {% set soglia = states('input_number.vent_deltat_min')|float(default=none) %}
           {{ delta is number and soglia is number and delta >= soglia }}
         availability: >-
-          {{ states('sensor.vent_deltaT_in_out') not in ['unknown','unavailable',''] and
+          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] and
              states('input_number.vent_deltat_min') not in ['unknown','unavailable',''] }}
 
       - name: "vent_deltaah_ok"
         unique_id: vent_deltaah_ok
         state: >-
-          {% set delta = states('sensor.vent_deltaAH_in_out')|float(default=none) %}
+          {% set delta = states('sensor.delta_ah_in_out')|float(default=none) %}
           {% set soglia = states('input_number.vent_deltaah_min')|float(default=none) %}
           {{ delta is number and soglia is number and delta >= soglia }}
         availability: >-
-          {{ states('sensor.vent_deltaAH_in_out') not in ['unknown','unavailable',''] and
+          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] and
              states('input_number.vent_deltaah_min') not in ['unknown','unavailable',''] }}
 
       - name: "vent_condizioni_meteo_ok"
@@ -508,8 +489,8 @@ automation:
         minutes: "/15"
     actions:
       - variables:
-          delta_t: "{{ states('sensor.vent_deltaT_in_out') }}"
-          delta_ah: "{{ states('sensor.vent_deltaAH_in_out') }}"
+          delta_t: "{{ states('sensor.delta_t_in_out') }}"
+          delta_ah: "{{ states('sensor.delta_ah_in_out') }}"
           vento: "{{ states('sensor.vent_meteo_vento') }}"
           pm25: "{{ states('sensor.vent_meteo_pm25') }}"
       - service: input_text.set_value
@@ -549,7 +530,7 @@ automation:
                 data:
                   title: "Ventilazione — Apri le finestre"
                   message: >-
-                    ΔT={{ states('sensor.vent_deltaT_in_out') }}°C, ΔAH={{ states('sensor.vent_deltaAH_in_out') }} g/m³.
+                    ΔT={{ states('sensor.delta_t_in_out') }}°C, ΔAH={{ states('sensor.delta_ah_in_out') }} g/m³.
                     Condizioni meteo OK. Avvia il night flush.
                   notification_id: vent_raccomandazione
         default:
