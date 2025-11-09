@@ -3,7 +3,7 @@
 # Allineata all'ultimo 1_vent.yaml e ai sensori canonici di 0_sensors.yaml
 #  - Temperature:  sensor.t_out, sensor.t_in_media
 #  - Umidità ass.: sensor.ah_out, sensor.ah_in
-#  - KPI vent:     sensor.vent_deltaT_in_out, sensor.vent_deltaAH_in_out
+#  - KPI vent:     sensor.delta_t_in_out, sensor.delta_ah_in_out
 #  - Logiche:      binary_sensor.vent_recommend_open / _close, vent_flag_estate,
 #                  vent_night_flush_now; input_* per soglie/override/notifiche
 ###############################################################################
@@ -48,7 +48,7 @@ views:
               - entity: input_boolean.vent_override_estate
                 name: "Override estate (forza logiche estive)"
                 icon: mdi:calendar-range
-              - entity: input_boolean.vent_notifiche
+              - entity: input_boolean.vent_notifiche_attive
                 name: "Notifica consigli (persistenti)"
                 icon: mdi:message-badge
               - type: section
@@ -107,7 +107,7 @@ views:
               - entity: sensor.t_in_media
                 name: "T in media (°C)"
                 icon: mdi:home-thermometer
-              - entity: sensor.vent_deltaT_in_out
+              - entity: sensor.delta_t_in_out
                 name: "ΔT (in − out) (°C)"
                 icon: mdi:thermometer-lines
 
@@ -135,7 +135,7 @@ views:
               - entity: sensor.ah_in
                 name: "AH in (g/m³)"
                 icon: mdi:water-percent
-              - entity: sensor.vent_deltaAH_in_out
+              - entity: sensor.delta_ah_in_out
                 name: "ΔAH (in − out) (g/m³)"
                 icon: mdi:water-minus
 
@@ -166,6 +166,9 @@ views:
               - entity: binary_sensor.vent_air_quality_ok
                 name: "Qualità aria OK"
                 icon: mdi:chemical-weapon
+              - entity: sensor.vent_meteo_pm25
+                name: "PM2.5 (µg/m³)"
+                icon: mdi:molecule
 
       # ===============================================================
       # COLONNA 3 — TREND / LOCK / SOGLIE
@@ -194,7 +197,7 @@ views:
 
           # ---- Soglie regolabili -------------------------------------
           - type: entities
-            title: "Soglie & Lock"
+            title: "Soglie & stato finestre"
             show_header_toggle: false
             entities:
               - entity: input_number.vent_deltat_min
@@ -206,11 +209,32 @@ views:
               - entity: input_number.vent_vento_max
                 name: "Vento massimo (m/s)"
                 icon: mdi:turbine
-              - entity: input_boolean.vent_lock_ingresso
-                name: "Lock ingresso (anti-ciclo)"
-                icon: mdi:lock
-              - entity: input_datetime.vent_last_change
-                name: "Ultimo cambio stato"
+              - entity: input_number.vent_pm25_max
+                name: "PM2.5 massimo (µg/m³)"
+                icon: mdi:blur
+              - type: divider
+              - entity: sensor.vent_finestre_aperte
+                name: "Finestre aperte"
+                icon: mdi:counter
+              - entity: sensor.vent_finestre_state
+                name: "Dettaglio finestre"
+                icon: mdi:format-list-text
+              - type: section
+                label: "Ultimi cambi manuali"
+              - entity: input_datetime.vent_last_change_giorno
+                name: "Cambio zona giorno"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_notte1
+                name: "Cambio notte 1"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_notte2
+                name: "Cambio notte 2"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_notte3
+                name: "Cambio notte 3"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_bagno
+                name: "Cambio bagno"
                 icon: mdi:clock-outline
 
           # ---- Debug sensori (grezzi/canonici) ------------------------
