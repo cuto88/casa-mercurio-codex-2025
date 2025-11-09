@@ -767,7 +767,6 @@ automation:
 template:
   - binary_sensor:
       - name: "VMC Failsafe sensori KO"
-        object_id: vmc_failsafe_sensors_bad
         unique_id: vmc_failsafe_sensors_bad
         icon: mdi:alert-circle
         state: >
@@ -781,21 +780,18 @@ template:
           {{ required | select('in', ['unknown','unavailable','', none]) | list | count > 0 }}
 
       - name: "VMC Override AC notte = DRY"
-        object_id: vmc_override_ac_dry
         unique_id: vmc_override_ac_dry
         icon: mdi:shield-refresh
         state: >
           {{ is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') }}
 
       - name: "VMC Bagno Boost attivo"
-        object_id: vmc_bagno_boost
         unique_id: vmc_bagno_boost
         icon: mdi:fan-speed-3
         state: >
           {{ is_state('switch.vmc_vel_3','on') }}
 
       - name: "VMC Free-cooling PH attivo"
-        object_id: vmc_free_cooling_ph
         unique_id: vmc_free_cooling_ph
         icon: mdi:snowflake-thermometer
         state: >
@@ -815,7 +811,6 @@ template:
              is_state('switch.vmc_vel_2','on') }}
 
       - name: "VMC Free-cooling Macchina attivo"
-        object_id: vmc_free_cooling_machine
         unique_id: vmc_free_cooling_machine
         icon: mdi:home-thermometer-outline
         state: >
@@ -838,7 +833,6 @@ template:
              is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and is_state('switch.vmc_vel_2','on') }}
 
       - name: "VMC Anti-secco attivo"
-        object_id: vmc_anti_secco
         unique_id: vmc_anti_secco
         icon: mdi:water-percent-alert
         state: >
@@ -883,7 +877,6 @@ template:
 
   - sensor:
       - name: "VMC Vel target"
-        object_id: vmc_vel_target
         unique_id: vmc_vel_target
         icon: mdi:fan
         state: >
@@ -894,7 +887,6 @@ template:
           {% else %}off{% endif %}
 
       - name: "VMC Vel indice"
-        object_id: vmc_vel_index
         unique_id: vmc_vel_index
         unit_of_measurement: "step"
         icon: mdi:fan-speed-1

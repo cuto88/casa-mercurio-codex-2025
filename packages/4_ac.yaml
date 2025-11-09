@@ -150,6 +150,54 @@ template:
           {% set h = now().hour %}
           {{ h >= 23 or h < 7 }}
 
+      # ---- Diagnostica configurazione ----
+      - name: "AC - configurazione OK"
+        unique_id: ac_config_ok
+        device_class: problem
+        state: >
+          {% set expected = [
+            'switch.ac_giorno','switch.ac_notte',
+            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
+            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
+            'sensor.t_in_giorno','sensor.ur_in_giorno',
+            'sensor.t_in_notte1','sensor.ur_in_notte1',
+            'sensor.ac_mode_label',
+            'input_number.ac_ur_high','input_number.ac_ur_target',
+            'input_number.ac_t_cool_on','input_number.ac_t_target',
+            'input_number.ac_hyst_off','input_number.ac_min_on',
+            'input_number.ac_min_off','input_number.ac_max_run'
+          ] %}
+          {% set existing = states | map(attribute='entity_id') | list %}
+          {% set ns = namespace(missing=[]) %}
+          {% for entity_id in expected %}
+            {% if entity_id not in existing %}
+              {% set ns.missing = ns.missing + [entity_id] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.missing | length == 0 }}
+        attributes:
+          missing_count: >
+            {% set expected = [
+              'switch.ac_giorno','switch.ac_notte',
+              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
+              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
+              'sensor.t_in_giorno','sensor.ur_in_giorno',
+              'sensor.t_in_notte1','sensor.ur_in_notte1',
+              'sensor.ac_mode_label',
+              'input_number.ac_ur_high','input_number.ac_ur_target',
+              'input_number.ac_t_cool_on','input_number.ac_t_target',
+              'input_number.ac_hyst_off','input_number.ac_min_on',
+              'input_number.ac_min_off','input_number.ac_max_run'
+            ] %}
+            {% set existing = states | map(attribute='entity_id') | list %}
+            {% set ns = namespace(count=0) %}
+            {% for entity_id in expected %}
+              {% if entity_id not in existing %}
+                {% set ns.count = ns.count + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.count }}
+
   - sensor:
       - name: "ac_mode_label"
         unique_id: ac_mode_label
@@ -157,6 +205,53 @@ template:
           {% if is_state('binary_sensor.ac_need_cool','on') %} COOL
           {% elif is_state('binary_sensor.ac_need_dry','on') %} DRY
           {% else %} OFF {% endif %}
+
+      - name: "AC — entità mancanti"
+        unique_id: ac_missing_entities
+        icon: mdi:alert-decagram
+        state: >
+          {% set expected = [
+            'switch.ac_giorno','switch.ac_notte',
+            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
+            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
+            'sensor.t_in_giorno','sensor.ur_in_giorno',
+            'sensor.t_in_notte1','sensor.ur_in_notte1',
+            'sensor.ac_mode_label',
+            'input_number.ac_ur_high','input_number.ac_ur_target',
+            'input_number.ac_t_cool_on','input_number.ac_t_target',
+            'input_number.ac_hyst_off','input_number.ac_min_on',
+            'input_number.ac_min_off','input_number.ac_max_run'
+          ] %}
+          {% set existing = states | map(attribute='entity_id') | list %}
+          {% set ns = namespace(missing=[]) %}
+          {% for entity_id in expected %}
+            {% if entity_id not in existing %}
+              {% set ns.missing = ns.missing + [entity_id] %}
+            {% endif %}
+          {% endfor %}
+          {{ 'OK' if ns.missing | length == 0 else ns.missing | join(', ') }}
+        attributes:
+          missing_count: >
+            {% set expected = [
+              'switch.ac_giorno','switch.ac_notte',
+              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
+              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
+              'sensor.t_in_giorno','sensor.ur_in_giorno',
+              'sensor.t_in_notte1','sensor.ur_in_notte1',
+              'sensor.ac_mode_label',
+              'input_number.ac_ur_high','input_number.ac_ur_target',
+              'input_number.ac_t_cool_on','input_number.ac_t_target',
+              'input_number.ac_hyst_off','input_number.ac_min_on',
+              'input_number.ac_min_off','input_number.ac_max_run'
+            ] %}
+            {% set existing = states | map(attribute='entity_id') | list %}
+            {% set ns = namespace(missing=0) %}
+            {% for entity_id in expected %}
+              {% if entity_id not in existing %}
+                {% set ns.missing = ns.missing + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.missing }}
 
   # ---- Ultimo ON/OFF (trigger-based) Giorno/Notte ----
   - trigger:
@@ -317,100 +412,5 @@ timer:
 
 # ============================================================================
 # 6) DIAGNOSTICA — sensori di verifica entità mancanti (stato + attributi)
+#     Definiti nel blocco template sovrastante.
 # ============================================================================
-template:
-  - sensor:
-      - name: "AC — entità mancanti"
-        unique_id: ac_missing_entities
-        icon: mdi:alert-decagram
-        state: >
-          {% set expected = [
-            'switch.ac_giorno','switch.ac_notte',
-            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-            'sensor.t_in_giorno','sensor.ur_in_giorno',
-            'sensor.t_in_notte1','sensor.ur_in_notte1',
-            'sensor.ac_mode_label',
-            'input_number.ac_ur_high','input_number.ac_ur_target',
-            'input_number.ac_t_cool_on','input_number.ac_t_target',
-            'input_number.ac_hyst_off','input_number.ac_min_on',
-            'input_number.ac_min_off','input_number.ac_max_run'
-          ] %}
-          {% set existing = states | map(attribute='entity_id') | list %}
-          {% set ns = namespace(missing=[]) %}
-          {% for entity_id in expected %}
-            {% if entity_id not in existing %}
-              {% set ns.missing = ns.missing + [entity_id] %}
-            {% endif %}
-          {% endfor %}
-          {{ 'OK' if ns.missing | length == 0 else ns.missing | join(', ') }}
-        attributes:
-          missing_count: >
-            {% set expected = [
-              'switch.ac_giorno','switch.ac_notte',
-              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-              'sensor.t_in_giorno','sensor.ur_in_giorno',
-              'sensor.t_in_notte1','sensor.ur_in_notte1',
-              'sensor.ac_mode_label',
-              'input_number.ac_ur_high','input_number.ac_ur_target',
-              'input_number.ac_t_cool_on','input_number.ac_t_target',
-              'input_number.ac_hyst_off','input_number.ac_min_on',
-              'input_number.ac_min_off','input_number.ac_max_run'
-            ] %}
-            {% set existing = states | map(attribute='entity_id') | list %}
-            {% set ns = namespace(missing=0) %}
-            {% for entity_id in expected %}
-              {% if entity_id not in existing %}
-                {% set ns.missing = ns.missing + 1 %}
-              {% endif %}
-            {% endfor %}
-            {{ ns.missing }}
-
-  - binary_sensor:
-      - name: "AC - configurazione OK"
-        unique_id: ac_config_ok
-        device_class: problem
-        state: >
-          {% set expected = [
-            'switch.ac_giorno','switch.ac_notte',
-            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-            'sensor.t_in_giorno','sensor.ur_in_giorno',
-            'sensor.t_in_notte1','sensor.ur_in_notte1',
-            'sensor.ac_mode_label',
-            'input_number.ac_ur_high','input_number.ac_ur_target',
-            'input_number.ac_t_cool_on','input_number.ac_t_target',
-            'input_number.ac_hyst_off','input_number.ac_min_on',
-            'input_number.ac_min_off','input_number.ac_max_run'
-          ] %}
-          {% set existing = states | map(attribute='entity_id') | list %}
-          {% set ns = namespace(missing=[]) %}
-          {% for entity_id in expected %}
-            {% if entity_id not in existing %}
-              {% set ns.missing = ns.missing + [entity_id] %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.missing | length == 0 }}
-        attributes:
-          missing_count: >
-            {% set expected = [
-              'switch.ac_giorno','switch.ac_notte',
-              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-              'sensor.t_in_giorno','sensor.ur_in_giorno',
-              'sensor.t_in_notte1','sensor.ur_in_notte1',
-              'sensor.ac_mode_label',
-              'input_number.ac_ur_high','input_number.ac_ur_target',
-              'input_number.ac_t_cool_on','input_number.ac_t_target',
-              'input_number.ac_hyst_off','input_number.ac_min_on',
-              'input_number.ac_min_off','input_number.ac_max_run'
-            ] %}
-            {% set existing = states | map(attribute='entity_id') | list %}
-            {% set ns = namespace(count=0) %}
-            {% for entity_id in expected %}
-              {% if entity_id not in existing %}
-                {% set ns.count = ns.count + 1 %}
-              {% endif %}
-            {% endfor %}
-            {{ ns.count }}
