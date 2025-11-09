@@ -1,0 +1,26 @@
+###############################################################################
+# vmc_plancia_regole.txt — Documentazione layout plancia 2_VMC
+# Obiettivo: descrivere struttura e contenuti della plancia Lovelace associata
+#            al modulo VMC (packages/2_vmc.yaml, lovelace/2_vmc_plancia.yaml).
+###############################################################################
+
+COLONNA 1 — STATO & ATTUATORI
+- Glance "Stato logico": mostra priorità, motivo, ultimo evento e stagioni logiche.
+- Glance "Attuatori": espone relè VMC vel_0..vel_3 + climatizzatori giorno/notte.
+- Markdown "Come decide": riepilogo top-down delle priorità P0→P4 e override DRY.
+
+COLONNA 2 — KPI COMPATTI (24h)
+- Mini-graph temperature (Esterno, Giorno, Notte, Bagno) colore rosso/giallo/blu/verde.
+- Mini-graph umidità relative con media e minimo interno (grigio/teal per derivate).
+- Mini-graph AH & Dew point (g/m³ + dew point interno) per controllo comfort.
+- Mini-graph differenziali ΔT / ΔAH per valutare free-cooling Passivhaus.
+
+COLONNA 3 — TREND, VELOCITÀ E DEBUG
+- Mini-graph T_in vs T_out (24h) + mini-graph AH_in vs AH_out (24h).
+- Statistics-graph barre orarie (24h) su sensor.vmc_vel_index per tracking velocità.
+- History-graph UR_media/UR_esterna/dew point (24h) e statistics-graph 7gg T/UR medie.
+- Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
+
+NOTE
+- Tutti i colori seguono convenzione rosso esterno, giallo giorno, blu notte, verde bagno.
+- Nessun comando manuale di velocità: la plancia espone solo lo stato degli attuatori.
