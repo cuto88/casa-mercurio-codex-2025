@@ -148,11 +148,10 @@ rest:
         value_template: >-
           {% set payload = value_json if value_json is defined and value_json is mapping else {} %}
           {% set current = payload.get('current') if payload else none %}
-          {% set value = current.get('temperature_2m') if current is mapping else none %}
-          {% if value is number %}
-            {{ value }}
+          {% if current is mapping and current.get('temperature_2m') is not none %}
+            {{ current.get('temperature_2m') }}
           {% else %}
-            unknown
+            {{ 'unavailable' }}
           {% endif %}
         unit_of_measurement: "°C"
         device_class: temperature
