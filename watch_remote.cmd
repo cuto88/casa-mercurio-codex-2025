@@ -4,33 +4,35 @@ setlocal enabledelayedexpansion
 
 REM === WATCH_REMOTE.CMD — Controllo nuovi commit su GitHub + sync HA ===
 
-set "REPO_PATH=C:\_Tools\casa-mercurio-codex-2025"
-set "PULL_SCRIPT=%REPO_PATH%\pull_repo.ps1"
-set "SYNC_SCRIPT=%REPO_PATH%\synch_ha.ps1"
-set "INTERVAL=30"
+set "BRANCH=main"
+set "CHECK_INTERVAL=30"   REM secondi tra i controlli
+set "POST_PULL_WAIT=10"   REM attesa prima del sync
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
+
+set "PULL_SCRIPT=%~dp0pull_repo.ps1"
+set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
+
+echo 🔁 Watcher remoto avviato (branch: %BRANCH%)
+echo Repo: %cd%
+echo.
 
 :LOOP
-cls
-echo =====================================================
-echo [%date% %time%] Monitoraggio repository attivo...
-echo =====================================================
-
-cd /d "%REPO_PATH%" || (
-    echo [%time%] ERRORE: impossibile accedere alla cartella %REPO_PATH%
-    echo [%time%] Prossimo controllo tra %INTERVAL% secondi...
-    timeout /t %INTERVAL% >nul
+if /I not "%IGNORE_LOCAL_CHANGES%"=="1" (
+  REM 1) Blocca se ci sono modifiche locali (ignora untracked)
+  git diff --quiet
+  if not "%ERRORLEVEL%"=="0" (
+    echo ⚠️  Modifiche locali non committate → skip pull
+    timeout /t %CHECK_INTERVAL% /nobreak >nul
     goto LOOP
-)
-
-REM Branch corrente
-set "BRANCH="
-for /f "delims=" %%b in ('git rev-parse --abbrev-ref HEAD') do set "BRANCH=%%b"
-
-if not defined BRANCH (
-    echo [%time%] ERRORE: impossibile determinare il branch corrente.
-    echo [%time%] Prossimo controllo tra %INTERVAL% secondi...
-    timeout /t %INTERVAL% >nul
+  )
+  git diff --cached --quiet
+  if not "%ERRORLEVEL%"=="0" (
+    echo ⚠️  Modifiche in stage → skip pull
+    timeout /t %CHECK_INTERVAL% /nobreak >nul
     goto LOOP
+  )
+) else (
+  echo 🔓 Ignoro modifiche locali (variabile IGNORE_LOCAL_CHANGES=1)
 )
 
 REM Aggiorna info da remoto
@@ -39,14 +41,15 @@ git fetch origin >nul 2>&1
 set "REMOTE_AHEAD=0"
 for /f "delims=" %%c in ('git rev-list HEAD..origin/!BRANCH! --count') do set "REMOTE_AHEAD=%%c"
 
-if "!REMOTE_AHEAD!" NEQ "0" (
-    echo [%time%] Trovati !REMOTE_AHEAD! nuovi commit su origin/!BRANCH!.
-    
-    if exist "%PULL_SCRIPT%" (
-        echo [%time%] Eseguo pull_repo.ps1...
-        powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%PULL_SCRIPT%"
+    if /I "%IGNORE_LOCAL_CHANGES%"=="1" (
+        powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%" -IgnoreLocalChanges
     ) else (
-        echo [%time%] ERRORE: pull_repo.ps1 non trovato in %PULL_SCRIPT%
+        powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%"
+    )
+    if errorlevel 1 (
+        echo ❌ Pull fallito. Riprovo tra %CHECK_INTERVAL%s...
+        timeout /t %CHECK_INTERVAL% /nobreak >nul
+        goto LOOP
     )
 
     echo [%time%] Avvio synch_ha.ps1...
