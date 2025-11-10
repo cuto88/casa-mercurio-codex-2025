@@ -75,6 +75,7 @@ views:
               - **P0 — Failsafe** → `vel_0` (sensori KO).
               - **Override — AC notte = DRY** → `vel_0` (evita aria umida durante deumidifica).
               - **P1 — Bagno/Boost** → `vel_3` (UR bagno ≥ 75% o ΔUR ≥ 10%; stop a UR ≤ 65% e ΔUR ≤ 5%).
+                - Se l'aria esterna è più secca della bagno, il boost scala automaticamente a `vel_2` per preservare UR ≈50%.
               - **P2 — Free‑cooling** → `vel_2`:
                 - *Passivhaus*: `T_in > 24°C`, `T_out < T_in`, `AH_out < AH_in` (lock 15').
                 - *Macchina*: `T_in > 24°C`, `20°C < T_out < T_in` (lock 15').
