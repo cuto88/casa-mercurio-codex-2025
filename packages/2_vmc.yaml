@@ -764,13 +764,9 @@ automation:
       - service: switch.turn_on
         target: { entity_id: switch.vmc_vel_1 }
 
-# =============================
-# 4) TEMPLATE SENSOR (stato anti-secco/DRY + soglie + comfort)
-# =============================
 template:
   - binary_sensor:
       - name: "VMC Failsafe sensori KO"
-        object_id: vmc_failsafe_sensors_bad
         unique_id: vmc_failsafe_sensors_bad
         icon: mdi:alert-circle
         state: >
@@ -784,21 +780,18 @@ template:
           {{ required | select('in', ['unknown','unavailable','', none]) | list | count > 0 }}
 
       - name: "VMC Override AC notte = DRY"
-        object_id: vmc_override_ac_dry
         unique_id: vmc_override_ac_dry
         icon: mdi:shield-refresh
         state: >
           {{ is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') }}
 
       - name: "VMC Bagno Boost attivo"
-        object_id: vmc_bagno_boost
         unique_id: vmc_bagno_boost
         icon: mdi:fan-speed-3
         state: >
           {{ is_state('switch.vmc_vel_3','on') }}
 
       - name: "VMC Free-cooling PH attivo"
-        object_id: vmc_free_cooling_ph
         unique_id: vmc_free_cooling_ph
         icon: mdi:snowflake-thermometer
         state: >
@@ -818,7 +811,6 @@ template:
              is_state('switch.vmc_vel_2','on') }}
 
       - name: "VMC Free-cooling Macchina attivo"
-        object_id: vmc_free_cooling_machine
         unique_id: vmc_free_cooling_machine
         icon: mdi:home-thermometer-outline
         state: >
@@ -841,15 +833,16 @@ template:
              is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and is_state('switch.vmc_vel_2','on') }}
 
       - name: "VMC Anti-secco attivo"
-        object_id: vmc_anti_secco
         unique_id: vmc_anti_secco
         icon: mdi:water-percent-alert
         state: >
           {% set m = now().month %}
           {% set notte = now().hour >= 23 or now().hour < 7 %}
-          {% set ur_min = states('sensor.ur_in_min')|float(100) %}
-          {% set soglia = states('input_number.vmc_anti_secco_ur_min')|float(40) %}
-          {{ (m in [11,12,1,2,3]) and notte and (ur_min <= soglia) and is_state('switch.vmc_vel_0','on') }}
+          {% set ur_min_raw = states('sensor.ur_in_min') %}
+          {% set ur_min = ur_min_raw|float(default=none) if ur_min_raw not in ['unknown','unavailable','', none] else none %}
+          {% set soglia_raw = states('input_number.vmc_anti_secco_ur_min') %}
+          {% set soglia = soglia_raw|float(40) if soglia_raw not in ['unknown','unavailable','', none] else 40 %}
+          {{ (m in [11,12,1,2,3]) and notte and ur_min is not none and (ur_min <= soglia) and is_state('switch.vmc_vel_0','on') }}
 
       - name: "VMC DRY attivo (P1B)"
         unique_id: vmc_dry_active
@@ -858,15 +851,32 @@ template:
           {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
         attributes:
           started_minutes_ago: >
-            {% set ts = [states.switch.ac_notte, states.switch.ac_giorno]
-                         | select('defined')
-                         | map(attribute='last_changed')
-                         | max(default=none) %}
-            {% if ts %}{{ ((now() - ts).total_seconds() / 60) | round(0) }}{% else %}0{% endif %}
+            {% set ns = namespace(times=[]) %}
+            {% set ent_n = states.switch.ac_notte if states.switch.ac_notte is defined else none %}
+            {% set ent_g = states.switch.ac_giorno if states.switch.ac_giorno is defined else none %}
+            {% for obj in [ent_n, ent_g] %}
+              {% if obj is not none %}
+                {% set ns.times = ns.times + [obj.last_changed] %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.times %}
+              {{ ((now() - (ns.times | max)).total_seconds() / 60) | round(0) }}
+            {% else %}
+              0
+            {% endif %}
+
+      - name: "Stagione calda"
+        unique_id: stagione_calda
+        state: >
+          {{ now().month in [5,6,7,8,9] }}
+
+      - name: "Stagione fredda"
+        unique_id: stagione_fredda
+        state: >
+          {{ now().month in [11,12,1,2,3] }}
 
   - sensor:
       - name: "VMC Vel target"
-        object_id: vmc_vel_target
         unique_id: vmc_vel_target
         icon: mdi:fan
         state: >
@@ -876,41 +886,17 @@ template:
           {% elif is_state('switch.vmc_vel_0','on') %}vel_0
           {% else %}off{% endif %}
 
-      - name: "VMC Bagno Soglia ON"
-        unique_id: vmc_bagno_on_threshold
-        unit_of_measurement: "%"
-        state: "{{ states('input_number.vmc_bagno_on') }}"
-      - name: "VMC Bagno Soglia OFF"
-        unique_id: vmc_bagno_off_threshold
-        unit_of_measurement: "%"
-        state: "{{ states('input_number.vmc_bagno_off') }}"
-
-      - name: "VMC FC PH Tin ON"
-        unique_id: vmc_fc_ph_tin_on_sensor
-        unit_of_measurement: "°C"
-        device_class: temperature
+      - name: "VMC Vel indice"
+        unique_id: vmc_vel_index
+        unit_of_measurement: "step"
+        icon: mdi:fan-speed-1
         state_class: measurement
-        state: "{{ states('input_number.vmc_fc_ph_tin_on') }}"
+        state: >
+          {% if is_state('switch.vmc_vel_3','on') %}3
+          {% elif is_state('switch.vmc_vel_2','on') %}2
+          {% elif is_state('switch.vmc_vel_1','on') %}1
+          {% else %}0{% endif %}
 
-      - name: "Comfort Tmin"
-        unique_id: comfort_tmin
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: "20"
-      - name: "Comfort Tmax"
-        unique_id: comfort_tmax
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: "24"
-
-
-# =============================
-# 5) DIAGNOSTICA (Reason/Last Event) + STAGIONI
-# =============================
-template:
-  - sensor:
       - name: "VMC Reason"
         unique_id: vmc_reason
         icon: mdi:text
@@ -940,23 +926,6 @@ template:
         icon: mdi:clock-outline
         state: "{{ states('input_text.vmc_last_event') if states('input_text.vmc_last_event') not in ['unknown','unavailable'] else '—' }}"
 
-  - binary_sensor:
-      - name: "Stagione calda"
-        unique_id: stagione_calda
-        state: >
-          {{ now().month in [5,6,7,8,9] }}
-      - name: "Stagione fredda"
-        unique_id: stagione_fredda
-        state: >
-          {{ now().month in [11,12,1,2,3] }}
-
-
-# =============================
-# 6) Priority (per plancia) + Last Event helper
-# =============================
-
-template:
-  - sensor:
       - name: "VMC Priority"
         unique_id: vmc_priority
         icon: mdi:arrow-top-right-bold-outline

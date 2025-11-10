@@ -7,6 +7,7 @@ REM Monitora GitHub; se ci sono nuovi commit: pull_repo.ps1 -> (10s) -> synch_ha
 set "BRANCH=main"
 set "CHECK_INTERVAL=30"   REM secondi tra i controlli
 set "POST_PULL_WAIT=10"   REM attesa prima del sync
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
 
 set "PULL_SCRIPT=%~dp0pull_repo.ps1"
 set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
@@ -16,18 +17,22 @@ echo Repo: %cd%
 echo.
 
 :LOOP
-REM 1) Blocca se ci sono modifiche locali (ignora untracked)
-git diff --quiet
-if not "%ERRORLEVEL%"=="0" (
-  echo ⚠️  Modifiche locali non committate → skip pull
-  timeout /t %CHECK_INTERVAL% /nobreak >nul
-  goto LOOP
-)
-git diff --cached --quiet
-if not "%ERRORLEVEL%"=="0" (
-  echo ⚠️  Modifiche in stage → skip pull
-  timeout /t %CHECK_INTERVAL% /nobreak >nul
-  goto LOOP
+if /I not "%IGNORE_LOCAL_CHANGES%"=="1" (
+  REM 1) Blocca se ci sono modifiche locali (ignora untracked)
+  git diff --quiet
+  if not "%ERRORLEVEL%"=="0" (
+    echo ⚠️  Modifiche locali non committate → skip pull
+    timeout /t %CHECK_INTERVAL% /nobreak >nul
+    goto LOOP
+  )
+  git diff --cached --quiet
+  if not "%ERRORLEVEL%"=="0" (
+    echo ⚠️  Modifiche in stage → skip pull
+    timeout /t %CHECK_INTERVAL% /nobreak >nul
+    goto LOOP
+  )
+) else (
+  echo 🔓 Ignoro modifiche locali (variabile IGNORE_LOCAL_CHANGES=1)
 )
 
 REM 2) Controlla aggiornamenti remoti
@@ -41,7 +46,11 @@ if not "%LOCAL%"=="%REMOTE%" (
     echo     remote: %REMOTE%
     echo.
 
-    powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%"
+    if /I "%IGNORE_LOCAL_CHANGES%"=="1" (
+        powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%" -IgnoreLocalChanges
+    ) else (
+        powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%"
+    )
     if errorlevel 1 (
         echo ❌ Pull fallito. Riprovo tra %CHECK_INTERVAL%s...
         timeout /t %CHECK_INTERVAL% /nobreak >nul
