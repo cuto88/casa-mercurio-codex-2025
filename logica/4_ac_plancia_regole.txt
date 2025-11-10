@@ -29,4 +29,4 @@ COLONNA 4 — MOTIVAZIONI / LOGICA
 
 NOTE
 - Plancia usa solo entity_id già definiti in packages/4_ac.yaml e 0_sensors.yaml.
-- Layout coerente con Regole Plancia v2 (mobile-first, nessun comando duplicato).
+- Layout mobile-first (sections) coerente con Regole Plancia.
