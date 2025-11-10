@@ -164,57 +164,36 @@ rest:
         device_class: humidity
         state_class: measurement
         icon: mdi:water-percent
-        value_template: >-
-          {% set data = value_json | default({}, true) %}
-          {% set hourly = data.hourly | default({}, true) %}
-          {% set series = hourly.relative_humidity_2m | default([], true) %}
-          {% if series | length > 0 %}
-            {{ series[0] }}
-          {% else %}
-            {{ states('sensor.vent_meteo_rh') }}
-          {% endif %}
+        value_template: "{{ value_json.hourly.relative_humidity_2m[0] }}"
 
       - name: "Vent Meteo Precip"
         unique_id: vent_meteo_precip
         unit_of_measurement: "mm"
         state_class: measurement
         icon: mdi:weather-rainy
-        value_template: >-
-          {% set data = value_json | default({}, true) %}
-          {% set hourly = data.hourly | default({}, true) %}
-          {% set series = hourly.precipitation | default([], true) %}
-          {% if series | length > 0 %}
-            {{ series[0] }}
-          {% else %}
-            {{ states('sensor.vent_meteo_precip') }}
-          {% endif %}
+        value_template: "{{ value_json.hourly.precipitation[0] }}"
 
       - name: "Vent Meteo Vento"
         unique_id: vent_meteo_vento
         unit_of_measurement: "m/s"
         state_class: measurement
         icon: mdi:weather-windy
-        value_template: >-
-          {% set data = value_json | default({}, true) %}
-          {% set hourly = data.hourly | default({}, true) %}
-          {% set series = hourly.wind_speed_10m | default([], true) %}
-          {% if series | length > 0 %}
-            {{ series[0] }}
-          {% else %}
-            {{ states('sensor.vent_meteo_vento') }}
-          {% endif %}
+        value_template: "{{ value_json.hourly.wind_speed_10m[0] }}"
 
+  # --- QUALITÀ ARIA: PM2.5 (endpoint dedicato) -------------------
+  - resource: "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=45.611133&longitude=12.356051&hourly=pm2_5&timezone=auto"
+    scan_interval: 1800  # ogni 30 minuti è sufficiente
+    timeout: 30
+    sensor:
       - name: "Vent Meteo PM2.5"
         unique_id: vent_meteo_pm25
         unit_of_measurement: "µg/m³"
         state_class: measurement
         icon: mdi:blur
         value_template: >-
-          {% set data = value_json | default({}, true) %}
-          {% set hourly = data.hourly | default({}, true) %}
-          {% set series = hourly.pm2_5 | default([], true) %}
-          {% if series | length > 0 %}
-            {{ series[0] }}
+          {% set data = value_json.hourly.pm2_5 | default([]) %}
+          {% if data | length > 0 %}
+            {{ data[0] }}
           {% else %}
             {{ states('sensor.vent_meteo_pm25') }}
           {% endif %}

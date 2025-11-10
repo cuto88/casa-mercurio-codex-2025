@@ -215,15 +215,63 @@ views:
               - entity: sensor.ah_out
                 name: AH_out
 
-          - type: statistics-graph
-            title: "Velocità VMC — 24h"
-            days_to_show: 1
-            period: hour
-            chart_type: bar
-            stat_types:
-              - mean
+          - type: custom:mini-graph-card
+            name: "UR bagno — 24h"
+            hours_to_show: 24
+            points_per_hour: 6
+            line_width: 2
+            height: 120
+            show:
+              fill: true
+              legend: false
+              extrema: true
+            lower_bound: 30
+            upper_bound: 100
+            color_thresholds:
+              - value: 60
+                color: green
+              - value: 70
+                color: amber
+              - value: 80
+                color: red
             entities:
-              - sensor.vmc_vel_index
+              - entity: sensor.ur_in_bagno
+                name: "UR bagno"
+
+          - type: custom:mini-graph-card
+            name: "Velocità VMC — 24h"
+            hours_to_show: 24
+            points_per_hour: 6
+            line_width: 2
+            height: 120
+            smoothing: false
+            show:
+              fill: false
+              points: false
+              legend: false
+              state: true
+            lower_bound: 0
+            upper_bound: 3
+            color_thresholds:
+              - value: 0
+                color: grey
+              - value: 1
+                color: blue
+              - value: 2
+                color: amber
+              - value: 3
+                color: red
+            state_map:
+              - value: 0
+                label: "vel_0"
+              - value: 1
+                label: "vel_1"
+              - value: 2
+                label: "vel_2"
+              - value: 3
+                label: "vel_3"
+            entities:
+              - entity: sensor.vmc_vel_index
 
           # History-graph: umidità & dew point (24h)
           - type: history-graph

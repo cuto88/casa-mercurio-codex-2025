@@ -20,7 +20,8 @@ COLONNA 2 — KPI COMPATTI (24h)
 COLONNA 3 — TREND, VELOCITÀ E DEBUG
 - Mini-graph T_in_media vs T_out (24h).
 - Mini-graph AH_in vs AH_out (24h).
-- Statistics-graph barre orarie (24h) su sensor.vmc_vel_index per tracking velocità.
+- Mini-graph dedicato a `sensor.ur_in_bagno` (24h) per monitorare il trigger BOOST.
+- Mini-graph su `sensor.vmc_vel_index` (24h) con state_map 0→vel_0 ... 3→vel_3 per il tracking rapido.
 - History-graph UR_media/UR_out/dewpoint (24h) e statistics-graph 7gg T/UR medie.
 - Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
 
