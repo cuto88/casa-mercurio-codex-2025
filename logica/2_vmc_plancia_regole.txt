@@ -31,4 +31,4 @@ NOTE
 - Tutti i colori seguono convenzione rosso esterno, giallo giorno, blu notte, verde bagno.
 - La card manuale consente di disattivare le automazioni; queste restano off finché
   l'utente non spegne `input_boolean.vmc_manual` o scade il timer di override.
-###############################################################################
+- Layout mobile-first (sections) coerente con Regole Plancia.
