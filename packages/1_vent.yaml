@@ -138,9 +138,8 @@ input_datetime:
 # 2) METEO ESTERNO (Open-Meteo)
 # =============================
 rest:
-  # --- METEO BASE: T, UR, pioggia, vento -------------------------
-  - resource: "https://api.open-meteo.com/v1/forecast?latitude=45.611133&longitude=12.356051&hourly=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&forecast_days=1&windspeed_unit=ms&timezone=auto"
-    scan_interval: 900   # ogni 15 minuti
+  - resource: "https://api.open-meteo.com/v1/forecast?latitude=45.611133&longitude=12.356051&hourly=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m,pm2_5&forecast_days=1&windspeed_unit=ms&timezone=Europe/Rome"
+    scan_interval: 900
     timeout: 30
     sensor:
       - name: "Vent Meteo Temp"
@@ -149,7 +148,15 @@ rest:
         device_class: temperature
         state_class: measurement
         icon: mdi:thermometer
-        value_template: "{{ value_json.hourly.temperature_2m[0] }}"
+        value_template: >-
+          {% set data = value_json | default({}, true) %}
+          {% set hourly = data.hourly | default({}, true) %}
+          {% set series = hourly.temperature_2m | default([], true) %}
+          {% if series | length > 0 %}
+            {{ series[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_temp') }}
+          {% endif %}
 
       - name: "Vent Meteo RH"
         unique_id: vent_meteo_rh
