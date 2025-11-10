@@ -10,7 +10,7 @@ COLONNA 1 — STATO & ATTUATORI
 - Entities "Modalità manuale": controlla `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`,
   espone `timer.vmc_manual_timeout` (solo lettura) e reminder sul ripristino automatico.
 - Markdown "Come decide": riepilogo top-down delle priorità P0→P4 e override DRY.
-  Include la nota sul boost bagno che scala da `vel_3` a `vel_2` se l'aria esterna è più secca (protezione UR ≈50%).
+  Include la nota sul boost bagno che scala da `vel_3` a `vel_2` quando UR_media > 50% e UR_out è ≥10pt più bassa (protezione UR ≈50%).
 - Markdown "Come succede": breve spiegazione dinamica del perché siamo nella priorità corrente.
 
 COLONNA 2 — KPI COMPATTI (24h)
