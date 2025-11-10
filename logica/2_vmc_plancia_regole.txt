@@ -21,7 +21,8 @@ COLONNA 3 — TREND, VELOCITÀ E DEBUG
 - Mini-graph T_in_media vs T_out (24h).
 - Mini-graph AH_in vs AH_out (24h).
 - Mini-graph dedicato a `sensor.ur_in_bagno` (24h) per monitorare il trigger BOOST.
-- Mini-graph su `sensor.vmc_vel_index` (24h) con state_map 0→vel_0 ... 3→vel_3 per il tracking rapido.
+- Statistics-graph "Velocità VMC — 24h" (stat_types=state, period=hour) su `sensor.vmc_vel_index` per step orizzontali.
+- Mapping velocità: 0→vel_0, 1→vel_1, 2→vel_2, 3→vel_3 (riportato anche nella legenda/card informativa).
 - History-graph UR_media/UR_out/dewpoint (24h) e statistics-graph 7gg T/UR medie.
 - Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
 
