@@ -1,12 +1,21 @@
 @echo off
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM === watch_remote.cmd ===
-REM Monitora GitHub; se ci sono nuovi commit: pull_repo.ps1 -> (10s) -> synch_ha.ps1
+REM === WATCH_REMOTE.CMD — Controllo nuovi commit su GitHub + sync HA ===
 
 set "BRANCH=main"
 set "CHECK_INTERVAL=30"   REM secondi tra i controlli
 set "POST_PULL_WAIT=10"   REM attesa prima del sync
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
+
+REM Flag per ignorare le modifiche locali: accetta variabile ambiente o parametro CLI
+if not "%~1"=="" (
+  for %%A in (--ignore-local -ignore-local /ignore-local ignore-local --ignore -ignore /ignore ignore) do (
+    if /I "%~1"=="%%~A" set "IGNORE_LOCAL_CHANGES=1"
+  )
+)
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
 
 REM Flag per ignorare le modifiche locali: accetta variabile ambiente o parametro CLI
 if not "%~1"=="" (
@@ -44,16 +53,11 @@ if /I not "%IGNORE_LOCAL_CHANGES%"=="1" (
   echo 🔓 Ignoro modifiche locali (variabile IGNORE_LOCAL_CHANGES=1)
 )
 
-REM 2) Controlla aggiornamenti remoti
-git fetch origin %BRANCH% >nul 2>&1
-for /f "delims=" %%A in ('git rev-parse HEAD') do set "LOCAL=%%A"
-for /f "delims=" %%A in ('git rev-parse origin/%BRANCH%') do set "REMOTE=%%A"
+REM Aggiorna info da remoto
+git fetch origin >nul 2>&1
 
-if not "%LOCAL%"=="%REMOTE%" (
-    echo ⬇️  Nuovi commit su GitHub:
-    echo     local : %LOCAL%
-    echo     remote: %REMOTE%
-    echo.
+set "REMOTE_AHEAD=0"
+for /f "delims=" %%c in ('git rev-list HEAD..origin/!BRANCH! --count') do set "REMOTE_AHEAD=%%c"
 
     if /I "%IGNORE_LOCAL_CHANGES%"=="1" (
         powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%" -IgnoreLocalChanges
@@ -66,18 +70,17 @@ if not "%LOCAL%"=="%REMOTE%" (
         goto LOOP
     )
 
-    echo ⏳ Attendo %POST_PULL_WAIT%s, poi sincronizzo HA...
-    timeout /t %POST_PULL_WAIT% /nobreak >nul
-
-    powershell -ExecutionPolicy Bypass -File "%SYNC_SCRIPT%"
-    if errorlevel 1 (
-        echo ❌ Sync fallito. Controlla synch_ha.ps1.
+    echo [%time%] Avvio synch_ha.ps1...
+    if exist "%SYNC_SCRIPT%" (
+        powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%SYNC_SCRIPT%"
     ) else (
-        echo ✅ Sync completato.
+        echo [%time%] ERRORE: synch_ha.ps1 non trovato in %SYNC_SCRIPT%
     )
 ) else (
-    echo ⏳ Nessuna novità. Ricontrollo tra %CHECK_INTERVAL%s...
-    timeout /t %CHECK_INTERVAL% /nobreak >nul
+    echo [%time%] Nessun nuovo commit su origin/!BRANCH!. Nessuna azione.
 )
 
+echo.
+echo [%time%] Prossimo controllo tra %INTERVAL% secondi...
+timeout /t %INTERVAL% >nul
 goto LOOP
