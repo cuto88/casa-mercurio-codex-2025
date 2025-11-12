@@ -1,0 +1,34 @@
+###############################################################################
+# 2_vmc_plancia_regole.txt — Documentazione layout plancia 2_VMC
+# Obiettivo: descrivere struttura e contenuti della plancia Lovelace associata
+#            al modulo VMC (packages/2_vmc.yaml, lovelace/2_vmc_plancia.yaml).
+###############################################################################
+
+COLONNA 1 — STATO & ATTUATORI
+- Glance "Stato logico": mostra priorità, motivo, ultimo evento e stagioni logiche.
+- Glance "Attuatori": espone relè VMC vel_0..vel_3 + climatizzatori giorno/notte.
+- Entities "Modalità manuale": controlla `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`,
+  espone `timer.vmc_manual_timeout` (solo lettura) e reminder sul ripristino automatico.
+- Markdown "Come decide": riepilogo top-down delle priorità P0→P4 e override DRY.
+  Include la nota sul boost bagno che scala da `vel_3` a `vel_2` quando UR_media > 50% e UR_out è ≥10pt più bassa (protezione UR ≈50%).
+- Markdown "Come succede": breve spiegazione dinamica del perché siamo nella priorità corrente.
+
+COLONNA 2 — KPI COMPATTI (24h)
+- Mini-graph temperature (Esterno, T in giorno, notte, bagno) colore rosso/giallo/blu/verde.
+- Mini-graph umidità relativa (Esterno, ur in giorno/notte/bagno + media/min) stessi colori.
+- Mini-graph AH & Dew point (AH_in, AH_out, dewpoint_in) per controllo comfort.
+
+COLONNA 3 — TREND, VELOCITÀ E DEBUG
+- Mini-graph T_in_media vs T_out (24h).
+- Mini-graph AH_in vs AH_out (24h).
+- Mini-graph dedicato a `sensor.ur_in_bagno` (24h) per monitorare il trigger BOOST.
+- Statistics-graph "Velocità VMC — 24h" (stat_types=state, period=hour) su `sensor.vmc_vel_index` per step orizzontali.
+- Mapping velocità: 0→vel_0, 1→vel_1, 2→vel_2, 3→vel_3 (riportato anche nella legenda/card informativa).
+- History-graph UR_media/UR_out/dewpoint (24h) e statistics-graph 7gg T/UR medie.
+- Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
+
+NOTE
+- Tutti i colori seguono convenzione rosso esterno, giallo giorno, blu notte, verde bagno.
+- La card manuale consente di disattivare le automazioni; queste restano off finché
+  l'utente non spegne `input_boolean.vmc_manual` o scade il timer di override.
+###############################################################################

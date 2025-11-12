@@ -19,12 +19,12 @@ lovelace:
 
   dashboards:
 
-    9-debug-sistema:
-      mode: yaml
-      title: "9 DEBUG Sistema"
-      icon: mdi:test-tube
-      show_in_sidebar: true
-      filename: lovelace/debug_sistema_plancia.yaml
+    # 9-debug-sistema:
+    #   mode: yaml
+    #   title: "9 DEBUG Sistema"
+    #   icon: mdi:test-tube
+    #   show_in_sidebar: true
+    #   filename: lovelace/debug_sistema_plancia.yaml
 
 #    9-test-plancia:
 #      mode: yaml
