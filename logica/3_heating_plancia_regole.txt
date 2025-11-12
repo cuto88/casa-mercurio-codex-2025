@@ -12,13 +12,13 @@ COLONNA 1 — STATO & COMANDI
 - Tile finale su switch.4_ch_interrutore_3 per interruttore generale fisico.
 
 COLONNA 2 — KPI & SELEZIONE STANZE
-- Tile con grafico per sensor.temperatura_interna_media, sensor.heating_t_in_min,
+- Tile con grafico per sensor.t_in_media, sensor.heating_t_in_min,
   sensor.t_out, input_number.temp_target_risc e timer decisionale.
 - Entities "Stanze incluse" con toggle input_boolean.heating_use_* + riepilogo
   sensor.heating_rooms_active.
 
 COLONNA 3 — TREND, STATISTICHE & SOGLIE
-- History-graph 24h su temperature stanza/esterna e decisioni logiche.
+- History-graph 24h su temperature stanza/esterna (inclusa sensor.t_in_media) e decisioni logiche (should_run, finestra, esterna fredda, sotto target, lock min on/off).
 - Statistics-graph 7gg temperature (mean/min/max) e 30gg ore ON (input_number.heating_hours_on_daily).
 - Entities "Soglie & Lock" per input_datetime finestra, target, tolleranza, soglie
   esterne e timer min_on/min_off.

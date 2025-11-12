@@ -9,6 +9,14 @@ set "CHECK_INTERVAL=30"   REM secondi tra i controlli
 set "POST_PULL_WAIT=10"   REM attesa prima del sync
 if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
 
+REM Flag per ignorare le modifiche locali: accetta variabile ambiente o parametro CLI
+if not "%~1"=="" (
+  for %%A in (--ignore-local -ignore-local /ignore-local ignore-local --ignore -ignore /ignore ignore) do (
+    if /I "%~1"=="%%~A" set "IGNORE_LOCAL_CHANGES=1"
+  )
+)
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
+
 set "PULL_SCRIPT=%~dp0pull_repo.ps1"
 set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
 
@@ -22,12 +30,14 @@ if /I not "%IGNORE_LOCAL_CHANGES%"=="1" (
   git diff --quiet
   if not "%ERRORLEVEL%"=="0" (
     echo ⚠️  Modifiche locali non committate → skip pull
+    echo     Usa "watch_remote.cmd --ignore-local" per ignorarle temporaneamente.
     timeout /t %CHECK_INTERVAL% /nobreak >nul
     goto LOOP
   )
   git diff --cached --quiet
   if not "%ERRORLEVEL%"=="0" (
     echo ⚠️  Modifiche in stage → skip pull
+    echo     Usa "watch_remote.cmd --ignore-local" per ignorarle temporaneamente.
     timeout /t %CHECK_INTERVAL% /nobreak >nul
     goto LOOP
   )

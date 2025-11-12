@@ -4,30 +4,30 @@
 ###############################################################################
 
 SEZIONE 1 — STATO & COMANDI
-- Glance "Stato generale": binary_sensor.grid_connected, pv_active,
-  exporting, importing, surplus_active.
+- Glance "Direzione flussi": sensor.grid_direction, sensor.pv_direction.
+- Tile su potenze istantanee: sensor.grid_power_w, sensor.pv_power_w.
 
 SEZIONE 2 — KPI OGGI
-- Grid 2x2 di tile (sensor.pv_today_kwh, grid_import_today_kwh,
-  grid_export_today_kwh, home_today_kwh).
+- Grid 2x2 di tile (sensor.a_energia_prelevata_forward,
+  sensor.a_energia_immessa_reverse, sensor.b_energia_prelevata_forward,
+  sensor.b_energia_immessa_reverse).
 
 SEZIONE 3 — ANDAMENTO 24H
-- Mini-graph card su potenze istantanee sensor.pv_power, grid_power,
-  home_power (24h).
-- Mini-graph card dedicata al bilancio istantaneo sensor.energy_balance_now.
+- History-graph su potenze istantanee sensor.pv_power_w e sensor.grid_power_w (24h).
+- History-graph su direzioni `sensor.grid_direction`, `sensor.pv_direction`.
 
 SEZIONE 4 — TREND 7GG / 30GG
-- Statistics-graph (barre) 7gg su kWh giornalieri FV, Import, Export, Casa.
-- Statistics-graph (linea) 30gg sugli stessi aggregati.
+- Statistics-graph (barre) 7gg per contatore A (prelievo/import vs immissione/export).
+- Statistics-graph (barre) 7gg per contatore B (prelievo/import vs immissione/export).
 
 SEZIONE 5 — SOGLIE & LOCK
-- Entities "Parametri energia" con input_number.surplus_min_power,
-  input_number.surplus_lock_time, input_boolean.surplus_enable,
+- Entities "Parametri energia" con input_number.surplus_min_w,
+  input_number.surplus_lock_minutes, input_boolean.surplus_enable,
   input_boolean.energy_debug.
 
 SEZIONE 6 — COME DECIDE
-- Markdown che spiega lettura dei bilanci, logica surplus e convenzione
-  positivo/negativo del ΔEnergia.
+- Markdown che dettaglia confronto potenze, lettura direzioni e uso
+  dei contatori A/B per valutare surplus e lock configurabili.
 
 NOTE
 - Nessun comando diretto: plancia focalizzata su monitoraggio/diagnostica.

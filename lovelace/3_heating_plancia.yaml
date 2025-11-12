@@ -87,7 +87,7 @@ views:
       - type: grid
         cards:
           - type: tile
-            entity: sensor.temperatura_interna_media
+            entity: sensor.t_in_media
             name: T_in media
             graph: line
           - type: tile
@@ -133,7 +133,7 @@ views:
                 name: T Bagno
               - entity: sensor.t_out
                 name: T Esterna
-              - entity: sensor.temperatura_interna_media
+              - entity: sensor.t_in_media
                 name: T Media Int.
 
           - type: history-graph
@@ -141,10 +141,11 @@ views:
             hours_to_show: 24
             entities:
               - binary_sensor.heating_should_run
-              - binary_sensor.heating_base_ok
               - binary_sensor.heating_finestra_oraria
               - binary_sensor.heating_esterna_fredda
               - binary_sensor.heating_almeno_una_stanza_sotto_target
+              - binary_sensor.heating_lock_min_off_ok
+              - binary_sensor.heating_lock_min_on_ok
 
           - type: statistics-graph
             title: 7 giorni — Temperature (media/min/max)
@@ -197,7 +198,7 @@ views:
               - sensor.t_in_notte2
               - sensor.t_in_bagno
               - sensor.t_out
-              - sensor.temperatura_interna_media
+              - sensor.t_in_media
               - sensor.heating_t_in_min
               - sensor.heating_minutes_since_change
               - sensor.heating_target_state_label
@@ -208,6 +209,4 @@ views:
               - binary_sensor.heating_almeno_una_stanza_sotto_target
               - binary_sensor.heating_lock_min_on_ok
               - binary_sensor.heating_lock_min_off_ok
-              - binary_sensor.heating_base_ok
               - binary_sensor.heating_should_run
-              - binary_sensor.heating_should_stop
