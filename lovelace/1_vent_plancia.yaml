@@ -53,9 +53,18 @@ views:
                 icon: mdi:message-badge
               - type: section
                 label: "Finestre (mappatura manuale)"
-              - entity: input_boolean.vent_finestra_giorno_aperta
-                name: "Giorno — finestra aperta"
+              - entity: input_boolean.vent_finestra_giorno1_aperta
+                name: "Giorno — Finestra 1"
                 icon: mdi:window-open
+              - entity: input_boolean.vent_finestra_giorno2_aperta
+                name: "Giorno — Finestra 2"
+                icon: mdi:window-open
+              - entity: input_boolean.vent_portoncino_ingresso_aperto
+                name: "Portoncino ingresso"
+                icon: mdi:door-open
+              - entity: input_boolean.vent_foro_cappa_aperto
+                name: "Foro cappa"
+                icon: mdi:tailwind
               - entity: input_boolean.vent_finestra_notte1_aperta
                 name: "Notte1 — finestra aperta"
                 icon: mdi:window-open
@@ -221,8 +230,17 @@ views:
                 icon: mdi:format-list-text
               - type: section
                 label: "Ultimi cambi manuali"
-              - entity: input_datetime.vent_last_change_giorno
-                name: "Cambio zona giorno"
+              - entity: input_datetime.vent_last_change_giorno1
+                name: "Cambio giorno — Finestra 1"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_giorno2
+                name: "Cambio giorno — Finestra 2"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_portoncino
+                name: "Cambio portoncino ingresso"
+                icon: mdi:clock-outline
+              - entity: input_datetime.vent_last_change_foro_cappa
+                name: "Cambio foro cappa"
                 icon: mdi:clock-outline
               - entity: input_datetime.vent_last_change_notte1
                 name: "Cambio notte 1"

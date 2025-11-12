@@ -91,7 +91,7 @@ views:
             name: T_in media
             graph: line
           - type: tile
-            entity: sensor.heating_t_in_min
+            entity: sensor.heating_t_interna_minima
             name: T_in minima
             graph: line
           - type: tile
@@ -102,7 +102,7 @@ views:
             entity: input_number.temp_target_risc
             name: Target °C
           - type: tile
-            entity: sensor.heating_minutes_since_change
+            entity: sensor.heating_minuti_da_ultimo_cambio
             name: Min da ultimo cambio
           - type: tile
             entity: sensor.heating_target_state_label
@@ -114,7 +114,7 @@ views:
               - input_boolean.heating_use_notte1
               - input_boolean.heating_use_notte2
               - input_boolean.heating_use_bagno
-              - sensor.heating_rooms_active
+              - sensor.heating_stanze_attive
 
       # 3) Trend & Lock
       - type: grid

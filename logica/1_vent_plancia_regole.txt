@@ -9,7 +9,8 @@ COLONNA 1 — STATO & COMANDI
   binary_sensor.vent_recommend_close, binary_sensor.vent_flag_estate e
   binary_sensor.vent_night_flush_now.
 - Entities "Comandi rapidi": override estate, toggle notifiche e mapping
-  manuale delle finestre (input_boolean.vent_finestra_*_aperta).
+  manuale delle aperture (giorno F1/F2, portoncino, foro cappa, notte1..3,
+  bagno) tramite gli input_boolean.vent_*_aperta.
 - Markdown "Consiglio": espone il testo generato da
   input_text.vent_messaggio_consiglio.
 - Markdown "Come decide": riassunto umano delle soglie ΔT/ΔAH, meteo e

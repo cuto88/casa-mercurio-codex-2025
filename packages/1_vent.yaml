@@ -17,9 +17,18 @@ input_boolean:
     name: "Ventilazione — Notifiche abilitate"
     icon: mdi:bell-alert
     initial: true
-  vent_finestra_giorno_aperta:
-    name: "Ventilazione — Finestra zona giorno"
+  vent_finestra_giorno1_aperta:
+    name: "Ventilazione — Finestra zona giorno 1"
     icon: mdi:window-open-variant
+  vent_finestra_giorno2_aperta:
+    name: "Ventilazione — Finestra zona giorno 2"
+    icon: mdi:window-open-variant
+  vent_portoncino_ingresso_aperto:
+    name: "Ventilazione — Portoncino ingresso"
+    icon: mdi:door-open
+  vent_foro_cappa_aperto:
+    name: "Ventilazione — Foro cappa"
+    icon: mdi:tailwind
   vent_finestra_notte1_aperta:
     name: "Ventilazione — Finestra zona notte 1"
     icon: mdi:window-open-variant
@@ -108,8 +117,23 @@ input_datetime:
     has_time: true
     icon: mdi:weather-sunset-up
     initial: "08:00"
-  vent_last_change_giorno:
-    name: "Ventilazione — Ultimo cambio zona giorno"
+  vent_last_change_giorno1:
+    name: "Ventilazione — Ultimo cambio zona giorno 1"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_giorno2:
+    name: "Ventilazione — Ultimo cambio zona giorno 2"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_portoncino:
+    name: "Ventilazione — Ultimo cambio portoncino"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_foro_cappa:
+    name: "Ventilazione — Ultimo cambio foro cappa"
     has_date: true
     has_time: true
     icon: mdi:clock-outline
@@ -238,7 +262,10 @@ template:
         icon: mdi:window-open
         state: >-
           {% set toggles = [
-            'input_boolean.vent_finestra_giorno_aperta',
+            'input_boolean.vent_finestra_giorno1_aperta',
+            'input_boolean.vent_finestra_giorno2_aperta',
+            'input_boolean.vent_portoncino_ingresso_aperto',
+            'input_boolean.vent_foro_cappa_aperto',
             'input_boolean.vent_finestra_notte1_aperta',
             'input_boolean.vent_finestra_notte2_aperta',
             'input_boolean.vent_finestra_notte3_aperta',
@@ -257,7 +284,10 @@ template:
         icon: mdi:text
         state: >-
           {% set labels = {
-            'input_boolean.vent_finestra_giorno_aperta': 'Zona giorno',
+            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno — Finestra 1',
+            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno — Finestra 2',
+            'input_boolean.vent_portoncino_ingresso_aperto': 'Portoncino ingresso',
+            'input_boolean.vent_foro_cappa_aperto': 'Foro cappa',
             'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
             'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
             'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
@@ -395,7 +425,10 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - input_boolean.vent_finestra_giorno_aperta
+          - input_boolean.vent_finestra_giorno1_aperta
+          - input_boolean.vent_finestra_giorno2_aperta
+          - input_boolean.vent_portoncino_ingresso_aperto
+          - input_boolean.vent_foro_cappa_aperto
           - input_boolean.vent_finestra_notte1_aperta
           - input_boolean.vent_finestra_notte2_aperta
           - input_boolean.vent_finestra_notte3_aperta
@@ -404,11 +437,41 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno_aperta' }}"
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno1_aperta' }}"
             sequence:
               - service: input_datetime.set_datetime
                 target:
-                  entity_id: input_datetime.vent_last_change_giorno
+                  entity_id: input_datetime.vent_last_change_giorno1
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno2_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_giorno2
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_portoncino_ingresso_aperto' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_portoncino
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_foro_cappa_aperto' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_foro_cappa
                 data:
                   date: "{{ now().date() }}"
                   time: "{{ now().strftime('%H:%M:%S') }}"
