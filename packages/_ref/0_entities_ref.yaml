@@ -1,0 +1,59 @@
+###############################################################################
+# 0_entities_ref.yaml — RIFERIMENTO COMPLETO ENTIÀ DI SISTEMA
+# Scopo: elenco UFFICIALE e CENTRALIZZATO di tutte le entità base e canoniche
+#        da utilizzare nei moduli logici e nelle plance Lovelace.
+#        (solo commenti, nessuna definizione effettiva)
+###############################################################################
+
+# ==================== LISTA ENTIÀ DEFINITIVE ================================
+
+# --- SENSORI BASE ------------------------------------------------------------
+# Temperature (°C)
+#   sensor.t_in_giorno      → zona giorno
+#   sensor.t_in_notte1      → zona notte (master)
+#   sensor.t_in_notte2      → zona notte 2 (opz.)
+#   sensor.t_in_bagno       → bagno
+#   sensor.t_out            → esterna
+
+# Umidità relativa (%)
+#   sensor.ur_in_giorno     → zona giorno
+#   sensor.ur_in_notte1     → zona notte (master)
+#   sensor.ur_in_notte2     → zona notte 2 (opz.)
+#   sensor.ur_in_bagno      → bagno
+#   sensor.ur_out           → esterna
+
+# --- DERIVATI CLIMATICI -----------------------------------------------------
+# Tutti generati in 0_sensors.yaml
+#   sensor.t_in_media        → media pesata temperature interne
+#   sensor.ur_in_media       → media pesata umidità interna
+#   sensor.ur_in_min         → minima umidità interna (per anti-secco)
+#   sensor.ah_in             → umidità assoluta interna (g/m³)
+#   sensor.ah_out            → umidità assoluta esterna (g/m³)
+#   sensor.dewpoint_in       → punto di rugiada interno (°C)
+#   sensor.delta_t_in_out    → differenza T interna-esterna (K)
+#   sensor.delta_ah_in_out   → differenza AH interna-esterna (g/m³)
+
+# --- DIAGNOSTICA / LOGICHE --------------------------------------------------
+#   sensor.vmc_priority      → stato prioritario attuale VMC
+#   sensor.vmc_reason        → causa ultima variazione VMC
+#   sensor.vmc_last_event    → timestamp ultimo cambio stato VMC
+#   binary_sensor.stagione_calda   → estate logica
+#   binary_sensor.stagione_fredda  → inverno logico
+
+# --- SWITCH -----------------------------------------------------------------
+#   switch.vmc_vel_0         → VMC OFF / failsafe
+#   switch.vmc_vel_1         → VMC bassa
+#   switch.vmc_vel_2         → VMC media / free-cooling
+#   switch.vmc_vel_3         → VMC alta / bagno / boost
+#   switch.ac_giorno         → climatizzazione zona giorno
+#   switch.ac_notte          → climatizzazione zona notte
+
+###############################################################################
+# NOTE OPERATIVE
+# - NON ridefinire mai queste entità in altri file.
+# - I moduli logici (1_vent, 2_vmc, 3_heating, 4_ac, ecc.) devono solo
+#   REFERENZIARE questi entity_id.
+# - In caso di nuove entità globali, aggiorna qui prima di usarle altrove.
+# - I sensori canonici climatici (vedi 0_sensors_canonici_ref.yaml) sono
+#   sottinsieme ufficiale di questa lista.
+###############################################################################
