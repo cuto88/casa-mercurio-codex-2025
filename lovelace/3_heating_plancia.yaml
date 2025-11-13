@@ -87,7 +87,7 @@ views:
       - type: grid
         cards:
           - type: tile
-            entity: sensor.temperatura_interna_media
+            entity: sensor.t_in_media
             name: T_in media
             graph: line
           - type: tile
