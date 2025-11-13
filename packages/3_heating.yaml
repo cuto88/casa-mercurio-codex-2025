@@ -286,6 +286,7 @@ template:
           {% endif %}
 
       - name: "Heating — should_run (decisione finale)"
+        object_id: heating_should_run
         unique_id: heating_should_run
         availability: "true"
         state: >-
