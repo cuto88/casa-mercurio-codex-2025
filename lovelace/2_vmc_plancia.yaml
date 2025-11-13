@@ -37,48 +37,6 @@ views:
               - entity: binary_sensor.stagione_fredda
                 name: "Stagione fredda"
 
-          # -- Comandi rapidi: velocità VMC (tap = ON diretto)
-          - type: grid
-            title: "Comandi velocità"
-            columns: 2
-            cards:
-              - type: button
-                name: "vel_0"
-                icon: mdi:fan-off
-                entity: switch.vmc_vel_0
-                tap_action:
-                  action: call-service
-                  service: switch.turn_on
-                  target:
-                    entity_id: switch.vmc_vel_0
-              - type: button
-                name: "vel_1"
-                icon: mdi:fan-speed-1
-                entity: switch.vmc_vel_1
-                tap_action:
-                  action: call-service
-                  service: switch.turn_on
-                  target:
-                    entity_id: switch.vmc_vel_1
-              - type: button
-                name: "vel_2"
-                icon: mdi:fan-speed-2
-                entity: switch.vmc_vel_2
-                tap_action:
-                  action: call-service
-                  service: switch.turn_on
-                  target:
-                    entity_id: switch.vmc_vel_2
-              - type: button
-                name: "vel_3 (Boost)"
-                icon: mdi:fan-speed-3
-                entity: switch.vmc_vel_3
-                tap_action:
-                  action: call-service
-                  service: switch.turn_on
-                  target:
-                    entity_id: switch.vmc_vel_3
-
           # -- Stato attuatori
           - type: glance
             title: "Attuatori"
@@ -96,6 +54,19 @@ views:
               - entity: switch.ac_notte
                 name: AC notte
 
+          # -- Modalità manuale
+          - type: entities
+            title: "Modalità manuale"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.vmc_manual
+                name: "Override attivo"
+              - entity: input_select.vmc_manual_speed
+                name: "Velocità forzata"
+              - entity: timer.vmc_manual_timeout
+                name: "Timer override"
+                icon: mdi:timer-outline
+
           # -- Spiegazione umana (Come decide)
           - type: markdown
             title: "Come decide"
@@ -104,6 +75,7 @@ views:
               - **P0 — Failsafe** → `vel_0` (sensori KO).
               - **Override — AC notte = DRY** → `vel_0` (evita aria umida durante deumidifica).
               - **P1 — Bagno/Boost** → `vel_3` (UR bagno ≥ 75% o ΔUR ≥ 10%; stop a UR ≤ 65% e ΔUR ≤ 5%).
+                - Se l'aria esterna è più secca della bagno, il boost scala automaticamente a `vel_2` per preservare UR ≈50%.
               - **P2 — Free‑cooling** → `vel_2`:
                 - *Passivhaus*: `T_in > 24°C`, `T_out < T_in`, `AH_out < AH_in` (lock 15').
                 - *Macchina*: `T_in > 24°C`, `20°C < T_out < T_in` (lock 15').
@@ -111,136 +83,101 @@ views:
               - **P3 — Anti‑secco (inverno, notte)** → `vel_0` con duty (5' ON/30').
               - **P4 — Baseline** → `vel_1`.
 
+          # -- Perché siamo qui (dinamico)
+          - type: markdown
+            title: "Come succede"
+            content: >-
+              {% set manual = is_state('input_boolean.vmc_manual','on') %}
+              {% set priority = states('sensor.vmc_priority') %}
+              {% set reason = states('sensor.vmc_reason') %}
+              {% if manual %}
+              **Manuale attivo:** le automazioni restano spente finché l'override non viene disabilitato o scade il timer.
+              {% else %}
+              **Priorità corrente:** {{ priority }}. Ultima motivazione → {{ reason }}.
+              {% endif %}
+
       # =====================================================
       # COLONNA 2 — KPI PRINCIPALI (tile con grafico)
       # =====================================================
       - type: grid
         cards:
-          # --- Temperature base (Rosso esterno, Giallo giorno, Blu notte, Verde bagno)
-          - type: tile
-            entity: sensor.t_out
-            name: "T Esterna"
-            icon: mdi:thermometer
-            color: red
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.t_in_giorno
-            name: "T Giorno"
-            icon: mdi:thermometer
-            color: amber
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.t_in_notte1
-            name: "T Notte"
-            icon: mdi:thermometer
-            color: blue
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.t_in_bagno
-            name: "T Bagno"
-            icon: mdi:thermometer
-            color: green
-            features:
-              - type: graph
-                graph: line
+          # --- Temperature principali (24h)
+          - type: custom:mini-graph-card
+            name: "Temperature (24h)"
+            hours_to_show: 24
+            points_per_hour: 4
+            line_width: 2
+            height: 140
+            show:
+              fill: false
+              points: false
+              legend: true
+            entities:
+              - entity: sensor.t_out
+                name: Esterno
+                color: red
+              - entity: sensor.t_in_giorno
+                name: Giorno
+                color: amber
+              - entity: sensor.t_in_notte1
+                name: Notte
+                color: blue
+              - entity: sensor.t_in_bagno
+                name: Bagno
+                color: green
 
-          # --- Umidità base
-          - type: tile
-            entity: sensor.ur_out
-            name: "UR Esterna"
-            icon: mdi:water-percent
-            color: red
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ur_in_giorno
-            name: "UR Giorno"
-            icon: mdi:water-percent
-            color: amber
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ur_in_notte1
-            name: "UR Notte"
-            icon: mdi:water-percent
-            color: blue
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ur_in_bagno
-            name: "UR Bagno"
-            icon: mdi:water-percent
-            color: green
-            features:
-              - type: graph
-                graph: line
+          # --- Umidità relativa e media
+          - type: custom:mini-graph-card
+            name: "Umidità relativa (24h)"
+            hours_to_show: 24
+            points_per_hour: 4
+            line_width: 2
+            height: 140
+            show:
+              fill: false
+              points: false
+              legend: true
+            entities:
+              - entity: sensor.ur_out
+                name: Esterna
+                color: red
+              - entity: sensor.ur_in_giorno
+                name: Giorno
+                color: amber
+              - entity: sensor.ur_in_notte1
+                name: Notte
+                color: blue
+              - entity: sensor.ur_in_bagno
+                name: Bagno
+                color: green
+              - entity: sensor.ur_in_media
+                name: Media int
+                color: grey
+              - entity: sensor.ur_in_min
+                name: Min int
+                color: teal
 
-          # --- Derivate/medie (neutri)
-          - type: tile
-            entity: sensor.t_in_media
-            name: "T interna media"
-            icon: mdi:thermometer
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ur_in_media
-            name: "UR interna media"
-            icon: mdi:water-percent
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ur_in_min
-            name: "UR minima (int)"
-            icon: mdi:water-percent
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.dewpoint_in
-            name: "Dew point (int)"
-            icon: mdi:thermometer-alert
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ah_in
-            name: "AH interna (g/m³)"
-            icon: mdi:water
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.ah_out
-            name: "AH esterna (g/m³)"
-            icon: mdi:water-outline
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.delta_t_in_out
-            name: "ΔT (in−out)"
-            icon: mdi:delta
-            features:
-              - type: graph
-                graph: line
-          - type: tile
-            entity: sensor.delta_ah_in_out
-            name: "ΔAH (in−out)"
-            icon: mdi:delta
-            features:
-              - type: graph
-                graph: line
+          # --- Umidità assoluta e dew point
+          - type: custom:mini-graph-card
+            name: "AH & Dew point (24h)"
+            hours_to_show: 24
+            points_per_hour: 4
+            line_width: 2
+            height: 140
+            show:
+              fill: false
+              points: false
+              legend: true
+            entities:
+              - entity: sensor.ah_in
+                name: AH in
+                color: dodgerblue
+              - entity: sensor.ah_out
+                name: AH out
+                color: red
+              - entity: sensor.dewpoint_in
+                name: Dew point in
+                color: purple
 
       # =====================================================
       # COLONNA 3 — TREND & LOCK / DIAGNOSTICA
@@ -278,6 +215,41 @@ views:
                 name: AH_in
               - entity: sensor.ah_out
                 name: AH_out
+
+          - type: custom:mini-graph-card
+            name: "UR bagno — 24h"
+            hours_to_show: 24
+            points_per_hour: 6
+            line_width: 2
+            height: 120
+            show:
+              fill: true
+              legend: false
+              extrema: true
+            lower_bound: 30
+            upper_bound: 100
+            color_thresholds:
+              - value: 60
+                color: green
+              - value: 70
+                color: amber
+              - value: 80
+                color: red
+            entities:
+              - entity: sensor.ur_in_bagno
+                name: "UR bagno"
+
+          - type: statistics-graph
+            title: "Velocità VMC — 24h"
+            days_to_show: 1
+            period: hour
+            chart_type: line
+            stat_types:
+              - state
+            hide_legend: true
+            entities:
+              - entity: sensor.vmc_vel_index
+                name: "Indice velocità (0=vel_0 … 3=vel_3)"
 
           # History-graph: umidità & dew point (24h)
           - type: history-graph
@@ -326,6 +298,7 @@ views:
               - sensor.dewpoint_in
               - sensor.delta_t_in_out
               - sensor.delta_ah_in_out
+              - sensor.vmc_vel_index
               - sensor.vmc_priority
               - sensor.vmc_reason
               - sensor.vmc_last_event

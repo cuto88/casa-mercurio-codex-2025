@@ -29,9 +29,9 @@ GPT deve sempre assicurarsi che questi tre livelli siano coerenti tra loro.
    Il canvas deve contenere *solo* il codice del file richiesto.  
    Se servono modifiche ad altri file, GPT le scrive fuori dal canvas come testo.
 
-3. **Nomi chiari e coerenti**  
-   Usare le entità standard (es. `sensor.temperatura_zona_giorno`,  
-   `switch.vmc_vel_1`, `input_number.vmc_bagno_on`, ecc.)  
+3. **Nomi chiari e coerenti**
+   Usare le entità standard (es. `sensor.t_in_giorno`,
+   `switch.vmc_vel_1`, `input_number.vmc_bagno_on`, ecc.)
    e controllare che corrispondano ai nomi nei file .txt o già esistenti.
 
 4. **Logica invariata se non richiesto**  

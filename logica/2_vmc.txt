@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 #   P0) FAILSAFE / EMERGENCY        → vel_0
 #   OVERRIDE) AC zona notte = DRY   → vel_0
-#   P1) BAGNO / BOOST               → vel_3 (lock + isteresi)
+#   P1) BAGNO / BOOST               → vel_3 (lock + isteresi, soft vel_2 se esterno più secco)
 #   P1-Lite) BAGNO ΔUR alto         → vel_2 (solo differenziale UR)
 #   P1B) ESCALATION DRY             → supporto AC dopo boost prolungato
 #   P2) FREE-COOLING                → vel_2 (sdoppiato: PASSIVHAUS / MACCHINA)
@@ -47,7 +47,8 @@ Sensore: sensor.umidita_bagno (UR bagno).
     - COOLDOWN 5 minuti prima di poter riattivare dopo uno stop.
   Note:
     - In fase BOOST, P1 scavalca P2–P4.
-    - Se il differenziale UR è alto ma la soglia ON non è stata raggiunta, vedi P1-Lite.
+    - Se UR esterna < UR bagno E UR_media > 50% con ΔUR_media ≥ 10pt → applica "Boost soft" (vel_2) per non scendere sotto ≈50%.
+    - Se il differenziale UR interno/esterno è alto ma la soglia ON non è stata raggiunta, vedi P1-Lite.
 
 ###############################################################################
 # [P2] FREE-COOLING (SDOPPIATO)
@@ -90,18 +91,18 @@ Sensore: sensor.umidita_bagno (UR bagno).
 #   - Se entrambe false → rilascio controllo
 
 ###############################################################################
-# [P1-Lite] BAGNO ΔUR ALTO
+# [P1-Lite] ΔUR INTERNO VS ESTERNO
 ###############################################################################
-Sensore: sensor.umidita_bagno.
+Sensori: sensor.ur_in_media, sensor.ur_out (supporto sensor.umidita_bagno per esclusione boost).
   Ingresso (start):
-    - UR bagno < soglia ON ma (UR bagno – UR esterna) ≥ 6%.
+    - UR_media > 50% E (UR_media – UR_out) ≥ 10 punti percentuali, con bagno sotto soglia ON.
   Uscita (stop):
-    - UR bagno ≤ soglia OFF  OPPURE  ΔUR ≤ 5%  OPPURE runtime ≥ 6 minuti
-      OPPURE l’aria esterna è più umida (AH_out ≥ AH_in).
+    - ΔUR_media < 8pt  OPPURE  UR_media ≤ 48%  OPPURE runtime ≥ 8 minuti
+      OPPURE l’aria esterna è più umida in termini di AH (AH_out ≥ AH_in).
   Azione:
     - Velocità 2, resta subordinato alle logiche P1 e P2.
   Uso:
-    - Copre casi con bagno relativamente asciutto ma esterno molto più secco.
+    - Copre casi in cui l’aria interna è oltre il comfort Passivhaus (≈50%) ma il bagno non richiede boost pieno.
 
 ###############################################################################
 # [P1B] ESCALATION DRY (SUPPORTO AC)
