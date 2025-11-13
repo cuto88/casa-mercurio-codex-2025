@@ -6,6 +6,21 @@ param(
 
 Write-Host "Controllo stato repository..."
 
+$branch = $env:WATCH_BRANCH
+if (-not $branch -or $branch.Trim() -eq "") {
+    $branchOutput = git rev-parse --abbrev-ref HEAD 2>$null
+    if ($LASTEXITCODE -eq 0 -and $branchOutput) {
+        $branch = $branchOutput.Trim()
+        if ($branch -eq "HEAD" -or $branch -eq "") {
+            $branch = "main"
+        }
+    } else {
+        $branch = "main"
+    }
+}
+
+Write-Host ("Branch corrente: {0}" -f $branch)
+
 $stashName = "watch-remote-auto-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
 $stashCreated = $false
 
@@ -35,9 +50,9 @@ if (-not $IgnoreLocalChanges) {
 }
 
 # 2) pull con rebase
-$pullArgs = @("pull", "--rebase", "origin", "main")
+$pullArgs = @("pull", "--rebase", "origin", $branch)
 if ($IgnoreLocalChanges) {
-    $pullArgs = @("pull", "--rebase", "--autostash", "origin", "main")
+    $pullArgs = @("pull", "--rebase", "--autostash", "origin", $branch)
 }
 
 Write-Host "Eseguo: git $($pullArgs -join ' ')"

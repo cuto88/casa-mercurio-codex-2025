@@ -51,13 +51,6 @@ template:
             unknown
           {% endif %}
 
-utility_meter:
-  ge_pv_solaredge_today:
-    source: sensor.pv_solaredge_lifetime_kwh_norm
-    name: "GE — PV kWh oggi (SolarEdge)"
-    cycle: daily
-    net_consumption: false
-
 # -----------------------------------------------------------------------------
 # 2) SORGENTI AUTO/SCELTA — Import/Export/PV
 # -----------------------------------------------------------------------------
@@ -66,7 +59,6 @@ utility_meter:
 #     con cascata di fallback robusta.
 # -----------------------------------------------------------------------------
 
-template:
   - sensor:
       # -------------------- Import / Export (kWh oggi) -----------------------
       - name: "GE — Import kWh (auto)"
@@ -245,7 +237,6 @@ template:
 # 3) DIAGNOSTICA — quali sorgenti sono state usate
 # -----------------------------------------------------------------------------
 
-template:
   - sensor:
       - name: "GE — Sorgente Import (entity)"
         unique_id: ge_src_import_entity
@@ -325,6 +316,17 @@ template:
           {% else %}
             "calcolato: pv - export + import"
           {% endif %}
+
+# -----------------------------------------------------------------------------
+# Utility meter SolarEdge — derivato dal blocco 1
+# -----------------------------------------------------------------------------
+
+utility_meter:
+  ge_pv_solaredge_today:
+    source: sensor.pv_solaredge_lifetime_kwh_norm
+    name: "GE — PV kWh oggi (SolarEdge)"
+    cycle: daily
+    net_consumption: false
 
 # FINE FILE
 ###############################################################################

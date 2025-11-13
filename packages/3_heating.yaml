@@ -293,10 +293,11 @@ template:
           {% endif %}
 
   - binary_sensor:
-      - name: "Heating — should_run (decisione finale)"
-        object_id: heating_should_run
+      - name: "Heating Should Run"
         unique_id: heating_should_run
         availability: "true"
+        device_class: heat
+        icon: mdi:radiator
         state: >-
           {% if is_state('input_boolean.heating_force_on','on') %}
             true
