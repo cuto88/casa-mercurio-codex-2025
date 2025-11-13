@@ -33,6 +33,14 @@ if not "%~1"=="" (
 )
 if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
 
+REM Flag per ignorare le modifiche locali: accetta variabile ambiente o parametro CLI
+if not "%~1"=="" (
+  for %%A in (--ignore-local -ignore-local /ignore-local ignore-local --ignore -ignore /ignore ignore) do (
+    if /I "%~1"=="%%~A" set "IGNORE_LOCAL_CHANGES=1"
+  )
+)
+if "%IGNORE_LOCAL_CHANGES%"=="" set "IGNORE_LOCAL_CHANGES=0"
+
 set "PULL_SCRIPT=%~dp0pull_repo.ps1"
 set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
 

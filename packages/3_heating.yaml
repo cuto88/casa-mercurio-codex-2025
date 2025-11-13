@@ -208,11 +208,12 @@ template:
         unit_of_measurement: "min"
         state_class: measurement
         state: >-
-          {% set e = 'switch.4_ch_interrutore_3' %}
-          {% if states[e] is not defined or states[e] in ['unknown','unavailable'] %}
+          {% set entity_id = 'switch.4_ch_interrutore_3' %}
+          {% set ent = states.get(entity_id) %}
+          {% if ent is none or ent.state in ['unknown','unavailable'] %}
             unknown
           {% else %}
-            {{ ((as_timestamp(now()) - as_timestamp(states[e].last_changed)) / 60) | round(1) }}
+            {{ ((as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60) | round(1) }}
           {% endif %}
 
       # Etichetta stato target (considera override)
@@ -266,9 +267,12 @@ template:
         unique_id: heating_lock_min_on_ok
         state: >-
           {% set sw = 'switch.4_ch_interrutore_3' %}
+          {% set ent = states.get(sw) %}
           {% set min_on = states('input_number.heating_min_on_minutes') | float(30) %}
-          {% if is_state(sw,'on') %}
-            {{ (as_timestamp(now()) - as_timestamp(states[sw].last_changed)) / 60 >= min_on }}
+          {% if ent is none %}
+            false
+          {% elif ent.state == 'on' %}
+            {{ (as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60 >= min_on }}
           {% else %}
             true
           {% endif %}
@@ -278,13 +282,17 @@ template:
         unique_id: heating_lock_min_off_ok
         state: >-
           {% set sw = 'switch.4_ch_interrutore_3' %}
+          {% set ent = states.get(sw) %}
           {% set min_off = states('input_number.heating_min_off_minutes') | float(30) %}
-          {% if is_state(sw,'off') %}
-            {{ (as_timestamp(now()) - as_timestamp(states[sw].last_changed)) / 60 >= min_off }}
+          {% if ent is none %}
+            false
+          {% elif ent.state == 'off' %}
+            {{ (as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60 >= min_off }}
           {% else %}
             true
           {% endif %}
 
+  - binary_sensor:
       - name: "Heating — should_run (decisione finale)"
         object_id: heating_should_run
         unique_id: heating_should_run
