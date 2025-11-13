@@ -199,8 +199,8 @@ views:
               - sensor.t_in_bagno
               - sensor.t_out
               - sensor.t_in_media
-              - sensor.heating_t_in_min
-              - sensor.heating_minutes_since_change
+              - sensor.heating_t_interna_minima
+              - sensor.heating_minuti_da_ultimo_cambio
               - sensor.heating_target_state_label
               - input_datetime.heating_window_start
               - input_datetime.heating_window_end
