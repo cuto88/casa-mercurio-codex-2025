@@ -46,9 +46,9 @@ views:
                 name: Need DRY
               - entity: binary_sensor.ac_need_cool
                 name: Need COOL
-              - entity: binary_sensor.ac_lockouts_ok
-                name: Anti-ciclo OK
-              - entity: sensor.ac_mode_current
+              - entity: binary_sensor.ac_should_run
+                name: Should run
+              - entity: sensor.ac_mode_label
                 name: Modalità attuale
               - entity: switch.ac_giorno
                 name: AC Giorno
@@ -63,8 +63,8 @@ views:
                 name: Should run
               - entity: input_number.temp_target_risc
                 name: Target °C
-              - entity: binary_sensor.heating_in_pv_window
-                name: Finestra PV attiva
+              - entity: binary_sensor.heating_finestra_oraria
+                name: Finestra oraria attiva
               - entity: switch.4_ch_interrutore_3
                 name: Interruttore generale
 
@@ -72,27 +72,37 @@ views:
           - type: glance
             title: "Vent naturale — Consigli"
             entities:
-              - entity: binary_sensor.vent_recommendation_open
+              - entity: binary_sensor.vent_recommend_open
                 name: Apri
-              - entity: binary_sensor.vent_recommendation_close
+              - entity: binary_sensor.vent_recommend_close
                 name: Chiudi
-              - entity: input_text.vent_advice_message
+              - entity: input_text.vent_messaggio_consiglio
                 name: Messaggio
 
           # --- Pulsanti rapidi (override/debug manuale) ---
           - type: entities
             title: "Override / Debug manuale"
             entities:
-              - entity: input_boolean.vmc_force_vel_0
-                name: VMC forza vel_0
-              - entity: input_boolean.vmc_force_vel_1
-                name: VMC forza vel_1
-              - entity: input_boolean.vmc_force_vel_2
-                name: VMC forza vel_2
-              - entity: input_boolean.vmc_force_vel_3
-                name: VMC forza vel_3
-              - entity: input_boolean.ac_force_off
-                name: AC forza OFF
+              - entity: input_boolean.vmc_manual
+                name: VMC manuale attivo
+              - entity: input_select.vmc_manual_speed
+                name: VMC velocità manuale
+              - entity: timer.vmc_manual_timeout
+                name: VMC timeout manuale
+              - entity: input_boolean.ac_manual
+                name: AC manuale attivo
+              - entity: input_select.ac_manual_mode
+                name: AC modalità manuale
+              - entity: timer.ac_manual_timeout
+                name: AC timeout manuale
+              - entity: input_boolean.heating_manual_active
+                name: Riscaldamento manuale attivo
+              - entity: input_select.heating_manual_mode
+                name: Heating modalità manuale
+              - entity: timer.heating_manual_timeout
+                name: Heating timeout manuale
+              - entity: input_boolean.heating_force_on
+                name: Riscaldamento forza ON
               - entity: input_boolean.heating_force_off
                 name: Riscaldamento forza OFF
 
@@ -170,7 +180,7 @@ views:
             entities:
               - binary_sensor.ac_need_dry
               - binary_sensor.ac_need_cool
-              - binary_sensor.ac_lockouts_ok
+              - binary_sensor.ac_should_run
               - binary_sensor.heating_should_run
 
       # =============================================================
@@ -190,9 +200,9 @@ views:
               - entity: input_number.vent_vento_max
                 name: Vento max (m/s) — Vent
               # VMC (free-cooling PH / macchina)
-              - entity: input_number.vmc_fc_t_in_on
+              - entity: input_number.vmc_fc_ph_tin_on
                 name: FC — T_in ON (°C)
-              - entity: input_number.vmc_fc_t_out_min
+              - entity: input_number.vmc_fc_macchina_tout_min
                 name: FC — T_out > (°C)
               # AC (dry/cool)
               - entity: input_number.ac_ur_high
@@ -209,16 +219,12 @@ views:
           - type: entities
             title: "Lock & Timer"
             entities:
-              - entity: timer.vmc_lock_freecooling
-                name: VMC lock FC 15'
-              - entity: timer.vmc_lock_boost
-                name: VMC lock Boost 10'
-              - entity: timer.ac_min_on
-                name: AC min ON 30'
-              - entity: timer.ac_min_off
-                name: AC min OFF 30'
-              - entity: timer.ac_max_run
-                name: AC max run 90'
+              - entity: timer.vmc_manual_timeout
+                name: VMC timeout manuale
+              - entity: timer.ac_manual_timeout
+                name: AC timeout manuale
+              - entity: timer.heating_manual_timeout
+                name: Heating timeout manuale
 
           # --- Diagnostica: sensori UNKNOWN / UNAVAILABLE ---
           - type: entity-filter
