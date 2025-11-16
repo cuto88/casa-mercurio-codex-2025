@@ -12,25 +12,28 @@ views:
         title: "Stato & Comandi"
         cards:
           - type: glance
-            title: "Stato generale"
+            title: "Direzione flussi"
             show_name: true
             show_state: true
             entities:
-              - entity: binary_sensor.grid_connected
-                name: "Connessione rete"
+              - entity: sensor.grid_direction
+                name: "Rete"
+                icon: mdi:transmission-tower-import
+              - entity: sensor.pv_direction
+                name: "FV"
+                icon: mdi:solar-power
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: tile
+                entity: sensor.grid_power_w
+                name: "Potenza rete"
                 icon: mdi:transmission-tower
-              - entity: binary_sensor.pv_active
-                name: "PV attivo"
+              - type: tile
+                entity: sensor.pv_power_w
+                name: "Potenza FV"
                 icon: mdi:solar-panel
-              - entity: binary_sensor.exporting
-                name: "In immissione"
-                icon: mdi:export
-              - entity: binary_sensor.importing
-                name: "In prelievo"
-                icon: mdi:import
-              - entity: binary_sensor.surplus_active
-                name: "Surplus PV"
-                icon: mdi:battery-arrow-up
 
       # ==================== 2) KPI PRINCIPALI OGGI ============================
       - type: grid
@@ -41,92 +44,68 @@ views:
             square: false
             cards:
               - type: tile
-                entity: sensor.pv_today_kwh
-                name: "FV — kWh oggi"
-                icon: mdi:solar-panel
+                entity: sensor.a_energia_prelevata_forward
+                name: "A — Prelevata"
+                icon: mdi:counter
               - type: tile
-                entity: sensor.grid_import_today_kwh
-                name: "Rete — kWh import"
-                icon: mdi:transmission-tower
+                entity: sensor.a_energia_immessa_reverse
+                name: "A — Immessa"
+                icon: mdi:counter
               - type: tile
-                entity: sensor.grid_export_today_kwh
-                name: "Rete — kWh export"
-                icon: mdi:transmission-tower-export
+                entity: sensor.b_energia_prelevata_forward
+                name: "B — Prelevata"
+                icon: mdi:counter
               - type: tile
-                entity: sensor.home_today_kwh
-                name: "Casa — kWh totali"
-                icon: mdi:home-lightning-bolt
+                entity: sensor.b_energia_immessa_reverse
+                name: "B — Immessa"
+                icon: mdi:counter
 
       # ==================== 3) ANDAMENTO GIORNALIERO (24h) ====================
       - type: grid
         title: "Andamento 24h"
         cards:
-          - type: custom:mini-graph-card
-            name: "Produzione FV / Consumo / Rete"
+          - type: history-graph
+            title: "Potenza istantanea 24h"
             hours_to_show: 24
-            points_per_hour: 4
-            show:
-              fill: false
-              legend: true
-              labels: true
-              state: true
+            refresh_interval: 60
             entities:
-              - entity: sensor.pv_power
+              - entity: sensor.pv_power_w
                 name: "FV [W]"
-                color: '#fdd835'
-              - entity: sensor.grid_power
+              - entity: sensor.grid_power_w
                 name: "Rete [W]"
-                color: '#9e9e9e'
-              - entity: sensor.home_power
-                name: "Casa [W]"
-                color: '#42a5f5'
-          - type: custom:mini-graph-card
-            name: "Bilancio istantaneo (FV - Casa)"
+          - type: history-graph
+            title: "Direzioni 24h"
             hours_to_show: 24
-            points_per_hour: 4
-            show:
-              fill: false
-              legend: true
-              labels: true
-              state: true
             entities:
-              - entity: sensor.energy_balance_now
-                name: "ΔEnergia"
-                color: '#ab47bc'
-                y_axis: secondary
+              - entity: sensor.grid_direction
+                name: "Rete"
+              - entity: sensor.pv_direction
+                name: "FV"
 
       # ==================== 4) TREND SETTIMANALE / MENSILE ====================
       - type: grid
         title: "Trend 7gg / 30gg"
         cards:
           - type: statistics-graph
-            title: "Bilancio energetico 7 giorni"
+            title: "Bilancio contatore A (7 giorni)"
             days_to_show: 7
             period: day
             chart_type: bar
             entities:
-              - entity: sensor.pv_today_kwh
-                name: "FV"
-              - entity: sensor.grid_import_today_kwh
-                name: "Rete Import"
-              - entity: sensor.grid_export_today_kwh
-                name: "Rete Export"
-              - entity: sensor.home_today_kwh
-                name: "Casa"
+              - entity: sensor.a_energia_prelevata_forward
+                name: "A — Prelevata"
+              - entity: sensor.a_energia_immessa_reverse
+                name: "A — Immessa"
           - type: statistics-graph
-            title: "Bilancio energetico 30 giorni"
-            days_to_show: 30
+            title: "Bilancio contatore B (7 giorni)"
+            days_to_show: 7
             period: day
-            chart_type: line
+            chart_type: bar
             entities:
-              - entity: sensor.pv_today_kwh
-                name: "FV"
-              - entity: sensor.home_today_kwh
-                name: "Casa"
-              - entity: sensor.grid_import_today_kwh
-                name: "Import"
-              - entity: sensor.grid_export_today_kwh
-                name: "Export"
+              - entity: sensor.b_energia_prelevata_forward
+                name: "B — Prelevata"
+              - entity: sensor.b_energia_immessa_reverse
+                name: "B — Immessa"
 
       # ==================== 5) SOGLIE & LOCK (Surplus / PV) ===================
       - type: grid
@@ -136,29 +115,25 @@ views:
             title: "Parametri energia"
             show_header_toggle: false
             entities:
-              - entity: input_number.surplus_min_power
+              - entity: input_number.surplus_min_w
                 name: "Soglia surplus (W)"
-              - entity: input_number.surplus_lock_time
+              - entity: input_number.surplus_lock_minutes
                 name: "Tempo lock (min)"
               - entity: input_boolean.surplus_enable
                 name: "Surplus attivo"
               - entity: input_boolean.energy_debug
                 name: "Debug energia"
 
-      # ==================== 6) SPIEGAZIONE LOGICA =============================
-      - type: markdown
-        title: "Come decide"
-        content: |
-          ### ⚙️ Logica energetica
-          - La plancia mostra produzione, consumi e bilanci dell’abitazione.
-          - La produzione FV (sensor.pv_today_kwh) rappresenta l’energia generata.
-          - Il consumo casa è la somma delle utenze dirette.
-          - L’import/export rete derivano dai sensori di pinza o SolarEdge.
-          - Il **bilancio istantaneo** (ΔEnergia) è FV − Casa:
-            - positivo → surplus in immissione  
-            - negativo → prelievo da rete  
-          - Se `binary_sensor.surplus_active` è ON, sono attivi i carichi PV-driven.
-          - Soglie regolabili in “Parametri energia”.
+        # ==================== 6) SPIEGAZIONE LOGICA =============================
+        - type: markdown
+          title: "Come decide"
+          content: |
+            ### ⚙️ Logica energetica
+            - La plancia confronta istantaneamente `sensor.pv_power_w` e `sensor.grid_power_w`.
+            - Le direzioni (`sensor.grid_direction`, `sensor.pv_direction`) indicano import/export.
+            - I contatori **A** e **B** espongono energia prelevata/immessa (forward/reverse).
+            - Il surplus viene valutato in base alla potenza FV eccedente e alle soglie definite.
+            - Usa “Parametri energia” per regolare soglia e lock dei carichi PV-driven.
 
       # ==================== 7) DEBUG & SENSORI GREZZI ========================
       - type: grid
@@ -168,10 +143,11 @@ views:
             title: "Sensori base"
             show_header_toggle: false
             entities:
-              - sensor.pv_power
-              - sensor.grid_power
-              - sensor.home_power
-              - sensor.pv_today_kwh
-              - sensor.grid_import_today_kwh
-              - sensor.grid_export_today_kwh
-              - sensor.home_today_kwh
+              - sensor.grid_power_w
+              - sensor.grid_direction
+              - sensor.pv_power_w
+              - sensor.pv_direction
+              - sensor.a_energia_prelevata_forward
+              - sensor.a_energia_immessa_reverse
+              - sensor.b_energia_prelevata_forward
+              - sensor.b_energia_immessa_reverse
