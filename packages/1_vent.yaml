@@ -173,7 +173,14 @@ rest:
         device_class: temperature
         state_class: measurement
         icon: mdi:thermometer
-        value_template: "{{ value_json.hourly.temperature_2m[0] }}"
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('temperature_2m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_temp') }}
+          {% endif %}
 
       - name: "Vent Meteo RH"
         unique_id: vent_meteo_rh
@@ -181,21 +188,42 @@ rest:
         device_class: humidity
         state_class: measurement
         icon: mdi:water-percent
-        value_template: "{{ value_json.hourly.relative_humidity_2m[0] }}"
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('relative_humidity_2m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_rh') }}
+          {% endif %}
 
       - name: "Vent Meteo Precip"
         unique_id: vent_meteo_precip
         unit_of_measurement: "mm"
         state_class: measurement
         icon: mdi:weather-rainy
-        value_template: "{{ value_json.hourly.precipitation[0] }}"
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('precipitation', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_precip') }}
+          {% endif %}
 
       - name: "Vent Meteo Vento"
         unique_id: vent_meteo_vento
         unit_of_measurement: "m/s"
         state_class: measurement
         icon: mdi:weather-windy
-        value_template: "{{ value_json.hourly.wind_speed_10m[0] }}"
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('wind_speed_10m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_vento') }}
+          {% endif %}
 
   # --- QUALITÀ ARIA: PM2.5 (endpoint dedicato) -------------------
   - resource: "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=45.611133&longitude=12.356051&hourly=pm2_5&timezone=auto"
@@ -208,7 +236,8 @@ rest:
         state_class: measurement
         icon: mdi:blur
         value_template: >-
-          {% set data = value_json.hourly.pm2_5 | default([]) %}
+          {% set root = value_json if value_json is defined else {} %}
+          {% set data = root.get('hourly', {}).get('pm2_5', []) %}
           {% if data | length > 0 %}
             {{ data[0] }}
           {% else %}

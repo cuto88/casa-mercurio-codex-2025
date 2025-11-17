@@ -27,7 +27,7 @@ template:
         unique_id: ge_pv_today_solaredge_norm
         unit_of_measurement: "kWh"
         device_class: energy
-        state_class: measurement
+        state_class: total_increasing
         icon: mdi:solar-power
         state: >-
           {% set s = states('sensor.solaredge_energy_today') %}
@@ -65,7 +65,7 @@ template:
         unique_id: ge_import_kwh_auto
         unit_of_measurement: "kWh"
         device_class: energy
-        state_class: measurement
+        state_class: total_increasing
         state: >-
           {% set cfg = states('input_text.ge_grid_import_kwh_entity') %}
           {% set cands = [cfg|lower,
@@ -88,7 +88,7 @@ template:
         unique_id: ge_export_kwh_auto
         unit_of_measurement: "kWh"
         device_class: energy
-        state_class: measurement
+        state_class: total_increasing
         state: >-
           {% set cfg = states('input_text.ge_grid_export_kwh_entity') %}
           {% set cands = [cfg|lower,
@@ -112,7 +112,7 @@ template:
         unique_id: ge_pv_kwh_chosen
         unit_of_measurement: "kWh"
         device_class: energy
-        state_class: measurement
+        state_class: total_increasing
         icon: mdi:solar-power
         state: >-
           {% set pref = states('input_select.ge_pv_source_preference') %}
@@ -152,8 +152,6 @@ template:
       - name: "GE — Casa kWh (auto/calc)"
         unique_id: ge_home_kwh_calc
         unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: measurement
         icon: mdi:home-lightning-bolt
         state: >-
           {% set cfg = states('input_text.ge_home_kwh_entity') %}
@@ -169,8 +167,6 @@ template:
       - name: "GE — Autoconsumo kWh"
         unique_id: ge_selfcons_kwh
         unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: measurement
         icon: mdi:transmission-tower-export
         state: >-
           {% set pv = states('sensor.ge_pv_kwh_chosen')|float(0) %}
@@ -200,8 +196,6 @@ template:
       - name: "GE — Bilancio rete kWh (import−export)"
         unique_id: ge_grid_balance_kwh
         unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: measurement
         icon: mdi:scale-balance
         state: >-
           {% set imp = states('sensor.ge_import_kwh_auto')|float(0) %}

@@ -5,6 +5,19 @@
 ###############################################################################
 
 homeassistant:
+  customize:
+    sensor.a_import_kwh:
+      device_class: energy
+      state_class: total_increasing
+    sensor.a_export_kwh:
+      device_class: energy
+      state_class: total_increasing
+    sensor.b_import_kwh:
+      device_class: energy
+      state_class: total_increasing
+    sensor.b_export_kwh:
+      device_class: energy
+      state_class: total_increasing
   customize_glob:
     "sensor.grid_*":
       device_class: power
