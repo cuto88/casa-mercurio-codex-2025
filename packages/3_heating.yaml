@@ -120,6 +120,7 @@ template:
   - sensor:
       - name: "Heating — stanze attive"
         unique_id: heating_rooms_active
+        object_id: heating_stanze_attive
         availability: "true"
         state: >-
           {% set rooms = [
@@ -138,6 +139,7 @@ template:
 
       - name: "Temperatura interna media"
         unique_id: heating_t_in_media
+        object_id: temperatura_interna_media
         unit_of_measurement: "°C"
         device_class: temperature
         availability: >-
@@ -171,6 +173,7 @@ template:
 
       - name: "Heating — T interna minima"
         unique_id: heating_t_in_min
+        object_id: heating_t_interna_minima
         unit_of_measurement: "°C"
         device_class: temperature
         availability: >-
@@ -205,6 +208,7 @@ template:
       # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
       - name: "Heating — minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
+        object_id: heating_minuti_da_ultimo_cambio
         unit_of_measurement: "min"
         state_class: measurement
         state: >-
@@ -219,6 +223,7 @@ template:
       # Etichetta stato target (considera override)
       - name: "Heating — target state (label)"
         unique_id: heating_target_state_label
+        object_id: heating_target_state_label
         state: >-
           {% if is_state('input_boolean.heating_manual_active','on') %}
             MANUALE {{ states('input_select.heating_manual_mode') }}
@@ -230,6 +235,7 @@ template:
   - binary_sensor:
       - name: "Heating — finestra oraria"
         unique_id: heating_window
+        object_id: heating_finestra_oraria
         availability: >-
           {{ state_attr('input_datetime.heating_window_start','timestamp') is not none
              and state_attr('input_datetime.heating_window_end','timestamp') is not none }}
@@ -243,6 +249,7 @@ template:
 
       - name: "Heating — almeno una stanza sotto target"
         unique_id: heating_need_temp
+        object_id: heating_almeno_una_stanza_sotto_target
         availability: >-
           {{ states('input_number.temp_target_risc') not in ['unknown','unavailable','']
              and states('input_number.heating_tolerance') not in ['unknown','unavailable','']
@@ -255,6 +262,7 @@ template:
 
       - name: "Heating — esterna fredda"
         unique_id: heating_ext_cold
+        object_id: heating_esterna_fredda
         availability: >-
           {{ states('sensor.t_out') not in ['unknown','unavailable','']
              and states('input_number.heating_ext_cold_threshold') not in ['unknown','unavailable',''] }}
@@ -265,6 +273,7 @@ template:
       # Lock: posso spegnere? (rispettato min ON)
       - name: "Heating — lock MIN ON ok"
         unique_id: heating_lock_min_on_ok
+        object_id: heating_lock_min_on_ok
         state: >-
           {% set sw = 'switch.4_ch_interrutore_3' %}
           {% set ent = states.get(sw) %}
@@ -280,6 +289,7 @@ template:
       # Lock: posso accendere? (rispettato min OFF)
       - name: "Heating — lock MIN OFF ok"
         unique_id: heating_lock_min_off_ok
+        object_id: heating_lock_min_off_ok
         state: >-
           {% set sw = 'switch.4_ch_interrutore_3' %}
           {% set ent = states.get(sw) %}
@@ -295,6 +305,7 @@ template:
   - binary_sensor:
       - name: "Heating Should Run"
         unique_id: heating_should_run
+        object_id: heating_should_run
         availability: "true"
         device_class: heat
         icon: mdi:radiator
