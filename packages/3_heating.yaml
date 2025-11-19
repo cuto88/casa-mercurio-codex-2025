@@ -137,40 +137,6 @@ template:
           {% endfor %}
           {{ active | join(', ') if active|length>0 else 'Nessuna (⚠️)' }}
 
-      - name: "Temperatura interna media"
-        unique_id: heating_t_in_media
-        object_id: temperatura_interna_media
-        unit_of_measurement: "°C"
-        device_class: temperature
-        availability: >-
-          {% set rooms = [
-            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
-          ] %}
-          {% set vals = [] %}
-          {% for sid, tog in rooms %}
-            {% if is_state(tog,'on') and states(sid) not in ['unknown','unavailable',''] %}
-              {% set vals = vals + [ states(sid)|float ] %}
-            {% endif %}
-          {% endfor %}
-          {{ vals|length > 0 }}
-        state: >-
-          {% set rooms = [
-            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
-            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
-            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
-            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
-          ] %}
-          {% set vals = [] %}
-          {% for sid, tog in rooms %}
-            {% if is_state(tog,'on') and states(sid) not in ['unknown','unavailable',''] %}
-              {% set vals = vals + [ states(sid)|float ] %}
-            {% endif %}
-          {% endfor %}
-          {% if vals|length > 0 %}{{ (vals|sum / vals|length)|round(2) }}{% else %}unknown{% endif %}
-
       - name: "Heating — T interna minima"
         unique_id: heating_t_in_min
         object_id: heating_t_interna_minima
@@ -376,7 +342,7 @@ automation:
           - input_boolean.heating_use_notte1
           - input_boolean.heating_use_notte2
           - input_boolean.heating_use_bagno
-          - sensor.temperatura_interna_media
+          - sensor.t_in_media
           - sensor.heating_t_interna_minima
           - sensor.t_out
           - binary_sensor.heating_finestra_oraria
