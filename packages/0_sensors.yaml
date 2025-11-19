@@ -73,6 +73,34 @@ template:
           {% endfor %}
           {{ (ns.vals|sum / ns.vals|length)|round(1) if (ns.vals|length)>0 else 'unavailable' }}
 
+      - name: "t_in_min"
+        unit_of_measurement: "°C"
+        device_class: temperature
+        icon: mdi:thermometer-chevron-down
+        availability: >-
+          {% set invalid = ['unknown','unavailable','', 'none', none, 'nan'] %}
+          {{ states('sensor.t_in_giorno')|lower not in invalid or
+             states('sensor.t_in_notte1')|lower not in invalid or
+             states('sensor.t_in_notte2')|lower not in invalid or
+             states('sensor.t_in_bagno')|lower not in invalid }}
+        state: >-
+          {% set e_list = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno'
+          ] %}
+          {% set invalid = ['unknown','unavailable','', 'none', 'nan'] %}
+          {% set ns = namespace(vals=[]) %}
+          {% for e in e_list %}
+            {% set raw = states(e) %}
+            {% set v = raw|string %}
+            {% if v|lower not in invalid %}
+              {% set ns.vals = ns.vals + [ raw|float(0) ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.vals|min)|round(1) if (ns.vals|length)>0 else 'unavailable' }}
+
       - name: "ur_in_media"
         unit_of_measurement: "%"
         device_class: humidity
