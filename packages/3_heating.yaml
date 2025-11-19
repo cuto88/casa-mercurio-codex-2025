@@ -157,20 +157,20 @@ template:
             {% endif %}
           {% endfor %}
           {{ vals|length > 0 }}
-      state: >-
-        {% set rooms = [
-          ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
-          ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
-          ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
-          ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
-        ] %}
-        {% set vals = [] %}
-        {% for sid, tog in rooms %}
-          {% set ent = states.get(sid) %}
-          {% if is_state(tog,'on') and ent is not none and ent.state not in ['unknown','unavailable',''] %}
-            {% set vals = vals + [ ent.state|float ] %}
-          {% endif %}
-        {% endfor %}
+        state: >-
+          {% set rooms = [
+            ('sensor.t_in_giorno','input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1','input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2','input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno','input_boolean.heating_use_bagno')
+          ] %}
+          {% set vals = [] %}
+          {% for sid, tog in rooms %}
+            {% set ent = states.get(sid) %}
+            {% if is_state(tog,'on') and ent is not none and ent.state not in ['unknown','unavailable',''] %}
+              {% set vals = vals + [ ent.state|float ] %}
+            {% endif %}
+          {% endfor %}
           {% if vals|length > 0 %}{{ (vals|min)|round(2) }}{% else %}unknown{% endif %}
 
       # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
