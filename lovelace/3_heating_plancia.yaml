@@ -91,7 +91,7 @@ views:
             name: T_in media
             graph: line
           - type: tile
-            entity: sensor.heating_t_interna_minima
+            entity: sensor.t_in_min
             name: T_in minima
             graph: line
           - type: tile
@@ -199,7 +199,7 @@ views:
               - sensor.t_in_bagno
               - sensor.t_out
               - sensor.t_in_media
-              - sensor.heating_t_interna_minima
+              - sensor.t_in_min
               - sensor.heating_minuti_da_ultimo_cambio
               - sensor.heating_target_state_label
               - input_datetime.heating_window_start

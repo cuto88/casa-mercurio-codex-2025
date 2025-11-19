@@ -12,7 +12,7 @@ COLONNA 1 — STATO & COMANDI
 - Tile finale su switch.4_ch_interrutore_3 per interruttore generale fisico.
 
 COLONNA 2 — KPI & SELEZIONE STANZE
-- Tile con grafico per sensor.temperatura_interna_media, sensor.heating_t_interna_minima,
+- Tile con grafico per sensor.t_in_media, sensor.t_in_min,
   sensor.t_out, input_number.temp_target_risc e sensor.heating_minuti_da_ultimo_cambio.
 - Entities "Stanze incluse" con toggle input_boolean.heating_use_* + riepilogo
   sensor.heating_stanze_attive.
