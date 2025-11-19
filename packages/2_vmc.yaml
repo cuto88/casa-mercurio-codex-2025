@@ -299,8 +299,8 @@ automation:
     conditions:
       - condition: template
         value_template: >
-          {% set sw = states.switch.vmc_vel_3 %}
-          {{ sw is not none and (now() - sw.last_changed > timedelta(minutes=5)) }}
+          {% set sw = states.get('switch.vmc_vel_3') %}
+          {{ sw is not none and sw.state != 'unavailable' and (now() - sw.last_changed > timedelta(minutes=5)) }}
       - condition: state
         entity_id: switch.vmc_vel_3
         state: "off"
@@ -373,8 +373,8 @@ automation:
         state: "on"
       - condition: template
         value_template: >
-          {% set sw3 = states.switch.vmc_vel_3 if states.switch.vmc_vel_3 is defined else none %}
-          {% set sw2 = states.switch.vmc_vel_2 if states.switch.vmc_vel_2 is defined else none %}
+          {% set sw3 = states.get('switch.vmc_vel_3') %}
+          {% set sw2 = states.get('switch.vmc_vel_2') %}
           {% set ok3 = sw3 is not none and sw3.state == 'on' and (now() - sw3.last_changed > timedelta(minutes=10)) %}
           {% set ok2 = sw2 is not none and sw2.state == 'on' and (now() - sw2.last_changed > timedelta(minutes=5)) %}
           {{ ok3 or ok2 }}
@@ -428,8 +428,10 @@ automation:
         state: "off"
       - condition: template
         value_template: >
-          {% set sw = states.switch.vmc_vel_2 %}
-          {{ sw is not none and ( (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=1)) ) }}
+          {% set sw = states.get('switch.vmc_vel_2') %}
+          {{ sw is not none and sw.state != 'unavailable' and (
+            (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=1))
+          ) }}
       - condition: template
         value_template: "{{ states('switch.ac_notte') != 'on' and states('switch.ac_giorno') != 'on' }}"
     actions:
@@ -457,7 +459,7 @@ automation:
           {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
           {% set AHout_raw = states('sensor.ah_out') %}
           {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
-          {% set sw = states.switch.vmc_vel_2 %}
+          {% set sw = states.get('switch.vmc_vel_2') %}
           {% set onmin = ((now() - sw.last_changed).total_seconds()/60) if sw is not none and sw.state == 'on' else 0 %}
           {% set cond_active = ur_media is not none and ur_out is not none and ur_media > 50 and (ur_media - ur_out) >= 10 %}
           {% set cond_hysteresis = ur_media is not none and ur_out is not none and (ur_media <= 48 or (ur_media - ur_out) <= 8) %}
@@ -468,8 +470,8 @@ automation:
         state: "on"
       - condition: template
         value_template: >
-          {% set sw = states.switch.vmc_vel_2 %}
-          {{ sw is not none and (now() - sw.last_changed > timedelta(minutes=3)) }}
+          {% set sw = states.get('switch.vmc_vel_2') %}
+          {{ sw is not none and sw.state != 'unavailable' and (now() - sw.last_changed > timedelta(minutes=3)) }}
       - condition: state
         entity_id: switch.vmc_vel_3
         state: "off"
@@ -498,8 +500,10 @@ automation:
         state: "off"
       - condition: template
         value_template: >
-          {% set sw = states.switch.vmc_vel_2 %}
-          {{ sw is not none and ( (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=10)) ) }}
+          {% set sw = states.get('switch.vmc_vel_2') %}
+          {{ sw is not none and sw.state != 'unavailable' and (
+            (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=10))
+          ) }}
       - condition: template
         value_template: "{{ states('switch.ac_notte') != 'on' and states('switch.ac_giorno') != 'on' }}"
     actions:
@@ -551,8 +555,10 @@ automation:
         state: "off"
       - condition: template
         value_template: >
-          {% set sw = states.switch.vmc_vel_2 %}
-          {{ sw is not none and ( (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=10)) ) }}
+          {% set sw = states.get('switch.vmc_vel_2') %}
+          {{ sw is not none and sw.state != 'unavailable' and (
+            (sw.state == 'on') or (now() - sw.last_changed > timedelta(minutes=10))
+          ) }}
       - condition: state
         entity_id: switch.vmc_vel_2
         state: "off"
@@ -783,8 +789,8 @@ automation:
           {{ states('switch.ac_notte') == 'on' or states('switch.ac_giorno') == 'on' }}
       - condition: template
         value_template: >
-          {% set an = states.switch.ac_notte %}
-          {% set ag = states.switch.ac_giorno %}
+          {% set an = states.get('switch.ac_notte') %}
+          {% set ag = states.get('switch.ac_giorno') %}
           {% set ok_notte = (an is none) or (an.state == 'off') or (now() - an.last_changed > timedelta(minutes=30)) %}
           {% set ok_giorno = (ag is none) or (ag.state == 'off') or (now() - ag.last_changed > timedelta(minutes=30)) %}
           {{ ok_notte and ok_giorno }}
@@ -811,8 +817,8 @@ automation:
     conditions:
       - condition: template
         value_template: >
-          {% set an = states.switch.ac_notte %}
-          {% set ag = states.switch.ac_giorno %}
+          {% set an = states.get('switch.ac_notte') %}
+          {% set ag = states.get('switch.ac_giorno') %}
           {{ (an is not none and an.state == 'on' and (now() - an.last_changed > timedelta(minutes=120)))
              or (ag is not none and ag.state == 'on' and (now() - ag.last_changed > timedelta(minutes=120))) }}
     actions:
@@ -843,6 +849,22 @@ template:
             states('sensor.ah_out')
           ] %}
           {{ required | select('in', ['unknown','unavailable','', none]) | list | count > 0 }}
+        attributes:
+          missing: >
+            {% set mapping = {
+              'sensor.ur_in_bagno': states('sensor.ur_in_bagno'),
+              'sensor.t_in_media': states('sensor.t_in_media'),
+              'sensor.t_out': states('sensor.t_out'),
+              'sensor.ah_in': states('sensor.ah_in'),
+              'sensor.ah_out': states('sensor.ah_out')
+            } %}
+            {% set ns = namespace(items=[]) %}
+            {% for key, val in mapping.items() %}
+              {% if val in ['unknown','unavailable','', none] %}
+                {% set ns.items = ns.items + [key] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items }}
 
       - name: "VMC Override AC notte = DRY"
         unique_id: vmc_override_ac_dry
@@ -929,10 +951,10 @@ template:
         attributes:
           started_minutes_ago: >
             {% set ns = namespace(times=[]) %}
-            {% set ent_n = states.switch.ac_notte if states.switch.ac_notte is defined else none %}
-            {% set ent_g = states.switch.ac_giorno if states.switch.ac_giorno is defined else none %}
+            {% set ent_n = states.get('switch.ac_notte') %}
+            {% set ent_g = states.get('switch.ac_giorno') %}
             {% for obj in [ent_n, ent_g] %}
-              {% if obj is not none %}
+              {% if obj is not none and obj.last_changed is defined %}
                 {% set ns.times = ns.times + [obj.last_changed] %}
               {% endif %}
             {% endfor %}
