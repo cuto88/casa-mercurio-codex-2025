@@ -73,5 +73,5 @@ lovelace:
       title: "6 Energia"
       icon: mdi:solar-power
       show_in_sidebar: true
-      filename: lovelace/6_energia_plancia.yaml
+      filename: lovelace/6_surplus_plancia.yaml
 
