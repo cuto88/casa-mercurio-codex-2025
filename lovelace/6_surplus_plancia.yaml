@@ -124,16 +124,19 @@ views:
               - entity: input_boolean.energy_debug
                 name: "Debug energia"
 
-        # ==================== 6) SPIEGAZIONE LOGICA =============================
-        - type: markdown
-          title: "Come decide"
-          content: |
-            ### ⚙️ Logica energetica
-            - La plancia confronta istantaneamente `sensor.pv_power_w` e `sensor.grid_power_w`.
-            - Le direzioni (`sensor.grid_direction`, `sensor.pv_direction`) indicano import/export.
-            - I contatori **A** e **B** espongono energia prelevata/immessa (forward/reverse).
-            - Il surplus viene valutato in base alla potenza FV eccedente e alle soglie definite.
-            - Usa “Parametri energia” per regolare soglia e lock dei carichi PV-driven.
+
+      # ==================== 6) SPIEGAZIONE LOGICA =============================
+      - type: grid
+        title: "Come decide"
+        cards:
+          - type: markdown
+            content: |
+              ### ⚙️ Logica energetica
+              - La plancia confronta istantaneamente `sensor.pv_power_w` e `sensor.grid_power_w`.
+              - Le direzioni (`sensor.grid_direction`, `sensor.pv_direction`) indicano import/export.
+              - I contatori **A** e **B** espongono energia prelevata/immessa (forward/reverse).
+              - Il surplus viene valutato in base alla potenza FV eccedente e alle soglie definite.
+              - Usa “Parametri energia” per regolare soglia e lock dei carichi PV-driven.
 
       # ==================== 7) DEBUG & SENSORI GREZZI ========================
       - type: grid
