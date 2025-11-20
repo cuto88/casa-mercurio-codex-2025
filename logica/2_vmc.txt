@@ -42,6 +42,7 @@ Sensore: sensor.umidita_bagno (UR bagno).
       OPPURE (UR bagno – UR esterna) ≥ 10% (se UR esterna disponibile).
   Uscita (stop):
     - UR bagno ≤ soglia OFF (default 65%) E differenza assoluta con UR esterna ≤ 5%.
+      Se UR esterna mancante → basta il rientro sotto soglia OFF.
   Anti-ciclo:
     - LOCK minimo 10 minuti dall’ingresso (anche se lo stop diventa vero prima).
     - COOLDOWN 5 minuti prima di poter riattivare dopo uno stop.
