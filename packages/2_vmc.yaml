@@ -944,6 +944,7 @@ template:
           {{ (m in [11,12,1,2,3]) and notte and ur_min is not none and (ur_min <= soglia) and is_state('switch.vmc_vel_0','on') }}
 
       - name: "VMC DRY attivo (P1B)"
+        object_id: vmc_dry_active
         unique_id: vmc_dry_active
         icon: mdi:water-remove
         state: >
