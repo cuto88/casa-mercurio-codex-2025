@@ -16,6 +16,9 @@ views:
               - entity: binary_sensor.heating_should_run
                 name: Decisione finale
                 icon: mdi:robot
+              - entity: binary_sensor.heating_richiesta_automatica
+                name: Richiesta automatica
+                icon: mdi:cog
               - entity: binary_sensor.heating_finestra_oraria
                 name: Fascia 10–16
                 icon: mdi:clock-time-ten
@@ -101,6 +104,10 @@ views:
           - type: tile
             entity: input_number.temp_target_risc
             name: Target °C
+          - type: tile
+            entity: sensor.heating_rooms_below_target
+            name: Stanze sotto target
+            icon: mdi:home-thermometer-outline
           - type: tile
             entity: sensor.heating_minuti_da_ultimo_cambio
             name: Min da ultimo cambio
