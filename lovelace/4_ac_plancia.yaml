@@ -216,6 +216,8 @@ views:
               - binary_sensor.ac_should_run
               - binary_sensor.ac_fascia_ok
               - binary_sensor.ac_blocco_vmc
+              - binary_sensor.ac_config_ok
+              - sensor.ac_missing_entities
 
           - type: markdown
             title: Note operative
