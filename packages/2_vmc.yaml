@@ -364,9 +364,13 @@ automation:
         for: { seconds: 60 }
         value_template: >
           {% set ur_b_raw = states('sensor.ur_in_bagno') %}
-          {% set ur_b = ur_b_raw|float(default=100) if ur_b_raw not in ['unknown','unavailable','', none] else 100 %}
+          {% set ur_b = ur_b_raw|float(default=none) if ur_b_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ur_o_raw = states('sensor.ur_out') %}
+          {% set ur_o = ur_o_raw|float(default=none) if ur_o_raw not in ['unknown','unavailable','', none] else none %}
           {% set s_off = states('input_number.vmc_bagno_off')|float(65) %}
-          {{ ur_b <= s_off }}
+          {% set below_off = (ur_b is not none and ur_b <= s_off) %}
+          {% set delta_ok = (ur_o is none) or (ur_b is not none and (ur_b - ur_o) | abs <= 5) %}
+          {{ below_off and delta_ok }}
     conditions:
       - condition: state
         entity_id: binary_sensor.vmc_bagno_boost
