@@ -1,143 +1,32 @@
-###############################################################################
-# VMC — CORE LOGIC (rev. con free-cooling sdoppiato e override AC notte=DRY)
-###############################################################################
+# 2_vmc — Logica VMC Casa Mercurio
 
-# ARCHITETTURA DELLE PRIORITÀ
-# ---------------------------------------------------------------------------
-#   P0) FAILSAFE / EMERGENCY        → vel_0
-#   OVERRIDE) AC zona notte = DRY   → vel_0
-#   P1) BAGNO / BOOST               → vel_3 (lock + isteresi, soft vel_2 se esterno più secco)
-#   P1-Lite) BAGNO ΔUR alto         → vel_2 (solo differenziale UR)
-#   P1B) ESCALATION DRY             → supporto AC dopo boost prolungato
-#   P2) FREE-COOLING                → vel_2 (sdoppiato: PASSIVHAUS / MACCHINA)
-#   P3) INVERNO / ANTI-SECCO        → vel_0 (duty 5’ vel_1 ogni 30’)
-#   P4) BASELINE                    → vel_1
-#
-# Arbitraggio: valutazione top-down; il primo stato TRUE prende controllo.
-# ---------------------------------------------------------------------------
+## Obiettivi
+- Garantire ricambio aria continuo con priorità su sicurezza, comfort igrometrico e efficienza energetica.
+- Coordinare VMC e climatizzatori (zone giorno/notte) rispettando gli hook core.
 
-###############################################################################
-# [P0] FAILSAFE / EMERGENCY
-###############################################################################
-# Se sensori non disponibili, errori o mismatch critici:
-#   → forza vel_0 (modalità sicura)
-# Gestito da binary_sensor.vmc_failsafe_sensors_bad
-# Watchdog sempre attivo: se nessuna condizione vera >10 min → fallback vel_1
+## Sensori e attuatori
+- **Umidità bagno**: `sensor.umidita_bagno` (trigger boost locale).
+- **UR interne**: `sensor.ur_in_media`, `sensor.umidita_interna_min` (anti-secco), `sensor.ur_out` per ΔUR.
+- **Temperature**: `sensor.t_in_media`, `sensor.t_out`.
+- **Umidità assoluta**: `sensor.ah_in`, `sensor.ah_out` per free-cooling/hook AC.
+- **Velocità/attuatori VMC**: `switch.vmc_vel_0` … `switch.vmc_vel_3`, indice velocità `sensor.vmc_vel_index`.
+- **Hook e manuale**: `binary_sensor.vmc_failsafe_sensors_bad`, `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout`.
 
-###############################################################################
-# [OVERRIDE] AC NOTTE = DRY
-###############################################################################
-# Condizione: AC zona notte in modalità DRY attiva
-#   → forza VMC vel_0
-# Uscita override: quando AC notte non è più in DRY
-# Motivazione: evitare immissione aria esterna umida che vanifica deumidifica.
-# Priorità: immediatamente sotto P0, sopra P1/P2.
+## Collegamenti ai core rules
+- Priorità P0–P4, lock min_on/min_off e max_run: **core/regole_core_logiche.md → sezione "VMC — Priorità, lock e schemi"**.
+- Free-cooling (Passivhaus vs macchina) e interazione con AC: **core/regole_core_logiche.md → Schema free-cooling VMC**.
+- Anti-secco notturno e blocco DRY: **core/regole_core_logiche.md → Schema anti-secco**.
+- Hook AC↔VMC e arbitraggi: **core/regole_core_logiche.md → Regole di interazione AC↔VMC**.
 
-###############################################################################
-# [P1] BAGNO / BOOST
-###############################################################################
-Sensore: sensor.umidita_bagno (UR bagno).
-  Ingresso (start):
-    - UR bagno ≥ soglia ON (default 75%)
-      OPPURE (UR bagno – UR esterna) ≥ 10% (se UR esterna disponibile).
-  Uscita (stop):
-    - UR bagno ≤ soglia OFF (default 65%) E differenza assoluta con UR esterna ≤ 5%.
-      Se UR esterna mancante → basta il rientro sotto soglia OFF.
-  Anti-ciclo:
-    - LOCK minimo 10 minuti dall’ingresso (anche se lo stop diventa vero prima).
-    - COOLDOWN 5 minuti prima di poter riattivare dopo uno stop.
-  Note:
-    - In fase BOOST, P1 scavalca P2–P4.
-    - Se UR esterna < UR bagno E UR_media > 50% con ΔUR_media ≥ 10pt → applica "Boost soft" (vel_2) per non scendere sotto ≈50%.
-    - Se il differenziale UR interno/esterno è alto ma la soglia ON non è stata raggiunta, vedi P1-Lite.
+## Eccezioni locali / tuning specifico
+- Boost bagno: soglie 75% ON / 65% OFF, ΔUR bagno/esterno 10pt; lock ingresso 10m con cooldown 5m; downgrade soft a vel_2 se esterno molto più secco.
+- ΔUR interno/esterno: attiva vel_2 se UR_media >50% e ΔUR ≥10pt, rilascia a 48% o ΔUR <8pt (runtime max 8m).
+- Escalation DRY: se boost >75m con UR ancora alta richiede AC in DRY mantenendo VMC vel_1 (min_on AC 30m, max_run 120m).
+- Free-cooling sdoppiato: preferenza Passivhaus (ΔAH favorevole), fallback “macchina” solo termico con T_out>20 °C; ingressi lock 15m, max_run 120m.
+- Anti-secco: finestra novembre–marzo, ore 23–07, UR minima 40% con isteresi 42%; duty vel_1 per 5m ogni 30m su base vel_0.
+- Watchdog: se nessuna condizione vera per >10m, fallback vel_1.
 
-###############################################################################
-# [P2] FREE-COOLING (SDOPPIATO)
-###############################################################################
-
-# --- 2.1 PASSIVHAUS (criteri PH con controllo latente) ----------------------
-# ON se tutte vere:
-#   - T_in > 24.0 °C
-#   - T_out < T_in
-#   - AH_out < AH_in   (umidità assoluta esterna < interna)
-# OFF se:
-#   - T_in ≤ 23.2 °C  OR
-#   - T_out ≥ T_in     OR
-#   - AH_out ≥ AH_in
-# Azione:
-#   → vel_2
-# Note:
-#   - Lock 15 min ad ogni ingresso
-#   - Usa sensori canonici sensor.t_in_media, sensor.t_out,
-#     sensor.ah_in, sensor.ah_out
-
-# --- 2.2 MACCHINA (criteri macchina, solo termico) --------------------------
-# ON se tutte vere:
-#   - T_in > 24.0 °C
-#   - T_out < T_in
-#   - T_out > 20.0 °C
-# OFF se:
-#   - T_in ≤ 23.2 °C  OR
-#   - T_out ≤ 20.0 °C OR
-#   - T_out ≥ T_in
-# Azione:
-#   → vel_2
-# Note:
-#   - Lock 15 min ad ogni ingresso
-#   - Usa sensori canonici sensor.t_in_media, sensor.t_out
-
-# --- 2.3 Priorità interna PASSIVHAUS vs MACCHINA ----------------------------
-#   - Se entrambe vere → prevale PASSIVHAUS
-#   - Se PASSIVHAUS falsa e MACCHINA vera → usa MACCHINA
-#   - Se entrambe false → rilascio controllo
-
-###############################################################################
-# [P1-Lite] ΔUR INTERNO VS ESTERNO
-###############################################################################
-Sensori: sensor.ur_in_media, sensor.ur_out (supporto sensor.umidita_bagno per esclusione boost).
-  Ingresso (start):
-    - UR_media > 50% E (UR_media – UR_out) ≥ 10 punti percentuali, con bagno sotto soglia ON.
-  Uscita (stop):
-    - ΔUR_media < 8pt  OPPURE  UR_media ≤ 48%  OPPURE runtime ≥ 8 minuti
-      OPPURE l’aria esterna è più umida in termini di AH (AH_out ≥ AH_in).
-  Azione:
-    - Velocità 2, resta subordinato alle logiche P1 e P2.
-  Uso:
-    - Copre casi in cui l’aria interna è oltre il comfort Passivhaus (≈50%) ma il bagno non richiede boost pieno.
-
-###############################################################################
-# [P1B] ESCALATION DRY (SUPPORTO AC)
-###############################################################################
-  Condizione:
-    - Boost bagno (P1) attivo da ≥ 75 minuti e UR bagno oltre soglia OFF + 2%.
-  Azione:
-    - Accende AC notte (e giorno se necessario) in DRY, mantenendo la VMC a vel_1.
-  Uscita:
-    - Umidità rientrata sotto soglia OFF − 1% con vincolo minimo ON di 30 minuti
-      OPPURE runtime massimo 120 minuti raggiunto.
-
-###############################################################################
-# [P3] INVERNO / ANTI-SECCO
-###############################################################################
- Finestra temporale:
-    - Mesi: novembre–marzo (11,12,1,2,3).
-    - Ore: 23:00–07:00.
-  Condizione:
-    - sensor.umidita_interna_min ≤ 40%
-    - Solo se P1 (bagno) NON attivo.
-  Azione:
-    - imposta vel_0.
-    - duty-cycle automatico: ogni 30 minuti accende vel_1 per 5 minuti.
-  Uscita:
-    - Fine finestra oraria/mensile OPPURE umidità risale > 42%.
-
-###############################################################################
-# [P4] BASELINE
-###############################################################################
-# Nessuna condizione attiva:
-#   → vel_1 (ricambio minimo continuo, ~0.5 vol/h)
-# Funzione anche di fallback se watchdog segnala inattività logiche >10 min.
-
-
-FINE GUIDA
-===============================================================
+## Note di implementazione YAML
+- Automatismi e sensori definiti in `packages/2_vmc.yaml`; plancia in `lovelace/2_vmc_plancia.yaml`.
+- I timer/lock seguono la tabella core; aggiornare soglie tramite `input_number` dove previsto (es. soglie UR bagno, ΔUR passivhaus/macchina).
+- Gli hook `hook_vmc_request_ac_block` e `hook_ac_request_vmc_low` sono cablati nei rispettivi package AC per DRY/COOL e nei lock VMC.

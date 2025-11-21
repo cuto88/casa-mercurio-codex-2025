@@ -45,6 +45,35 @@ Arbitraggio top-down: si valuta dal livello più alto al più basso; la prima co
 - **Free-cooling**: attivo se ΔT_out<in < −ΔT_fc e ΔAH_out<in < −ΔAH_fc con meteo ok; eleva VMC (vel_2) e blocca COOL tramite `hook_vmc_request_ac_block`. Max_run 120m.
 - **Override AC↔VMC**: AC in DRY richiede VMC low (`hook_ac_request_vmc_low`); AC in COOL può bloccare VMC se ΔAH sfavorevole; VMC in anti-secco può bloccare DRY.
 
+## VMC — Priorità, lock e schemi
+Tabella riassuntiva delle priorità specifiche VMC (top-down). Le soglie numeriche seguono i valori standard Casa Mercurio: UR bagno ON≈75%, OFF≈65%, ΔUR boost≈10pt; soglia UR bassa≈40%; free-cooling con T_in>24 °C, T_out<T_in, AH_out<AH_in.
+
+| Priorità | Trigger | Azione | Uscita | Lock applicati | Note |
+| --- | --- | --- | --- | --- | --- |
+| **P0 – Failsafe/override AC** | Sensori critici mancanti/allarmi; AC notte in DRY → richiesta vel_0 | Forza vel_0 e disabilita automazioni | Ripristino sensori o AC esce da DRY | min_off sicurezza | Watchdog ripristina vel_1 se inattivo >10m |
+| **P1 – Boost bagno / ΔUR alto** | UR bagno sopra soglia o ΔUR bagno/esterno ≥10pt | Vel_3 (boost), downgrade a vel_2 se esterno molto più secco | UR rientra sotto soglia + ΔUR ridotto | min_on 10m, cooldown 5m | Scavalca free-cooling; può attivare escalation DRY |
+| **P1-lite – ΔUR interno/esterno** | UR_media >50% e ΔUR_media≥10pt con bagno non in boost | Vel_2 | ΔUR_media <8pt o UR_media ≤48% o runtime 8m o AH_out≥AH_in | min_on 5m | Subordinato a P1 e P2 |
+| **P1B – Supporto AC DRY** | Boost bagno attivo da lungo tempo e UR ancora alta | Richiede AC in DRY mantenendo VMC vel_1 | UR sotto isteresi o max_run 120m | min_on AC 30m | Usa `hook_vmc_request_ac_block` al rilascio |
+| **P2 – Free-cooling** | Condizioni termo-igrometriche favorevoli (vedi schema) | Vel_2 e blocco COOL/DRY se ΔAH sfavorevole | ΔT/ΔAH non più validi | min_on 15m, max_run 120m | Prevale schema PASSIVHAUS se valido |
+| **P3 – Anti-secco notturno** | Nov–Mar, 23–07, UR_in_min ≤40% e nessun boost bagno | Vel_0 con duty vel_1 5m ogni 30m; blocca richieste DRY | Fine finestra o UR >42% | min_on 5m, min_off 10m | Può inibire AC DRY tramite hook |
+| **P4 – Baseline** | Nessun trigger attivo | Vel_1 continuo | Pre-emption da priorità superiori | — | Funzione anche da fallback watchdog |
+
+### Schema free-cooling VMC
+- **Passivhaus (preferito)**: T_in >24 °C, T_out < T_in, AH_out < AH_in; uscita con T_in ≤23.2 °C oppure T_out ≥ T_in oppure AH_out ≥ AH_in.
+- **Modalità macchina (solo termico)**: T_in >24 °C, T_out < T_in e >20 °C; uscita con T_in ≤23.2 °C oppure T_out ≤20 °C oppure T_out ≥ T_in.
+- **Meteo valido**: vento/pioggia/PM fuori soglia disabilitano; max_run 120m, lock ingressi 15m.
+- **Interazione AC**: se free-cooling attivo o ΔAH esterno più secco → `hook_vmc_request_ac_block` per sospendere COOL/DRY.
+
+### Schema anti-secco
+- Attivo in fascia invernale/notturna con UR interna bassa: riduce VMC a vel_0 con brevi impulsi vel_1 per mantenere ricambio minimo.
+- Blocca richieste DRY e limita free-cooling se ΔAH sfavorevole; uscita quando UR risale sopra isteresi o termina la finestra.
+- Lock anti-secco: min_on 5m, min_off 10m per evitare cicli rapidi.
+
+### Regole di interazione AC↔VMC
+- **VMC limita/blocca AC**: in free-cooling o ΔAH esterno più secco invia hook di blocco COOL/DRY; in anti-secco sospende DRY per non sottrarre ulteriore umidità.
+- **AC limita VMC**: in DRY richiede vel_0/vel_1 (`hook_ac_request_vmc_low`); in COOL con aria esterna umida può inibire elevazione velocità.
+- **Lock VMC**: min_on 10m (boost), 5m (anti-secco/pulse ΔUR), min_off 10m (anti-secco), ingressi free-cooling con lock 15m e max_run 120m.
+
 ## Hook cross-modulo
 Ogni hook definisce: sorgente, target, evento, payload (boolean/priority), timeout.
 
