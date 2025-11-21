@@ -1,31 +1,27 @@
-# 6_surplus — Logica gestione surplus energetico
+# 6_surplus — Logica gestione surplus FV Casa Mercurio
 
-Obiettivo: massimizzare l’uso di energia PV riducendo i prelievi da rete, coordinando i carichi a step e gli hook verso heating. Tutte le soglie e i lock condivisi fanno riferimento a `core/regole_core_logiche.md` (tabella lock surplus) e alle priorità P0–P3.
+## Obiettivi
+- Massimizzare autoconsumo PV riducendo prelievi da rete.
+- Attivare carichi a priorità progressiva e, quando utile, abilitare pre-carica del pavimento radiante.
 
-## Obiettivi e priorità
-- **Priorità P3 (efficienza)**: usare surplus PV prima di consumare da rete, mantenendo margine per batteria/servizi critici.
-- **Priorità P2 (comfort)**: permettere pre-carica heating quando PV sufficiente (`hook_surplus_heating_precharge`).
-- **Priorità P1/P0**: spegnere carichi non essenziali in assenza di produzione o in caso di fault contatori.
+## Sensori e metriche energia
+- Potenza FV istantanea (`sensor.pv_power_w`), direzione `sensor.pv_direction`.
+- Potenza/prelievo rete (`sensor.grid_power_w`, `sensor.grid_direction`), contatori A/B giornalieri e trend.
+- Eventuale batteria: livello/SOC e stato carica se disponibile.
+- Carichi monitorati: boiler/presa EV/altro carico smart, con sensori di stato runtime.
 
-## Fonti dati e indicatori
-- Potenze istantanee: `sensor.pv_power_w`, `sensor.grid_power_w`, direzione `sensor.pv_direction` / `sensor.grid_direction`.
-- Contatori energia (A/B) per oggi e trend 7/30gg.
-- Parametri configurabili: `input_number.surplus_min_w` (soglia attivazione), `input_number.surplus_lock_minutes`, `input_boolean.surplus_enable`, flag `input_boolean.energy_debug`.
+## Collegamenti ai core rules
+- Logica di surplus/deficit e carichi a step in `core/regole_core_logiche.md` → sezione "Surplus — Energia FV, carichi e hook".
+- Lock min_on/min_off/max_run seguono la tabella lock core (voce Surplus).
+- Hook `hook_surplus_heating_precharge` alzato quando surplus stabile e fascia heating utile.
 
-## Logica di attivazione carichi
-1. **Valutazione surplus**: se produzione PV − consumo casa ≥ `surplus_min_w` e batteria (se presente) non in carica prioritaria → stato SURPLUS.
-2. **Sequenza carichi a step** (coordinata con tabella lock):
-   - Step 1: carico base (es. boiler / presa EV lenta) → min_on/min_off 20m.
-   - Step 2: carico opzionale (es. EV veloce o pompa calore ACS) se surplus stabile > 2× soglia.
-   - Ogni step rispetta `max_run 180m` e si disattiva se surplus scende sotto soglia per più del `min_off`.
-3. **Rientro da deficit**: se grid_direction indica import sostenuto o PV power < soglia → spegnere progressivamente gli step (inverso) e uscire da P3.
+## Eccezioni locali / tuning specifico
+- Priorità Casa Mercurio: Step1 boiler/presa lenta; Step2 carico opzionale/EV veloce; eventuale Step3 extra solo in surplus ampio.
+- Soglia iniziale `input_number.surplus_min_w` e scaling 2× per step successivi; rientro con isteresi su media breve per evitare oscillazioni.
+- In caso di rete instabile o batteria in carica prioritaria: blocco attivazione step >1 anche con surplus.
+- Comfort: nessuna forzatura COOL; pre-carica heating solo se comfort non già raggiunto e lock heating rispettati.
 
-## Integrazione con altri moduli
-- **Heating pre-carica**: quando SURPLUS stabile e fascia heating attiva, alzare temporaneamente target o anticipare accensione tramite `hook_surplus_heating_precharge` (timeout 180m, rispettare lock heating).
-- **VMC/AC**: nessun comando diretto; evitare che carichi surplus interferiscano con blocchi P0/P1 di sicurezza.
-- **Debug**: `hook_debug_force_state` può simulare SURPLUS per testare i contatori senza attivare carichi reali.
-
-## Riferimenti
-- Logiche condivise: `core/regole_core_logiche.md` (priorità, lock, hook).
-- Linee guida UI: `core/regole_plancia.md`.
-- Plancia monitoraggio: `6_surplus_plancia_regole.txt`.
+## Note di implementazione YAML
+- Automazioni/helper in `packages/6_surplus.yaml`; binary_sensor di stato surplus/deficit e contatori in 0_sensors.yaml.
+- Ogni step usa switch dedicati e timer `timer.surplus_step_*` per lock; entità debug abilitate da `input_boolean.energy_debug`.
+- Hook verso heating gestito da automation dedicata con timeout 180m e rispetto min_off prima di nuovo invio.

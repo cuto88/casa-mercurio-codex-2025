@@ -21,8 +21,14 @@ SEZIONE 4 — TREND 7GG / 30GG
 SEZIONE 5 — SOGLIE & LOCK
 - Entities "Parametri energia" con input_number.surplus_min_w, input_number.surplus_lock_minutes, input_boolean.surplus_enable, input_boolean.energy_debug.
 
-SEZIONE 6 — COME DECIDE
-- Markdown che riassume attivazione carichi a step e criteri surplus/deficit rimandando a `core/regole_core_logiche.md` e `6_surplus.txt`.
+SEZIONE 6 — COME DECIDE (SINTESI)
+- Valuta il surplus FV confrontando produzione, consumi e (se presente) batteria.
+- Attiva i carichi in ordine di priorità rispettando lock min_on/min_off/max_run.
+- Può abilitare la pre-carica del pavimento tramite hook verso il modulo Heating.
+
+Per il dettaglio logico:
+- core/regole_core_logiche.md → sezione "Surplus — Energia FV, carichi e hook"
+- 6_surplus/6_surplus.txt → configurazione specifica Casa Mercurio
 
 NOTE
 - Nessun comando diretto: plancia focalizzata su monitoraggio/diagnostica.
