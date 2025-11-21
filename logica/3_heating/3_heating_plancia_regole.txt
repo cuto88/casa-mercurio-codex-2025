@@ -5,7 +5,7 @@
 
 COLONNA 1 — STATO & COMANDI
 - Glance "Stato logiche": binary_sensor.heating_should_run, heating_finestra_oraria, heating_esterna_fredda, heating_almeno_una_stanza_sotto_target e lock ON/OFF.
-- Markdown "Come decide": sintetizza target/giornata, finestra 10–16 e lock min_on/min_off, rimandando a `core/regole_core_logiche.md` e `3_heating.txt`.
+- Markdown "Come decide" (sintesi) — vedi sotto.
 - Pulsanti button/tile: abilitazione impianto, force on/off, pacchetto manuale con input_boolean.heating_manual_active, input_select.heating_manual_mode e timer.
 - Tile finale su switch.4_ch_interrutore_3 per interruttore generale fisico.
 
@@ -26,6 +26,15 @@ NOTE
 - Tutti gli entity_id provengono da packages/3_heating.yaml e 0_sensors.yaml.
 - Pulsanti manuali rispettano la logica di override introdotta nel pacchetto.
 - Layout mobile-first (sections) coerente con Regole Plancia core.
+
+COME DECIDE (SINTESI)
+- Gestisce il pavimento per portare le zone al T_target rispettando la finestra 10–16.
+- Applica lock min_on/min_off per sfruttare l’inerzia ed evitare cicli brevi.
+- Può anticipare la partenza se c’è surplus PV (pre-carica), altrimenti limita le accensioni.
+
+Per il dettaglio logico:
+- core/regole_core_logiche.md → sezione "Heating — Pavimento, lock e priorità"
+- 3_heating/3_heating.txt → configurazione specifica Casa Mercurio
 
 RIFERIMENTI LOGICI
 - Logiche condivise: vedi core/regole_core_logiche.md
