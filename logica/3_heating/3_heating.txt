@@ -1,44 +1,27 @@
-# ========================================
-# Controllo Riscaldamento — Casa Silea (TV)
-# Logica Passivhaus autonoma (no conflitti)
-# ========================================
-# Obiettivo:
-# Utilizzare la casa come batteria termica a bassa entalpia, caricando
-# l’edificio nelle ore più favorevoli dal punto di vista energetico e solare,
-# mantenendo comfort e riducendo il tempo totale di accensione.
+# 3_heating — Logica riscaldamento a pavimento Casa Mercurio
 
-# Sistema:
-# - Impianto a pavimento → alta inerzia
-# - Ogni zona ha termostato dedicato, che entra in riduzione notturna via relè centralizzato
-# - Lo switch generale di attivazione riscaldamento è: switch.4_ch_interrutore_3
-# - I flussimetri sono regolabili manualmente e tarati inizialmente
+## Obiettivi
+- Portare le zone abitate al target comfort (default 21 °C giorno/notte) sfruttando l’inerzia del pavimento.
+- Privilegiare la finestra 10:00–16:00 per usare PV/guadagni solari, con eventuale pre-carica se presente surplus.
+- Limitare i cicli brevi applicando lock min_on/min_off e monitorando max_run.
 
-# Temperatura target:
-# - Valore comfort iniziale: 21°C
-# - Modificabile tramite input_number.temp_target_risc (se configurato)
-# - Sensori disponibili: giorno, notte1, notte2, bagno, esterna
+## Zone, sensori e attuatori
+- Zone: giorno, notte1, notte2, bagno (tutte selezionabili via `input_boolean.heating_use_*`).
+- Sensori temperatura: `sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.t_in_notte2`, `sensor.t_in_bagno`; esterno `sensor.t_out` per valutare dispersione.
+- Eventuali letture UR: sensori stanza se disponibili (usati solo per diagnostica/condensa, non per il trigger principale).
+- Attuatori: interruttore generale `switch.4_ch_interrutore_3`; valvole di zona gestite dagli attuatori fisici collegati ai termostati; pompa/relay centralizzato pilotato tramite lo switch principale.
 
-# Fascia ottimale di attivazione (fotovoltaico attivo):
-# - Giornaliera: 10:00 → 16:00
-# - Regolabile via input_datetime o fasce fisse
-# - Obiettivo: anticipare la dispersione attesa e preriscaldare
+## Collegamenti ai core rules
+- Regole di priorità, finestra 10–16, lock pavimento (min_on/min_off/max_run) e interazione con surplus sono definite in `core/regole_core_logiche.md` → sezione "Heating — Pavimento, lock e priorità".
+- Questo modulo applica `heating_should_run` seguendo quei vincoli e rende visibile l’eventuale `hook_surplus_heating_precharge` proveniente dal modulo surplus.
 
-# Logica attivazione:
-# - Si accende solo se almeno una stanza < target - tolleranza (es. 0,5°C)
-# - Si accende solo se orario in fascia utile
-# - Si accende solo se la temperatura esterna è tale da causare dispersione significativa
-# - Se previste giornate soleggiate, può essere posticipata l’accensione
-# - Se l’umidità ambientale è elevata (> 65%), evitare over-riscaldamento
+## Eccezioni locali / tuning specifico
+- Bagno: può richiedere comfort più alto; mantenere `heating_use_bagno` attivo per includerlo nei calcoli anche quando le altre zone sono soddisfatte.
+- Deroga finestra 10–16: consentita solo per comfort critico (zone sotto target di oltre 1 °C) o emergenze; la deroga è limitata dai lock min_off.
+- Anti-condensa locale: se sensori UR stanza segnalano valori molto alti, evitare pre-carica aggressiva e preferire spegnimento anticipato a target raggiunto.
+- Manual override: `heating_force_on/off` e `heating_manual_active` seguono i lock core ma possono ignorare l’assenza di surplus.
 
-# Logica futura:
-# - Analisi curva di decadimento termico per ogni zona
-# - Predizione oraria dei °C persi/h con modello lineare o regressivo
-# - Automazione flussi PV / energia disponibile (accensione solo in surplus)
-# - Ottimizzazione dell'inerzia tramite bilanciamento flussi termici (flussimetri)
-
-# Espandibile:
-# - Possibilità di aggiungere sensori temperatura stanza (notte2, notte3, lavanderia)
-# - Possibile switch logico per ignorare il bagno o prioritarlo (es. mattina)
-# - Logging giornaliero per analisi consumi / ore attive
-
-consigliare miglioramenti e target temperatura
+## Note di implementazione YAML
+- Configurazione e helper in `packages/3_heating.yaml` (toggle zona, target, tolleranza, finestra oraria, lock configurabili e contatori runtime).
+- Automazioni pubblicano `binary_sensor.heating_should_run`, `binary_sensor.heating_min_on_lock`/`heating_min_off_lock`, flag finestra oraria e condizioni esterne.
+- La plancia usa entità del pacchetto per mostrare KPI e comandi; non duplicare logica qui.
