@@ -1,0 +1,44 @@
+# ========================================
+# Controllo Riscaldamento — Casa Silea (TV)
+# Logica Passivhaus autonoma (no conflitti)
+# ========================================
+# Obiettivo:
+# Utilizzare la casa come batteria termica a bassa entalpia, caricando
+# l’edificio nelle ore più favorevoli dal punto di vista energetico e solare,
+# mantenendo comfort e riducendo il tempo totale di accensione.
+
+# Sistema:
+# - Impianto a pavimento → alta inerzia
+# - Ogni zona ha termostato dedicato, che entra in riduzione notturna via relè centralizzato
+# - Lo switch generale di attivazione riscaldamento è: switch.4_ch_interrutore_3
+# - I flussimetri sono regolabili manualmente e tarati inizialmente
+
+# Temperatura target:
+# - Valore comfort iniziale: 21°C
+# - Modificabile tramite input_number.temp_target_risc (se configurato)
+# - Sensori disponibili: giorno, notte1, notte2, bagno, esterna
+
+# Fascia ottimale di attivazione (fotovoltaico attivo):
+# - Giornaliera: 10:00 → 16:00
+# - Regolabile via input_datetime o fasce fisse
+# - Obiettivo: anticipare la dispersione attesa e preriscaldare
+
+# Logica attivazione:
+# - Si accende solo se almeno una stanza < target - tolleranza (es. 0,5°C)
+# - Si accende solo se orario in fascia utile
+# - Si accende solo se la temperatura esterna è tale da causare dispersione significativa
+# - Se previste giornate soleggiate, può essere posticipata l’accensione
+# - Se l’umidità ambientale è elevata (> 65%), evitare over-riscaldamento
+
+# Logica futura:
+# - Analisi curva di decadimento termico per ogni zona
+# - Predizione oraria dei °C persi/h con modello lineare o regressivo
+# - Automazione flussi PV / energia disponibile (accensione solo in surplus)
+# - Ottimizzazione dell'inerzia tramite bilanciamento flussi termici (flussimetri)
+
+# Espandibile:
+# - Possibilità di aggiungere sensori temperatura stanza (notte2, notte3, lavanderia)
+# - Possibile switch logico per ignorare il bagno o prioritarlo (es. mattina)
+# - Logging giornaliero per analisi consumi / ore attive
+
+consigliare miglioramenti e target temperatura

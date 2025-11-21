@@ -1,0 +1,13 @@
+###############################################################################
+# 9_test_plancia_regole.txt — Documentazione layout plancia TEST
+# Riferimento minimale per lovelace/9_test_plancia.yaml.
+###############################################################################
+
+CONTENUTO
+- Vista singola "Test" (path test) con due card.
+- Markdown di verifica che la dashboard sia caricata (messaggio statico).
+- custom:mini-graph-card di prova su sensor.t_in_giorno (6h, labels/extrema abilitati).
+
+NOTE
+- Plancia usata per testare custom card e compatibilità frontend.
+- Nessuna logica o comando: solo sandbox grafica.

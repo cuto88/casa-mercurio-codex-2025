@@ -1,0 +1,33 @@
+###############################################################################
+# 2_vmc_plancia_regole.txt — Documentazione layout plancia 2_VMC
+# Obiettivo: descrivere struttura e contenuti della plancia Lovelace associata
+#            al modulo VMC (packages/2_vmc.yaml, lovelace/2_vmc_plancia.yaml).
+###############################################################################
+
+COLONNA 1 — STATO & ATTUATORI
+- Glance "Stato logico": priorità corrente, motivo, ultimo evento e stagione logica.
+- Glance "Attuatori": relè VMC vel_0..vel_3 + climatizzatori giorno/notte.
+- Entities "Modalità manuale": `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout` con reminder ripristino.
+- Markdown "Come decide": riassunto in bullet delle priorità P0→P3 e hook AC/VMC, con rimando al core e a `2_vmc.txt` per dettagli.
+- Markdown "Come succede": breve spiegazione dinamica dello stato corrente.
+
+COLONNA 2 — KPI COMPATTI (24h)
+- Mini-graph temperature (Esterno, T in giorno, notte, bagno) colore rosso/giallo/blu/verde.
+- Mini-graph umidità relativa (Esterno, ur in giorno/notte/bagno + media/min) stessi colori.
+- Mini-graph AH & Dew point (AH_in, AH_out, dewpoint_in) per controllo comfort.
+
+COLONNA 3 — TREND, VELOCITÀ E DEBUG
+- Mini-graph T_in_media vs T_out (24h) e AH_in vs AH_out (24h).
+- Mini-graph dedicato a `sensor.ur_in_bagno` (24h) per monitorare il trigger BOOST.
+- Statistics-graph "Velocità VMC — 24h" (stat_types=state, period=hour) su `sensor.vmc_vel_index` con legenda 0→vel_0 … 3→vel_3.
+- History-graph UR_media/UR_out/dewpoint (24h) e statistics-graph 7gg T/UR medie.
+- Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
+
+NOTE
+- Colori coerenti con la palette core; card manuale consente override temporaneo.
+- Layout mobile-first (sections) coerente con Regole Plancia core.
+
+RIFERIMENTI LOGICI
+- Logiche condivise: vedi core/regole_core_logiche.md
+- Linee guida UI generali: vedi core/regole_plancia.md
+- Logica specifica modulo: vedi 2_vmc.txt

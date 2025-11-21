@@ -1,0 +1,30 @@
+###############################################################################
+# 1_vent_plancia_regole.txt — Documentazione layout plancia 1_VENT
+# Obiettivo: descrivere struttura e contenuti della plancia Lovelace per
+#            la ventilazione naturale estiva (lovelace/1_vent_plancia.yaml).
+###############################################################################
+
+COLONNA 1 — STATO & COMANDI
+- Glance "Stato attuale": binary_sensor.vent_recommend_open/close, flag stagione, night flush.
+- Entities "Comandi rapidi": override estate, toggle notifiche e mapping manuale aperture (giorno/notte/bagno) sugli input_boolean.vent_*.
+- Markdown "Consiglio": testo di input_text.vent_messaggio_consiglio.
+- Markdown "Come decide": testo sintetico che rimanda a soglie ΔT/ΔAH e meteo definite nel core e in `1_vent.txt`.
+
+COLONNA 2 — KPI PRINCIPALI
+- Entities "KPI — Temperatura" e mini-graph 24h T_in/T_out (sensor.t_out, sensor.t_in_media, sensor.delta_t_in_out).
+- Entities "KPI — Umidità assoluta" e mini-graph 24h AH_in/AH_out (sensor.ah_in, sensor.ah_out, sensor.delta_ah_in_out).
+- Entities "Meteo operativo": vento, pioggia, qualità aria e PM2.5 (sensori REST vent_meteo_* e binary_sensor.vent_pioggia / vent_air_quality_ok).
+
+COLONNA 3 — TREND, SOGLIE & DEBUG
+- Statistics-graph settimanale su temperature e AH interne/esterne.
+- Entities "Soglie & stato finestre": input_number ΔT_min/ΔAH_min, soglia vento/PM, night flush e contatori finestre.
+- History-graph dedicati a vento/PM e stato finestre per audit.
+
+NOTE
+- Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (0_sensors.yaml e packages/1_vent.yaml).
+- Layout mobile-first (sections) coerente con Regole Plancia core.
+
+RIFERIMENTI LOGICI
+- Logiche condivise: vedi core/regole_core_logiche.md
+- Linee guida UI generali: vedi core/regole_plancia.md
+- Logica specifica modulo: vedi 1_vent.txt

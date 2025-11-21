@@ -1,0 +1,47 @@
+###############################################################################
+# 1_vent.yaml — Summer Passive Ventilation (Silea, TV — IT)
+#
+# SCOPO
+#   Consigliare in stagione ESTIVA quando APRIRE/CHIUDERE le finestre in ottica
+#   Passivhaus (free-cooling notturno e controllo umidità), e mappare l’apertura
+#   manuale per stanza con timestamp.
+#
+# AMBITO
+#   • Valido solo per l’estate (maggio–settembre). In inverno la ventilazione è
+#     demandata alla VMC.
+#   • Località fissa: Silea (TV), Italia — lat 45.646, lon 12.273, tz Europe/Rome.
+#
+# STRATEGIA (criteri sintetici)
+#   • APRI (preferibilmente in fascia “night flush”) se T_out < T_in − ΔT_min
+#     e AH_out < AH_in − ΔAH_min, senza pioggia, con vento ≤ soglia e qualità
+#     aria esterna accettabile.
+#   • CHIUDI se non sono soddisfatti i criteri sopra, se piove, vento forte,
+#     T_out ≥ T_in o AH_out ≥ AH_in.
+#
+# LOGICHE/DERIVATE
+#   • Calcoli microclimatici: dew point e umidità assoluta (g/m³) indoor/outdoor.
+#   • ΔT = T_in − T_out; ΔAH = AH_in − AH_out (si apre solo se entrambi > soglie).
+#   • Fascia oraria “night flush” di default 21:00–08:00 (regolabile).
+#
+# ENTITÀ CONTENUTE (file autonomo, senza dipendenze esterne)
+#   • Helper: input_boolean (override estate, finestre manuali per stanza),
+#              input_number (ΔT_min, ΔAH_min, soglia vento, backup T/RH indoor),
+#              input_datetime (timestamp ultimo cambio finestra),
+#              input_text (messaggio consiglio).
+#   • REST sensor: meteo esterno da Open-Meteo (senza API key): temperatura,
+#                  umidità relativa, precipitazione, vento; opzionale PM2.5.
+#   • Template sensor: fallback indoor (se mancano sensori reali), dew point,
+#                      umidità assoluta, ΔT, ΔAH, flag estate, finestra notturna,
+#                      blocco meteo, contatore finestre aperte.
+#   • Binary sensor: recommendation_open / recommendation_close.
+#   • Automation: aggiornamento messaggio di consiglio + notifica persistente;
+#                 mappatura timestamp al cambio dei toggle finestre.
+#
+# VALORI DI DEFAULT (tuning iniziale, ottimizzabili)
+#   • ΔT_min = 1.5 °C   • ΔAH_min = 1.0 g/m³   • Vento_max = 6.0 m/s
+#   • Mesi estate: 5–9   • Night flush: 21:00–08:00
+#
+# OBIETTIVO ECONOMICO/COMFORT
+#   • Massimizzare raffrescamento passivo notturno, ridurre carico di condizionamento,
+#     evitare apporti di umidità e disconfort (vento/pioggia/inquinanti).
+###############################################################################
