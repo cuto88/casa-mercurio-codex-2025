@@ -50,6 +50,27 @@ Arbitraggio top-down: si valuta dal livello più alto al più basso; la prima co
 - **T_target giorno/notte**: setpoint comfort; modulabile per heating/AC.
 - **Soglia surplus PV**: potenza minima disponibile per attivare carichi step (rif. 6_surplus.txt).
 
+## Vent — Ventilazione naturale & night-flush
+| Aspetto | Regola core | Note/Hook |
+| --- | --- | --- |
+| **Obiettivo** | Raffrescare passivamente in estate consigliando apertura/chiusura serramenti e gestendo night-flush 21:00–08:00 | Valido su finestre apribili; inverno demandato a VMC |
+| **Criteri apertura (giorno/sera)** | Apri/consiglia se **ΔT_out<in** e **ΔAH_out<in** superano soglie minime; meteo OK (no pioggia, vento sotto soglia, PM accettabile) | Se uno dei due Δ non è favorevole → nessun consiglio di apertura |
+| **Criteri chiusura** | Chiudi/sconsiglia se T_out ≥ T_in, AH_out ≥ AH_in o meteo avverso (pioggia/vento forte/PM alti) | Ripristina stato baseline finché condizioni non tornano favorevoli |
+| **Night-flush** | Fascia 21:00–08:00: se T_out < T_in **e** AH_out < AH_in con meteo OK → attiva ciclo di flush; preferire serramenti aperti + VMC vel_2 | Bloccare AC/COOL durante flush; evitare con vento forte/pioggia/PM alti |
+| **Lock** | Durata minima ciclo night-flush e max_run 120m; tempo tra cicli per evitare ping-pong; meteo deve restare valido per mantenere il flush | Se ΔT/ΔAH si annullano → uscita anticipata e rispetto min_off |
+| **Coordinamento VMC/AC** | Con night-flush/free-cooling inviare `hook_vent_enable_night_flush` verso VMC/AC: VMC → vel_2, AC → blocco COOL | VMC può continuare anti-secco in inverno senza attivare flush |
+
+## Surplus — Energia FV, carichi e hook
+| Aspetto | Regola core | Note/Hook |
+| --- | --- | --- |
+| **Obiettivo** | Massimizzare uso PV attivando carichi a priorità progressiva e abilitando pre-carica heating se c'è margine energetico | Evitare import da rete salvo carichi critici |
+| **Criteri surplus/deficit** | Calcolo su potenza FV istantanea vs consumo casa (e batteria se presente): **Surplus** se PV−carichi ≥ soglia e batteria non in carica prioritaria; **Deficit** se import prolungato o PV sotto soglia | Soglie configurabili via input_number; evitare oscillazioni usando media breve |
+| **Sequenza carichi a step** | Step ordinati per priorità: es. Step1 boiler/presa lenta, Step2 carico opzionale/EV veloce, Step3 eventuali extra; ogni step entra solo se surplus stabile sopra soglia (eventualmente 2× per step successivi) | Disattivazione inversa quando deficit; nessun salto diretto se lock attivi |
+| **Lock** | `min_on`/`min_off` 20m e `max_run` 180m per gli step; lock applicati per evitare cicli rapidi e sovraccarico | Lock condivisi con tabella lock; timeout rientri gestito da timer locali |
+| **Hook heating** | `hook_surplus_heating_precharge` alto quando surplus stabile e fascia heating utile: abilita pre-carica pavimento o anticipo accensione | Heating usa l'hook come abilitazione, ma rispetta i propri lock e comfort |
+| **Interazione AC** | Surplus non forza COOL: se comfort già raggiunto non alimentare carichi AC aggiuntivi; evitare che surplus mantenga AC attiva oltre max_run | DRY/COOL seguono regole AC e possono ignorare surplus se blocchi attivi |
+| **Uscita da P3** | Se deficit persistente o batteria prioritaria → spegnere progressivamente gli step e abbassare hook heating | Rientro in P3 solo dopo rispetto min_off e nuova validazione surplus |
+
 ## Pattern funzionali
 - **Anti-secco**: se UR_in < UR_min → VMC in vel_0/vel_1 e DRY minimo; rientro quando UR_in ≥ UR_min+isteresi. Priorità P1, applica lock anti-secco.
 - **Free-cooling**: attivo se ΔT_out<in < −ΔT_fc e ΔAH_out<in < −ΔAH_fc con meteo ok; eleva VMC (vel_2) e blocca COOL tramite `hook_vmc_request_ac_block`. Max_run 120m.

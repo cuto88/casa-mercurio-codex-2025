@@ -8,7 +8,14 @@ COLONNA 1 — STATO & COMANDI
 - Glance "Stato attuale": binary_sensor.vent_recommend_open/close, flag stagione, night flush.
 - Entities "Comandi rapidi": override estate, toggle notifiche e mapping manuale aperture (giorno/notte/bagno) sugli input_boolean.vent_*.
 - Markdown "Consiglio": testo di input_text.vent_messaggio_consiglio.
-- Markdown "Come decide": testo sintetico che rimanda a soglie ΔT/ΔAH e meteo definite nel core e in `1_vent.txt`.
+- Markdown "COME DECIDE (SINTESI)":
+  - Suggerisce apertura/chiusura serramenti e night-flush in base a ΔT, ΔAH e meteo.
+  - Coordina con VMC/AC tramite hook per evitare conflitti con free-cooling e raffrescamento.
+  - Tiene conto di vento/pioggia/PM per non peggiorare comfort e qualità dell’aria.
+  
+  Per il dettaglio logico:
+  - core/regole_core_logiche.md → sezione "Vent — Ventilazione naturale & night-flush"
+  - 1_vent/1_vent.txt → configurazione specifica Casa Mercurio
 
 COLONNA 2 — KPI PRINCIPALI
 - Entities "KPI — Temperatura" e mini-graph 24h T_in/T_out (sensor.t_out, sensor.t_in_media, sensor.delta_t_in_out).
