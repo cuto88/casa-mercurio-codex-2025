@@ -45,6 +45,21 @@ Arbitraggio top-down: si valuta dal livello più alto al più basso; la prima co
 - **Free-cooling**: attivo se ΔT_out<in < −ΔT_fc e ΔAH_out<in < −ΔAH_fc con meteo ok; eleva VMC (vel_2) e blocca COOL tramite `hook_vmc_request_ac_block`. Max_run 120m.
 - **Override AC↔VMC**: AC in DRY richiede VMC low (`hook_ac_request_vmc_low`); AC in COOL può bloccare VMC se ΔAH sfavorevole; VMC in anti-secco può bloccare DRY.
 
+## AC — Modalità, lock e interazioni
+Tabella riassuntiva DRY/COOL con trigger termo-igrometrici, vincoli orari e lock. Le soglie numeriche puntuali sono definite nel modulo AC.
+
+| Modalità | Trigger principali | Condizioni d’ingresso | Uscita/stop | Lock applicati | Note/hook |
+| --- | --- | --- | --- | --- | --- |
+| **DRY** | UR alta o ΔAH_out<in favorevole (aria esterna più secca) con Tin sotto soglia COOL | Fascia consentita, sensori validi, richiesta VMC low disponibile | UR ≤ UR_target oppure Tin ≤ T_target_giorno/notte oppure max_run 60m | min_on 10m, min_off 10m, max_run 60m | Richiede `hook_ac_request_vmc_low`; se `hook_vmc_request_ac_block` attivo sospende l’ingresso |
+| **COOL** | Tin > setpoint_giorno/notte + isteresi oppure richiesta comfort caldo+umido; fascia oraria 07–23 | Fascia OK (`ac_fascia_ok`), nessun blocco notturno salvo emergenza/manuale | Tin ≤ T_target + isteresi oppure blocco notturno 23–07 oppure max_run 90m | min_on 15m, min_off 15m, max_run 90m | Blocchi notturni applicati come P0 locale; può sospendere VMC alta umidità con `hook_vmc_request_ac_block` |
+
+### Regole comuni AC
+- **Setpoint giorno/notte**: T_target e isteresi sono differenziate per zona; di notte si privilegia comfort minimo e blocco COOL salvo override manuale/emergenza.
+- **Blocco notturno 23–07**: COOL disabilitato nella fascia, DRY ammesso solo se richiesto da emergenza UR e coordinato con VMC; override manuale può forzare eccezioni.
+- **Anti on/off**: gli switch/climate applicano min_on/min_off e max_run (vedi tabella lock) con contatori runtime; `ac_should_run` viene filtrato da questi lock per evitare cicli rapidi.
+- **Hook VMC**: `hook_vmc_request_ac_block` blocca DRY/COOL quando free-cooling/ΔAH sfavorevole; `hook_ac_request_vmc_low` forza VMC in vel_0/vel_1 durante DRY. Gli hook sono bidirezionali e rispettano i lock attivi.
+- **Setpoint DRY**: DRY attiva un setpoint conservativo (no raffrescamento spinto) mantenendo Tin sotto soglia COOL per evitare sovrapposizioni.
+
 ## VMC — Priorità, lock e schemi
 Tabella riassuntiva delle priorità specifiche VMC (top-down). Le soglie numeriche seguono i valori standard Casa Mercurio: UR bagno ON≈75%, OFF≈65%, ΔUR boost≈10pt; soglia UR bassa≈40%; free-cooling con T_in>24 °C, T_out<T_in, AH_out<AH_in.
 
