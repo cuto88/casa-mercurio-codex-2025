@@ -8,7 +8,11 @@ COLONNA 1 — STATO & ATTUATORI
 - Glance "Stato logico": priorità corrente, motivo, ultimo evento e stagione logica.
 - Glance "Attuatori": relè VMC vel_0..vel_3 + climatizzatori giorno/notte.
 - Entities "Modalità manuale": `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout` con reminder ripristino.
-- Markdown "Come decide": riassunto in bullet delle priorità P0→P3 e hook AC/VMC, con rimando al core e a `2_vmc.txt` per dettagli.
+- Markdown "Come decide (sintesi)":
+  - Gestisce velocità VMC in base a comfort igrometrico, free-cooling e anti-secco.
+  - Applica priorità P0–P4 con lock min_on/min_off per evitare cicli rapidi.
+  - Coordina con AC: blocco COOL/DRY se ΔAH esterno favorevole, VMC low quando AC è in DRY.
+  - Per il dettaglio completo: core/regole_core_logiche.md → sezione "VMC" e 2_vmc.txt → mappatura locale.
 - Markdown "Come succede": breve spiegazione dinamica dello stato corrente.
 
 COLONNA 2 — KPI COMPATTI (24h)
