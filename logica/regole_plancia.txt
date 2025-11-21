@@ -1,153 +1,26 @@
-Regole plancia (v2)
-1) Struttura & Layout
+ATTENZIONE – FILE DEPRECATO
+Questa versione di regole_plancia è mantenuta solo per storico.
+Le linee guida UI aggiornate sono in: core/regole_plancia.md
+Le logiche condivise sono in: core/regole_core_logiche.md
 
-Mobile-first, desktop espande senza cambiare l’ordine.
+---
 
-Usa sections con max_columns per forzare la lettura coerente su mobile/desktop.
+# Regole plancia (legacy)
 
-Mantieni 3 aree fisse:
+Documento storico delle convenzioni Lovelace. Usare solo come riferimento di continuità visiva: tutte le indicazioni attuali sono riportate nei file core.
 
-Stato & Comandi rapidi (chip + pulsanti)
+## Struttura & Layout
+- Mobile-first con `sections` e `max_columns` per un ordine coerente.
+- Tre aree fisse: **Stato & Comandi rapidi**, **KPI**, **Trend/Lock/Diagnostica**.
+- Card obbligatorie: glance/chip di stato, pulsanti rapidi, markdown “Come decide” (ora rimandato al core + file logico di modulo).
 
-KPI principali (tile con grafico, 1 metrica = 1 tile)
+## Palette
+- Rosso = esterno; giallo = zona giorno; blu = zona notte; verde = bagno; neutri = derivate/logiche speciali.
+- Tile/grafici senza riempimento, una metrica per card, soglie come linee nominate.
 
-Analisi lenta (trend 24h, statistiche 7/30gg, soglie/lock)
+## Debug & manutenzione
+- Sezione finale per sensori grezzi e diagnostica (entity-filter su `unknown/unavailable`).
+- Badge per lock/override manuali.
 
-ogni plancia è un file YAML con root views: e dentro una lista di viste (- title: …).
-
-
-2) Color coding coerente
-
-Rosso = esterno (T, UR, AH…)
-
-Giallo = zona giorno
-
-Blu = zona notte
-
-Verde = bagno
-
-Neutri (grigio/acqua/viola) = derivate, medie, logiche speciali
-
-(invariato)
-
-3) Chip di stato (glance)
-
-Sempre in alto, 1 riga, mostrano chi comanda cosa.
-
-Solo logiche binarie (override, boost, free-cooling, anti-secco, failsafe, lock, ecc.).
-
-Mostra anche il target attuale (velocità VMC, modalità AC, setpoint).
-Esempi di logiche da mostrare: priorità VMC P0–P4, override AC notte=DRY, lock anti-ciclo, free-cooling PH vs “macchina”.
-
-4) Comandi rapidi
-
-Pulsanti grandi e chiari (es. vel_0..3 o modalità).
-
-Tap singolo = servizio diretto (niente sottomenu).
-
-Blocchetto a parte per attuatori fisici/override (debug manuale).
-
-(invariato)
-
-5) KPI & Grafici
-
-Tile + line graph, leggibili su mobile.
-
-1 tile = 1 metrica, colori coerenti.
-
-Derivate/medie dopo i valori base.
-
-(invariato)
-
-6) Trend & Statistiche
-
-History-graph (24h) per reazioni rapide.
-
-Statistics-graph (7/30gg) per stagionalità/deriva/efficacia logiche.
-
-Max 8–10 entità per grafico.
-
-(invariato)
-
-7) Soglie & Lock
-
-Sezione dedicata (tipicamente colonna 3).
-
-input_number per soglie regolabili.
-
-Mostra timer/boolean (lock/anti-ciclo/cap), visibili a colpo d’occhio.
-
-(invariato)
-
-8) Less is more
-
-Ogni card risponde a: “stato? comando? KPI? trend?”
-
-Niente duplicati.
-
-(invariato)
-
-9) Consistenza tra plance
-
-Stesso ordine cromatico (rosso→giallo→blu→neutro).
-
-Stesso ordine di colonne (Stato/Comandi → KPI → Trend/Lock).
-
-Stessa tipologia di card (glance in alto, tile per KPI, history/statistics in basso).
-
-(invariato)
-
-10) Debug & manutenzione
-
-Sezione Debug (in fondo o nascosta) per sensori grezzi: utile a scovare unknown.
-
-Diagnostica entità obbligatoria (vedi template migliorato più sotto).
-
-(migliorata la diagnostica, vedi §12)
-
-11) Nuova: Logica & criteri di attivazione (spiegazione umana)
-
-Aggiungi sempre una card Markdown “Come decide” che riassume, in linguaggio umano, quando la plancia accende/spegne e perché. La scriviamo una volta per sistema, coerente con le logiche già definite nei file tecnici.
-
-11.a) VMC (priorità e criteri)
-
-Arbitraggio top-down:
-P0 Failsafe → vel_0; Override AC notte=DRY → vel_0; Bagno/Boost → vel_3; Free-cooling → vel_2; Anti-secco (inverno notturno) → vel_0 con duty; Baseline → vel_1.
-
-Free-cooling “Passivhaus”: attivo se T_in > 24°C, T_out < T_in e AH_out < AH_in; lock 15’.
-
-Free-cooling “Macchina” (termico semplificato): T_in > 24°C, 20°C < T_out < T_in; lock 15’.
-
-Bagno/Boost: parte con UR bagno ≥ 75% o ΔUR ≥ 10%, chiude a UR ≤ 65% + ΔUR ≤ 5%, con lock/anti-ciclo.
-
-11.b) AC (giorno/notte, DRY vs COOL, anti-ciclo)
-
-Target estate: comfort ≈ 26°C e UR < 60%.
-
-DRY ON se UR ≥ 75% e T_in < 27°C; DRY OFF quando UR ≤ 60% o T ≤ 24°C.
-
-COOL ON se T ≥ 27°C, oppure T ≥ 26°C con UR ≥ 65%; COOL OFF a ≤ 26.2°C (isteresi).
-
-Anti-ciclo: min ON 30’, min OFF 30’, max run 90’ + pausa.
-
-Notte (23–7): forzato OFF (indipendenza, ma previsto hook per blocco VMC).
-
-11.c) Riscaldamento a pavimento (inerziale + PV window)
-
-Comfort base: 21°C (regolabile).
-
-Finestra ottimale: 10:00–16:00 (sfrutta PV e guadagni solari).
-
-Accende solo se almeno una stanza < target − 0,5°C, in fascia utile, e con T esterna che implica dispersione significativa; evita over-heating se UR > 65%.
-
-Strategia: carica l’edificio come batteria termica a bassa entalpia, riducendo le ore ON totali.
-
-11.d) Ventilazione naturale estiva (finestre)
-
-Apri se T_out < T_in − ΔT_min e AH_out < AH_in − ΔAH_min, senza pioggia/vento forte/aria scadente; preferibile in night-flush 21:00–08:00.
-
-Chiudi negli altri casi (o se T_out ≥ T_in o AH_out ≥ AH_in).
-
-Default: ΔT_min 1,5°C, ΔAH_min 1,0 g/m³, vento ≤ 6 m/s.
-
-Queste 4 sottosezioni vanno copiate (adattando nomi entità) dentro una card Markdown per ogni plancia, così chi la usa capisce rapidamente la logica.
+## Note sulle logiche
+Le descrizioni dettagliate di VMC, AC, heating e ventilazione sono state migrate in `core/regole_core_logiche.md` e nei rispettivi file logici (`1_vent.txt`, `2_vmc.txt`, `3_heating.txt`, `4_ac.txt`, `6_surplus.txt`). Qui restano solo indicazioni generiche di layout.

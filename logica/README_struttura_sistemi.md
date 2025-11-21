@@ -1,88 +1,49 @@
-# 🧭 Documento di riferimento — Struttura sistemi Casa Silea (Passivhaus-oriented)
+# 🧭 Struttura sistemi Casa Silea — logica/
 
-## 🔍 Obiettivo generale
-Creazione di un **ecosistema modulare e coerente di automazioni Home Assistant** che gestisce:
-- **ventilazione naturale**
-- **VMC**
-- **riscaldamento a pavimento**
-- **aria condizionata (AC)**
+Panoramica aggiornata della cartella `logica/` dopo la semplificazione: separa le regole core, i file di logica per modulo e le plance documentate.
 
-secondo logiche **Passivhaus-oriented**, massimizzando comfort, efficienza e autonomia energetica, evitando conflitti tra sistemi.
-
-Ogni funzione è contenuta in un file indipendente `.yaml` (logica attiva) o `.txt` (documentazione e criteri), che definisce:
-- la **logica di attivazione** e le **priorità di arbitraggio**
-- le **entità coinvolte** (sensori, input, switch, boolean)
-- la **spiegazione leggibile** della logica umana
-- la **plancia Lovelace** coerente con le stesse regole grafiche
-
----
-
-## 🧩 Struttura modulare dei file
-
+## 📂 Struttura ad albero
 ```
-/config
-│
-├── /packages
-│   │
-│   ├── 0_sensors.yaml
-│   ├── 1_vent.yaml
-│   ├── 2_vmc.yaml
-│   ├── 3_heating.yaml
-│   ├── 4_ac.yaml
-│   ├── 6_powermeter.yaml
-│   ├── 6_surplus_energy.yaml
-│   ├── 6_global_energy.yaml
-│   └── backup_shell.ps1
-│
-└── /lovelace
-    ├── resources.yaml
-    ├── 1_vent_plancia.yaml
-    ├── 2_vmc_plancia.yaml
-    ├── 3_heating_plancia.yaml
-    ├── 4_ac_plancia.yaml
-    ├── 5_pm_plancia.yaml
-    ├── 6_surplus_plancia.yaml
+logica/
+├─ core/
+│  ├─ regole_core_logiche.md      ← convenzioni, priorità, lock, hook
+│  └─ regole_plancia.md           ← linee guida UI comuni
+├─ 1_vent/
+│  ├─ 1_vent.txt                  ← logica ventilazione naturale
+│  └─ 1_vent_plancia_regole.txt   ← layout plancia 1_vent
+├─ 2_vmc/
+│  ├─ 2_vmc.txt                   ← logica VMC
+│  └─ 2_vmc_plancia_regole.txt    ← layout plancia VMC
+├─ 3_heating/
+│  ├─ 3_heating.txt               ← logica riscaldamento a pavimento
+│  └─ 3_heating_plancia_regole.txt← layout plancia heating
+├─ 4_ac/
+│  ├─ 4_ac.txt                    ← logica climatizzazione
+│  └─ 4_ac_plancia_regole.txt     ← layout plancia AC
+├─ 5_energy_pm/
+│  └─ 5_pm_plancia_regole.txt     ← layout plancia power meter
+├─ 6_surplus/
+│  ├─ 6_surplus.txt               ← logica surplus energetico
+│  └─ 6_surplus_plancia_regole.txt← layout plancia surplus
+├─ 9_debug_test/
+│  ├─ 9_debug_sistema_plancia_regole.txt ← plancia diagnostica
+│  └─ 9_test_plancia_regole.txt           ← plancia test
+├─ _archive/
+│  └─ vmc_plancia_regole.txt      ← versione storica plancia VMC
+├─ README_struttura_sistemi.md    ← questo file
+├─ _sistema.txt                   ← schema fisico sensori/attuatori
+├─ regole_chat_gpt.txt            ← istruzioni operative GPT
+├─ regole_plancia.txt             ← legacy (rimando ai file core)
+├─ _report_semplificazione_logica.md
+└─ _proposta_operativa_semplificazione.md
+```
 
-    ├── /logica/              ← documentazione tecnica e regole operative
-│    ├── _sistema.txt
-│    ├── 1_vent.txt
-│    ├── 2_vmc.txt
-│    ├── 2_vmc1.txt
-│    ├── 3_heating.txt
-│    ├── 4_ac.txt
-│    ├── regole_plancia.txt
+## 🎛️ Ruoli dei file
+- **core/**: unica fonte per convenzioni, priorità P0–P4, lock e hook cross-modulo (regole_core_logiche) e per le linee guida UI generali (regole_plancia).
+- **Cartelle numerate**: contengono coppie `logica` + `plancia` specifiche del modulo; le plance riportano solo layout e rimandi ai documenti core.
+- **_archive/**: conserva versioni storiche non più attive (es. vecchia plancia VMC).
+- **File legacy**: `regole_plancia.txt` marcato deprecato; usare i documenti in core.
+- **Documenti di progetto**: `_report_semplificazione_logica.md` e `_proposta_operativa_semplificazione.md` tracciano motivazioni e step.
 
-## 🧠 Moduli e funzioni
-
-| Modulo | Logica | Scopo sintetico |
-|:--|:--|:--|
-| **Ventilazione naturale** | `1_vent.yaml` / `1_vent.txt` | Suggerisce quando aprire/chiudere finestre per free-cooling notturno e comfort estivo (ΔT e ΔAH). |
-| **VMC** | `2_vmc.yaml` / `2_vmc1.txt` | Gestisce priorità P0–P4: failsafe, bagno/boost, free-cooling PH o termico, anti-secco, baseline. Override AC notte. |
-| **Riscaldamento** | `3_heating.yaml` / `3_heating.txt` | Ottimizza il riscaldamento a pavimento in base a PV e comfort. Funzione “carica termica” 10-16. |
-| **AC** | `4_ac.yaml` / `4_ac.txt` | Gestisce modalità DRY/COOL, isteresi, anti-ciclo, lock, con priorità comfort. Blocchi notturni integrabili con VMC. |
-| **Energia / PowerMeter** | `5_powermeter.yaml` | Rileva potenza e flussi (A/B), base per logiche di surplus e bilancio. |
-| **Surplus PV** | `6_surplus_energy.yaml` | Gestisce carichi e logiche di autoconsumo energetico intelligente. |
-| **Energia globale** | `9_global_energy.yaml` | Aggrega KPI, bilanci e grafici cumulativi. |
-| **Sistema fisico** | `_sistema.txt` | Descrive sensori, termostati, mandata/ripresa per tutte le zone. |
-| **Regole plancia v2** | `regole_plancia.txt` | Definisce layout, colori, sezioni e standard visivo per tutte le dashboard. |
-
----
-
-## ⚙️ Principi di progettazione
-
-1. **Indipendenza logica** → ogni file YAML funziona da solo, senza dipendenze rigide.  
-2. **Arbitraggio chiaro** → priorità esplicite (es. `AC notte = DRY` forza VMC OFF).  
-3. **Trasparenza** → ogni plancia include la card “Come decide”, spiegazione leggibile per l’utente.  
-4. **Scalabilità** → sensori, lock, override e logging facilmente espandibili.  
-5. **Coerenza visiva** → tutti i moduli seguono `regole_plancia2.txt` (colori, layout, sezioni).  
-6. **Versionabilità** → la logica testuale (.txt) rimane sincronizzata con l’automazione YAML.  
-
----
-
-## 🎯 Obiettivo finale
-
-Costruire una **suite coordinata e trasparente** che permetta di:
-- comprendere *a colpo d’occhio* chi comanda cosa e perché  
-- analizzare l’efficacia di strategie (boost, free-cooling, anti-secco, PV-window)  
-- modificare in tempo reale soglie e parametri (input_number, boolean)  
-- ottenere comfort e risparmio energetico con logiche *Passivhaus* ma operatività *Home Assistant*
+## 🔗 Collegamento con YAML
+Ogni file `.txt` corrisponde a un package YAML e alla relativa plancia Lovelace omonima. Le soglie e i lock devono essere presi dal core; i moduli dichiarano solo le eccezioni locali. Le plance includono sempre la sezione **RIFERIMENTI LOGICI** con link al core e al file logico del modulo.

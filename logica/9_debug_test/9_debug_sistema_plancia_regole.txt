@@ -1,0 +1,27 @@
+###############################################################################
+# 9_debug_sistema_plancia_regole.txt — Documentazione layout plancia DEBUG
+# Riassume lovelace/9_debug_sistema_plancia.yaml per la diagnostica integrata.
+###############################################################################
+
+COLONNA 1 — STATO & OVERRIDE
+- Glance sequenziali per priorità VMC, stato AC (need_dry/need_cool/should_run), heating (should_run, target, finestra, interruttore) e ventilazione naturale.
+- Entities "Override / Debug manuale" con input_boolean/input_select/timer per VMC, AC e Heating (manual mode, timeout, force on/off).
+- Markdown "Come decide" che rimanda alle sezioni core e ai file logici per interpretare le priorità esposte.
+
+COLONNA 2 — KPI & TREND 24H
+- Entities "KPI microclima" con sensori T/UR/AH canonici.
+- History-graph distinti 24h per temperature, UR, AH, logiche VMC e AC/Heating.
+
+COLONNA 3 — SOGLIE & DIAGNOSTICA
+- Entities con input_number delle soglie principali di Vent, VMC, AC, Heating e boolean di debug.
+- Entity-filter per intercettare entità in stato unknown/unavailable.
+- Markdown sintetico con link ai documenti core.
+
+NOTE
+- Dashboard senza custom card oltre quelle già presenti nel sistema.
+- Struttura pensata per manutenzione rapida: tutte le entità chiave sono visibili in una sola vista.
+
+RIFERIMENTI LOGICI
+- Logiche condivise: vedi core/regole_core_logiche.md
+- Linee guida UI generali: vedi core/regole_plancia.md
+- Logica specifica moduli: vedi 1_vent.txt, 2_vmc.txt, 3_heating.txt, 4_ac.txt, 6_surplus.txt

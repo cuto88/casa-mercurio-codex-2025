@@ -1,0 +1,30 @@
+###############################################################################
+# 4_ac_plancia_regole.txt — Documentazione layout plancia 4_AC
+# Descrive lovelace/4_ac_plancia.yaml (climatizzazione Giorno/Notte).
+###############################################################################
+
+COLONNA 1 — STATO & COMANDI
+- Glance "Stato logiche / Attuatori": binary_sensor.ac_should_run, ac_need_cool/dry, ac_fascia_ok, ac_blocco_vmc + switch AC.
+- Pulsanti horizontal-stack per forzare direttamente switch.ac_giorno e switch.ac_notte.
+- Entities "Modalità manuale": input_boolean.ac_manual, input_select.ac_manual_mode e timer.ac_manual_timeout.
+- Markdown "Come decide": bullet su DRY/COOL, lock anti-ciclo e blocco notturno con rimando a `core/regole_core_logiche.md` e `4_ac.txt`.
+
+COLONNA 2 — KPI PRINCIPALI
+- Due grid 3x1 di tile con grafico per temperature interne/esterna (sensor.t_in_giorno, sensor.t_in_notte1, sensor.t_out) e umidità (sensor.ur_in_giorno, sensor.ur_in_notte1, sensor.ur_out).
+- Entities "Lock & tempi" con input_number ac_min_on/off, ac_max_run, ac_t_cool_on e ac_ur_high.
+
+COLONNA 3 — TREND & CONTATORI
+- History-graph 24h su switch AC (giorno/notte) e sulle domande logiche binary_sensor.ac_need_cool / ac_need_dry.
+- Entities con contatori daily (sensor.ac_*_tempo_on_oggi, cicli, ultimo on/off).
+
+COLONNA 4 — MOTIVAZIONI / LOGICA
+- Markdown "Perché adesso?" che spiega sinteticamente l’arbitraggio DRY/COOL e i lock applicati.
+
+NOTE
+- Plancia usa solo entity_id già definiti in packages/4_ac.yaml e 0_sensors.yaml.
+- Layout mobile-first (sections) coerente con Regole Plancia core.
+
+RIFERIMENTI LOGICI
+- Logiche condivise: vedi core/regole_core_logiche.md
+- Linee guida UI generali: vedi core/regole_plancia.md
+- Logica specifica modulo: vedi 4_ac.txt
