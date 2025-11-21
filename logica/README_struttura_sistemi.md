@@ -50,13 +50,7 @@ Ogni funzione è contenuta in un file indipendente `.yaml` (logica attiva) o `.t
 │    ├── 2_vmc1.txt
 │    ├── 3_heating.txt
 │    ├── 4_ac.txt
-│    ├── regole_gpt.txt
 │    ├── regole_plancia.txt
-│    └── regole_plancia2.txt
-    
-```
-
----
 
 ## 🧠 Moduli e funzioni
 
@@ -70,7 +64,7 @@ Ogni funzione è contenuta in un file indipendente `.yaml` (logica attiva) o `.t
 | **Surplus PV** | `6_surplus_energy.yaml` | Gestisce carichi e logiche di autoconsumo energetico intelligente. |
 | **Energia globale** | `9_global_energy.yaml` | Aggrega KPI, bilanci e grafici cumulativi. |
 | **Sistema fisico** | `_sistema.txt` | Descrive sensori, termostati, mandata/ripresa per tutte le zone. |
-| **Regole plancia v2** | `regole_plancia2.txt` | Definisce layout, colori, sezioni e standard visivo per tutte le dashboard. |
+| **Regole plancia v2** | `regole_plancia.txt` | Definisce layout, colori, sezioni e standard visivo per tutte le dashboard. |
 
 ---
 
