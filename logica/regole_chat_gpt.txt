@@ -1,3 +1,14 @@
+ATTENZIONE – FILE PARZIALMENTE DEPRECATO
+Questo file è una guida operativa per GPT.
+Le regole di logica e UI non vanno più mantenute qui.
+Riferimenti ufficiali:
+- Logiche condivise: core/regole_core_logiche.md
+- Linee guida UI: core/regole_plancia.md
+
+Usare questo file solo per istruzioni operative su COME GPT deve lavorare sui file.
+
+------------------------------------------------------------
+
 ###############################################################################
 # REGOLE CHAT GPT — SISTEMI CASA SILEA (PASSIVHAUS ORIENTED)
 # Documento operativo per GPT. Le logiche e le linee guida UI sono centralizzate

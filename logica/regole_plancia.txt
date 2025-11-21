@@ -1,3 +1,10 @@
+ATTENZIONE – FILE DEPRECATO (LEGACY)
+Questo file è mantenuto solo per riferimento storico.
+Le regole UI aggiornate sono in: core/regole_plancia.md
+Le logiche condivise sono in: core/regole_core_logiche.md
+
+------------------------------------------------------------
+
 ATTENZIONE – FILE DEPRECATO
 Questa versione di regole_plancia è mantenuta solo per storico.
 Le linee guida UI aggiornate sono in: core/regole_plancia.md
