@@ -7,7 +7,7 @@ COLONNA 1 — STATO & COMANDI
 - Glance "Stato logiche / Attuatori": binary_sensor.ac_should_run, ac_need_cool/dry, ac_fascia_ok, ac_blocco_vmc + switch AC.
 - Pulsanti horizontal-stack per forzare direttamente switch.ac_giorno e switch.ac_notte.
 - Entities "Modalità manuale": input_boolean.ac_manual, input_select.ac_manual_mode e timer.ac_manual_timeout.
-- Markdown "Come decide": bullet su DRY/COOL, lock anti-ciclo e blocco notturno con rimando a `core/regole_core_logiche.md` e `4_ac.txt`.
+- Markdown "Come decide (Sintesi)": vedi sezione dedicata sotto.
 
 COLONNA 2 — KPI PRINCIPALI
 - Due grid 3x1 di tile con grafico per temperature interne/esterna (sensor.t_in_giorno, sensor.t_in_notte1, sensor.t_out) e umidità (sensor.ur_in_giorno, sensor.ur_in_notte1, sensor.ur_out).
@@ -19,6 +19,15 @@ COLONNA 3 — TREND & CONTATORI
 
 COLONNA 4 — MOTIVAZIONI / LOGICA
 - Markdown "Perché adesso?" che spiega sinteticamente l’arbitraggio DRY/COOL e i lock applicati.
+
+COME DECIDE (SINTESI)
+- Gestisce DRY/COOL su zona giorno/notte in base a T, UR e fascia oraria.
+- Applica lock min_on/min_off per evitare continui on/off.
+- Rispetta blocchi notturni 23–07 e gli hook con VMC (free-cooling, anti-secco).
+
+Per il dettaglio:
+- core/regole_core_logiche.md → sezione "AC — Modalità, lock e interazioni"
+- 4_ac/4_ac.txt → configurazione specifica Casa Mercurio
 
 NOTE
 - Plancia usa solo entity_id già definiti in packages/4_ac.yaml e 0_sensors.yaml.

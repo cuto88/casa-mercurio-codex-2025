@@ -1,61 +1,27 @@
-# =============================================================================
-# CONTROLLO AC — CASA SILEA (TV) — PASSIVHAUS-ORIENTED (INDIPENDENTE)
-# =============================================================================
-# ENTITÀ CONTROLLATE:
-#   - switch_ac_giorno  
-#   - switch_ac_notte   
-#
-# PRINCIPI PASSIVHAUS / TARGET:
-#   - Comfort target estate: T_in ≈ 26.0 °C e UR_in < 60%
-#   - Priorità risparmio/comfort: deumidifica (DRY) prima del raffrescamento, 
-#     ma se T_in supera 27.0 °C si passa a COOL.
-#
-# FASCE:
-#   - Giorno  : 07:00–23:00  (AC abilitato)
-#   - Notte   : 23:00–07:00  (AC disabilitato: forzare OFF switch_ac_notte e switch_ac_giorno)
-#
-# TRIGGER CONCETTUALI (linee guida per le automazioni):
-#   - Ogni 1 min (time_pattern) + al variare di T_in/UR_in + all’avvio HA.
-#
-# CONDIZIONI DI ESECUZIONE:
-#   A) DRY ON  se:
-#        UR_in >= soglia_UR_alta (default 75%)
-#        E T_in < 27.0 °C   (sotto soglia COOL)
-#      DRY OFF se:
-#        UR_in <= UR_target (default 60%)  OPPURE     # isteresi UR
-#        T_in   <= 24.0 °C                              
-#
-#   B) COOL ON se:
-#        T_in >= T_cool_on (default 27.0 °C)
-#        OPPURE (T_in >= 26.0 °C E UR_in >= 65%)       # caldo + umido
-#      COOL OFF se:
-#        T_in <= T_target + hyst_T_off  (default: 26.2 °C)  # isteresi T
-#
-#   C) ARBITRAGGIO:
-#      - Se si attiva COOL, ignora DRY (raffrescamento prevale).
-#      - Se non serve COOL ma UR è alta → DRY.
-#      - Se non serve né COOL né DRY → OFF.
-#
-# ANTI-CICLO & SICUREZZA:
-#   - min_on_minutes  (default 30): una volta acceso, resta ON almeno questo tempo
-#   - min_off_minutes (default 30): dopo lo spegnimento, non riaccendere prima di X min
-#   - max_run_minutes (default 90): stop forzato e pausa 30 min (anti-ghiaccio/condensa eccessiva)
-#   - Ignora decisione se sensori T/UR sono unknown/unavailable.
-#
-# NOTTE (23:00–07:00):
-#   - switch_ac_giorno: OFF forzato
-#   - switch_ac_notte : OFF forzato (placeholder per futuri usi Dry notturni)
-#
-# INTEGRAZIONE (OPZIONALE, MA CONSIGLIATA):
-#   - Se VMC è in boost prolungato o in forte free-cooling, l’AC rischia controbilanciamento.
-#   - Suggerito: un binary_sensor “ac_blocco_vmc” (SOLO LETTURA) che, se TRUE, impedisce nuovi ON.
-#     Manteniamo l’indipendenza: nessuna dipendenza hard; solo condizione opzionale.
-#
-# NOTE IMPLEMENTATIVE:
-#   - Questo blocco fornisce template e soglie helper. Le automazioni di accensione/spegnimento
-#     useranno:
-#       * binary_sensor.ac_need_dry / ac_need_cool
-#       * binary_sensor.ac_lockouts_ok (anti-ciclo)
-#       * binary_sensor.ac_should_run (decisione finale)
-#   - Le automazioni devono rispettare min_on/min_off/max_run usando last_changed degli switch.
-# =============================================================================
+# 4_ac — Logica climatizzazione Casa Mercurio
+
+## Obiettivi
+- Comfort estivo con priorità deumidifica (DRY) prima del raffrescamento (COOL), nel rispetto dei blocchi notturni 23–07.
+- Limitare cicli on/off e coordinare l’AC con la VMC per evitare controbilanciamenti e condensa.
+
+## Sensori, clima entity e attuatori
+- Zone: **giorno** (sensor.t_in_giorno, sensor.ur_in_giorno) e **notte** (sensor.t_in_notte1, sensor.ur_in_notte1); meteo: sensor.t_out, sensor.ur_out.
+- Attuatori: `switch.ac_giorno` e `switch.ac_notte` (controllo IR dei due split). Etichette modalità in `sensor.ac_mode_label`.
+- Helper soglie/lock: input_number.ac_ur_high/target, ac_t_cool_on, ac_t_target, ac_hyst_off, ac_min_on, ac_min_off, ac_max_run.
+
+## Collegamenti ai core rules
+- La logica DRY/COOL, lock anti-ciclo e blocchi orari seguono **core/regole_core_logiche.md → sezione "AC — Modalità, lock e interazioni"**.
+- `binary_sensor.ac_need_dry` / `ac_need_cool` implementano i trigger core (UR alta, ΔAH favorevole, T_in sopra setpoint+isteresi).
+- `binary_sensor.ac_fascia_ok` applica il blocco 23–07; `binary_sensor.ac_blocco_vmc` rappresenta l’hook `hook_vmc_request_ac_block` (free-cooling/ΔAH sfavorevole).
+- DRY invia `hook_ac_request_vmc_low` tramite automazioni che modulano la VMC su vel_0/vel_1 quando `sensor.ac_mode_label` è DRY.
+- I timer anti on/off usano gli input_number di lock core e filtrano `binary_sensor.ac_should_run` prima di agire sugli switch.
+
+## Eccezioni locali / tuning specifico
+- Zona notte più conservativa: stesso blocco COOL 23–07 e DRY ammesso solo con UR molto alta o override manuale.
+- Setpoint iniziali Casa Mercurio: DRY sopra 75% UR, COOL da 27 °C (26 °C se UR ≥65%), rientro a 26.2 °C con isteresi 0.2 °C.
+- Manual override: input_boolean.ac_manual + input_select.ac_manual_mode possono scavalcare blocco notte/emergenza con timeout timer.ac_manual_timeout.
+
+## Note di implementazione YAML
+- Logiche e helper in `packages/4_ac.yaml`: binary_sensor `ac_need_*`, `ac_fascia_ok`, `ac_should_run`, `ac_blocco_vmc`, contatori runtime.
+- Automazioni locali mappano le decisioni sui due switch split rispettando i lock core e gli hook VMC.
+- Nessun duplicato delle regole core: le soglie numeriche sono editabili via input_number e usate dalle automazioni di accensione/spegnimento.
