@@ -2,11 +2,20 @@
 
 Panoramica aggiornata della cartella `logica/` dopo la semplificazione: separa le regole core, i file di logica per modulo e le plance documentate.
 
+## 🧩 Standard di riferimento
+- **Regole globali**: tutte le convenzioni, priorità, lock e hook vivono unicamente in `logica/core/regole_core_logiche.md`; qui risiedono anche le logiche ufficiali e complete per VMC, AC, Heating, Vent e Surplus.
+- **Moduli numerati (1_vent, 2_vmc, 3_heating, 4_ac, 5_powermeter, 6_surplus, 9_debug)**:
+  - `logica/<modulo>/<modulo>.txt` contiene logica locale, eccezioni e mappa sensori/attuatori.
+  - `logica/<modulo>/<modulo>_plancia_regole.txt` definisce solo layout e KPI della plancia Lovelace.
+  - Nessuna logica duplicata dentro i file di plancia: le regole puntano sempre al core per priorità, lock e hook.
+- **Documentazione soltanto**: la cartella `logica/` ospita solo documenti testuali (nessun YAML o automazione).
+- **Collegamenti ai package**: i moduli fanno riferimento al core per le regole condivise e dichiarano solo le eccezioni locali.
+
 ## 📂 Struttura ad albero
 ```
 logica/
 ├─ core/
-│  ├─ regole_core_logiche.md      ← convenzioni, priorità, lock, hook
+│  ├─ regole_core_logiche.md      ← convenzioni, priorità, lock, hook e logiche ufficiali
 │  └─ regole_plancia.md           ← linee guida UI comuni
 ├─ 1_vent/
 │  ├─ 1_vent.txt                  ← logica ventilazione naturale
@@ -21,29 +30,22 @@ logica/
 │  ├─ 4_ac.txt                    ← logica climatizzazione
 │  └─ 4_ac_plancia_regole.txt     ← layout plancia AC
 ├─ 5_energy_pm/
-│  └─ 5_pm_plancia_regole.txt     ← layout plancia power meter
+│  └─ 5_pm_plancia_regole.txt     ← layout plancia power meter (5_powermeter)
 ├─ 6_surplus/
 │  ├─ 6_surplus.txt               ← logica surplus energetico
 │  └─ 6_surplus_plancia_regole.txt← layout plancia surplus
-├─ 9_debug_test/
-│  ├─ 9_debug_sistema_plancia_regole.txt ← plancia diagnostica
-│  └─ 9_test_plancia_regole.txt           ← plancia test
-├─ _archive/
-│  └─ vmc_plancia_regole.txt      ← versione storica plancia VMC
-├─ README_struttura_sistemi.md    ← questo file
-├─ _sistema.txt                   ← schema fisico sensori/attuatori
-├─ regole_chat_gpt.txt            ← istruzioni operative GPT
-├─ regole_plancia.txt             ← legacy (rimando ai file core)
-├─ _report_semplificazione_logica.md
-└─ _proposta_operativa_semplificazione.md
+├─ _backup/
+│  ├─ archive/                    ← versioni storiche (es. plancia VMC legacy)
+│  └─ doc/                        ← documenti di progetto
+├─ _backup_legacy/                ← spazio per file legacy o non allineati
+└─ README_struttura_sistemi.md    ← questo file
 ```
 
 ## 🎛️ Ruoli dei file
 - **core/**: unica fonte per convenzioni, priorità P0–P4, lock e hook cross-modulo (regole_core_logiche) e per le linee guida UI generali (regole_plancia).
 - **Cartelle numerate**: contengono coppie `logica` + `plancia` specifiche del modulo; le plance riportano solo layout e rimandi ai documenti core.
-- **_archive/**: conserva versioni storiche non più attive (es. vecchia plancia VMC).
-- **File legacy**: `regole_plancia.txt` marcato deprecato; usare i documenti in core.
-- **Documenti di progetto**: `_report_semplificazione_logica.md` e `_proposta_operativa_semplificazione.md` tracciano motivazioni e step.
+- **_backup/**: conserva versioni storiche non più attive e la documentazione di progetto.
+- **_backup_legacy/**: raccoglie file legacy, bozze e risorse temporanee non allineate allo standard.
 
 ## 🔗 Collegamento con YAML
-Ogni file `.txt` corrisponde a un package YAML e alla relativa plancia Lovelace omonima. Le soglie e i lock devono essere presi dal core; i moduli dichiarano solo le eccezioni locali. Le plance includono sempre la sezione **RIFERIMENTI LOGICI** con link al core e al file logico del modulo.
+Ogni file `.txt` corrisponde a un package YAML e alla relativa plancia Lovelace omonima, ma la cartella `logica/` rimane soltanto documentale. Le soglie e i lock devono essere presi dal core; i moduli dichiarano solo le eccezioni locali. Le plance includono sempre la sezione **RIFERIMENTI LOGICI** con link al core e al file logico del modulo.
