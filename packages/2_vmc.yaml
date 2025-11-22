@@ -411,13 +411,25 @@ automation:
           - conditions:
               - condition: template
                 value_template: >
-                  {% set Tin = states('sensor.t_in_media')|float(0) %}
-                  {% set Tout = states('sensor.t_out')|float(0) %}
-                  {% set AHin = states('sensor.ah_in')|float(0) %}
-                  {% set AHout = states('sensor.ah_out')|float(0) %}
+                  {% set Tin_raw = states('sensor.t_in_media') %}
+                  {% set Tout_raw = states('sensor.t_out') %}
+                  {% set AHin_raw = states('sensor.ah_in') %}
+                  {% set AHout_raw = states('sensor.ah_out') %}
+
+                  {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+
                   {% set dT = states('input_number.vmc_freecooling_delta')|float(2) %}
                   {% set dAH = states('input_number.vmc_freecooling_delta_ah')|float(2) %}
-                  {{ is_state('binary_sensor.stagione_calda','on') and ((Tout < (Tin - dT)) or (AHout < (AHin - dAH))) }}
+
+                  {% set stagione_ok = is_state('binary_sensor.stagione_calda','on') %}
+                  {% set Tin_ok = Tin is not none and Tin > 24 %}
+                  {% set deltaT_ok = Tin is not none and Tout is not none and (Tout < (Tin - dT)) %}
+                  {% set deltaAH_ok = AHin is not none and AHout is not none and (AHout < (AHin - dAH)) %}
+
+                  {{ stagione_ok and Tin_ok and deltaT_ok and deltaAH_ok }}
             sequence:
               - service: switch.turn_off
                 target:
