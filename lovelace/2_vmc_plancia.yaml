@@ -1,102 +1,84 @@
-type: vertical-stack
-cards:
-  - type: markdown
-    content: |
-      ## VMC — Stato & Controllo
-      Controllo prioritario P0–P4 con manuale, boost bagno, anti-secco e free-cooling.
+views:
+  - title: "VMC"
+    path: vmc
+    icon: mdi:air-filter
+    cards:
+      - type: markdown
+        content: |
+          ## VMC — Stato generale
 
-  - type: entities
-    title: Stato sintetico
-    show_header_toggle: false
-    entities:
-      - entity: binary_sensor.vmc_failsafe_sensors_bad
-        name: Failsafe sensori
-      - entity: sensor.vmc_priority
-        name: Priorità attuale
-      - entity: sensor.vmc_freecooling_status
-        name: Free-cooling status
-      - entity: sensor.vmc_vel_target
-        name: Velocità target
-      - entity: sensor.vmc_vel_index
-        name: Velocità indice (0–3)
-      - entity: sensor.vmc_reason
-        name: Ragione logica (P0–P4)
-      - entity: sensor.vmc_last_event
-        name: Ultimo evento VMC
+      - type: entities
+        title: Stato VMC
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.vmc_failsafe_sensors_bad
+            name: Failsafe sensori
+          - entity: input_boolean.vmc_manual
+            name: Modalità manuale
+          - entity: input_select.vmc_manual_speed
+            name: Velocità manuale
+          - entity: sensor.vmc_vel_target
+            name: Velocità attuale
+          - entity: sensor.vmc_vel_index
+            name: Indice velocità
+          - entity: sensor.vmc_priority
+            name: Priorità logica
+          - entity: sensor.vmc_reason
+            name: Motivo ultimo cambio
+          - entity: sensor.vmc_freecooling_status
+            name: Free-cooling status
+          - entity: sensor.ur_in_min
+            name: UR minima interna
+          - entity: sensor.delta_ah_in_out
+            name: ΔAH interno–esterno
 
-  - type: entities
-    title: Comandi manuali
-    show_header_toggle: false
-    entities:
-      - entity: input_boolean.vmc_manual
-        name: Modalità manuale
-      - entity: input_select.vmc_manual_speed
-        name: Velocità manuale
-      - entity: timer.vmc_manual_timeout
-        name: Timeout manuale
+      - type: entities
+        title: Comandi manuali e timer
+        show_header_toggle: false
+        entities:
+          - entity: timer.vmc_manual_timeout
+            name: Timeout manuale
+          - entity: timer.vmc_anti_secco_lock
+            name: Lock anti-secco
+          - entity: timer.vmc_boost_lock
+            name: Lock boost bagno
+          - entity: timer.vmc_freecooling_max_run
+            name: Max-run freecooling
+          - entity: timer.vmc_freecooling_cooldown
+            name: Cooldown freecooling
+          - entity: input_number.vmc_bagno_on
+            name: Soglia UR bagno ON
+          - entity: input_number.vmc_bagno_off
+            name: Soglia UR bagno OFF
+          - entity: input_number.vmc_anti_secco_ur_min
+            name: UR minima anti-secco
+          - entity: input_number.vmc_fc_ph_tin_on
+            name: FC PH — T_in ON
+          - entity: input_number.vmc_freecooling_delta
+            name: ΔT free-cooling
+          - entity: input_number.vmc_freecooling_delta_ah
+            name: ΔAH free-cooling
 
-  - type: entities
-    title: Soglie VMC
-    show_header_toggle: false
-    entities:
-      - entity: input_number.vmc_bagno_on
-        name: Bagno — UR ON
-      - entity: input_number.vmc_bagno_off
-        name: Bagno — UR OFF
-      - entity: input_number.vmc_fc_ph_tin_on
-        name: FC (PH) — T_in ON
-      - entity: input_number.vmc_fc_macchina_tout_min
-        name: FC macchina — T_out min
-      - entity: input_number.vmc_freecooling_delta
-        name: ΔT free-cooling (K)
-      - entity: input_number.vmc_freecooling_delta_ah
-        name: ΔAH free-cooling (g/m³)
-      - entity: input_number.vmc_anti_secco_ur_min
-        name: Anti-secco — UR minima %
+      - type: history-graph
+        title: Velocità e UR bagno (ultime 24h)
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.vmc_vel_index
+            name: Velocità VMC
+          - entity: sensor.ur_in_bagno
+            name: UR bagno
+          - entity: sensor.ur_out
+            name: UR esterna
 
-  - type: entities
-    title: Lock & timer logici
-    show_header_toggle: false
-    entities:
-      - entity: timer.vmc_anti_secco_lock
-        name: Lock anti-secco
-      - entity: timer.vmc_boost_lock
-        name: Lock boost bagno
-      - entity: timer.vmc_freecooling_max_run
-        name: Max-run free-cooling
-      - entity: timer.vmc_freecooling_cooldown
-        name: Cooldown free-cooling
-
-  - type: history-graph
-    title: Trend temperature (ultime 24h)
-    hours_to_show: 24
-    refresh_interval: 60
-    entities:
-      - entity: sensor.t_in_media
-        name: T interna media
-      - entity: sensor.t_out
-        name: T esterna
-
-  - type: history-graph
-    title: Trend umidità (ultime 24h)
-    hours_to_show: 24
-    refresh_interval: 60
-    entities:
-      - entity: sensor.ur_in_media
-        name: UR interna media
-      - entity: sensor.ur_in_bagno
-        name: UR bagno
-      - entity: sensor.ur_out
-        name: UR esterna
-      - entity: sensor.ur_in_min
-        name: UR interna minima
-
-  - type: history-graph
-    title: Umidità assoluta IN/OUT (ultime 24h)
-    hours_to_show: 24
-    refresh_interval: 60
-    entities:
-      - entity: sensor.ah_in
-        name: AH interna
-      - entity: sensor.ah_out
-        name: AH esterna
+      - type: history-graph
+        title: Free-cooling e anti-secco (ultime 24h)
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.vmc_freecooling_status
+            name: Freecooling status
+          - entity: timer.vmc_freecooling_max_run
+            name: Timer max-run
+          - entity: timer.vmc_freecooling_cooldown
+            name: Cooldown
