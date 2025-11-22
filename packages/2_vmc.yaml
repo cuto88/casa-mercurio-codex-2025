@@ -31,6 +31,18 @@ timer:
     name: Timeout modalità manuale
     duration: "01:00:00"
 
+  vmc_anti_secco_lock:
+    name: "VMC lock anti-secco"
+    duration: "00:15:00"
+
+  vmc_boost_lock:
+    name: "VMC lock bagno boost"
+    duration: "00:12:00"
+
+  vmc_freecooling_max_run:
+    name: "VMC max-run free-cooling"
+    duration: "02:00:00"
+
 # Helper locali (soglie)
 input_number:
   vmc_bagno_on:
@@ -115,9 +127,12 @@ automation:
                 state: "on"
             sequence:
               - service: timer.start
-                target: { entity_id: timer.vmc_manual_timeout }
+                target:
+                  entity_id: timer.vmc_manual_timeout
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_0' }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_0' }}"
                     sequence:
                       - service: switch.turn_off
                         target:
@@ -126,8 +141,11 @@ automation:
                             - switch.vmc_vel_2
                             - switch.vmc_vel_3
                       - service: switch.turn_on
-                        target: { entity_id: switch.vmc_vel_0 }
-                  - conditions: [{ condition: template, value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_1' }}" }]
+                        target:
+                          entity_id: switch.vmc_vel_0
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_1' }}"
                     sequence:
                       - service: switch.turn_off
                         target:
@@ -136,8 +154,11 @@ automation:
                             - switch.vmc_vel_2
                             - switch.vmc_vel_3
                       - service: switch.turn_on
-                        target: { entity_id: switch.vmc_vel_1 }
-                  - conditions: [{ condition: template, value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_2' }}" }]
+                        target:
+                          entity_id: switch.vmc_vel_1
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_2' }}"
                     sequence:
                       - service: switch.turn_off
                         target:
@@ -146,8 +167,11 @@ automation:
                             - switch.vmc_vel_1
                             - switch.vmc_vel_3
                       - service: switch.turn_on
-                        target: { entity_id: switch.vmc_vel_2 }
-                  - conditions: [{ condition: template, value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_3' }}" }]
+                        target:
+                          entity_id: switch.vmc_vel_2
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_3' }}"
                     sequence:
                       - service: switch.turn_off
                         target:
@@ -156,7 +180,8 @@ automation:
                             - switch.vmc_vel_1
                             - switch.vmc_vel_2
                       - service: switch.turn_on
-                        target: { entity_id: switch.vmc_vel_3 }
+                        target:
+                          entity_id: switch.vmc_vel_3
         default:
           - service: switch.turn_off
             target:
@@ -179,7 +204,8 @@ automation:
         to: "off"
     actions:
       - service: input_boolean.turn_off
-        target: { entity_id: input_boolean.vmc_manual }
+        target:
+          entity_id: input_boolean.vmc_manual
 
   - id: vmc_p0_failsafe
     alias: "VMC P0 — Failsafe sensori"
@@ -195,7 +221,8 @@ automation:
         state: "on"
     actions:
       - service: switch.turn_on
-        target: { entity_id: switch.vmc_vel_0 }
+        target:
+          entity_id: switch.vmc_vel_0
       - service: switch.turn_off
         target:
           entity_id:
@@ -203,7 +230,9 @@ automation:
             - switch.vmc_vel_2
             - switch.vmc_vel_3
       - choose:
-          - conditions: [{ condition: template, value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P0_failsafe' }}" }]
+          - conditions:
+              - condition: template
+                value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P0_failsafe' }}"
             sequence:
               - event: template_event
                 event_data:
@@ -245,11 +274,7 @@ automation:
             sequence: []
           - conditions:
               - condition: template
-                value_template: >
-                  {% set ur_min = states('sensor.ur_in_min')|float(100) %}
-                  {% set s_min = states('input_number.vmc_ur_min')|float(40) %}
-                  {% set delta_ah = states('sensor.delta_ah_in_out')|float(0) %}
-                  {{ (ur_min < s_min) or (ur_min < 40) or (delta_ah > 10) }}
+                value_template: "{{ is_state('timer.vmc_anti_secco_lock','active') }}"
             sequence:
               - service: switch.turn_off
                 target:
@@ -258,19 +283,92 @@ automation:
                     - switch.vmc_vel_2
                     - switch.vmc_vel_3
               - service: switch.turn_on
-                target: { entity_id: switch.vmc_vel_1 }
+                target:
+                  entity_id: switch.vmc_vel_1
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ states.timer.vmc_anti_secco_lock is not none }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P1_anti_secco' }}"
                     sequence:
-                      - service: timer.start
-                        target: { entity_id: timer.vmc_anti_secco_lock }
-                        data:
-                          duration: "00:15:00"
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P1_anti_secco"
+          - conditions:
+              - condition: template
+                value_template: "{{ is_state('timer.vmc_boost_lock','active') }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_3
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P2_boost_bagno' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P2_boost_bagno"
+          - conditions:
+              - condition: template
+                value_template: "{{ is_state('timer.vmc_freecooling_max_run','active') }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_3
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_2
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P3_freecooling' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P3_freecooling"
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set ur_min = states('sensor.ur_in_min')|float(100) %}
+                  {% set soglia = states('input_number.vmc_ur_min') %}
+                  {% set soglia_val = soglia|float(40) if soglia not in ['unknown','unavailable','', none] else 40 %}
+                  {% set delta_ah = states('sensor.delta_ah_in_out')|float(0) %}
+                  {{ (ur_min < soglia_val) or (ur_min < 40) or (delta_ah > 10) }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_1
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_anti_secco_lock
               - event: hook_vmc_request_ac_block
                 event_data:
                   reason: "anti_secco"
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P1_anti_secco' }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P1_anti_secco' }}"
                     sequence:
                       - event: template_event
                         event_data:
@@ -295,16 +393,15 @@ automation:
                     - switch.vmc_vel_1
                     - switch.vmc_vel_2
               - service: switch.turn_on
-                target: { entity_id: switch.vmc_vel_3 }
+                target:
+                  entity_id: switch.vmc_vel_3
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_boost_lock
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ states.timer.vmc_boost_lock is not none }}" }]
-                    sequence:
-                      - service: timer.start
-                        target: { entity_id: timer.vmc_boost_lock }
-                        data:
-                          duration: "00:12:00"
-              - choose:
-                  - conditions: [{ condition: template, value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P2_boost_bagno' }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P2_boost_bagno' }}"
                     sequence:
                       - event: template_event
                         event_data:
@@ -329,23 +426,24 @@ automation:
                     - switch.vmc_vel_1
                     - switch.vmc_vel_3
               - service: switch.turn_on
-                target: { entity_id: switch.vmc_vel_2 }
+                target:
+                  entity_id: switch.vmc_vel_2
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_freecooling_max_run
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ states.timer.vmc_freecooling_max_run is not none }}" }]
-                    sequence:
-                      - service: timer.start
-                        target: { entity_id: timer.vmc_freecooling_max_run }
-                        data:
-                          duration: "02:00:00"
-              - choose:
-                  - conditions: [{ condition: template, value_template: "{{ states('sensor.ah_out')|float(0) > states('sensor.ah_in')|float(0) }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('sensor.ah_out')|float(0) > states('sensor.ah_in')|float(0) }}"
                     sequence:
                       - event: hook_vmc_request_ac_block
                         event_data:
                           reason: "delta_AH_sfavorevole"
               - event: hook_vent_enable_night_flush
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P3_freecooling' }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P3_freecooling' }}"
                     sequence:
                       - event: template_event
                         event_data:
@@ -363,9 +461,12 @@ automation:
                     - switch.vmc_vel_2
                     - switch.vmc_vel_3
               - service: switch.turn_on
-                target: { entity_id: switch.vmc_vel_1 }
+                target:
+                  entity_id: switch.vmc_vel_1
               - choose:
-                  - conditions: [{ condition: template, value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'idle' }}" }]
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'idle' }}"
                     sequence:
                       - event: template_event
                         event_data:
@@ -391,7 +492,8 @@ automation:
             - switch.vmc_vel_2
             - switch.vmc_vel_3
       - service: switch.turn_on
-        target: { entity_id: switch.vmc_vel_1 }
+        target:
+          entity_id: switch.vmc_vel_1
 
   - id: vmc_hook_night_flush
     alias: "VMC — Hook ventilazione notturna"
@@ -413,14 +515,11 @@ automation:
             - switch.vmc_vel_1
             - switch.vmc_vel_3
       - service: switch.turn_on
-        target: { entity_id: switch.vmc_vel_2 }
-      - choose:
-          - conditions: [{ condition: template, value_template: "{{ states.timer.vmc_freecooling_max_run is not none }}" }]
-            sequence:
-              - service: timer.start
-                target: { entity_id: timer.vmc_freecooling_max_run }
-                data:
-                  duration: "02:00:00"
+        target:
+          entity_id: switch.vmc_vel_2
+      - service: timer.start
+        target:
+          entity_id: timer.vmc_freecooling_max_run
 
 template:
   - binary_sensor:
