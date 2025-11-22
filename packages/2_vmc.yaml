@@ -43,6 +43,10 @@ timer:
     name: "VMC max-run free-cooling"
     duration: "02:00:00"
 
+  vmc_freecooling_cooldown:
+    name: "VMC cooldown free-cooling"
+    duration: "00:20:00"
+
 # Helper locali (soglie)
 input_number:
   vmc_bagno_on:
@@ -240,6 +244,7 @@ automation:
                   attributes:
                     reason: "P0_failsafe"
 
+
   - id: vmc_controllo_prioritario
     alias: "VMC — Controllo priorità P0–P4"
     mode: restart
@@ -260,6 +265,10 @@ automation:
           - input_number.vmc_bagno_on
           - input_number.vmc_freecooling_delta
           - input_number.vmc_freecooling_delta_ah
+          - timer.vmc_boost_lock
+          - timer.vmc_anti_secco_lock
+          - timer.vmc_freecooling_max_run
+          - timer.vmc_freecooling_cooldown
     actions:
       - choose:
           - conditions:
@@ -274,30 +283,16 @@ automation:
             sequence: []
           - conditions:
               - condition: template
-                value_template: "{{ is_state('timer.vmc_anti_secco_lock','active') }}"
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.vmc_vel_0
-                    - switch.vmc_vel_2
-                    - switch.vmc_vel_3
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.vmc_vel_1
-              - choose:
-                  - conditions:
-                      - condition: template
-                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P1_anti_secco' }}"
-                    sequence:
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.vmc_reason
-                          attributes:
-                            reason: "P1_anti_secco"
-          - conditions:
-              - condition: template
-                value_template: "{{ is_state('timer.vmc_boost_lock','active') }}"
+                value_template: >
+                  {% set ur_b = states('sensor.ur_in_bagno')|float(0) %}
+                  {% set soglia_on = states('input_number.vmc_bagno_on')|float(75) %}
+                  {% set ur_out = states('sensor.ur_out')|float(0) %}
+                  {% set ur_media = states('sensor.ur_in_media')|float(0) %}
+                  {% set delta_ok = (ur_b - ur_out) >= 10 %}
+                  {% set media_ok = (ur_media > 50) and ((ur_media - ur_out) >= 10) %}
+                  {% set boost_cond = (ur_b >= soglia_on) or delta_ok or media_ok %}
+                  {% set boost_lock = is_state('timer.vmc_boost_lock','active') %}
+                  {{ boost_lock or boost_cond }}
             sequence:
               - service: switch.turn_off
                 target:
@@ -308,6 +303,9 @@ automation:
               - service: switch.turn_on
                 target:
                   entity_id: switch.vmc_vel_3
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_boost_lock
               - choose:
                   - conditions:
                       - condition: template
@@ -320,35 +318,15 @@ automation:
                             reason: "P2_boost_bagno"
           - conditions:
               - condition: template
-                value_template: "{{ is_state('timer.vmc_freecooling_max_run','active') }}"
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.vmc_vel_0
-                    - switch.vmc_vel_1
-                    - switch.vmc_vel_3
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.vmc_vel_2
-              - choose:
-                  - conditions:
-                      - condition: template
-                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P3_freecooling' }}"
-                    sequence:
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.vmc_reason
-                          attributes:
-                            reason: "P3_freecooling"
-          - conditions:
-              - condition: template
                 value_template: >
-                  {% set ur_min = states('sensor.ur_in_min')|float(100) %}
-                  {% set soglia = states('input_number.vmc_ur_min') %}
-                  {% set soglia_val = soglia|float(40) if soglia not in ['unknown','unavailable','', none] else 40 %}
-                  {% set delta_ah = states('sensor.delta_ah_in_out')|float(0) %}
-                  {{ (ur_min < soglia_val) or (ur_min < 40) or (delta_ah > 10) }}
+                  {% set ur_min_raw = states('sensor.ur_in_min') %}
+                  {% set soglia_raw = states('input_number.vmc_anti_secco_ur_min') %}
+                  {% set ur_min = ur_min_raw|float(default=none) if ur_min_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set soglia = soglia_raw|float(40) if soglia_raw not in ['unknown','unavailable','', none] else 40 %}
+                  {% set inverno = now().month in [11,12,1,2,3] %}
+                  {% set notte = now().hour >= 23 or now().hour < 7 %}
+                  {% set lock_attivo = is_state('timer.vmc_anti_secco_lock','active') %}
+                  {{ lock_attivo or (inverno and notte and ur_min is not none and ur_min < soglia) }}
             sequence:
               - service: switch.turn_off
                 target:
@@ -378,39 +356,6 @@ automation:
           - conditions:
               - condition: template
                 value_template: >
-                  {% set ur_b = states('sensor.ur_in_bagno')|float(0) %}
-                  {% set soglia = states('input_number.vmc_bagno_on')|float(75) %}
-                  {% set ur_out = states('sensor.ur_out')|float(0) %}
-                  {% set ur_media = states('sensor.ur_in_media')|float(0) %}
-                  {% set delta_ok = (ur_b - ur_out) >= 10 %}
-                  {% set media_ok = (ur_media > 50) and ((ur_media - ur_out) > 10) %}
-                  {{ (ur_b >= soglia) or delta_ok or media_ok }}
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.vmc_vel_0
-                    - switch.vmc_vel_1
-                    - switch.vmc_vel_2
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.vmc_vel_3
-              - service: timer.start
-                target:
-                  entity_id: timer.vmc_boost_lock
-              - choose:
-                  - conditions:
-                      - condition: template
-                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P2_boost_bagno' }}"
-                    sequence:
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.vmc_reason
-                          attributes:
-                            reason: "P2_boost_bagno"
-          - conditions:
-              - condition: template
-                value_template: >
                   {% set Tin_raw = states('sensor.t_in_media') %}
                   {% set Tout_raw = states('sensor.t_out') %}
                   {% set AHin_raw = states('sensor.ah_in') %}
@@ -421,15 +366,23 @@ automation:
                   {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
                   {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
 
+                  {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+                  {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+                  {% set T_off = T_on - 0.8 %}
                   {% set dT = states('input_number.vmc_freecooling_delta')|float(2) %}
                   {% set dAH = states('input_number.vmc_freecooling_delta_ah')|float(2) %}
 
                   {% set stagione_ok = is_state('binary_sensor.stagione_calda','on') %}
-                  {% set Tin_ok = Tin is not none and Tin > 24 %}
-                  {% set deltaT_ok = Tin is not none and Tout is not none and (Tout < (Tin - dT)) %}
-                  {% set deltaAH_ok = AHin is not none and AHout is not none and (AHout < (AHin - dAH)) %}
+                  {% set ac_spenta = not is_state('switch.ac_notte','on') and not is_state('switch.ac_giorno','on') %}
+                  {% set cooldown_off = not is_state('timer.vmc_freecooling_cooldown','active') %}
+                  {% set maxrun_attivo = is_state('timer.vmc_freecooling_max_run','active') %}
+                  {% set in_free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
 
-                  {{ stagione_ok and Tin_ok and deltaT_ok and deltaAH_ok }}
+                  {% set cond_on = stagione_ok and ac_spenta and cooldown_off and (Tin is not none) and (Tout is not none) and (AHin is not none) and (AHout is not none) and (Tin >= T_on) and (Tout <= (Tin - dT)) and (AHout <= (AHin - dAH)) and is_state('binary_sensor.vmc_failsafe_sensors_bad','off') and is_state('input_boolean.vmc_manual','off') %}
+
+                  {% set cond_hold = in_free and maxrun_attivo and (Tin is not none) and (Tout is not none) and (AHin is not none) and (AHout is not none) and (Tin >= T_off) and (Tout <= (Tin - (dT - 0.5))) and (AHout <= (AHin - (dAH - 0.5))) and ac_spenta and is_state('binary_sensor.vmc_failsafe_sensors_bad','off') and is_state('input_boolean.vmc_manual','off') %}
+
+                  {{ cond_on or cond_hold }}
             sequence:
               - service: switch.turn_off
                 target:
@@ -507,6 +460,26 @@ automation:
         target:
           entity_id: switch.vmc_vel_1
 
+  - id: vmc_freecooling_maxrun_end
+    alias: "VMC — Fine max-run free-cooling → stop e cooldown"
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.vmc_freecooling_max_run
+    conditions: []
+    actions:
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.vmc_vel_2
+      - service: switch.turn_on
+        target:
+          entity_id: switch.vmc_vel_1
+      - service: timer.start
+        target:
+          entity_id: timer.vmc_freecooling_cooldown
   - id: vmc_hook_night_flush
     alias: "VMC — Hook ventilazione notturna"
     mode: restart
@@ -743,6 +716,23 @@ template:
           {% elif is_state('switch.vmc_vel_1','on') %}1
           {% elif is_state('switch.vmc_vel_0','on') %}0
           {% else %}0{% endif %}
+
+      - name: "VMC Freecooling Status"
+        unique_id: vmc_freecooling_status
+        object_id: vmc_freecooling_status
+        icon: mdi:weather-night
+        state: >
+          {% set free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
+          {% set cooldown = is_state('timer.vmc_freecooling_cooldown','active') %}
+          {% set maxrun_lock = (not is_state('timer.vmc_freecooling_max_run','active')) and (state_attr('sensor.vmc_reason','reason') == 'P3_freecooling') and (not cooldown) and (not free) %}
+          {% if cooldown %}cooldown
+          {% elif free %}active
+          {% elif maxrun_lock %}maxrun_lock
+          {% else %}off
+          {% endif %}
+        attributes:
+          last_mode: "{{ state_attr('sensor.vmc_reason','reason') }}"
+          cooldown_remaining: "{{ state_attr('timer.vmc_freecooling_cooldown','remaining') }}"
 
       - name: "VMC Reason"
         unique_id: vmc_reason
