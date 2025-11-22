@@ -510,7 +510,6 @@ template:
   - binary_sensor:
       - name: "VMC failsafe — sensori non ok"
         unique_id: vmc_failsafe_sensors_bad
-        object_id: vmc_failsafe_sensors_bad
         icon: mdi:alert-circle
         state: >
           {% set specs = {
@@ -638,7 +637,6 @@ template:
           {{ (m in [11,12,1,2,3]) and notte and ur_min is not none and (ur_min <= soglia) and is_state('switch.vmc_vel_0','on') }}
 
       - name: "VMC DRY attivo (P1B)"
-        object_id: vmc_dry_active
         unique_id: vmc_dry_active
         icon: mdi:water-remove
         state: >
@@ -672,7 +670,6 @@ template:
   - sensor:
       - name: "UR interna minima"
         unique_id: ur_in_min
-        object_id: ur_in_min
         unit_of_measurement: "%"
         icon: mdi:water-percent
         state_class: measurement
@@ -706,7 +703,6 @@ template:
 
       - name: "VMC velocità indice"
         unique_id: vmc_vel_index
-        object_id: vmc_vel_index
         unit_of_measurement: "step"
         icon: mdi:fan-speed-1
         state_class: measurement
@@ -719,7 +715,6 @@ template:
 
       - name: "VMC Freecooling Status"
         unique_id: vmc_freecooling_status
-        object_id: vmc_freecooling_status
         icon: mdi:weather-night
         state: >
           {% set free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
