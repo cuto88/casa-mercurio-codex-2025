@@ -738,47 +738,30 @@ template:
         unique_id: vmc_reason
         icon: mdi:text
         state: >
-          {% set Tin_raw = states('sensor.t_in_media') %}
-          {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
-          {% set Tout_raw = states('sensor.t_out') %}
-          {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
-          {% set AHin_raw = states('sensor.ah_in') %}
-          {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
-          {% set AHout_raw = states('sensor.ah_out') %}
-          {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
-          {% set URb_raw = states('sensor.ur_in_bagno') %}
-          {% set URb = URb_raw|float(default=none) if URb_raw not in ['unknown','unavailable','', none] else none %}
-          {% set URo_raw = states('sensor.ur_out') %}
-          {% set URo = URo_raw|float(default=none) if URo_raw not in ['unknown','unavailable','', none] else none %}
-          {% set URm_raw = states('sensor.ur_in_media') %}
-          {% set URm = URm_raw|float(default=none) if URm_raw not in ['unknown','unavailable','', none] else none %}
-          {% set soglia_raw = states('input_number.vmc_bagno_on') %}
-          {% set soglia = soglia_raw|float(75) if soglia_raw not in ['unknown','unavailable','', none] else 75 %}
-          {% set delta_ur = (URb - URo) if (URb is not none and URo is not none) else none %}
-          {% set soft_boost = is_state('binary_sensor.vmc_bagno_boost','on') and is_state('switch.vmc_vel_2','on') %}
-          {% set fc_ph = is_state('binary_sensor.vmc_free_cooling_ph','on') %}
-          {% set fc_mac = is_state('binary_sensor.vmc_free_cooling_machine','on') %}
-          {% set lite_ok = URm is not none and URo is not none and URm > 50 and (URm - URo) >= 10 %}
-          {% set p1_lite = is_state('switch.vmc_vel_2','on') and not soft_boost and lite_ok and not fc_ph and not fc_mac %}
-          {% if is_state('switch.vmc_vel_3','on') %}
-            Boost bagno: UR_bagno={{ URb|round(1) if URb is not none else 'n/d' }}% (ΔUR={{ delta_ur|round(1) if delta_ur is not none else 'n/d' }}%)
-          {% elif soft_boost %}
-            Boost bagno soft (vel_2: aria esterna più secca, target 50%): UR_media={{ URm|round(1) if URm is not none else 'n/d' }}%, UR_esterna={{ URo|round(1) if URo is not none else 'n/d' }}%
-          {% elif fc_ph %}
-            Free-cooling Passivhaus: Tin {{ Tin|round(1) if Tin is not none else 'n/d' }}°C, Tout {{ Tout|round(1) if Tout is not none else 'n/d' }}°C, AH_out {{ AHout|round(1) if AHout is not none else 'n/d' }} < AH_in {{ AHin|round(1) if AHin is not none else 'n/d' }}
-          {% elif fc_mac %}
-            Free-cooling macchina: Tin {{ Tin|round(1) if Tin is not none else 'n/d' }}°C, Tout {{ Tout|round(1) if Tout is not none else 'n/d' }}°C (fascia macchina)
-          {% elif p1_lite %}
-            Aria esterna molto più secca (P1-Lite): UR_media={{ URm|round(1) if URm is not none else 'n/d' }}%, UR_esterna={{ URo|round(1) if URo is not none else 'n/d' }}%
-          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
-            Anti-secco: UR_interna_min ≤ soglia notturna
-          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}
-            Override: AC notte = DRY → VMC vel_0
-          {% elif is_state('switch.vmc_vel_1','on') %}
-            Nessuna condizione prioritaria → baseline
-          {% elif is_state('switch.vmc_vel_0','on') %}
-            Failsafe/spegnimento forzato
-          {% else %}—{% endif %}
+          {% set attr_reason = state_attr('sensor.vmc_reason','reason') %}
+          {% set failsafe = is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+          {% set manual = is_state('input_boolean.vmc_manual','on') %}
+          {% set boost = is_state('switch.vmc_vel_3','on') or is_state('timer.vmc_boost_lock','active') or attr_reason == 'P2_boost_bagno' %}
+          {% set anti_secco = is_state('timer.vmc_anti_secco_lock','active') or attr_reason == 'P1_anti_secco' %}
+          {% set freecooling_trigger = is_state('switch.vmc_vel_2','on') or is_state('timer.vmc_freecooling_max_run','active') or is_state('timer.vmc_freecooling_cooldown','active') %}
+          {% set freecooling_attr = attr_reason == 'P3_freecooling' %}
+          {% set freecooling = (freecooling_trigger and (attr_reason in ['P3_freecooling', none, 'idle'] or is_state('binary_sensor.stagione_calda','on'))) or freecooling_attr %}
+
+          {% if failsafe %}
+            P0_failsafe
+          {% elif manual %}
+            manual
+          {% elif boost %}
+            P2_boost_bagno
+          {% elif anti_secco %}
+            P1_anti_secco
+          {% elif freecooling %}
+            P3_freecooling
+          {% else %}
+            idle
+          {% endif %}
+        attributes:
+          reason: "{{ state_attr('sensor.vmc_reason','reason') }}"
 
       - name: "VMC Last Event"
         unique_id: vmc_last_event
