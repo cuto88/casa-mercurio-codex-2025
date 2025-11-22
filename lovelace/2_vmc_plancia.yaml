@@ -302,5 +302,6 @@ views:
               - sensor.vmc_priority
               - sensor.vmc_reason
               - sensor.vmc_last_event
+              - binary_sensor.vmc_failsafe_sensors_bad
               - binary_sensor.stagione_calda
               - binary_sensor.stagione_fredda
