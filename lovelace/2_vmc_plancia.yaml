@@ -1,307 +1,102 @@
-###############################################################################
-# 2_vmc_plancia.yaml — Plancia VMC (Passivhaus-oriented)
-# Coerente con 0_sensors.yaml e 2_vmc.yaml — layout "Regole Plancia v2"
-# Se servono modifiche ad altri file, NON inserirle qui.
-###############################################################################
+type: vertical-stack
+cards:
+  - type: markdown
+    content: |
+      ## VMC — Stato & Controllo
+      Controllo prioritario P0–P4 con manuale, boost bagno, anti-secco e free-cooling.
 
-views:
-  - title: "2 — VMC"
-    type: sections
-    max_columns: 3
+  - type: entities
+    title: Stato sintetico
+    show_header_toggle: false
+    entities:
+      - entity: binary_sensor.vmc_failsafe_sensors_bad
+        name: Failsafe sensori
+      - entity: sensor.vmc_priority
+        name: Priorità attuale
+      - entity: sensor.vmc_freecooling_status
+        name: Free-cooling status
+      - entity: sensor.vmc_vel_target
+        name: Velocità target
+      - entity: sensor.vmc_vel_index
+        name: Velocità indice (0–3)
+      - entity: sensor.vmc_reason
+        name: Ragione logica (P0–P4)
+      - entity: sensor.vmc_last_event
+        name: Ultimo evento VMC
 
-    sections:
+  - type: entities
+    title: Comandi manuali
+    show_header_toggle: false
+    entities:
+      - entity: input_boolean.vmc_manual
+        name: Modalità manuale
+      - entity: input_select.vmc_manual_speed
+        name: Velocità manuale
+      - entity: timer.vmc_manual_timeout
+        name: Timeout manuale
 
-      # =====================================================
-      # COLONNA 1 — STATO & COMANDI RAPIDI
-      # =====================================================
-      - type: grid
-        cards:
+  - type: entities
+    title: Soglie VMC
+    show_header_toggle: false
+    entities:
+      - entity: input_number.vmc_bagno_on
+        name: Bagno — UR ON
+      - entity: input_number.vmc_bagno_off
+        name: Bagno — UR OFF
+      - entity: input_number.vmc_fc_ph_tin_on
+        name: FC (PH) — T_in ON
+      - entity: input_number.vmc_fc_macchina_tout_min
+        name: FC macchina — T_out min
+      - entity: input_number.vmc_freecooling_delta
+        name: ΔT free-cooling (K)
+      - entity: input_number.vmc_freecooling_delta_ah
+        name: ΔAH free-cooling (g/m³)
+      - entity: input_number.vmc_anti_secco_ur_min
+        name: Anti-secco — UR minima %
 
-          # -- Stato logico (chip/glance)
-          - type: glance
-            title: "Stato logico"
-            show_state: true
-            show_icon: true
-            entities:
-              - entity: sensor.vmc_priority
-                name: "Priorità"
-                icon: mdi:arrow-top-right-bold-outline
-              - entity: sensor.vmc_reason
-                name: "Motivo"
-                icon: mdi:text
-              - entity: sensor.vmc_last_event
-                name: "Ultimo evento"
-                icon: mdi:clock-outline
-              - entity: binary_sensor.stagione_calda
-                name: "Stagione calda"
-              - entity: binary_sensor.stagione_fredda
-                name: "Stagione fredda"
+  - type: entities
+    title: Lock & timer logici
+    show_header_toggle: false
+    entities:
+      - entity: timer.vmc_anti_secco_lock
+        name: Lock anti-secco
+      - entity: timer.vmc_boost_lock
+        name: Lock boost bagno
+      - entity: timer.vmc_freecooling_max_run
+        name: Max-run free-cooling
+      - entity: timer.vmc_freecooling_cooldown
+        name: Cooldown free-cooling
 
-          # -- Stato attuatori
-          - type: glance
-            title: "Attuatori"
-            entities:
-              - entity: switch.vmc_vel_0
-                name: vel_0
-              - entity: switch.vmc_vel_1
-                name: vel_1
-              - entity: switch.vmc_vel_2
-                name: vel_2
-              - entity: switch.vmc_vel_3
-                name: vel_3
-              - entity: switch.ac_giorno
-                name: AC giorno
-              - entity: switch.ac_notte
-                name: AC notte
+  - type: history-graph
+    title: Trend temperature (ultime 24h)
+    hours_to_show: 24
+    refresh_interval: 60
+    entities:
+      - entity: sensor.t_in_media
+        name: T interna media
+      - entity: sensor.t_out
+        name: T esterna
 
-          # -- Modalità manuale
-          - type: entities
-            title: "Modalità manuale"
-            show_header_toggle: false
-            entities:
-              - entity: input_boolean.vmc_manual
-                name: "Override attivo"
-              - entity: input_select.vmc_manual_speed
-                name: "Velocità forzata"
-              - entity: timer.vmc_manual_timeout
-                name: "Timer override"
-                icon: mdi:timer-outline
+  - type: history-graph
+    title: Trend umidità (ultime 24h)
+    hours_to_show: 24
+    refresh_interval: 60
+    entities:
+      - entity: sensor.ur_in_media
+        name: UR interna media
+      - entity: sensor.ur_in_bagno
+        name: UR bagno
+      - entity: sensor.ur_out
+        name: UR esterna
+      - entity: sensor.ur_in_min
+        name: UR interna minima
 
-          # -- Spiegazione umana (Come decide)
-          - type: markdown
-            title: "Come decide"
-            content: |
-              **Arbitraggio top‑down (prime vere vincono):**
-              - **P0 — Failsafe** → `vel_0` (sensori KO).
-              - **Override — AC notte = DRY** → `vel_0` (evita aria umida durante deumidifica).
-              - **P1 — Bagno/Boost** → `vel_3` (UR bagno ≥ 75% o ΔUR ≥ 10%; stop a UR ≤ 65% e ΔUR ≤ 5%).
-                - Se l'aria esterna è più secca della bagno, il boost scala automaticamente a `vel_2` per preservare UR ≈50%.
-              - **P2 — Free‑cooling** → `vel_2`:
-                - *Passivhaus*: `T_in > 24°C`, `T_out < T_in`, `AH_out < AH_in` (lock 15').
-                - *Macchina*: `T_in > 24°C`, `20°C < T_out < T_in` (lock 15').
-                - Se entrambe vere → prevale **Passivhaus**.
-              - **P3 — Anti‑secco (inverno, notte)** → `vel_0` con duty (5' ON/30').
-              - **P4 — Baseline** → `vel_1`.
-
-          # -- Perché siamo qui (dinamico)
-          - type: markdown
-            title: "Come succede"
-            content: >-
-              {% set manual = is_state('input_boolean.vmc_manual','on') %}
-              {% set priority = states('sensor.vmc_priority') %}
-              {% set reason = states('sensor.vmc_reason') %}
-              {% if manual %}
-              **Manuale attivo:** le automazioni restano spente finché l'override non viene disabilitato o scade il timer.
-              {% else %}
-              **Priorità corrente:** {{ priority }}. Ultima motivazione → {{ reason }}.
-              {% endif %}
-
-      # =====================================================
-      # COLONNA 2 — KPI PRINCIPALI (tile con grafico)
-      # =====================================================
-      - type: grid
-        cards:
-          # --- Temperature principali (24h)
-          - type: custom:mini-graph-card
-            name: "Temperature (24h)"
-            hours_to_show: 24
-            points_per_hour: 4
-            line_width: 2
-            height: 140
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.t_out
-                name: Esterno
-                color: red
-              - entity: sensor.t_in_giorno
-                name: Giorno
-                color: amber
-              - entity: sensor.t_in_notte1
-                name: Notte
-                color: blue
-              - entity: sensor.t_in_bagno
-                name: Bagno
-                color: green
-
-          # --- Umidità relativa e media
-          - type: custom:mini-graph-card
-            name: "Umidità relativa (24h)"
-            hours_to_show: 24
-            points_per_hour: 4
-            line_width: 2
-            height: 140
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.ur_out
-                name: Esterna
-                color: red
-              - entity: sensor.ur_in_giorno
-                name: Giorno
-                color: amber
-              - entity: sensor.ur_in_notte1
-                name: Notte
-                color: blue
-              - entity: sensor.ur_in_bagno
-                name: Bagno
-                color: green
-              - entity: sensor.ur_in_media
-                name: Media int
-                color: grey
-              - entity: sensor.ur_in_min
-                name: Min int
-                color: teal
-
-          # --- Umidità assoluta e dew point
-          - type: custom:mini-graph-card
-            name: "AH & Dew point (24h)"
-            hours_to_show: 24
-            points_per_hour: 4
-            line_width: 2
-            height: 140
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.ah_in
-                name: AH in
-                color: dodgerblue
-              - entity: sensor.ah_out
-                name: AH out
-                color: red
-              - entity: sensor.dewpoint_in
-                name: Dew point in
-                color: purple
-
-      # =====================================================
-      # COLONNA 3 — TREND & LOCK / DIAGNOSTICA
-      # =====================================================
-      - type: grid
-        cards:
-
-          # Confronti compatti (mini-graph-card)
-          - type: custom:mini-graph-card
-            name: "T interna vs esterna (24h)"
-            hours_to_show: 24
-            line_width: 2
-            points_per_hour: 6
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.t_in_media
-                name: T_in
-              - entity: sensor.t_out
-                name: T_out
-
-          - type: custom:mini-graph-card
-            name: "AH in vs out (24h)"
-            hours_to_show: 24
-            line_width: 2
-            points_per_hour: 6
-            show:
-              fill: false
-              points: false
-              legend: true
-            entities:
-              - entity: sensor.ah_in
-                name: AH_in
-              - entity: sensor.ah_out
-                name: AH_out
-
-          - type: custom:mini-graph-card
-            name: "UR bagno — 24h"
-            hours_to_show: 24
-            points_per_hour: 6
-            line_width: 2
-            height: 120
-            show:
-              fill: true
-              legend: false
-              extrema: true
-            lower_bound: 30
-            upper_bound: 100
-            color_thresholds:
-              - value: 60
-                color: green
-              - value: 70
-                color: amber
-              - value: 80
-                color: red
-            entities:
-              - entity: sensor.ur_in_bagno
-                name: "UR bagno"
-
-          - type: statistics-graph
-            title: "Velocità VMC — 24h"
-            days_to_show: 1
-            period: hour
-            chart_type: line
-            stat_types:
-              - state
-            hide_legend: true
-            entities:
-              - entity: sensor.vmc_vel_index
-                name: "Indice velocità (0=vel_0 … 3=vel_3)"
-
-          # History-graph: umidità & dew point (24h)
-          - type: history-graph
-            title: "UR & Dewpoint — 24h"
-            hours_to_show: 24
-            refresh_interval: 0
-            entities:
-              - sensor.ur_in_media
-              - sensor.ur_out
-              - sensor.dewpoint_in
-
-          # Statistics-graph: medie settimanali (7gg)
-          - type: statistics-graph
-            title: "Statistiche 7gg"
-            days_to_show: 7
-            chart_type: line
-            period: day
-            entities:
-              - sensor.t_in_media
-              - sensor.ur_in_media
-
-          # Debug sensori base (per scovare unknown)
-          - type: entities
-            title: "Debug sensori base"
-            show_header_toggle: false
-            entities:
-              - sensor.t_in_giorno
-              - sensor.t_in_notte1
-              - sensor.t_in_bagno
-              - sensor.t_out
-              - sensor.ur_in_giorno
-              - sensor.ur_in_notte1
-              - sensor.ur_in_bagno
-              - sensor.ur_out
-
-          # Debug derivate/diagnostica
-          - type: entities
-            title: "Debug derivate e diagnostica"
-            show_header_toggle: false
-            entities:
-              - sensor.t_in_media
-              - sensor.ur_in_media
-              - sensor.ur_in_min
-              - sensor.ah_in
-              - sensor.ah_out
-              - sensor.dewpoint_in
-              - sensor.delta_t_in_out
-              - sensor.delta_ah_in_out
-              - sensor.vmc_vel_index
-              - sensor.vmc_priority
-              - sensor.vmc_reason
-              - sensor.vmc_last_event
-              - binary_sensor.vmc_failsafe_sensors_bad
-              - binary_sensor.stagione_calda
-              - binary_sensor.stagione_fredda
+  - type: history-graph
+    title: Umidità assoluta IN/OUT (ultime 24h)
+    hours_to_show: 24
+    refresh_interval: 60
+    entities:
+      - entity: sensor.ah_in
+        name: AH interna
+      - entity: sensor.ah_out
+        name: AH esterna
