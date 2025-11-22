@@ -841,34 +841,57 @@ automation:
 
 template:
   - binary_sensor:
-      - name: "VMC Failsafe sensori KO"
+      - name: "VMC failsafe — sensori non ok"
         unique_id: vmc_failsafe_sensors_bad
+        object_id: vmc_failsafe_sensors_bad
         icon: mdi:alert-circle
         state: >
-          {% set required = [
-            states('sensor.ur_in_bagno'),
-            states('sensor.t_in_media'),
-            states('sensor.t_out'),
-            states('sensor.ah_in'),
-            states('sensor.ah_out')
-          ] %}
-          {{ required | select('in', ['unknown','unavailable','', none]) | list | count > 0 }}
+          {% set specs = {
+            'sensor.t_in_media': [-20, 50],
+            'sensor.t_out': [-20, 50],
+            'sensor.ur_in_media': [0, 100],
+            'sensor.ur_out': [0, 100],
+            'sensor.ah_in': [0, none],
+            'sensor.ah_out': [0, none],
+            'sensor.ur_in_bagno': [0, 100]
+          } %}
+          {% set bad = namespace(items=[]) %}
+          {% for key, limits in specs.items() %}
+            {% set raw = states(key) %}
+            {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
+            {% if val is none %}
+              {% set bad.items = bad.items + [key] %}
+            {% else %}
+              {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
+                {% set bad.items = bad.items + [key] %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ bad.items | count > 0 }}
         attributes:
-          missing: >
-            {% set mapping = {
-              'sensor.ur_in_bagno': states('sensor.ur_in_bagno'),
-              'sensor.t_in_media': states('sensor.t_in_media'),
-              'sensor.t_out': states('sensor.t_out'),
-              'sensor.ah_in': states('sensor.ah_in'),
-              'sensor.ah_out': states('sensor.ah_out')
+          problematic_sensors: >
+            {% set specs = {
+              'sensor.t_in_media': [-20, 50],
+              'sensor.t_out': [-20, 50],
+              'sensor.ur_in_media': [0, 100],
+              'sensor.ur_out': [0, 100],
+              'sensor.ah_in': [0, none],
+              'sensor.ah_out': [0, none],
+              'sensor.ur_in_bagno': [0, 100]
             } %}
-            {% set ns = namespace(items=[]) %}
-            {% for key, val in mapping.items() %}
-              {% if val in ['unknown','unavailable','', none] %}
-                {% set ns.items = ns.items + [key] %}
+            {% set bad = [] %}
+            {% for key, limits in specs.items() %}
+              {% set raw = states(key) %}
+              {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
+              {% if val is none %}
+                {% set bad = bad + [key] %}
+              {% else %}
+                {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
+                  {% set bad = bad + [key] %}
+                {% endif %}
               {% endif %}
             {% endfor %}
-            {{ ns.items }}
+            {{ bad }}
 
       - name: "VMC Override AC notte = DRY"
         unique_id: vmc_override_ac_dry
@@ -980,6 +1003,30 @@ template:
           {{ now().month in [11,12,1,2,3] }}
 
   - sensor:
+      - name: "UR interna minima"
+        unique_id: ur_in_min
+        object_id: ur_in_min
+        unit_of_measurement: "%"
+        icon: mdi:water-percent
+        state_class: measurement
+        state: >
+          {% set sensors = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_notte3',
+            'sensor.ur_in_bagno',
+            'sensor.ur_lavanderia'
+          ] %}
+          {% set values = [] %}
+          {% for s in sensors %}
+            {% set raw = states(s) %}
+            {% if raw not in ['unknown','unavailable','', none] %}
+              {% set values = values + [ raw | float ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (values | min | round(1)) if values | length > 0 else 'unknown' }}
+
       - name: "VMC Vel target"
         unique_id: vmc_vel_target
         icon: mdi:fan
@@ -990,8 +1037,9 @@ template:
           {% elif is_state('switch.vmc_vel_0','on') %}vel_0
           {% else %}off{% endif %}
 
-      - name: "VMC Vel indice"
+      - name: "VMC velocità indice"
         unique_id: vmc_vel_index
+        object_id: vmc_vel_index
         unit_of_measurement: "step"
         icon: mdi:fan-speed-1
         state_class: measurement
@@ -999,6 +1047,7 @@ template:
           {% if is_state('switch.vmc_vel_3','on') %}3
           {% elif is_state('switch.vmc_vel_2','on') %}2
           {% elif is_state('switch.vmc_vel_1','on') %}1
+          {% elif is_state('switch.vmc_vel_0','on') %}0
           {% else %}0{% endif %}
 
       - name: "VMC Reason"
