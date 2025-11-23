@@ -42,10 +42,10 @@ lovelace:
 
     2-vmc:
       mode: yaml
-      title: "2 VMC"
-      icon: mdi:air-filter
+      title: "Clima / VMC / Finestre"
+      icon: mdi:home-thermometer
       show_in_sidebar: true
-      filename: lovelace/2_vmc_plancia.yaml
+      filename: lovelace/1_ventilation_plancia.yaml
 
     3-heating:
       mode: yaml
