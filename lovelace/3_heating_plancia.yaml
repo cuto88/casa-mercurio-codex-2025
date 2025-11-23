@@ -118,7 +118,7 @@ views:
             entities:
               - entity: sensor.heating_t_in_min
                 name: "T interna minima (°C)"
-              - entity: sensor.heating_minuti_da_ultimo_cambio
+              - entity: sensor.heating_minutes_since_change
                 name: "Minuti da ultimo cambio ON/OFF"
               - entity: binary_sensor.surplus_ok
                 name: "Surplus FV OK"
