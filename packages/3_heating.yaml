@@ -647,7 +647,7 @@ automation:
                     reason: "Night setback: T_min {{ t_min }}°C < {{ night_sp - tol }}°C"
                     action: "switch.on"
 
-      - default:
+        default:
           - choose:
               - conditions:
                   - condition: state
