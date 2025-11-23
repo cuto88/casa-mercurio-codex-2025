@@ -1,132 +1,148 @@
 views:
-  - title: "Riscaldamento"
+  - title: "3 · Riscaldamento"
     path: heating
     icon: mdi:radiator
     type: sections
     max_columns: 3
 
     sections:
-      # ===========================
-      # SEZIONE 1 — STATO & COMANDI
-      # ===========================
       - type: grid
+        title: "Stato generale"
         cards:
+          - type: glance
+            columns: 4
+            entities:
+              - entity: sensor.heating_priority
+                name: Priorità
+              - entity: sensor.heating_reason
+                name: Reason
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: Failsafe
+              - entity: switch.4_ch_interrutore_3
+                name: Pompa
+
           - type: entities
-            title: "HEATING — Stato generale"
             show_header_toggle: false
             entities:
               - entity: input_boolean.heating_enable
-                name: "Logica riscaldamento attiva"
-              - entity: switch.4_ch_interrutore_3
-                name: "Pompa riscaldamento"
-              - entity: sensor.heating_priority
-                name: "Priorità attuale"
-              - entity: sensor.heating_reason
-                name: "Motivo / azione"
+                name: Logica attiva
+              - entity: input_boolean.heating_manual_active
+                name: Manuale attivo
+              - entity: input_select.heating_manual_mode
+                name: Modalità manuale
+              - entity: timer.heating_manual_timeout
+                name: Timeout manuale
 
+      - type: grid
+        title: "Setpoint e comandi"
+        cards:
           - type: entities
-            title: "Setpoint & modalità"
             show_header_toggle: false
             entities:
               - entity: input_number.temp_target_risc
-                name: "Setpoint comfort (°C)"
+                name: Setpoint comfort
               - entity: input_number.heating_setpoint_night
-                name: "Setpoint notte (°C)"
+                name: Setpoint notte
               - entity: input_number.heating_antifreeze_threshold
-                name: "Soglia antigelo (°C)"
+                name: Soglia antigelo
               - entity: input_number.heating_boost_delta
-                name: "Delta boost FV (°C)"
-              - entity: input_boolean.heating_manual
-                name: "Manuale attivo"
-              - entity: input_select.heating_manual_mode
-                name: "Modalità manuale"
-
-      # ===========================
-      # SEZIONE 2 — ZONE & ERRORI
-      # ===========================
-      - type: grid
-        cards:
-          - type: entities
-            title: "Zone & errori"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.heating_error_zona_giorno
-                name: "Errore zona giorno (setp - T) °C"
-              - entity: sensor.heating_error_zona_notte
-                name: "Errore zona notte (setp - T) °C"
-              - entity: sensor.heating_rooms_below_target
-                name: "Stanze sotto target"
-              - entity: sensor.heating_rooms_active
-                name: "Stanze conteggiate"
-              - entity: binary_sensor.heating_window_comfort
-                name: "Finestra comfort ON"
-              - entity: binary_sensor.heating_window_pv
-                name: "Finestra FV (10–16)"
-              - entity: binary_sensor.heating_window_night
-                name: "Finestra notte"
-              - entity: binary_sensor.heating_failsafe_sensors_bad
-                name: "Failsafe sensori"
+                name: Delta boost FV
 
           - type: entities
-            title: "Include stanze"
+            title: "Zone incluse"
             show_header_toggle: false
             entities:
               - entity: input_boolean.heating_use_giorno
-                name: "Usa zona giorno"
+                name: Usa zona giorno
               - entity: input_boolean.heating_use_notte1
-                name: "Usa zona notte 1"
+                name: Usa zona notte 1
               - entity: input_boolean.heating_use_notte2
-                name: "Usa zona notte 2"
+                name: Usa zona notte 2
               - entity: input_boolean.heating_use_bagno
-                name: "Usa bagno"
+                name: Usa bagno
 
-      # ===========================
-      # SEZIONE 3 — TREND & KPI
-      # ===========================
       - type: grid
+        title: "KPI principali"
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: Errore zona giorno
+              - entity: sensor.heating_error_zona_notte
+                name: Errore zona notte
+              - entity: sensor.heating_rooms_below_target
+                name: Stanze sotto target
+              - entity: sensor.heating_rooms_active
+                name: Stanze conteggiate
+              - entity: binary_sensor.heating_window_comfort
+                name: Finestra comfort
+              - entity: binary_sensor.heating_window_pv
+                name: Finestra FV
+              - entity: binary_sensor.heating_window_night
+                name: Finestra notte
+
+      - type: grid
+        title: "Grafici 24h / 7gg"
         cards:
           - type: history-graph
-            title: "Temperature ultime 24h"
+            title: "Temperature interne/esterna (24h)"
             hours_to_show: 24
             refresh_interval: 60
             entities:
               - entity: sensor.t_in_giorno
-                name: "Zona giorno"
+                name: Zona giorno
               - entity: sensor.t_in_notte1
-                name: "Zona notte 1"
+                name: Zona notte 1
               - entity: sensor.t_in_notte2
-                name: "Zona notte 2"
+                name: Zona notte 2
               - entity: sensor.t_in_bagno
-                name: "Bagno"
+                name: Bagno
               - entity: sensor.t_out
-                name: "Esterna"
+                name: Esterna
 
+          - type: statistics-graph
+            title: "Errori setpoint (7 giorni)"
+            days_to_show: 7
+            period: day
+            stat_types:
+              - mean
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: Errore giorno
+              - entity: sensor.heating_error_zona_notte
+                name: Errore notte
+
+      - type: grid
+        title: "Runtime e cicli"
+        cards:
           - type: entities
-            title: "Runtime — ore ON"
             show_header_toggle: false
             entities:
               - entity: sensor.heating_hours_on_today
-                name: "Ore ON oggi (storico)"
+                name: Ore ON oggi (storico)
               - entity: sensor.heating_hours_on_yesterday
-                name: "Ore ON ieri (storico)"
+                name: Ore ON ieri (storico)
               - entity: input_number.heating_hours_on_daily
-                name: "Ore ON ieri (snapshot)"
+                name: Ore ON ieri (snapshot)
+              - entity: sensor.heating_minutes_since_change
+                name: Minuti da ultimo cambio
 
+      - type: grid
+        title: "Debug"
+        cards:
           - type: entities
-            title: "DEBUG — Logica controller"
             show_header_toggle: false
+            collapsible: true
             entities:
               - entity: sensor.heating_t_in_min
-                name: "T interna minima (°C)"
-              - entity: sensor.heating_minutes_since_change
-                name: "Minuti da ultimo cambio ON/OFF"
+                name: T interna minima
               - entity: binary_sensor.surplus_ok
-                name: "Surplus FV OK"
+                name: Surplus FV OK
               - entity: binary_sensor.heating_window_comfort
-                name: "Finestra comfort"
+                name: Finestra comfort
               - entity: binary_sensor.heating_window_pv
-                name: "Finestra FV"
+                name: Finestra FV
               - entity: binary_sensor.heating_window_night
-                name: "Finestra notte"
+                name: Finestra notte
               - entity: binary_sensor.heating_failsafe_sensors_bad
-                name: "Failsafe sensori"
+                name: Failsafe sensori

@@ -1,43 +1,37 @@
-title: "6 Energia — Core & Bilanci"
+title: "6 Energia"
 views:
-  - title: "Energia — Monitor & Bilanci"
+  - title: "Energia — Monitor"
     path: energia-monitor
     icon: mdi:solar-power
     type: sections
     max_columns: 3
-    sections:
 
-      # ==================== 1) STATO & COMANDI RAPIDI ==========================
+    sections:
       - type: grid
-        title: "Stato & Comandi"
+        title: "Stato generale"
         cards:
           - type: glance
             title: "Direzione flussi"
-            show_name: true
             show_state: true
             entities:
               - entity: sensor.grid_direction
-                name: "Rete"
-                icon: mdi:transmission-tower-import
+                name: Rete
               - entity: sensor.pv_direction
-                name: "FV"
-                icon: mdi:solar-power
+                name: FV
+
           - type: grid
             columns: 2
             square: false
             cards:
               - type: tile
                 entity: sensor.grid_power_w
-                name: "Potenza rete"
-                icon: mdi:transmission-tower
+                name: Potenza rete
               - type: tile
                 entity: sensor.pv_power_w
-                name: "Potenza FV"
-                icon: mdi:solar-panel
+                name: Potenza FV
 
-      # ==================== 2) KPI PRINCIPALI OGGI ============================
       - type: grid
-        title: "KPI oggi"
+        title: "KPI principali"
         cards:
           - type: grid
             columns: 2
@@ -45,106 +39,73 @@ views:
             cards:
               - type: tile
                 entity: sensor.a_energia_prelevata_forward
-                name: "A — Prelevata"
-                icon: mdi:counter
+                name: A — Prelevata
               - type: tile
                 entity: sensor.a_energia_immessa_reverse
-                name: "A — Immessa"
-                icon: mdi:counter
+                name: A — Immessa
               - type: tile
                 entity: sensor.b_energia_prelevata_forward
-                name: "B — Prelevata"
-                icon: mdi:counter
+                name: B — Prelevata
               - type: tile
                 entity: sensor.b_energia_immessa_reverse
-                name: "B — Immessa"
-                icon: mdi:counter
+                name: B — Immessa
 
-      # ==================== 3) ANDAMENTO GIORNALIERO (24h) ====================
       - type: grid
-        title: "Andamento 24h"
+        title: "Grafici 24h / 7gg"
         cards:
           - type: history-graph
-            title: "Potenza istantanea 24h"
+            title: "Potenza 24h"
             hours_to_show: 24
             refresh_interval: 60
             entities:
               - entity: sensor.pv_power_w
-                name: "FV [W]"
+                name: FV [W]
               - entity: sensor.grid_power_w
-                name: "Rete [W]"
+                name: Rete [W]
+
           - type: history-graph
             title: "Direzioni 24h"
             hours_to_show: 24
             entities:
               - entity: sensor.grid_direction
-                name: "Rete"
+                name: Rete
               - entity: sensor.pv_direction
-                name: "FV"
+                name: FV
 
-      # ==================== 4) TREND SETTIMANALE / MENSILE ====================
-      - type: grid
-        title: "Trend 7gg / 30gg"
-        cards:
           - type: statistics-graph
-            title: "Bilancio contatore A (7 giorni)"
+            title: "Bilancio 7 giorni"
             days_to_show: 7
             period: day
             chart_type: bar
             entities:
               - entity: sensor.a_energia_prelevata_forward
-                name: "A — Prelevata"
+                name: A — Prelevata
               - entity: sensor.a_energia_immessa_reverse
-                name: "A — Immessa"
-          - type: statistics-graph
-            title: "Bilancio contatore B (7 giorni)"
-            days_to_show: 7
-            period: day
-            chart_type: bar
-            entities:
+                name: A — Immessa
               - entity: sensor.b_energia_prelevata_forward
-                name: "B — Prelevata"
+                name: B — Prelevata
               - entity: sensor.b_energia_immessa_reverse
-                name: "B — Immessa"
+                name: B — Immessa
 
-      # ==================== 5) SOGLIE & LOCK (Surplus / PV) ===================
       - type: grid
-        title: "Soglie & Lock"
+        title: "Comandi e soglie"
         cards:
           - type: entities
-            title: "Parametri energia"
             show_header_toggle: false
             entities:
               - entity: input_number.surplus_min_w
-                name: "Soglia surplus (W)"
+                name: Soglia surplus (W)
               - entity: input_number.surplus_lock_minutes
-                name: "Tempo lock (min)"
+                name: Tempo lock (min)
               - entity: input_boolean.surplus_enable
-                name: "Surplus attivo"
+                name: Surplus attivo
               - entity: input_boolean.energy_debug
-                name: "Debug energia"
+                name: Debug energia
 
-
-      # ==================== 6) SPIEGAZIONE LOGICA =============================
       - type: grid
-        title: "Come decide"
-        cards:
-          - type: markdown
-            content: |
-              ### ⚙️ Logica energetica
-              - La plancia confronta istantaneamente `sensor.pv_power_w` e `sensor.grid_power_w`.
-              - Le direzioni (`sensor.grid_direction`, `sensor.pv_direction`) indicano import/export.
-              - I contatori **A** e **B** espongono energia prelevata/immessa (forward/reverse).
-              - Il surplus viene valutato in base alla potenza FV eccedente e alle soglie definite.
-              - Usa “Parametri energia” per regolare soglia e lock dei carichi PV-driven.
-
-      # ==================== 7) DEBUG & SENSORI GREZZI ========================
-      - type: grid
-        title: "Debug sensori grezzi"
+        title: "Debug"
         cards:
           - type: entities
-            title: "Sensori base"
-            show_header_toggle: false
             entities:
               - sensor.grid_power_w
               - sensor.grid_direction
