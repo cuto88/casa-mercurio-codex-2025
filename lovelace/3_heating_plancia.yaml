@@ -2,14 +2,15 @@ views:
   - title: "Riscaldamento"
     path: heating
     icon: mdi:radiator
-    type: panel
-    cards:
-      - type: vertical-stack
-        cards:
+    type: sections
+    max_columns: 3
 
-          # ===========================
-          # BLOCCO 1 — STATO GENERALE
-          # ===========================
+    sections:
+      # ===========================
+      # SEZIONE 1 — STATO & COMANDI
+      # ===========================
+      - type: grid
+        cards:
           - type: entities
             title: "HEATING — Stato generale"
             show_header_toggle: false
@@ -23,9 +24,6 @@ views:
               - entity: sensor.heating_reason
                 name: "Motivo / azione"
 
-          # ===========================
-          # BLOCCO 2 — SETPOINT & MODALITÀ
-          # ===========================
           - type: entities
             title: "Setpoint & modalità"
             show_header_toggle: false
@@ -43,9 +41,11 @@ views:
               - entity: input_select.heating_manual_mode
                 name: "Modalità manuale"
 
-          # ===========================
-          # BLOCCO 3 — ZONE & ERRORI
-          # ===========================
+      # ===========================
+      # SEZIONE 2 — ZONE & ERRORI
+      # ===========================
+      - type: grid
+        cards:
           - type: entities
             title: "Zone & errori"
             show_header_toggle: false
@@ -67,9 +67,24 @@ views:
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: "Failsafe sensori"
 
-          # ===========================
-          # BLOCCO 4 — TEMPERATURE
-          # ===========================
+          - type: entities
+            title: "Include stanze"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.heating_use_giorno
+                name: "Usa zona giorno"
+              - entity: input_boolean.heating_use_notte1
+                name: "Usa zona notte 1"
+              - entity: input_boolean.heating_use_notte2
+                name: "Usa zona notte 2"
+              - entity: input_boolean.heating_use_bagno
+                name: "Usa bagno"
+
+      # ===========================
+      # SEZIONE 3 — TREND & KPI
+      # ===========================
+      - type: grid
+        cards:
           - type: history-graph
             title: "Temperature ultime 24h"
             hours_to_show: 24
@@ -86,9 +101,6 @@ views:
               - entity: sensor.t_out
                 name: "Esterna"
 
-          # ===========================
-          # BLOCCO 5 — ORE ON / GIORNO
-          # ===========================
           - type: entities
             title: "Runtime — ore ON"
             show_header_toggle: false
@@ -100,9 +112,6 @@ views:
               - entity: input_number.heating_hours_on_daily
                 name: "Ore ON ieri (snapshot)"
 
-          # ===========================
-          # BLOCCO 6 — DEBUG LOGICA
-          # ===========================
           - type: entities
             title: "DEBUG — Logica controller"
             show_header_toggle: false
@@ -121,11 +130,3 @@ views:
                 name: "Finestra notte"
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: "Failsafe sensori"
-              - entity: input_boolean.heating_use_giorno
-                name: "Usa zona giorno"
-              - entity: input_boolean.heating_use_notte1
-                name: "Usa zona notte 1"
-              - entity: input_boolean.heating_use_notte2
-                name: "Usa zona notte 2"
-              - entity: input_boolean.heating_use_bagno
-                name: "Usa bagno"
