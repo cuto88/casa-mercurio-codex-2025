@@ -1,219 +1,131 @@
-views:
-  - title: Riscaldamento
-    path: heating
-    icon: mdi:radiator
-    type: sections
-    max_columns: 3
+---
+title: "Riscaldamento"
+path: heating
+icon: mdi:radiator
+type: panel
+cards:
+  - type: vertical-stack
+    cards:
 
-    sections:
-      # 1) Stato & Comandi
-      - type: grid
-        cards:
-          - type: glance
-            title: Stato logiche
-            show_state: true
-            entities:
-              - entity: binary_sensor.heating_should_run
-                name: Decisione finale
-                icon: mdi:robot
-              - entity: binary_sensor.heating_richiesta_automatica
-                name: Richiesta automatica
-                icon: mdi:cog
-              - entity: binary_sensor.heating_finestra_oraria
-                name: Fascia 10–16
-                icon: mdi:clock-time-ten
-              - entity: binary_sensor.heating_esterna_fredda
-                name: Ext fredda
-                icon: mdi:snowflake
-              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
-                name: Sotto target
-                icon: mdi:thermometer-alert
-              - entity: binary_sensor.heating_lock_min_on_ok
-                name: Lock ON ok
-                icon: mdi:lock-open-variant
-              - entity: binary_sensor.heating_lock_min_off_ok
-                name: Lock OFF ok
-                icon: mdi:lock-open-variant
+      # ===========================
+      # BLOCCO 1 — STATO GENERALE
+      # ===========================
+      - type: entities
+        title: "HEATING — Stato generale"
+        show_header_toggle: false
+        entities:
+          - entity: input_boolean.heating_enable
+            name: "Logica riscaldamento attiva"
+          - entity: switch.4_ch_interrutore_3
+            name: "Pompa riscaldamento"
+          - entity: sensor.heating_priority
+            name: "Priorità attuale"
+          - entity: sensor.heating_reason
+            name: "Motivo / azione"
 
-          - type: markdown
-            title: "Come decide (logica)"
-            content: |
-              **Target comfort**: 21 °C (regolabile) — impianto a pavimento (alta inerzia).
-              **Finestra ottimale**: 10:00–16:00 (sfrutta FV/guadagni solari).
+      # ===========================
+      # BLOCCO 2 — SETPOINT & MODALITÀ
+      # ===========================
+      - type: entities
+        title: "Setpoint & modalità"
+        show_header_toggle: false
+        entities:
+          - entity: input_number.temp_target_risc
+            name: "Setpoint comfort (°C)"
+          - entity: input_number.heating_setpoint_night
+            name: "Setpoint notte (°C)"
+          - entity: input_number.heating_antifreeze_threshold
+            name: "Soglia antigelo (°C)"
+          - entity: input_number.heating_boost_delta
+            name: "Delta boost FV (°C)"
+          - entity: input_boolean.heating_manual
+            name: "Manuale attivo"
+          - entity: input_select.heating_manual_mode
+            name: "Modalità manuale"
 
-              **Accende solo se T<sub>stanza</sub> < Target − T<sub>tol</sub>** *e*:
-              - siamo **in finestra** (10–16),
-              - **esterna fredda** rispetto ai criteri (dispersione significativa),
-              - **lock anti‑ciclo** rispettati.
+      # ===========================
+      # BLOCCO 3 — ZONE & ERRORI
+      # ===========================
+      - type: entities
+        title: "Zone & errori"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.heating_error_zona_giorno
+            name: "Errore zona giorno (setp - T) °C"
+          - entity: sensor.heating_error_zona_notte
+            name: "Errore zona notte (setp - T) °C"
+          - entity: sensor.heating_rooms_below_target
+            name: "Stanze sotto target"
+          - entity: sensor.heating_rooms_active
+            name: "Stanze conteggiate"
+          - entity: binary_sensor.heating_window_comfort
+            name: "Finestra comfort ON"
+          - entity: binary_sensor.heating_window_pv
+            name: "Finestra FV (10–16)"
+          - entity: binary_sensor.heating_window_night
+            name: "Finestra notte"
+          - entity: binary_sensor.heating_failsafe_sensors_bad
+            name: "Failsafe sensori"
 
-              **Spegne** quando tutte le stanze sono ≥ Target, oppure fuori finestra o lock.
+      # ===========================
+      # BLOCCO 4 — TEMPERATURE
+      # ===========================
+      - type: history-graph
+        title: "Temperature ultime 24h"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.t_in_giorno
+            name: "Zona giorno"
+          - entity: sensor.t_in_notte1
+            name: "Zona notte 1"
+          - entity: sensor.t_in_notte2
+            name: "Zona notte 2"
+          - entity: sensor.t_in_bagno
+            name: "Bagno"
+          - entity: sensor.t_out
+            name: "Esterna"
 
-              *Strategia*: caricare l’edificio nelle ore favorevoli per ridurre le ore ON totali.
+      # ===========================
+      # BLOCCO 5 — ORE ON / GIORNO
+      # ===========================
+      - type: entities
+        title: "Runtime — ore ON"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.heating_hours_on_today
+            name: "Ore ON oggi (storico)"
+          - entity: sensor.heating_hours_on_yesterday
+            name: "Ore ON ieri (storico)"
+          - entity: input_number.heating_hours_on_daily
+            name: "Ore ON ieri (snapshot)"
 
-          - type: horizontal-stack
-            cards:
-              - type: button
-                name: Abilita
-                entity: input_boolean.heating_enable
-                tap_action: { action: toggle }
-                icon: mdi:radiator
-              - type: button
-                name: Forza ON
-                entity: input_boolean.heating_force_on
-                tap_action: { action: toggle }
-                icon: mdi:flash
-              - type: button
-                name: Forza OFF
-                entity: input_boolean.heating_force_off
-                tap_action: { action: toggle }
-                icon: mdi:cancel
-
-          - type: horizontal-stack
-            cards:
-              - type: button
-                name: Manuale
-                entity: input_boolean.heating_manual_active
-                tap_action: { action: toggle }
-                icon: mdi:hand-back-right
-              - type: tile
-                entity: input_select.heating_manual_mode
-                name: Modalità manuale
-              - type: tile
-                entity: timer.heating_manual_timeout
-                name: Timeout manuale
-
-          - type: tile
-            entity: switch.4_ch_interrutore_3
-            name: Interruttore Generale
-
-      # 2) KPI + toggle stanze
-      - type: grid
-        cards:
-          - type: tile
-            entity: sensor.t_in_media
-            name: T_in media
-            graph: line
-          - type: tile
-            entity: sensor.t_in_min
-            name: T_in minima
-            graph: line
-          - type: tile
-            entity: sensor.t_out
-            name: T_esterna
-            graph: line
-          - type: tile
-            entity: input_number.temp_target_risc
-            name: Target °C
-          - type: tile
-            entity: sensor.heating_rooms_below_target
-            name: Stanze sotto target
-            icon: mdi:home-thermometer-outline
-          - type: tile
-            entity: sensor.heating_minuti_da_ultimo_cambio
-            name: Min da ultimo cambio
-          - type: tile
-            entity: sensor.heating_target_state_label
-            name: Stato target
-          - type: entities
-            title: Stanze incluse (toggle)
-            entities:
-              - input_boolean.heating_use_giorno
-              - input_boolean.heating_use_notte1
-              - input_boolean.heating_use_notte2
-              - input_boolean.heating_use_bagno
-              - sensor.heating_stanze_attive
-
-      # 3) Trend & Lock
-      - type: grid
-        cards:
-          - type: history-graph
-            title: Trend 24h — Temperature
-            hours_to_show: 24
-            entities:
-              - entity: sensor.t_in_giorno
-                name: T Giorno
-              - entity: sensor.t_in_notte1
-                name: T Notte1
-              - entity: sensor.t_in_notte2
-                name: T Notte2
-              - entity: sensor.t_in_bagno
-                name: T Bagno
-              - entity: sensor.t_out
-                name: T Esterna
-              - entity: sensor.t_in_media
-                name: T Media Int.
-
-          - type: history-graph
-            title: Trend 24h — Decisioni
-            hours_to_show: 24
-            entities:
-              - binary_sensor.heating_should_run
-              - binary_sensor.heating_finestra_oraria
-              - binary_sensor.heating_esterna_fredda
-              - binary_sensor.heating_almeno_una_stanza_sotto_target
-              - binary_sensor.heating_lock_min_off_ok
-              - binary_sensor.heating_lock_min_on_ok
-
-          - type: statistics-graph
-            title: 7 giorni — Temperature (media/min/max)
-            days_to_show: 7
-            period: hour
-            stat_types: [mean, min, max]
-            entities:
-              - entity: sensor.t_in_giorno
-                name: T Giorno
-              - entity: sensor.t_in_notte1
-                name: T Notte1
-              - entity: sensor.t_in_notte2
-                name: T Notte2
-              - entity: sensor.t_in_bagno
-                name: T Bagno
-              - entity: sensor.t_out
-                name: T Esterna
-
-          - type: statistics-graph
-            title: 30 giorni — Ore ON riscaldamento (giornaliere)
-            days_to_show: 30
-            period: day
-            stat_types: [mean]
-            entities:
-              - entity: input_number.heating_hours_on_daily
-                name: Ore ON/die
-
-          - type: entities
-            title: Soglie & Lock
-            entities:
-              - input_datetime.heating_window_start
-              - input_datetime.heating_window_end
-              - input_number.temp_target_risc
-              - input_number.heating_tolerance
-              - input_number.heating_ext_cold_threshold
-              - input_number.heating_min_on_minutes
-              - input_number.heating_min_off_minutes
-
-      # 4) Diagnostica
-      - type: grid
-        cards:
-          - type: entity-filter
-            title: Stati anomali (live)
-            show_empty: false
-            state_filter: ['unknown','unavailable']
-            entities:
-              - switch.4_ch_interrutore_3
-              - sensor.t_in_giorno
-              - sensor.t_in_notte1
-              - sensor.t_in_notte2
-              - sensor.t_in_bagno
-              - sensor.t_out
-              - sensor.t_in_media
-              - sensor.t_in_min
-              - sensor.heating_minuti_da_ultimo_cambio
-              - sensor.heating_target_state_label
-              - input_datetime.heating_window_start
-              - input_datetime.heating_window_end
-              - binary_sensor.heating_finestra_oraria
-              - binary_sensor.heating_esterna_fredda
-              - binary_sensor.heating_almeno_una_stanza_sotto_target
-              - binary_sensor.heating_lock_min_on_ok
-              - binary_sensor.heating_lock_min_off_ok
-              - binary_sensor.heating_should_run
+      # ===========================
+      # BLOCCO 6 — DEBUG LOGICA
+      # ===========================
+      - type: entities
+        title: "DEBUG — Logica controller"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.heating_t_in_min
+            name: "T interna minima (°C)"
+          - entity: sensor.heating_minuti_da_ultimo_cambio
+            name: "Minuti da ultimo cambio ON/OFF"
+          - entity: binary_sensor.surplus_ok
+            name: "Surplus FV OK"
+          - entity: binary_sensor.heating_window_comfort
+            name: "Finestra comfort"
+          - entity: binary_sensor.heating_window_pv
+            name: "Finestra FV"
+          - entity: binary_sensor.heating_window_night
+            name: "Finestra notte"
+          - entity: binary_sensor.heating_failsafe_sensors_bad
+            name: "Failsafe sensori"
+          - entity: input_boolean.heating_use_giorno
+            name: "Usa zona giorno"
+          - entity: input_boolean.heating_use_notte1
+            name: "Usa zona notte 1"
+          - entity: input_boolean.heating_use_notte2
+            name: "Usa zona notte 2"
+          - entity: input_boolean.heating_use_bagno
+            name: "Usa bagno"
