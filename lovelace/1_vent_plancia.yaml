@@ -1,13 +1,3 @@
-###############################################################################
-# 1_vent_plancia.yaml — Plancia Lovelace: Ventilazione naturale estiva (V2)
-# Allineata all'ultimo 1_vent.yaml e ai sensori canonici di 0_sensors.yaml
-#  - Temperature:  sensor.t_out, sensor.t_in_media
-#  - Umidità ass.: sensor.ah_out, sensor.ah_in
-#  - KPI vent:     sensor.delta_t_in_out, sensor.delta_ah_in_out
-#  - Logiche:      binary_sensor.vent_recommend_open / _close, vent_flag_estate,
-#                  vent_night_flush_now; input_* per soglie/override/notifiche
-###############################################################################
-
 views:
   - title: "1 · Ventilazione"
     path: vent
@@ -16,178 +6,129 @@ views:
     max_columns: 3
 
     sections:
-      # ===============================================================
-      # COLONNA 1 — STATO & COMANDI
-      # ===============================================================
       - type: grid
+        title: "Stato generale"
         cards:
-
-          # ---- CHIP DI STATO (glance) ---------------------------------
           - type: glance
-            title: "Stato attuale"
             columns: 4
             entities:
               - entity: binary_sensor.vent_recommend_open
-                name: APRI
+                name: Apri
                 icon: mdi:window-open
               - entity: binary_sensor.vent_recommend_close
-                name: CHIUDI
+                name: Chiudi
                 icon: mdi:window-closed-variant
               - entity: binary_sensor.vent_flag_estate
                 name: Estate
                 icon: mdi:white-balance-sunny
               - entity: binary_sensor.vent_night_flush_now
-                name: Night Flush
+                name: Night flush
                 icon: mdi:weather-night
 
-          # ---- COMANDI RAPIDI -----------------------------------------
           - type: entities
-            title: "Comandi rapidi"
+            title: "Messaggi"
+            show_header_toggle: false
+            entities:
+              - entity: input_text.vent_messaggio_consiglio
+                name: Consiglio attuale
+
+      - type: grid
+        title: "Setpoint e comandi"
+        cards:
+          - type: entities
             show_header_toggle: false
             entities:
               - entity: input_boolean.vent_override_estate
-                name: "Override estate (forza logiche estive)"
-                icon: mdi:calendar-range
+                name: Override stagione estiva
               - entity: input_boolean.vent_notifiche_attive
-                name: "Notifica consigli (persistenti)"
-                icon: mdi:message-badge
-              - type: section
-                label: "Finestre (mappatura manuale)"
-              - entity: input_boolean.vent_finestra_giorno1_aperta
-                name: "Giorno — Finestra 1"
-                icon: mdi:window-open
-              - entity: input_boolean.vent_finestra_giorno2_aperta
-                name: "Giorno — Finestra 2"
-                icon: mdi:window-open
-              - entity: input_boolean.vent_portoncino_ingresso_aperto
-                name: "Portoncino ingresso"
-                icon: mdi:door-open
-              - entity: input_boolean.vent_foro_cappa_aperto
-                name: "Foro cappa"
-                icon: mdi:tailwind
-              - entity: input_boolean.vent_finestra_notte1_aperta
-                name: "Notte1 — finestra aperta"
-                icon: mdi:window-open
-              - entity: input_boolean.vent_finestra_notte2_aperta
-                name: "Notte2 — finestra aperta"
-                icon: mdi:window-open
-              - entity: input_boolean.vent_finestra_notte3_aperta
-                name: "Notte3 — finestra aperta"
-                icon: mdi:window-open
-              - entity: input_boolean.vent_finestra_bagno_aperta
-                name: "Bagno — finestra aperta"
-                icon: mdi:window-open
+                name: Notifiche consigli
+              - type: divider
+              - entity: input_datetime.vent_night_flush_start
+                name: Night flush start
+              - entity: input_datetime.vent_night_flush_end
+                name: Night flush end
+              - type: divider
+              - entity: input_number.vent_deltat_min
+                name: ΔT minimo per APRI
+              - entity: input_number.vent_deltaah_min
+                name: ΔAH minimo per APRI
+              - entity: input_number.vent_vento_max
+                name: Vento massimo
+              - entity: input_number.vent_pm25_max
+                name: PM2.5 massimo
 
-          # ---- MESSAGGIO CONSIGLIO ------------------------------------
-          - type: markdown
-            title: "Consiglio"
-            content: >-
-              {{ states('input_text.vent_messaggio_consiglio') }}
-
-          # ---- COME DECIDE (spiegazione umana) ------------------------
-          - type: markdown
-            title: "Come decide"
-            content: |
-              **Logica estiva (maggio–settembre) — Ventilazione naturale**
-
-              **APRI** (preferibilmente in *night flush* 21:00–08:00) se **T_out < T_in − ΔT_min**
-              **e** **AH_out < AH_in − ΔAH_min**, **senza pioggia**, **vento ≤ soglia** e qualità aria OK.
-
-              **CHIUDI** negli altri casi (o se **T_out ≥ T_in** o **AH_out ≥ AH_in**).
-
-              **Default** soglie: ΔT_min **1.5 °C**, ΔAH_min **1.0 g/m³**, Vento_max **6.0 m/s**.
-
-              *Obiettivo*: massimizzare il raffrescamento passivo notturno, riducendo l’uso dell’AC e
-              evitando apporti di umidità.
-
-      # ===============================================================
-      # COLONNA 2 — KPI PRINCIPALI (mini-graph 24h)
-      # ===============================================================
-      - type: grid
-        cards:
-
-          # ---- KPI Temperatura ---------------------------------------
           - type: entities
-            title: "KPI — Temperatura"
+            title: "Mappatura finestre"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.vent_finestra_giorno1_aperta
+                name: Giorno 1 aperta
+              - entity: input_boolean.vent_finestra_giorno2_aperta
+                name: Giorno 2 aperta
+              - entity: input_boolean.vent_portoncino_ingresso_aperto
+                name: Portoncino ingresso
+              - entity: input_boolean.vent_foro_cappa_aperto
+                name: Foro cappa
+              - entity: input_boolean.vent_finestra_notte1_aperta
+                name: Notte 1 aperta
+              - entity: input_boolean.vent_finestra_notte2_aperta
+                name: Notte 2 aperta
+              - entity: input_boolean.vent_finestra_notte3_aperta
+                name: Notte 3 aperta
+              - entity: input_boolean.vent_finestra_bagno_aperta
+                name: Bagno aperta
+
+      - type: grid
+        title: "KPI principali"
+        cards:
+          - type: entities
             entities:
               - entity: sensor.t_out
-                name: "T out (°C)"
-                icon: mdi:thermometer
+                name: T esterna
               - entity: sensor.t_in_media
-                name: "T in media (°C)"
-                icon: mdi:home-thermometer
+                name: T interna media
               - entity: sensor.delta_t_in_out
-                name: "ΔT (in − out) (°C)"
-                icon: mdi:thermometer-lines
+                name: ΔT in−out
+              - type: divider
+              - entity: sensor.ah_out
+                name: AH esterna
+              - entity: sensor.ah_in
+                name: AH interna
+              - entity: sensor.delta_ah_in_out
+                name: ΔAH in−out
+              - type: divider
+              - entity: sensor.vent_meteo_vento
+                name: Vento
+              - entity: binary_sensor.vent_pioggia
+                name: Pioggia
+              - entity: binary_sensor.vent_air_quality_ok
+                name: Qualità aria OK
+              - entity: sensor.vent_meteo_pm25
+                name: PM2.5
 
-          - type: custom:mini-graph-card
-            name: "T in/out — 24h"
+      - type: grid
+        title: "Grafici 24h / 7gg"
+        cards:
+          - type: history-graph
+            title: "Temperature 24h"
             hours_to_show: 24
-            points_per_hour: 6
-            show:
-              fill: false
-              legend: true
-              labels: false
             entities:
               - entity: sensor.t_out
                 name: T out
               - entity: sensor.t_in_media
-                name: T in (media)
+                name: T in media
 
-          # ---- KPI Umidità assoluta ----------------------------------
-          - type: entities
-            title: "KPI — Umidità assoluta"
-            entities:
-              - entity: sensor.ah_out
-                name: "AH out (g/m³)"
-                icon: mdi:water-percent
-              - entity: sensor.ah_in
-                name: "AH in (g/m³)"
-                icon: mdi:water-percent
-              - entity: sensor.delta_ah_in_out
-                name: "ΔAH (in − out) (g/m³)"
-                icon: mdi:water-minus
-
-          - type: custom:mini-graph-card
-            name: "AH in/out — 24h"
+          - type: history-graph
+            title: "Umidità assoluta 24h"
             hours_to_show: 24
-            points_per_hour: 6
-            show:
-              fill: false
-              legend: true
-              labels: false
             entities:
               - entity: sensor.ah_out
                 name: AH out
               - entity: sensor.ah_in
                 name: AH in
 
-          # ---- Meteo operativo ---------------------------------------
-          - type: entities
-            title: "Meteo operativo"
-            entities:
-              - entity: sensor.vent_meteo_vento
-                name: "Vento (m/s)"
-                icon: mdi:weather-windy
-              - entity: binary_sensor.vent_pioggia
-                name: "Pioggia"
-                icon: mdi:weather-pouring
-              - entity: binary_sensor.vent_air_quality_ok
-                name: "Qualità aria OK"
-                icon: mdi:chemical-weapon
-              - entity: sensor.vent_meteo_pm25
-                name: "PM2.5 (µg/m³)"
-                icon: mdi:molecule
-
-      # ===============================================================
-      # COLONNA 3 — TREND / LOCK / SOGLIE
-      # ===============================================================
-      - type: grid
-        cards:
-
-          # ---- Trend estesi (7 giorni) --------------------------------
           - type: statistics-graph
-            title: "Trend 7 giorni — T e AH"
+            title: "Trend 7 giorni"
             days_to_show: 7
             stat_types:
               - mean
@@ -198,83 +139,61 @@ views:
               - entity: sensor.t_out
                 name: T out
               - entity: sensor.t_in_media
-                name: T in (media)
+                name: T in media
               - entity: sensor.ah_out
                 name: AH out
               - entity: sensor.ah_in
                 name: AH in
 
-          # ---- Soglie regolabili -------------------------------------
+      - type: grid
+        title: "Runtime e finestre"
+        cards:
           - type: entities
-            title: "Soglie & stato finestre"
             show_header_toggle: false
             entities:
-              - entity: input_number.vent_deltat_min
-                name: "ΔT_min per APRI (°C)"
-                icon: mdi:tune-vertical
-              - entity: input_number.vent_deltaah_min
-                name: "ΔAH_min per APRI (g/m³)"
-                icon: mdi:tune-vertical
-              - entity: input_number.vent_vento_max
-                name: "Vento massimo (m/s)"
-                icon: mdi:turbine
-              - entity: input_number.vent_pm25_max
-                name: "PM2.5 massimo (µg/m³)"
-                icon: mdi:blur
-              - type: divider
               - entity: sensor.vent_finestre_aperte
-                name: "Finestre aperte"
-                icon: mdi:counter
+                name: Finestre aperte
               - entity: sensor.vent_finestre_state
-                name: "Dettaglio finestre"
-                icon: mdi:format-list-text
+                name: Dettaglio finestre
               - type: section
-                label: "Ultimi cambi manuali"
+                label: Ultimi cambi manuali
               - entity: input_datetime.vent_last_change_giorno1
-                name: "Cambio giorno — Finestra 1"
-                icon: mdi:clock-outline
+                name: Giorno 1
               - entity: input_datetime.vent_last_change_giorno2
-                name: "Cambio giorno — Finestra 2"
-                icon: mdi:clock-outline
+                name: Giorno 2
               - entity: input_datetime.vent_last_change_portoncino
-                name: "Cambio portoncino ingresso"
-                icon: mdi:clock-outline
+                name: Portoncino
               - entity: input_datetime.vent_last_change_foro_cappa
-                name: "Cambio foro cappa"
-                icon: mdi:clock-outline
+                name: Foro cappa
               - entity: input_datetime.vent_last_change_notte1
-                name: "Cambio notte 1"
-                icon: mdi:clock-outline
+                name: Notte 1
               - entity: input_datetime.vent_last_change_notte2
-                name: "Cambio notte 2"
-                icon: mdi:clock-outline
+                name: Notte 2
               - entity: input_datetime.vent_last_change_notte3
-                name: "Cambio notte 3"
-                icon: mdi:clock-outline
+                name: Notte 3
               - entity: input_datetime.vent_last_change_bagno
-                name: "Cambio bagno"
-                icon: mdi:clock-outline
+                name: Bagno
 
-          # ---- Debug sensori (grezzi/canonici) ------------------------
+      - type: grid
+        title: "Debug"
+        cards:
           - type: entities
-            title: "Debug sensori"
+            show_header_toggle: false
             collapsible: true
             entities:
-              # Canonici 0_sensors
               - entity: sensor.t_out
-                name: "T out (canonico)"
+                name: T out (canonico)
               - entity: sensor.t_in_media
-                name: "T in media (canonico)"
+                name: T in media (canonico)
               - entity: sensor.ah_out
-                name: "AH out (canonico)"
+                name: AH out (canonico)
               - entity: sensor.ah_in
-                name: "AH in (canonico)"
-              # REST/meteo 1_vent
+                name: AH in (canonico)
               - entity: sensor.vent_meteo_temp
-                name: "REST — T out"
+                name: REST — T out
               - entity: sensor.vent_meteo_rh
-                name: "REST — UR out"
+                name: REST — UR out
               - entity: sensor.vent_meteo_vento
-                name: "REST — vento"
+                name: REST — vento
               - entity: sensor.vent_meteo_precip
-                name: "REST — pioggia"
+                name: REST — pioggia

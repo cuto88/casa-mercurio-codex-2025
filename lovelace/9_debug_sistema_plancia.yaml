@@ -1,170 +1,150 @@
-# lovelace/debug_sistema.yaml
-# Dashboard di DEBUG e DIAGNOSTICA dei 4 sottosistemi (Vent, VMC, AC, Heating)
-# - Solo componenti core (niente custom card) per massima robustezza
-# - Struttura a sezioni (mobile-first), 3 colonne su desktop
-# - Include: Chip di stato, KPI rapidi, Trend 24h/7gg, Soglie & Lock, Diagnostica unknown/unavailable,
-#            Card Markdown "Come decide" (riassunto umano).
-
 views:
   - title: "Debug Sistema"
     path: debug-sistema
     icon: mdi:tools
     type: sections
     max_columns: 3
+
     sections:
-      # =============================================================
-      #  COLONNA 1 — STATO & COMANDI RAPIDI (Glance + Pulsanti)
-      # =============================================================
       - type: grid
+        title: "Stato generale"
         cards:
-          # --- Chip/Glance: Priorità VMC (P0–P4 + override) ---
           - type: glance
-            title: "VMC — Stato logiche / priorità"
+            title: "VMC"
             show_name: true
-            show_icon: true
             entities:
+              - entity: sensor.vmc_priority
+                name: Priorità
+              - entity: sensor.vmc_reason
+                name: Reason
               - entity: binary_sensor.vmc_failsafe_sensors_bad
-                name: P0 Failsafe
-              - entity: binary_sensor.vmc_override_ac_dry
-                name: Override AC notte=DRY
-              - entity: binary_sensor.vmc_bagno_boost
-                name: P1 Bagno / Boost
-              - entity: binary_sensor.vmc_free_cooling_ph
-                name: P2 Free-cooling PH
-              - entity: binary_sensor.vmc_free_cooling_machine
-                name: P2 Free-cooling Macchina
-              - entity: binary_sensor.vmc_anti_secco
-                name: P3 Anti-secco (inverno)
+                name: Failsafe
               - entity: sensor.vmc_vel_target
-                name: Velocità target
+                name: Velocità
 
-          # --- Chip/Glance: AC (dry/cool/lock) ---
           - type: glance
-            title: "AC — Stato logiche"
+            title: "AC"
             entities:
-              - entity: binary_sensor.ac_need_dry
-                name: Need DRY
-              - entity: binary_sensor.ac_need_cool
-                name: Need COOL
-              - entity: binary_sensor.ac_should_run
-                name: Should run
-              - entity: sensor.ac_mode_label
-                name: Modalità attuale
-              - entity: switch.ac_giorno
-                name: AC Giorno
-              - entity: switch.ac_notte
-                name: AC Notte
+              - entity: sensor.ac_priority
+                name: Priorità
+              - entity: sensor.ac_reason
+                name: Reason
+              - entity: binary_sensor.ac_block_by_vmc
+                name: Block VMC
+              - entity: binary_sensor.ac_lock_min_on_ok
+                name: Lock ON
 
-          # --- Chip/Glance: Heating (inerzia + finestra PV) ---
           - type: glance
-            title: "Riscaldamento — Stato logiche"
+            title: "Heating"
             entities:
-              - entity: binary_sensor.heating_should_run
-                name: Should run
-              - entity: input_number.temp_target_risc
-                name: Target °C
-              - entity: binary_sensor.heating_finestra_oraria
-                name: Finestra oraria attiva
+              - entity: sensor.heating_priority
+                name: Priorità
+              - entity: sensor.heating_reason
+                name: Reason
+              - entity: binary_sensor.heating_window_comfort
+                name: Finestra comfort
               - entity: switch.4_ch_interrutore_3
-                name: Interruttore generale
+                name: Pompa
 
-          # --- Chip/Glance: Ventilazione naturale (finestre) ---
           - type: glance
-            title: "Vent naturale — Consigli"
+            title: "Vent naturale"
             entities:
               - entity: binary_sensor.vent_recommend_open
                 name: Apri
               - entity: binary_sensor.vent_recommend_close
                 name: Chiudi
-              - entity: input_text.vent_messaggio_consiglio
-                name: Messaggio
+              - entity: binary_sensor.vent_flag_estate
+                name: Estate
+              - entity: binary_sensor.vent_night_flush_now
+                name: Night flush
 
-          # --- Pulsanti rapidi (override/debug manuale) ---
+      - type: grid
+        title: "Setpoint e comandi"
+        cards:
           - type: entities
-            title: "Override / Debug manuale"
+            title: "VMC"
             entities:
               - entity: input_boolean.vmc_manual
-                name: VMC manuale attivo
+                name: Manuale attivo
               - entity: input_select.vmc_manual_speed
-                name: VMC velocità manuale
+                name: Velocità manuale
               - entity: timer.vmc_manual_timeout
-                name: VMC timeout manuale
-              - entity: input_boolean.ac_manual
-                name: AC manuale attivo
-              - entity: input_select.ac_manual_mode
-                name: AC modalità manuale
-              - entity: timer.ac_manual_timeout
-                name: AC timeout manuale
-              - entity: input_boolean.heating_manual_active
-                name: Riscaldamento manuale attivo
-              - entity: input_select.heating_manual_mode
-                name: Heating modalità manuale
-              - entity: timer.heating_manual_timeout
-                name: Heating timeout manuale
-              - entity: input_boolean.heating_force_on
-                name: Riscaldamento forza ON
-              - entity: input_boolean.heating_force_off
-                name: Riscaldamento forza OFF
+                name: Timeout manuale
 
-      # =============================================================
-      #  COLONNA 2 — KPI PRINCIPALI (Tile + Grafici 24h)
-      # =============================================================
-      - type: grid
-        cards:
-          # --- KPI base (T, UR, AH indoor/outdoor) ---
           - type: entities
-            title: "KPI microclima (base)"
+            title: "AC"
+            entities:
+              - entity: input_boolean.ac_manual
+                name: Manuale attivo
+              - entity: input_select.ac_manual_mode
+                name: Modalità manuale
+              - entity: timer.ac_manual_timeout
+                name: Timeout manuale
+              - entity: input_boolean.ac_block_vmc
+                name: Block da VMC
+              - entity: timer.ac_block_vmc_timeout
+                name: Timeout block VMC
+
+          - type: entities
+            title: "Heating"
+            entities:
+              - entity: input_boolean.heating_manual_active
+                name: Manuale attivo
+              - entity: input_select.heating_manual_mode
+                name: Modalità manuale
+              - entity: timer.heating_manual_timeout
+                name: Timeout manuale
+              - entity: input_boolean.heating_force_on
+                name: Forza ON
+              - entity: input_boolean.heating_force_off
+                name: Forza OFF
+
+      - type: grid
+        title: "KPI microclima"
+        cards:
+          - type: entities
             entities:
               - entity: sensor.t_in_giorno
-                name: T Giorno (°C)
+                name: T Giorno
               - entity: sensor.t_in_notte1
-                name: T Notte (°C)
+                name: T Notte 1
               - entity: sensor.t_in_bagno
-                name: T Bagno (°C)
+                name: T Bagno
               - entity: sensor.t_out
-                name: T Esterna (°C)
+                name: T Esterna
               - entity: sensor.ur_in_media
-                name: UR interna (%)
+                name: UR interna
               - entity: sensor.ur_in_bagno
-                name: UR Bagno (%)
+                name: UR Bagno
               - entity: sensor.ur_out
-                name: UR esterna (%)
+                name: UR esterna
               - entity: sensor.ah_in
-                name: AH interna (g/m³)
+                name: AH interna
               - entity: sensor.ah_out
-                name: AH esterna (g/m³)
+                name: AH esterna
 
-          # --- Trend 24h: Temperature ---
+      - type: grid
+        title: "Grafici 24h"
+        cards:
           - type: history-graph
-            title: "Trend 24h — Temperature"
+            title: "Temperature"
             hours_to_show: 24
-            refresh_interval: 0
             entities:
               - sensor.t_in_giorno
               - sensor.t_in_notte1
               - sensor.t_in_bagno
               - sensor.t_out
 
-          # --- Trend 24h: Umidità ---
           - type: history-graph
-            title: "Trend 24h — Umidità relativa"
+            title: "Umidità relativa"
             hours_to_show: 24
             entities:
               - sensor.ur_in_media
               - sensor.ur_in_bagno
               - sensor.ur_out
 
-          # --- Trend 24h: Umidità assoluta ---
           - type: history-graph
-            title: "Trend 24h — Umidità assoluta (AH)"
-            hours_to_show: 24
-            entities:
-              - sensor.ah_in
-              - sensor.ah_out
-
-          # --- Trend 24h: Logiche VMC ---
-          - type: history-graph
-            title: "Trend 24h — Logiche VMC"
+            title: "Logiche VMC"
             hours_to_show: 24
             entities:
               - binary_sensor.vmc_bagno_boost
@@ -173,62 +153,39 @@ views:
               - binary_sensor.vmc_anti_secco
               - sensor.vmc_vel_target
 
-          # --- Trend 24h: AC / Heating ---
           - type: history-graph
-            title: "Trend 24h — AC & Heating"
+            title: "AC e Heating"
             hours_to_show: 24
             entities:
-              - binary_sensor.ac_need_dry
-              - binary_sensor.ac_need_cool
-              - binary_sensor.ac_should_run
-              - binary_sensor.heating_should_run
+              - switch.ac_giorno
+              - switch.ac_notte
+              - switch.4_ch_interrutore_3
 
-      # =============================================================
-      #  COLONNA 3 — SOGLIE, LOCK & DIAGNOSTICA
-      # =============================================================
       - type: grid
+        title: "Debug"
         cards:
-          # --- Soglie regolabilli (input_number) ---
           - type: entities
-            title: "Soglie & Target (regolabili)"
+            title: "Soglie principali"
             entities:
-              # Vent naturale (da 1_vent.txt)
               - entity: input_number.vent_deltat_min
-                name: ΔT_min (°C) — Vent
+                name: ΔT Vent
               - entity: input_number.vent_deltaah_min
-                name: ΔAH_min (g/m³) — Vent
+                name: ΔAH Vent
               - entity: input_number.vent_vento_max
-                name: Vento max (m/s) — Vent
-              # VMC (free-cooling PH / macchina)
+                name: Vento max
               - entity: input_number.vmc_fc_ph_tin_on
-                name: FC — T_in ON (°C)
+                name: FC — T_in ON
               - entity: input_number.vmc_fc_macchina_tout_min
-                name: FC — T_out > (°C)
-              # AC (dry/cool)
-              - entity: input_number.ac_ur_high
-                name: AC — UR alta (%)
-              - entity: input_number.ac_ur_target
-                name: AC — UR target (%)
-              - entity: input_number.ac_t_cool_on
-                name: AC — T COOL ON (°C)
-              # Heating
+                name: FC — T_out >
+              - entity: input_number.ac_cool_setpoint
+                name: Setpoint COOL
+              - entity: input_number.ac_dry_ur_on
+                name: UR ON DRY
               - entity: input_number.temp_target_risc
-                name: Heating — Target (°C)
+                name: Heating target
 
-          # --- Lock / anti-cicli / timer ---
-          - type: entities
-            title: "Lock & Timer"
-            entities:
-              - entity: timer.vmc_manual_timeout
-                name: VMC timeout manuale
-              - entity: timer.ac_manual_timeout
-                name: AC timeout manuale
-              - entity: timer.heating_manual_timeout
-                name: Heating timeout manuale
-
-          # --- Diagnostica: sensori UNKNOWN / UNAVAILABLE ---
           - type: entity-filter
-            title: "Diagnostica — Sensori non disponibili (unknown/unavailable)"
+            title: "Sensori non disponibili"
             show_empty: false
             state_filter:
               - "unknown"
@@ -236,7 +193,6 @@ views:
             card:
               type: entities
             entities:
-              # Microclima base
               - sensor.t_in_giorno
               - sensor.t_in_notte1
               - sensor.t_in_bagno
@@ -246,41 +202,10 @@ views:
               - sensor.ur_out
               - sensor.ah_in
               - sensor.ah_out
-              # Logiche/Flag chiave
               - binary_sensor.vmc_failsafe_sensors_bad
               - binary_sensor.vmc_bagno_boost
               - binary_sensor.vmc_free_cooling_ph
               - binary_sensor.vmc_free_cooling_machine
               - binary_sensor.vmc_anti_secco
-              - binary_sensor.ac_need_dry
-              - binary_sensor.ac_need_cool
-              - binary_sensor.heating_should_run
-
-          # --- Card Markdown: "Come decide" (riassunto umano integrato) ---
-          - type: markdown
-            title: "Come decide (sintesi umana)"
-            content: |
-              **Arbitraggio globale** (top-down):
-              1) **P0 Failsafe** → VMC vel_0; 2) **Override AC notte = DRY** → VMC vel_0; 3) **Bagno/Boost** → vel_3; 4) **Free-cooling** → vel_2; 5) **Anti-secco invernale** → vel_0 con duty; 6) **Baseline** → vel_1.
-
-              **Ventilazione naturale (estate)** — *Apri* se **T_out < T_in − ΔT_min** e **AH_out < AH_in − ΔAH_min**, senza pioggia/vento forte/aria scadente; *Chiudi* negli altri casi (preferibile night‑flush 21:00–08:00).
-
-              **VMC** — Due filtri free‑cooling: *Passivhaus* (T_in>24, T_out<T_in, AH_out<AH_in) con lock 15'; e *Macchina* (T_in>24, 20<T_out<T_in) con lock 15'. Bagno/Boost parte a UR≥75% o ΔUR≥10%, chiude a UR≤65%+ΔUR≤5%.
-
-              **AC** — Target estate ≈ **26°C** e **UR<60%**. *DRY ON* se UR≥75% e T_in<27°C; *COOL ON* se T≥27°C (o T≥26°C con UR≥65%). Anti‑ciclo: min ON 30', min OFF 30', max run 90'. Notte 23–7: forzato OFF (previsto hook VMC).
-
-              **Riscaldamento a pavimento** — Comfort base **21°C** (regolabile). Finestra ottimale **10:00–16:00** (PV). Accende solo se almeno una stanza < target − 0,5°C, in fascia utile e con T esterna tale da comportare dispersione significativa.
-
-          # --- Collegamenti rapidi alle plance di modulo (se presenti) ---
-          - type: markdown
-            title: "Apri plance di modulo"
-            content: |
-              - **Vent**: vai a */lovelace/1_vent-plancia*
-              - **VMC**: vai a */lovelace/2_vmc-plancia*
-              - **Heating**: vai a */lovelace/3_heating-plancia*
-              - **AC**: vai a */lovelace/4_ac-plancia*
-
-# NOTE:
-# - I nomi delle entità sono allineati alle convenzioni usate nei file .txt di logica e nelle tue plance.
-# - Se qualche entità non esiste ancora, comparirà nella card di Diagnostica (unknown/unavailable) così da rinominarla o crearla.
-# - Le timer.* sono indicative: se non usi timer per i lock, puoi rimuovere la card o mapparle a binary_sensor.* lock.
+              - binary_sensor.ac_block_by_vmc
+              - binary_sensor.heating_window_comfort

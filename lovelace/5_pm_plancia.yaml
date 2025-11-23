@@ -1,29 +1,25 @@
-title: "5 consumi — Core Sections"
+title: "5 Consumi"
 views:
-  - title: "Consumi — Analyst (Core)"
+  - title: "Consumi — Core"
     path: consumi-analyst
     icon: mdi:lightning-bolt
     type: sections
     max_columns: 3
-    sections:
 
-      # ==================== 0) STATO & CHIP (in alto) ======================
+    sections:
       - type: grid
-        title: "Stato & comandi rapidi"
+        title: "Stato generale"
         cards:
           - type: glance
-            show_state: true
             columns: 3
             entities:
               - entity: binary_sensor.lavatrice_in_ciclo
                 name: Lavatrice in ciclo
-                icon: mdi:washing-machine
               - entity: binary_sensor.asciugatrice_in_ciclo
                 name: Asciugatrice in ciclo
-                icon: mdi:tumble-dryer
               - entity: binary_sensor.pm1_in_ciclo
                 name: Romeo in ciclo
-                icon: mdi:power-plug
+
           - type: grid
             columns: 3
             square: false
@@ -31,22 +27,18 @@ views:
               - type: tile
                 entity: sensor.pm2_mss310_power_w_main_channel
                 name: Lavatrice — W
-                icon: mdi:washing-machine
                 state_color: true
               - type: tile
                 entity: sensor.pm3_mss310_power_w_main_channel
                 name: Asciugatrice — W
-                icon: mdi:tumble-dryer
                 state_color: true
               - type: tile
                 entity: sensor.pm1_mss310_power_w_main_channel
                 name: Romeo — W
-                icon: mdi:power-plug
                 state_color: true
 
-      # ==================== 1) KPI OGGI =====================================
       - type: grid
-        title: "KPI oggi"
+        title: "KPI giornalieri"
         cards:
           - type: grid
             columns: 3
@@ -55,25 +47,36 @@ views:
               - type: tile
                 entity: sensor.pm2_energy_daily
                 name: Lavatrice — kWh
-                icon: mdi:washing-machine
-                state_color: true
               - type: tile
                 entity: sensor.pm3_energy_daily
                 name: Asciugatrice — kWh
-                icon: mdi:tumble-dryer
-                state_color: true
               - type: tile
                 entity: sensor.pm1_energy_daily
                 name: Romeo — kWh
-                icon: mdi:power-plug
-                state_color: true
 
-      # ==================== 2) CONSUMI OGGI PER ORA =========================
       - type: grid
-        title: "Consumi di oggi — per ora"
+        title: "Setpoint e soglie"
+        cards:
+          - type: entities
+            show_header_toggle: false
+            entities:
+              - input_number.pm2_on_w
+              - input_number.pm2_off_w
+              - input_number.pm2_min_run_min
+              - type: divider
+              - input_number.pm3_on_w
+              - input_number.pm3_off_w
+              - input_number.pm3_min_run_min
+              - type: divider
+              - input_number.pm1_on_w
+              - input_number.pm1_off_w
+              - input_number.pm1_min_run_min
+
+      - type: grid
+        title: "Grafici 24h / 30gg"
         cards:
           - type: statistics-graph
-            title: kWh per ora (oggi)
+            title: "kWh per ora (oggi)"
             chart_type: bar
             period: hour
             days_to_show: 1
@@ -87,12 +90,8 @@ views:
               - entity: sensor.pm1_mss310_energy_kwh_main_channel
                 name: Romeo
 
-      # ==================== 3) POTENZA 24H ==================================
-      - type: grid
-        title: "Potenza — ultime 24h"
-        cards:
           - type: history-graph
-            title: Potenza dispositivi — ultime 24h
+            title: "Potenza dispositivi (24h)"
             hours_to_show: 24
             entities:
               - entity: sensor.pm2_mss310_power_w_main_channel
@@ -102,12 +101,8 @@ views:
               - entity: sensor.pm1_mss310_power_w_main_channel
                 name: Romeo
 
-      # ==================== 4) CONSUMI GIORNALIERI 30GG =====================
-      - type: grid
-        title: "Consumi giornalieri — ultimi 30 giorni"
-        cards:
           - type: statistics-graph
-            title: kWh/giorno (30 gg)
+            title: "kWh/giorno (30 giorni)"
             chart_type: bar
             period: day
             days_to_show: 30
@@ -121,30 +116,8 @@ views:
               - entity: sensor.pm1_mss310_energy_kwh_main_channel
                 name: Romeo
 
-      # ==================== 5) MEDIE & PICCHI ===============================
       - type: grid
-        title: "Medie & picchi (ultime 24h)"
-        cards:
-          - type: entities
-            entities:
-              - entity: sensor.pm2_power_mean_15m
-                name: Lavatrice — potenza media 15m
-              - entity: sensor.pm2_power_max_24h
-                name: Lavatrice — picco 24h
-              - type: divider
-              - entity: sensor.pm3_power_mean_15m
-                name: Asciugatrice — potenza media 15m
-              - entity: sensor.pm3_power_max_24h
-                name: Asciugatrice — picco 24h
-              - type: divider
-              - entity: sensor.pm1_power_mean_15m
-                name: Romeo — potenza media 15m
-              - entity: sensor.pm1_power_max_24h
-                name: Romeo — picco 24h
-
-      # ==================== 6) KPI ULTIMO CICLO =============================
-      - type: grid
-        title: "KPI ultimo ciclo"
+        title: "Runtime e cicli"
         cards:
           - type: entities
             entities:
@@ -168,13 +141,7 @@ views:
                 name: Romeo — ultimo start
               - entity: input_datetime.pm1_last_stop
                 name: Romeo — ultimo stop
-
-      # ==================== 7) CONTEGGIO CICLI ==============================
-      - type: grid
-        title: "Conteggio cicli"
-        cards:
-          - type: entities
-            entities:
+              - type: divider
               - entity: input_number.pm2_cycles
                 name: Lavatrice — conteggio
               - entity: input_number.pm3_cycles
@@ -182,43 +149,26 @@ views:
               - entity: input_number.pm1_cycles
                 name: Romeo — conteggio
 
-      # ==================== 8) RILEVAMENTO — SOGLIE =========================
       - type: grid
-        title: "Rilevamento — soglie"
+        title: "Debug"
         cards:
           - type: entities
             entities:
-              - input_number.pm2_on_w
-              - input_number.pm2_off_w
-              - input_number.pm2_min_run_min
+              - entity: sensor.pm2_power_mean_15m
+                name: Lavatrice — potenza media 15m
+              - entity: sensor.pm2_power_max_24h
+                name: Lavatrice — picco 24h
               - type: divider
-              - input_number.pm3_on_w
-              - input_number.pm3_off_w
-              - input_number.pm3_min_run_min
+              - entity: sensor.pm3_power_mean_15m
+                name: Asciugatrice — potenza media 15m
+              - entity: sensor.pm3_power_max_24h
+                name: Asciugatrice — picco 24h
               - type: divider
-              - input_number.pm1_on_w
-              - input_number.pm1_off_w
-              - input_number.pm1_min_run_min
-
-      # ==================== 9) COME DECIDE (spiegazione) ====================
-      - type: grid
-        title: "Come decide — criteri di rilevamento"
-        cards:
-          - type: markdown
-            content: |
-              **Logica monitoraggio consumi (core):**  
-              • *Ingresso ciclo (ON)* quando la potenza supera `soglia ON (W)` per almeno `min_run_min` minuti.  
-              • *Uscita ciclo (OFF)* quando la potenza scende sotto `soglia OFF (W)` con isteresi temporale.  
-              • KPI odierni derivano dagli **utility_meter** `*_energy_daily`.  
-              • Grafici: potenza 24h per diagnostica rapida; kWh/ora di oggi per profilazione; 30 giorni per stagionalità.  
-              • Le soglie sono regolabili nella sezione **Rilevamento — soglie**.  
-
-      # ==================== 10) DEBUG & DIAGNOSTICA =========================
-      - type: grid
-        title: "Debug & Diagnostica"
-        cards:
-          - type: entities
-            entities:
+              - entity: sensor.pm1_power_mean_15m
+                name: Romeo — potenza media 15m
+              - entity: sensor.pm1_power_max_24h
+                name: Romeo — picco 24h
+              - type: divider
               - entity: sensor.pm2_mss310_power_w_main_channel
                 name: Lavatrice — Power (W)
               - entity: sensor.pm2_mss310_energy_kwh_main_channel
@@ -233,13 +183,3 @@ views:
                 name: Romeo — Power (W)
               - entity: sensor.pm1_mss310_energy_kwh_main_channel
                 name: Romeo — Energy (kWh)
-          - type: markdown
-            content: |
-              **Tip:** se una card segnala *entità non trovata*, verifica qui i nomi esatti e lo stato corrente. Le entità usate in questa plancia sono coerenti con `5_powermeter.yaml`:  
-              • `sensor.pm*_mss310_power_w_main_channel`  
-              • `sensor.pm*_mss310_energy_kwh_main_channel`  
-              • `sensor.pm*_power_mean_15m` / `sensor.pm*_power_max_24h`  
-              • `sensor.pm*_energy_daily` (utility_meter)  
-              • `input_number.pm*_on_w`, `pm*_off_w`, `pm*_min_run_min`, `pm*_last_cycle_kwh`  
-              • `input_datetime.pm*_last_start`, `pm*_last_stop`  
-              • `input_number.pm*_cycles`  
