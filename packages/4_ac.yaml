@@ -228,10 +228,10 @@ template:
         state: >
           {{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}
         attributes:
-          priority: "{{ this.attributes.priority if this.attributes.priority is defined else 'idle' }}"
-          reason: "{{ this.attributes.reason if this.attributes.reason is defined else '—' }}"
-          mode: "{{ this.attributes.mode if this.attributes.mode is defined else 'off' }}"
-          target: "{{ this.attributes.target if this.attributes.target is defined else 'none' }}"
+          priority: "{{ state_attr('sensor.ac_reason','priority') or 'idle' }}"
+          reason: "{{ state_attr('sensor.ac_reason','reason') or '—' }}"
+          mode: "{{ state_attr('sensor.ac_reason','mode') or 'off' }}"
+          target: "{{ state_attr('sensor.ac_reason','target') or 'none' }}"
 
   # Ultimi ON/OFF (trigger-based) Giorno/Notte
   - trigger:

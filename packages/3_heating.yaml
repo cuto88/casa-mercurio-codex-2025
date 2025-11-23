@@ -275,8 +275,8 @@ template:
             idle
           {% endif %}
         attributes:
-          reason: "{{ state_attr('sensor.heating_reason', 'reason') }}"
-          action: "{{ state_attr('sensor.heating_reason', 'action') }}"
+          reason: "{{ state_attr('sensor.heating_reason', 'reason') or '—' }}"
+          action: "{{ state_attr('sensor.heating_reason', 'action') or '—' }}"
 
       - name: "Heating Reason"
         unique_id: heating_reason
@@ -284,9 +284,9 @@ template:
         state: >-
           {{ state_attr('sensor.heating_reason', 'priority') if state_attr('sensor.heating_reason', 'priority') not in [none, ''] else 'idle' }}
         attributes:
-          priority: "{{ this.attributes.priority if this.attributes.priority is defined else 'idle' }}"
-          reason: "{{ this.attributes.reason if this.attributes.reason is defined else '—' }}"
-          action: "{{ this.attributes.action if this.attributes.action is defined else '—' }}"
+          priority: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
+          reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
+          action: "{{ state_attr('sensor.heating_reason','action') or '—' }}"
 
       - name: "Heating — errore zona giorno"
         unique_id: heating_error_zona_giorno
@@ -545,14 +545,14 @@ automation:
     actions:
       - variables:
           t_min: >-
-            {% set raw = states('sensor.heating_t_interna_minima') %}
-            {{ raw|float(default=none) if raw not in ['unknown','unavailable',''] else none }}
-          comfort: {{ states('input_number.temp_target_risc')|float(21) }}
-          tol: {{ states('input_number.heating_tolerance')|float(0.5) }}
-          night_sp: {{ states('input_number.heating_setpoint_night')|float(19) }}
-          anti_frost: {{ states('input_number.heating_antifreeze_threshold')|float(10) }}
-          boost_delta: {{ states('input_number.heating_boost_delta')|float(0.3) }}
-          stagione_calda: {{ is_state('binary_sensor.stagione_calda','on') }}
+            {% set raw = states('sensor.heating_t_in_min') %}
+            {{ raw|float(0) if raw not in ['unknown','unavailable','', none] else 0 }}
+          comfort: "{{ states('input_number.temp_target_risc')|float(21) }}"
+          tol: "{{ states('input_number.heating_tolerance')|float(0.5) }}"
+          night_sp: "{{ states('input_number.heating_setpoint_night')|float(19) }}"
+          anti_frost: "{{ states('input_number.heating_antifreeze_threshold')|float(10) }}"
+          boost_delta: "{{ states('input_number.heating_boost_delta')|float(0.3) }}"
+          stagione_calda: "{{ is_state('binary_sensor.stagione_calda','on') }}"
       - choose:
           - conditions:
               - condition: state
