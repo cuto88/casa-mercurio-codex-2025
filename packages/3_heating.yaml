@@ -151,7 +151,6 @@ template:
       # Elenco delle stanze attive (solo quelle abilitate)
       - name: "Heating — stanze attive"
         unique_id: heating_rooms_active
-        object_id: heating_stanze_attive
         availability: "true"
         state: >-
           {% set rooms = [
@@ -171,7 +170,6 @@ template:
       # Temperatura interna minima fra le stanze attive
       - name: "Heating — T interna minima"
         unique_id: heating_t_in_min
-        object_id: heating_t_interna_minima
         unit_of_measurement: "°C"
         device_class: temperature
         availability: >-
@@ -208,7 +206,6 @@ template:
       # Numero stanze conteggiate e quante sono sotto-target
       - name: "Heating — stanze sotto target"
         unique_id: heating_rooms_below_target
-        object_id: heating_rooms_below_target
         unit_of_measurement: "stanze"
         availability: >-
           {{ states('input_number.temp_target_risc') not in ['unknown', 'unavailable', '']
@@ -252,7 +249,6 @@ template:
       # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
       - name: "Heating — minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
-        object_id: heating_minuti_da_ultimo_cambio
         unit_of_measurement: "min"
         state_class: measurement
         state: >-
