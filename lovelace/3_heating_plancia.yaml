@@ -1,131 +1,131 @@
----
-title: "Riscaldamento"
-path: heating
-icon: mdi:radiator
-type: panel
-cards:
-  - type: vertical-stack
+views:
+  - title: "Riscaldamento"
+    path: heating
+    icon: mdi:radiator
+    type: panel
     cards:
+      - type: vertical-stack
+        cards:
 
-      # ===========================
-      # BLOCCO 1 — STATO GENERALE
-      # ===========================
-      - type: entities
-        title: "HEATING — Stato generale"
-        show_header_toggle: false
-        entities:
-          - entity: input_boolean.heating_enable
-            name: "Logica riscaldamento attiva"
-          - entity: switch.4_ch_interrutore_3
-            name: "Pompa riscaldamento"
-          - entity: sensor.heating_priority
-            name: "Priorità attuale"
-          - entity: sensor.heating_reason
-            name: "Motivo / azione"
+          # ===========================
+          # BLOCCO 1 — STATO GENERALE
+          # ===========================
+          - type: entities
+            title: "HEATING — Stato generale"
+            show_header_toggle: false
+            entities:
+              - entity: input_boolean.heating_enable
+                name: "Logica riscaldamento attiva"
+              - entity: switch.4_ch_interrutore_3
+                name: "Pompa riscaldamento"
+              - entity: sensor.heating_priority
+                name: "Priorità attuale"
+              - entity: sensor.heating_reason
+                name: "Motivo / azione"
 
-      # ===========================
-      # BLOCCO 2 — SETPOINT & MODALITÀ
-      # ===========================
-      - type: entities
-        title: "Setpoint & modalità"
-        show_header_toggle: false
-        entities:
-          - entity: input_number.temp_target_risc
-            name: "Setpoint comfort (°C)"
-          - entity: input_number.heating_setpoint_night
-            name: "Setpoint notte (°C)"
-          - entity: input_number.heating_antifreeze_threshold
-            name: "Soglia antigelo (°C)"
-          - entity: input_number.heating_boost_delta
-            name: "Delta boost FV (°C)"
-          - entity: input_boolean.heating_manual
-            name: "Manuale attivo"
-          - entity: input_select.heating_manual_mode
-            name: "Modalità manuale"
+          # ===========================
+          # BLOCCO 2 — SETPOINT & MODALITÀ
+          # ===========================
+          - type: entities
+            title: "Setpoint & modalità"
+            show_header_toggle: false
+            entities:
+              - entity: input_number.temp_target_risc
+                name: "Setpoint comfort (°C)"
+              - entity: input_number.heating_setpoint_night
+                name: "Setpoint notte (°C)"
+              - entity: input_number.heating_antifreeze_threshold
+                name: "Soglia antigelo (°C)"
+              - entity: input_number.heating_boost_delta
+                name: "Delta boost FV (°C)"
+              - entity: input_boolean.heating_manual
+                name: "Manuale attivo"
+              - entity: input_select.heating_manual_mode
+                name: "Modalità manuale"
 
-      # ===========================
-      # BLOCCO 3 — ZONE & ERRORI
-      # ===========================
-      - type: entities
-        title: "Zone & errori"
-        show_header_toggle: false
-        entities:
-          - entity: sensor.heating_error_zona_giorno
-            name: "Errore zona giorno (setp - T) °C"
-          - entity: sensor.heating_error_zona_notte
-            name: "Errore zona notte (setp - T) °C"
-          - entity: sensor.heating_rooms_below_target
-            name: "Stanze sotto target"
-          - entity: sensor.heating_rooms_active
-            name: "Stanze conteggiate"
-          - entity: binary_sensor.heating_window_comfort
-            name: "Finestra comfort ON"
-          - entity: binary_sensor.heating_window_pv
-            name: "Finestra FV (10–16)"
-          - entity: binary_sensor.heating_window_night
-            name: "Finestra notte"
-          - entity: binary_sensor.heating_failsafe_sensors_bad
-            name: "Failsafe sensori"
+          # ===========================
+          # BLOCCO 3 — ZONE & ERRORI
+          # ===========================
+          - type: entities
+            title: "Zone & errori"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.heating_error_zona_giorno
+                name: "Errore zona giorno (setp - T) °C"
+              - entity: sensor.heating_error_zona_notte
+                name: "Errore zona notte (setp - T) °C"
+              - entity: sensor.heating_rooms_below_target
+                name: "Stanze sotto target"
+              - entity: sensor.heating_rooms_active
+                name: "Stanze conteggiate"
+              - entity: binary_sensor.heating_window_comfort
+                name: "Finestra comfort ON"
+              - entity: binary_sensor.heating_window_pv
+                name: "Finestra FV (10–16)"
+              - entity: binary_sensor.heating_window_night
+                name: "Finestra notte"
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: "Failsafe sensori"
 
-      # ===========================
-      # BLOCCO 4 — TEMPERATURE
-      # ===========================
-      - type: history-graph
-        title: "Temperature ultime 24h"
-        hours_to_show: 24
-        refresh_interval: 60
-        entities:
-          - entity: sensor.t_in_giorno
-            name: "Zona giorno"
-          - entity: sensor.t_in_notte1
-            name: "Zona notte 1"
-          - entity: sensor.t_in_notte2
-            name: "Zona notte 2"
-          - entity: sensor.t_in_bagno
-            name: "Bagno"
-          - entity: sensor.t_out
-            name: "Esterna"
+          # ===========================
+          # BLOCCO 4 — TEMPERATURE
+          # ===========================
+          - type: history-graph
+            title: "Temperature ultime 24h"
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - entity: sensor.t_in_giorno
+                name: "Zona giorno"
+              - entity: sensor.t_in_notte1
+                name: "Zona notte 1"
+              - entity: sensor.t_in_notte2
+                name: "Zona notte 2"
+              - entity: sensor.t_in_bagno
+                name: "Bagno"
+              - entity: sensor.t_out
+                name: "Esterna"
 
-      # ===========================
-      # BLOCCO 5 — ORE ON / GIORNO
-      # ===========================
-      - type: entities
-        title: "Runtime — ore ON"
-        show_header_toggle: false
-        entities:
-          - entity: sensor.heating_hours_on_today
-            name: "Ore ON oggi (storico)"
-          - entity: sensor.heating_hours_on_yesterday
-            name: "Ore ON ieri (storico)"
-          - entity: input_number.heating_hours_on_daily
-            name: "Ore ON ieri (snapshot)"
+          # ===========================
+          # BLOCCO 5 — ORE ON / GIORNO
+          # ===========================
+          - type: entities
+            title: "Runtime — ore ON"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.heating_hours_on_today
+                name: "Ore ON oggi (storico)"
+              - entity: sensor.heating_hours_on_yesterday
+                name: "Ore ON ieri (storico)"
+              - entity: input_number.heating_hours_on_daily
+                name: "Ore ON ieri (snapshot)"
 
-      # ===========================
-      # BLOCCO 6 — DEBUG LOGICA
-      # ===========================
-      - type: entities
-        title: "DEBUG — Logica controller"
-        show_header_toggle: false
-        entities:
-          - entity: sensor.heating_t_in_min
-            name: "T interna minima (°C)"
-          - entity: sensor.heating_minuti_da_ultimo_cambio
-            name: "Minuti da ultimo cambio ON/OFF"
-          - entity: binary_sensor.surplus_ok
-            name: "Surplus FV OK"
-          - entity: binary_sensor.heating_window_comfort
-            name: "Finestra comfort"
-          - entity: binary_sensor.heating_window_pv
-            name: "Finestra FV"
-          - entity: binary_sensor.heating_window_night
-            name: "Finestra notte"
-          - entity: binary_sensor.heating_failsafe_sensors_bad
-            name: "Failsafe sensori"
-          - entity: input_boolean.heating_use_giorno
-            name: "Usa zona giorno"
-          - entity: input_boolean.heating_use_notte1
-            name: "Usa zona notte 1"
-          - entity: input_boolean.heating_use_notte2
-            name: "Usa zona notte 2"
-          - entity: input_boolean.heating_use_bagno
-            name: "Usa bagno"
+          # ===========================
+          # BLOCCO 6 — DEBUG LOGICA
+          # ===========================
+          - type: entities
+            title: "DEBUG — Logica controller"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.heating_t_in_min
+                name: "T interna minima (°C)"
+              - entity: sensor.heating_minuti_da_ultimo_cambio
+                name: "Minuti da ultimo cambio ON/OFF"
+              - entity: binary_sensor.surplus_ok
+                name: "Surplus FV OK"
+              - entity: binary_sensor.heating_window_comfort
+                name: "Finestra comfort"
+              - entity: binary_sensor.heating_window_pv
+                name: "Finestra FV"
+              - entity: binary_sensor.heating_window_night
+                name: "Finestra notte"
+              - entity: binary_sensor.heating_failsafe_sensors_bad
+                name: "Failsafe sensori"
+              - entity: input_boolean.heating_use_giorno
+                name: "Usa zona giorno"
+              - entity: input_boolean.heating_use_notte1
+                name: "Usa zona notte 1"
+              - entity: input_boolean.heating_use_notte2
+                name: "Usa zona notte 2"
+              - entity: input_boolean.heating_use_bagno
+                name: "Usa bagno"
