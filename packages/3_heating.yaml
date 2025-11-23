@@ -207,9 +207,7 @@ template:
       - name: "Heating — stanze sotto target"
         unique_id: heating_rooms_below_target
         unit_of_measurement: "stanze"
-        availability: >-
-          {{ states('input_number.temp_target_risc') not in ['unknown', 'unavailable', '']
-             and states('input_number.heating_tolerance') not in ['unknown', 'unavailable', ''] }}
+        availability: "{{ states('input_number.temp_target_risc') not in ['unknown', 'unavailable', ''] and states('input_number.heating_tolerance') not in ['unknown', 'unavailable', ''] }}"
         state: >-
           {% set rooms = [
             ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
