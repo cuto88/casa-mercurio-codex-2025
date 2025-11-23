@@ -214,9 +214,7 @@ template:
       - name: "AC Priority"
         unique_id: ac_priority
         icon: mdi:arrow-top-right-bold-outline
-        state: >
-          {% set attr = state_attr('sensor.ac_reason','priority') %}
-          {% if attr not in [none, ''] %}{{ attr }}{% else %}idle{% endif %}
+        state: "{{ (state_attr('sensor.ac_reason','priority')) if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
         attributes:
           reason: "{{ state_attr('sensor.ac_reason','reason') }}"
           mode: "{{ state_attr('sensor.ac_reason','mode') }}"
@@ -225,8 +223,7 @@ template:
       - name: "AC Reason"
         unique_id: ac_reason
         icon: mdi:text
-        state: >
-          {{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}
+        state: "{{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
         attributes:
           priority: "{{ state_attr('sensor.ac_reason','priority') or 'idle' }}"
           reason: "{{ state_attr('sensor.ac_reason','reason') or '—' }}"
