@@ -553,12 +553,14 @@ automation:
           stagione_calda: "{{ is_state('binary_sensor.stagione_calda','on') }}"
 
       - choose:
+          # P0: failsafe → esci
           - conditions:
               - condition: state
                 entity_id: binary_sensor.heating_failsafe_sensors_bad
                 state: "on"
             sequence: []
 
+          # Manuale attivo → esci
           - conditions:
               - condition: or
                 conditions:
@@ -570,9 +572,10 @@ automation:
                     state: "on"
             sequence: []
 
+          # P1: antigelo
           - conditions:
               - condition: template
-                value_template: "{{ t_min < anti_frost }}"
+                value_template: "{{ t_min is not none and t_min < anti_frost }}"
             sequence:
               - service: switch.turn_on
                 target:
@@ -585,14 +588,16 @@ automation:
                     reason: "T interna {{ t_min }}°C < soglia antigelo"
                     action: "switch.on"
 
+          # P2: comfort base
           - conditions:
               - condition: template
                 value_template: >
                   {{
-                    is_state('input_boolean.heating_enable','on')
-                    and not stagione_calda
-                    and is_state('binary_sensor.heating_window_comfort','on')
-                    and t_min < (comfort - tol)
+                    is_state('input_boolean.heating_enable','on') and
+                    not stagione_calda and
+                    is_state('binary_sensor.heating_window_comfort','on') and
+                    t_min is not none and
+                    t_min < (comfort - tol)
                   }}
             sequence:
               - service: switch.turn_on
@@ -603,17 +608,19 @@ automation:
                   entity_id: sensor.heating_reason
                   attributes:
                     priority: P2_comfort
-                    reason: "Comfort: T_min {{ t_min }}°C < {{ comfort - tol }}°C"
+                    reason: "Comfort: T_min {{ t_min }}°C < target {{ comfort - tol }}°C"
                     action: "switch.on"
 
+          # P3: boost FV
           - conditions:
               - condition: template
                 value_template: >
                   {{
-                    is_state('input_boolean.heating_enable','on')
-                    and is_state('binary_sensor.heating_window_pv','on')
-                    and is_state('binary_sensor.surplus_ok','on')
-                    and t_min < (comfort - boost_delta)
+                    is_state('input_boolean.heating_enable','on') and
+                    is_state('binary_sensor.heating_window_pv','on') and
+                    is_state('binary_sensor.surplus_ok','on') and
+                    t_min is not none and
+                    t_min < (comfort - boost_delta)
                   }}
             sequence:
               - service: switch.turn_on
@@ -624,16 +631,18 @@ automation:
                   entity_id: sensor.heating_reason
                   attributes:
                     priority: P3_pv_boost
-                    reason: "Boost FV: T_min {{ t_min }}°C < {{ comfort - boost_delta }}°C"
+                    reason: "Surplus FV: T_min {{ t_min }}°C < target boost {{ comfort - boost_delta }}°C"
                     action: "switch.on"
 
+          # P4: night setback
           - conditions:
               - condition: template
                 value_template: >
                   {{
-                    is_state('input_boolean.heating_enable','on')
-                    and is_state('binary_sensor.heating_window_night','on')
-                    and t_min < (night_sp - tol)
+                    is_state('input_boolean.heating_enable','on') and
+                    is_state('binary_sensor.heating_window_night','on') and
+                    t_min is not none and
+                    t_min < (night_sp - tol)
                   }}
             sequence:
               - service: switch.turn_on
@@ -643,8 +652,8 @@ automation:
                 event_data:
                   entity_id: sensor.heating_reason
                   attributes:
-                    priority: P4_night
-                    reason: "Night setback: T_min {{ t_min }}°C < {{ night_sp - tol }}°C"
+                    priority: P4_night_setback
+                    reason: "Night: T_min {{ t_min }}°C < soglia notte {{ night_sp - tol }}°C"
                     action: "switch.on"
 
         default:
@@ -657,7 +666,6 @@ automation:
                   - service: switch.turn_off
                     target:
                       entity_id: switch.4_ch_interrutore_3
-
           - event: template_event
             event_data:
               entity_id: sensor.heating_reason
