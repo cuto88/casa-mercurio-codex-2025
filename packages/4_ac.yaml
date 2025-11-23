@@ -1,14 +1,22 @@
 ###############################################################################
 # 4_ac.yaml — Controllo Aria Condizionata (Passivhaus-Oriented)
-# Plancia AC: entità complete per evitare avvisi + logiche DRY/COOL
-# Sensori canonici utilizzati: sensor.t_in_giorno, sensor.t_in_notte1,
-#   sensor.t_out, sensor.ur_in_giorno, sensor.ur_in_notte1, sensor.ur_out
+# Controller unico AC con priorità, hook VMC e telemetria
 ###############################################################################
 
+# -----------------------------------------------------------------------------
+# PRIORITÀ AC (P0–P4)
+# -----------------------------------------------------------------------------
+# P0) Failsafe sensori → spegni AC.
+# P1) Block da VMC / anti-secco → AC vietata.
+# P2) DRY (deumidifica) → UR alta, T_in non troppo bassa.
+# P3) COOL (raffrescamento comfort) → T_in > setpoint, solo in stagione calda.
+# P4) Idle → tutto OFF.
+
 # ============================================================================
-# 1) HELPER INPUTS — soglie, blocchi, timer anti-ciclo
+# 1) HELPER INPUTS — soglie, timer, blocchi
 # ============================================================================
 input_number:
+  # Storici (legacy) mantenuti per compatibilità UI
   ac_ur_high:
     name: "AC — UR alta (DRY ON)"
     min: 40
@@ -81,179 +89,151 @@ input_number:
     icon: mdi:timer-sand-complete
     initial: 90
 
+  # Nuovi helper uniformati alla nuova architettura
+  ac_cool_setpoint:
+    name: "AC — setpoint COOL (°C)"
+    min: 22
+    max: 28
+    step: 0.5
+    unit_of_measurement: "°C"
+
+  ac_dry_ur_on:
+    name: "AC — UR ON (DRY) %"
+    min: 50
+    max: 80
+    step: 1
+    unit_of_measurement: "%"
+
+  ac_dry_ur_off:
+    name: "AC — UR OFF (DRY) %"
+    min: 40
+    max: 75
+    step: 1
+    unit_of_measurement: "%"
+
+  ac_min_on_minutes:
+    name: "AC — Min ON (min)"
+    min: 5
+    max: 120
+    step: 5
+    unit_of_measurement: "min"
+
+  ac_min_off_minutes:
+    name: "AC — Min OFF (min)"
+    min: 5
+    max: 120
+    step: 5
+    unit_of_measurement: "min"
+
+input_boolean:
+  ac_manual:
+    name: "AC — Manuale attivo"
+    icon: mdi:hand-back-right
+
+  ac_block_vmc:
+    name: "AC — Block da VMC"
+    icon: mdi:fan-off
+
+input_select:
+  ac_manual_mode:
+    name: "AC — Modalità manuale"
+    options: ["OFF", "DRY", "COOL"]
+    icon: mdi:tune-variant
+
+timer:
+  ac_manual_timeout:
+    name: "AC — Timeout manuale"
+    duration: "01:00:00"
+
+  ac_block_vmc_timeout:
+    name: "AC — Timeout block VMC"
+    duration: "00:30:00"
+
 # ============================================================================
-# 2) LOGICHE (binary_sensor + sensor) — need_cool / need_dry / fascia_ok / should_run
-#     + label modalità + blocchi VMC/Notte + timestamp ON/OFF
+# 2) TEMPLATE — failsafe, blocchi, telemetria e diagnostica
 # ============================================================================
 template:
   - binary_sensor:
-      # ---- Need COOL ----
-      - name: "ac_need_cool"
-        unique_id: ac_need_cool
-        state: >
-          {% set Tin_g = states('sensor.t_in_giorno')|float(0) %}
-          {% set Tin_n = states('sensor.t_in_notte1')|float(0) %}
-          {% set Tin   = [Tin_g, Tin_n]|max %}
-          {% set UR_g  = states('sensor.ur_in_giorno')|float(0) %}
-          {% set UR_n  = states('sensor.ur_in_notte1')|float(0) %}
-          {% set UR    = [UR_g, UR_n]|max %}
-          {% set t_on  = states('input_number.ac_t_cool_on')|float(27) %}
-          {{ Tin >= t_on or (Tin >= 26 and UR >= 65) }}
-
-      # ---- Need DRY ----
-      - name: "ac_need_dry"
-        unique_id: ac_need_dry
-        state: >
-          {% set Tin_g = states('sensor.t_in_giorno')|float(0) %}
-          {% set Tin_n = states('sensor.t_in_notte1')|float(0) %}
-          {% set Tin   = [Tin_g, Tin_n]|max %}
-          {% set UR_g  = states('sensor.ur_in_giorno')|float(0) %}
-          {% set UR_n  = states('sensor.ur_in_notte1')|float(0) %}
-          {% set UR    = [UR_g, UR_n]|max %}
-          {% set t_on  = states('input_number.ac_t_cool_on')|float(27) %}
-          {% set ur_hi = states('input_number.ac_ur_high')|float(70) %}
-          {{ Tin < t_on and UR >= ur_hi }}
-
-      # ---- Fascia OK (no notte 23→7) ----
-      - name: "ac_fascia_ok"
-        unique_id: ac_fascia_ok
-        state: >
-          {% set h = now().hour %}
-          {{ not (h >= 23 or h < 7) }}
-
-      # ---- Should Run (no vincoli anti-ciclo qui) ----
-      - name: "ac_should_run"
-        unique_id: ac_should_run
-        state: >
-          {{ (is_state('binary_sensor.ac_need_cool','on') or
-              is_state('binary_sensor.ac_need_dry','on')) and
-             is_state('binary_sensor.ac_fascia_ok','on') }}
-
-      # ---- Blocco VMC (fallback OFF se non presente un vero blocco) ----
-      - name: "ac_blocco_vmc"
-        unique_id: ac_blocco_vmc
-        state: >
-          {% set ph = states('binary_sensor.vmc_free_cooling_ph') %}
-          {% set machine = states('binary_sensor.vmc_free_cooling_machine') %}
-          {% set boost = states('binary_sensor.vmc_bagno_boost') %}
-          {% set known = [ph, machine, boost] | select('in', ['on','off']) | list %}
-          {% if known | length > 0 %}
-            {{ ph == 'on' or machine == 'on' or boost == 'on' }}
-          {% else %}
-            false
-          {% endif %}
-
-      # ---- Blocco Notte (23→7) per completezza ----
-      - name: "ac_blocco_notte"
-        unique_id: ac_blocco_notte
-        state: >
-          {% set h = now().hour %}
-          {{ h >= 23 or h < 7 }}
-
-      # ---- Diagnostica configurazione ----
-      - name: "AC - configurazione OK"
-        unique_id: ac_config_ok
+      - name: "AC — Failsafe sensori"
+        unique_id: ac_failsafe_sensors_bad
         device_class: problem
         state: >
-          {% set expected = [
-            'switch.ac_giorno','switch.ac_notte',
-            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-            'sensor.t_in_giorno','sensor.ur_in_giorno',
-            'sensor.t_in_notte1','sensor.ur_in_notte1',
-            'sensor.ac_mode_label',
-            'input_number.ac_ur_high','input_number.ac_ur_target',
-            'input_number.ac_t_cool_on','input_number.ac_t_target',
-            'input_number.ac_hyst_off','input_number.ac_min_on',
-            'input_number.ac_min_off','input_number.ac_max_run'
-          ] %}
-          {% set existing = states | map(attribute='entity_id') | list %}
-          {% set ns = namespace(missing=[]) %}
-          {% for entity_id in expected %}
-            {% if entity_id not in existing %}
-              {% set ns.missing = ns.missing + [entity_id] %}
+          {% set sensors = {
+            'sensor.t_in_media': (-20, 50),
+            'sensor.t_out': (-30, 60),
+            'sensor.ur_in_media': (0, 100),
+            'sensor.ur_out': (0, 100)
+          } %}
+          {% set ns = namespace(bad=false) %}
+          {% for sid, limits in sensors.items() %}
+            {% set entity = states.get(sid) %}
+            {% if entity is none or entity.state in ['unknown','unavailable',''] %}
+              {% set ns.bad = true %}
+            {% elif entity.state | float(limits[0]-1) < limits[0] or entity.state | float(limits[1]+1) > limits[1] %}
+              {% set ns.bad = true %}
             {% endif %}
           {% endfor %}
-          {{ ns.missing | length == 0 }}
-        attributes:
-          missing_count: >
-            {% set expected = [
-              'switch.ac_giorno','switch.ac_notte',
-              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-              'sensor.t_in_giorno','sensor.ur_in_giorno',
-              'sensor.t_in_notte1','sensor.ur_in_notte1',
-              'sensor.ac_mode_label',
-              'input_number.ac_ur_high','input_number.ac_ur_target',
-              'input_number.ac_t_cool_on','input_number.ac_t_target',
-              'input_number.ac_hyst_off','input_number.ac_min_on',
-              'input_number.ac_min_off','input_number.ac_max_run'
-            ] %}
-            {% set existing = states | map(attribute='entity_id') | list %}
-            {% set ns = namespace(count=0) %}
-            {% for entity_id in expected %}
-              {% if entity_id not in existing %}
-                {% set ns.count = ns.count + 1 %}
+          {{ ns.bad }}
+
+      - name: "AC — Block by VMC"
+        unique_id: ac_block_by_vmc
+        device_class: safety
+        state: "{{ is_state('input_boolean.ac_block_vmc','on') }}"
+
+      - name: "AC — Lock min ON OK"
+        unique_id: ac_lock_min_on_ok
+        state: >
+          {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
+          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+          {% for ent in entities %}
+            {% set s = states.get(ent) %}
+            {% if s is not none and s.state == 'on' %}
+              {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
+                {{ false }}
               {% endif %}
-            {% endfor %}
-            {{ ns.count }}
+            {% endif %}
+          {% endfor %}
+          true
+
+      - name: "AC — Lock min OFF OK"
+        unique_id: ac_lock_min_off_ok
+        state: >
+          {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
+          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+          {% for ent in entities %}
+            {% set s = states.get(ent) %}
+            {% if s is not none and s.state == 'off' %}
+              {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
+                {{ false }}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          true
 
   - sensor:
-      - name: "ac_mode_label"
-        unique_id: ac_mode_label
+      - name: "AC Priority"
+        unique_id: ac_priority
+        icon: mdi:arrow-top-right-bold-outline
         state: >
-          {% if is_state('binary_sensor.ac_need_cool','on') %} COOL
-          {% elif is_state('binary_sensor.ac_need_dry','on') %} DRY
-          {% else %} OFF {% endif %}
-
-      - name: "AC — entità mancanti"
-        unique_id: ac_missing_entities
-        icon: mdi:alert-decagram
-        state: >
-          {% set expected = [
-            'switch.ac_giorno','switch.ac_notte',
-            'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-            'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-            'sensor.t_in_giorno','sensor.ur_in_giorno',
-            'sensor.t_in_notte1','sensor.ur_in_notte1',
-            'sensor.ac_mode_label',
-            'input_number.ac_ur_high','input_number.ac_ur_target',
-            'input_number.ac_t_cool_on','input_number.ac_t_target',
-            'input_number.ac_hyst_off','input_number.ac_min_on',
-            'input_number.ac_min_off','input_number.ac_max_run'
-          ] %}
-          {% set existing = states | map(attribute='entity_id') | list %}
-          {% set ns = namespace(missing=[]) %}
-          {% for entity_id in expected %}
-            {% if entity_id not in existing %}
-              {% set ns.missing = ns.missing + [entity_id] %}
-            {% endif %}
-          {% endfor %}
-          {{ 'OK' if ns.missing | length == 0 else ns.missing | join(', ') }}
+          {% set attr = state_attr('sensor.ac_reason','priority') %}
+          {% if attr not in [none, ''] %}{{ attr }}{% else %}idle{% endif %}
         attributes:
-          missing_count: >
-            {% set expected = [
-              'switch.ac_giorno','switch.ac_notte',
-              'binary_sensor.ac_need_dry','binary_sensor.ac_need_cool',
-              'binary_sensor.ac_should_run','binary_sensor.ac_blocco_vmc',
-              'sensor.t_in_giorno','sensor.ur_in_giorno',
-              'sensor.t_in_notte1','sensor.ur_in_notte1',
-              'sensor.ac_mode_label',
-              'input_number.ac_ur_high','input_number.ac_ur_target',
-              'input_number.ac_t_cool_on','input_number.ac_t_target',
-              'input_number.ac_hyst_off','input_number.ac_min_on',
-              'input_number.ac_min_off','input_number.ac_max_run'
-            ] %}
-            {% set existing = states | map(attribute='entity_id') | list %}
-            {% set ns = namespace(missing=0) %}
-            {% for entity_id in expected %}
-              {% if entity_id not in existing %}
-                {% set ns.missing = ns.missing + 1 %}
-              {% endif %}
-            {% endfor %}
-            {{ ns.missing }}
+          reason: "{{ state_attr('sensor.ac_reason','reason') }}"
+          mode: "{{ state_attr('sensor.ac_reason','mode') }}"
+          target: "{{ state_attr('sensor.ac_reason','target') }}"
 
-  # ---- Ultimo ON/OFF (trigger-based) Giorno/Notte ----
+      - name: "AC Reason"
+        unique_id: ac_reason
+        icon: mdi:text
+        state: >
+          {{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}
+        attributes:
+          priority: "{{ this.attributes.priority if this.attributes.priority is defined else 'idle' }}"
+          reason: "{{ this.attributes.reason if this.attributes.reason is defined else '—' }}"
+          mode: "{{ this.attributes.mode if this.attributes.mode is defined else 'off' }}"
+          target: "{{ this.attributes.target if this.attributes.target is defined else 'none' }}"
+
+  # Ultimi ON/OFF (trigger-based) Giorno/Notte
   - trigger:
       - platform: state
         entity_id: switch.ac_giorno
@@ -295,59 +275,213 @@ template:
         state: "{{ now().isoformat() }}"
 
 # ============================================================================
-# 3) AUTOMAZIONI — controllo AC Giorno/Notte con sospensione in DRY VMC
+# 3) AUTOMAZIONI — hook VMC + controller unico priorità
 # ============================================================================
 automation:
-  - alias: "AC Giorno - controllo DRY/COOL"
-    id: ac_giorno_control
+  - id: ac_hook_block_from_vmc
+    alias: "AC — Hook: block da VMC"
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: hook_vmc_request_ac_block
+    action:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.ac_block_vmc
+      - service: timer.start
+        target:
+          entity_id: timer.ac_block_vmc_timeout
+
+  - id: ac_hook_block_timeout_clear
+    alias: "AC — Hook: clear block VMC dopo timeout"
+    mode: restart
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.ac_block_vmc_timeout
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.ac_block_vmc
+
+  - id: ac_controller_priority
+    alias: "AC — Controllo priorità P0–P4"
+    mode: restart
     trigger:
       - platform: time_pattern
-        minutes: "/1"
+        minutes: "/3"
       - platform: state
         entity_id:
-          - sensor.t_in_giorno
-          - sensor.ur_in_giorno
-          - binary_sensor.ac_need_cool
-          - binary_sensor.ac_need_dry
-    condition:
-      # 👉 sospendi qualsiasi azione se VMC è in DRY assistito
-      - condition: state
-        entity_id: binary_sensor.vmc_dry_active
-        state: "off"
-      - condition: state
-        entity_id: binary_sensor.ac_blocco_notte
-        state: "off"
+          - binary_sensor.ac_failsafe_sensors_bad
+          - binary_sensor.ac_block_by_vmc
+          - binary_sensor.stagione_calda
+          - binary_sensor.ac_lock_min_on_ok
+          - binary_sensor.ac_lock_min_off_ok
+          - sensor.t_in_media
+          - sensor.t_out
+          - sensor.ur_in_media
+          - sensor.ur_out
+          - switch.ac_giorno
+          - switch.ac_notte
+          - input_boolean.ac_manual
+          - input_select.ac_manual_mode
     action:
+      - variables:
+          Tin: "{{ states('sensor.t_in_media')|float(0) }}"
+          Tout: "{{ states('sensor.t_out')|float(0) }}"
+          URin: "{{ states('sensor.ur_in_media')|float(0) }}"
+          URout: "{{ states('sensor.ur_out')|float(0) }}"
+          set_cool: "{{ states('input_number.ac_cool_setpoint')|float(25) }}"
+          ur_on: "{{ states('input_number.ac_dry_ur_on')|float(65) }}"
+          ur_off: "{{ states('input_number.ac_dry_ur_off')|float(55) }}"
+          stagione_calda: "{{ is_state('binary_sensor.stagione_calda','on') }}"
+          manual_on: "{{ is_state('input_boolean.ac_manual','on') }}"
+          manual_mode: "{{ states('input_select.ac_manual_mode') }}"
+
       - choose:
+          # Manuale: non toccare nulla
+          - conditions:
+              - condition: template
+                value_template: "{{ manual_on and manual_mode != 'OFF' }}"
+            sequence:
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "manual"
+                    reason: "Controllo manuale attivo ({{ manual_mode }})"
+                    mode: "{{ manual_mode | lower }}"
+                    target: "manual"
+              - stop: "Manuale attivo"
+
+          # P0 - Failsafe sensori
           - conditions:
               - condition: state
-                entity_id: binary_sensor.ac_should_run
+                entity_id: binary_sensor.ac_failsafe_sensors_bad
+                state: "on"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.ac_giorno
+                    - switch.ac_notte
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "P0_failsafe"
+                    reason: "Sensori non validi"
+                    mode: "off"
+                    target: "none"
+              - stop: "Failsafe attivo"
+
+          # P1 - Block da VMC / anti-secco
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.ac_block_by_vmc
+                state: "on"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.ac_giorno
+                    - switch.ac_notte
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "P1_block_vmc"
+                    reason: "Blocco da VMC (anti-secco / richiesta impianto)"
+                    mode: "off"
+                    target: "none"
+              - stop: "Block VMC attivo"
+
+          # Lock min ON: lascia correre finché non scade il timer minimo
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ (is_state('switch.ac_giorno','on') or is_state('switch.ac_notte','on'))
+                     and not is_state('binary_sensor.ac_lock_min_on_ok','on') }}
+            sequence:
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "lock_min_on"
+                    reason: "Vincolo min ON in corso"
+                    mode: "hold"
+                    target: "hold"
+              - stop: "Min ON ancora attivo"
+
+          # P2 - DRY (umidità alta)
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ URin > ur_on and URout < URin and Tin > 20 }}
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.ac_notte
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_giorno
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "P2_dry"
+                    reason: "UR interna alta ({{ URin }}%)"
+                    mode: "dry"
+                    target: "notte"
+              - event: hook_ac_request_vmc_low
+                event_data:
+                  source: "ac_controller"
+                  mode: "dry"
+              - stop: "DRY attivo"
+
+          # P3 - COOL (comfort) solo stagione calda
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ stagione_calda and Tin > (set_cool + 0.5) }}
+              - condition: state
+                entity_id: binary_sensor.ac_lock_min_off_ok
                 state: "on"
             sequence:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_giorno
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.ac_should_run
-                state: "off"
-            sequence:
               - service: switch.turn_off
                 target:
-                  entity_id: switch.ac_giorno
+                  entity_id: switch.ac_notte
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "P3_cool"
+                    reason: "Tin {{ Tin }}°C > set_cool {{ set_cool }}°C"
+                    mode: "cool"
+                    target: "giorno"
+              - event: hook_ac_request_vmc_low
+                event_data:
+                  source: "ac_controller"
+                  mode: "cool"
+              - stop: "COOL attivo"
 
-  - alias: "AC Notte - blocco forzato"
-    id: ac_notte_block
-    trigger:
-      - platform: time_pattern
-        minutes: "/10"
-    condition: []
-    action:
       - service: switch.turn_off
         target:
           entity_id:
-            - switch.ac_notte
             - switch.ac_giorno
+            - switch.ac_notte
+      - event: template_event
+        event_data:
+          entity_id: sensor.ac_reason
+          attributes:
+            priority: "idle"
+            reason: "Nessuna condizione AC attiva"
+            mode: "off"
+            target: "none"
 
 # ============================================================================
 # 4) CONTATORI RUN-TIME & CICLI (oggi) — separati per Giorno/Notte
@@ -392,25 +526,54 @@ sensor:
     end: "{{ now() }}"
 
 # ============================================================================
-# 5) (OPZIONALE) Modalità manuale — helper per sezione "Modalità manuale"
+# LEGACY AUTOMATIONS — disattivate a favore del controller unico
 # ============================================================================
-input_boolean:
-  ac_manual:
-    name: "AC — Manuale attivo"
-    icon: mdi:hand-back-right
+#  - alias: "AC Giorno - controllo DRY/COOL"
+#    id: ac_giorno_control
+#    trigger:
+#      - platform: time_pattern
+#        minutes: "/1"
+#      - platform: state
+#        entity_id:
+#          - sensor.t_in_giorno
+#          - sensor.ur_in_giorno
+#          - binary_sensor.ac_need_cool
+#          - binary_sensor.ac_need_dry
+#    condition:
+#      - condition: state
+#        entity_id: binary_sensor.vmc_dry_active
+#        state: "off"
+#      - condition: state
+#        entity_id: binary_sensor.ac_blocco_notte
+#        state: "off"
+#    action:
+#      - choose:
+#          - conditions:
+#              - condition: state
+#                entity_id: binary_sensor.ac_should_run
+#                state: "on"
+#            sequence:
+#              - service: switch.turn_on
+#                target:
+#                  entity_id: switch.ac_giorno
+#          - conditions:
+#              - condition: state
+#                entity_id: binary_sensor.ac_should_run
+#                state: "off"
+#            sequence:
+#              - service: switch.turn_off
+#                target:
+#                  entity_id: switch.ac_giorno
 
-input_select:
-  ac_manual_mode:
-    name: "AC — Modalità manuale"
-    options: ["OFF","DRY","COOL"]
-    icon: mdi:tune-variant
-
-timer:
-  ac_manual_timeout:
-    name: "AC — Timeout manuale"
-    duration: "01:00:00"
-
-# ============================================================================
-# 6) DIAGNOSTICA — sensori di verifica entità mancanti (stato + attributi)
-#     Definiti nel blocco template sovrastante.
-# ============================================================================
+#  - alias: "AC Notte - blocco forzato"
+#    id: ac_notte_block
+#    trigger:
+#      - platform: time_pattern
+#        minutes: "/10"
+#    condition: []
+#    action:
+#      - service: switch.turn_off
+#        target:
+#          entity_id:
+#            - switch.ac_notte
+#            - switch.ac_giorno
