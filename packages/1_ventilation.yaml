@@ -1,0 +1,1301 @@
+###############################################################################
+# 1_ventilation.yaml — VMC + Ventilazione naturale (Passivhaus-oriented)
+# - VMC: failsafe, boost, anti-secco, freecooling, hook con AC
+# - Consigli finestre: apri/chiudi in base a ΔT/ΔAH + meteo + stagione
+###############################################################################
+
+homeassistant:
+  customize: {}
+
+# =============================
+# 1) HELPER (input_boolean, input_number, input_select, timer)
+# =============================
+input_boolean:
+  vmc_manual:
+    name: Modalità manuale
+    icon: mdi:hand
+  vent_override_estate:
+    name: "Ventilazione — Forza stagione estiva"
+    icon: mdi:weather-sunny
+  vent_notifiche_attive:
+    name: "Ventilazione — Notifiche abilitate"
+    icon: mdi:bell-alert
+    initial: true
+  vent_finestra_giorno1_aperta:
+    name: "Ventilazione — Finestra zona giorno 1"
+    icon: mdi:window-open-variant
+  vent_finestra_giorno2_aperta:
+    name: "Ventilazione — Finestra zona giorno 2"
+    icon: mdi:window-open-variant
+  vent_portoncino_ingresso_aperto:
+    name: "Ventilazione — Portoncino ingresso"
+    icon: mdi:door-open
+  vent_foro_cappa_aperto:
+    name: "Ventilazione — Foro cappa"
+    icon: mdi:tailwind
+  vent_finestra_notte1_aperta:
+    name: "Ventilazione — Finestra zona notte 1"
+    icon: mdi:window-open-variant
+  vent_finestra_notte2_aperta:
+    name: "Ventilazione — Finestra zona notte 2"
+    icon: mdi:window-open-variant
+  vent_finestra_notte3_aperta:
+    name: "Ventilazione — Finestra zona notte 3"
+    icon: mdi:window-open-variant
+  vent_finestra_bagno_aperta:
+    name: "Ventilazione — Finestra bagno"
+    icon: mdi:window-open-variant
+
+input_select:
+  vmc_manual_speed:
+    name: Velocità manuale
+    options: [OFF, vel_0, vel_1, vel_2, vel_3]
+    icon: mdi:fan
+
+input_number:
+  vmc_bagno_on:
+    name: "Bagno — UR ON"
+    min: 40
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 75
+
+  vmc_bagno_off:
+    name: "Bagno — UR OFF"
+    min: 40
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 65
+
+  vmc_fc_ph_tin_on:
+    name: "FC (PH) — T_in ON"
+    min: 18
+    max: 28
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+    initial: 24
+
+  vmc_fc_macchina_tout_min:
+    name: "FC (Macchina) — T_out min"
+    min: 5
+    max: 25
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-low
+    initial: 20
+
+  vmc_freecooling_delta:
+    name: "FC — ΔT minimo"
+    min: 0.5
+    max: 5
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-down
+    initial: 2
+
+  vmc_freecooling_delta_ah:
+    name: "FC — ΔAH minimo"
+    min: 0.1
+    max: 5
+    step: 0.1
+    unit_of_measurement: "g/m³"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 2
+
+  vmc_anti_secco_ur_min:
+    name: "Anti-secco — UR_min"
+    min: 20
+    max: 60
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent-alert
+    initial: 40
+
+  vent_deltat_min:
+    name: "Ventilazione — ΔT minimo"
+    min: 0.5
+    max: 5
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer-chevron-down
+    initial: 1.5
+  vent_deltaah_min:
+    name: "Ventilazione — ΔAH minimo"
+    min: 0.1
+    max: 5
+    step: 0.1
+    unit_of_measurement: "g/m³"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 1.0
+  vent_vento_max:
+    name: "Ventilazione — Vento massimo"
+    min: 1
+    max: 20
+    step: 0.5
+    unit_of_measurement: "m/s"
+    mode: slider
+    icon: mdi:weather-windy
+    initial: 6.0
+  vent_pm25_max:
+    name: "Ventilazione — PM2.5 massimo"
+    min: 5
+    max: 100
+    step: 1
+    unit_of_measurement: "µg/m³"
+    mode: slider
+    icon: mdi:chemical-weapon
+    initial: 25
+  vent_backup_t_in:
+    name: "Ventilazione — Backup T interna"
+    min: 10
+    max: 35
+    step: 0.5
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:thermometer
+    initial: 26
+  vent_backup_ur_in:
+    name: "Ventilazione — Backup UR interna"
+    min: 20
+    max: 90
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+    icon: mdi:water-percent
+    initial: 55
+
+input_text:
+  vmc_last_event:
+    name: "VMC — Last Event"
+    max: 120
+    mode: text
+  vent_messaggio_consiglio:
+    name: "Ventilazione — Messaggio di consiglio"
+    max: 255
+    initial: "Sistema inizializzato: in attesa dati sensori."
+
+input_datetime:
+  vent_night_flush_start:
+    name: "Ventilazione — Night flush start"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-night
+    initial: "21:00"
+  vent_night_flush_end:
+    name: "Ventilazione — Night flush end"
+    has_date: false
+    has_time: true
+    icon: mdi:weather-sunset-up
+    initial: "08:00"
+  vent_last_change_giorno1:
+    name: "Ventilazione — Ultimo cambio zona giorno 1"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_giorno2:
+    name: "Ventilazione — Ultimo cambio zona giorno 2"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_portoncino:
+    name: "Ventilazione — Ultimo cambio portoncino"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_foro_cappa:
+    name: "Ventilazione — Ultimo cambio foro cappa"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte1:
+    name: "Ventilazione — Ultimo cambio zona notte 1"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte2:
+    name: "Ventilazione — Ultimo cambio zona notte 2"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_notte3:
+    name: "Ventilazione — Ultimo cambio zona notte 3"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+  vent_last_change_bagno:
+    name: "Ventilazione — Ultimo cambio bagno"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+
+# Timer
+timer:
+  vmc_manual_timeout:
+    name: Timeout modalità manuale
+    duration: "01:00:00"
+  vmc_anti_secco_lock:
+    name: "VMC lock anti-secco"
+    duration: "00:15:00"
+  vmc_boost_lock:
+    name: "VMC lock bagno boost"
+    duration: "00:12:00"
+  vmc_freecooling_max_run:
+    name: "VMC max-run free-cooling"
+    duration: "02:00:00"
+  vmc_freecooling_cooldown:
+    name: "VMC cooldown free-cooling"
+    duration: "00:20:00"
+
+
+# =============================
+# 2) METEO ESTERNO (Open-Meteo)
+# =============================
+rest:
+  # --- METEO BASE: T, UR, pioggia, vento -------------------------
+  - resource: "https://api.open-meteo.com/v1/forecast?latitude=45.611133&longitude=12.356051&hourly=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&forecast_days=1&windspeed_unit=ms&timezone=auto"
+    scan_interval: 900   # ogni 15 minuti
+    timeout: 30
+    sensor:
+      - name: "Vent Meteo Temp"
+        unique_id: vent_meteo_temp
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('temperature_2m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_temp') }}
+          {% endif %}
+
+      - name: "Vent Meteo RH"
+        unique_id: vent_meteo_rh
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('relative_humidity_2m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_rh') }}
+          {% endif %}
+
+      - name: "Vent Meteo Precip"
+        unique_id: vent_meteo_precip
+        unit_of_measurement: "mm"
+        state_class: measurement
+        icon: mdi:weather-rainy
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('precipitation', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_precip') }}
+          {% endif %}
+
+      - name: "Vent Meteo Vento"
+        unique_id: vent_meteo_vento
+        unit_of_measurement: "m/s"
+        state_class: measurement
+        icon: mdi:weather-windy
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set arr = root.get('hourly', {}).get('wind_speed_10m', []) %}
+          {% if arr | length > 0 %}
+            {{ arr[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_vento') }}
+          {% endif %}
+
+  # --- QUALITÀ ARIA: PM2.5 (endpoint dedicato) -------------------
+  - resource: "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=45.611133&longitude=12.356051&hourly=pm2_5&timezone=auto"
+    scan_interval: 1800  # ogni 30 minuti è sufficiente
+    timeout: 30
+    sensor:
+      - name: "Vent Meteo PM2.5"
+        unique_id: vent_meteo_pm25
+        unit_of_measurement: "µg/m³"
+        state_class: measurement
+        icon: mdi:blur
+        value_template: >-
+          {% set root = value_json if value_json is defined else {} %}
+          {% set data = root.get('hourly', {}).get('pm2_5', []) %}
+          {% if data | length > 0 %}
+            {{ data[0] }}
+          {% else %}
+            {{ states('sensor.vent_meteo_pm25') }}
+          {% endif %}
+
+# =============================
+# 2) TEMPLATE (sensor, binary_sensor) — KPI, reason, priority, consigli finestre
+# =============================
+template:
+  - binary_sensor:
+      - name: "VMC failsafe — sensori non ok"
+        unique_id: vmc_failsafe_sensors_bad
+        icon: mdi:alert-circle
+        state: >
+          {% set specs = {
+            'sensor.t_in_media': [-20, 50],
+            'sensor.t_out': [-20, 50],
+            'sensor.ur_in_media': [0, 100],
+            'sensor.ur_out': [0, 100],
+            'sensor.ah_in': [0, none],
+            'sensor.ah_out': [0, none],
+            'sensor.ur_in_bagno': [0, 100]
+          } %}
+          {% set bad = namespace(items=[]) %}
+          {% for key, limits in specs.items() %}
+            {% set raw = states(key) %}
+            {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
+            {% if val is none %}
+              {% set bad.items = bad.items + [key] %}
+            {% else %}
+              {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
+                {% set bad.items = bad.items + [key] %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ bad.items | count > 0 }}
+        attributes:
+          problematic_sensors: >
+            {% set specs = {
+              'sensor.t_in_media': [-20, 50],
+              'sensor.t_out': [-20, 50],
+              'sensor.ur_in_media': [0, 100],
+              'sensor.ur_out': [0, 100],
+              'sensor.ah_in': [0, none],
+              'sensor.ah_out': [0, none],
+              'sensor.ur_in_bagno': [0, 100]
+            } %}
+            {% set bad = [] %}
+            {% for key, limits in specs.items() %}
+              {% set raw = states(key) %}
+              {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
+              {% if val is none %}
+                {% set bad = bad + [key] %}
+              {% else %}
+                {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
+                  {% set bad = bad + [key] %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ bad }}
+
+      - name: "VMC Override AC notte = DRY"
+        unique_id: vmc_override_ac_dry
+        icon: mdi:shield-refresh
+        state: >
+          {{ is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') }}
+
+      - name: "VMC Bagno Boost attivo"
+        unique_id: vmc_bagno_boost
+        icon: mdi:fan-speed-3
+        state: >
+          {% set ur_b_raw = states('sensor.ur_in_bagno') %}
+          {% set ur_b = ur_b_raw|float(default=none) if ur_b_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ur_o_raw = states('sensor.ur_out') %}
+          {% set ur_o = ur_o_raw|float(default=none) if ur_o_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ur_m_raw = states('sensor.ur_in_media') %}
+          {% set ur_m = ur_m_raw|float(default=none) if ur_m_raw not in ['unknown','unavailable','', none] else none %}
+          {% set soglia_raw = states('input_number.vmc_bagno_on') %}
+          {% set soglia = soglia_raw|float(75) if soglia_raw not in ['unknown','unavailable','', none] else 75 %}
+          {% set delta = (ur_b - ur_o) if (ur_b is not none and ur_o is not none) else none %}
+          {% set main_boost = (ur_b is not none and ur_b >= soglia) or (delta is not none and delta >= 10) %}
+          {% set lite = ur_m is not none and ur_o is not none and ur_m > 50 and (ur_m - ur_o) >= 10 %}
+          {% set soft = is_state('switch.vmc_vel_2','on') and main_boost and lite and (ur_b is none or ur_o < ur_b) %}
+          {{ is_state('switch.vmc_vel_3','on') or soft }}
+
+      - name: "VMC Free-cooling PH attivo"
+        unique_id: vmc_free_cooling_ph
+        icon: mdi:snowflake-thermometer
+        state: >
+          {% set Tin_raw  = states('sensor.t_in_media') %}
+          {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set Tout_raw = states('sensor.t_out') %}
+          {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHin_raw  = states('sensor.ah_in') %}
+          {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHout_raw = states('sensor.ah_out') %}
+          {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+          {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+          {{ Tin is not none and Tout is not none and AHin is not none and AHout is not none and
+             Tin > T_on and Tout < Tin and AHout < AHin and
+             is_state('switch.vmc_vel_3','off') and is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and
+             is_state('switch.vmc_vel_2','on') }}
+
+      - name: "VMC Free-cooling Macchina attivo"
+        unique_id: vmc_free_cooling_machine
+        icon: mdi:home-thermometer-outline
+        state: >
+          {% set Tin_raw  = states('sensor.t_in_media') %}
+          {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set Tout_raw = states('sensor.t_out') %}
+          {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+          {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+          {% set T_min_raw = states('input_number.vmc_fc_macchina_tout_min') %}
+          {% set T_min = T_min_raw|float(20) if T_min_raw not in ['unknown','unavailable','', none] else 20 %}
+          {% set AHin_raw  = states('sensor.ah_in') %}
+          {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set AHout_raw = states('sensor.ah_out') %}
+          {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ph = Tin is not none and Tout is not none and AHin is not none and AHout is not none and
+                     Tin > T_on and Tout < Tin and AHout < AHin %}
+          {% set macchina = Tin is not none and Tout is not none and Tin > T_on and Tout < Tin and Tout > T_min %}
+          {{ macchina and not ph and is_state('switch.vmc_vel_3','off') and
+             is_state('switch.ac_notte','off') and is_state('switch.ac_giorno','off') and is_state('switch.vmc_vel_2','on') }}
+
+      - name: "VMC Anti-secco attivo"
+        unique_id: vmc_anti_secco
+        icon: mdi:water-percent-alert
+        state: >
+          {% set m = now().month %}
+          {% set notte = now().hour >= 23 or now().hour < 7 %}
+          {% set ur_min_raw = states('sensor.ur_in_min') %}
+          {% set ur_min = ur_min_raw|float(default=none) if ur_min_raw not in ['unknown','unavailable','', none] else none %}
+          {% set soglia_raw = states('input_number.vmc_anti_secco_ur_min') %}
+          {% set soglia = soglia_raw|float(40) if soglia_raw not in ['unknown','unavailable','', none] else 40 %}
+          {{ (m in [11,12,1,2,3]) and notte and ur_min is not none and (ur_min <= soglia) and is_state('switch.vmc_vel_0','on') }}
+
+      - name: "VMC DRY attivo (P1B)"
+        unique_id: vmc_dry_active
+        icon: mdi:water-remove
+        state: >
+          {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
+        attributes:
+          started_minutes_ago: >
+            {% set ns = namespace(times=[]) %}
+            {% set ent_n = states.get('switch.ac_notte') %}
+            {% set ent_g = states.get('switch.ac_giorno') %}
+            {% for obj in [ent_n, ent_g] %}
+              {% if obj is not none and obj.last_changed is defined %}
+                {% set ns.times = ns.times + [obj.last_changed] %}
+              {% endif %}
+            {% endfor %}
+            {% if ns.times %}
+              {{ ((now() - (ns.times | max)).total_seconds() / 60) | round(0) }}
+            {% else %}
+              0
+            {% endif %}
+
+      - name: "Stagione calda"
+        unique_id: stagione_calda
+        state: >
+          {{ now().month in [5,6,7,8,9] or is_state('input_boolean.vent_override_estate','on') }}
+
+      - name: "Stagione fredda"
+        unique_id: stagione_fredda
+        state: >
+          {{ now().month in [11,12,1,2,3] }}
+
+      - name: "vent_deltat_ok"
+        unique_id: vent_deltat_ok
+        state: >-
+          {% set delta = states('sensor.delta_t_in_out')|float(default=none) %}
+          {% set soglia = states('input_number.vmc_freecooling_delta')|float(default=none) %}
+          {{ delta is number and soglia is number and delta >= soglia }}
+        availability: >-
+          {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] and
+             states('input_number.vmc_freecooling_delta') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_deltaah_ok"
+        unique_id: vent_deltaah_ok
+        state: >-
+          {% set delta = states('sensor.delta_ah_in_out')|float(default=none) %}
+          {% set soglia = states('input_number.vmc_freecooling_delta_ah')|float(default=none) %}
+          {{ delta is number and soglia is number and delta >= soglia }}
+        availability: >-
+          {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] and
+             states('input_number.vmc_freecooling_delta_ah') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_condizioni_meteo_ok"
+        unique_id: vent_condizioni_meteo_ok
+        state: >-
+          {{ is_state('binary_sensor.vent_pioggia','off') and
+             is_state('binary_sensor.vent_vento_blocco','off') and
+             is_state('binary_sensor.vent_air_quality_ok','on') }}
+
+      - name: "vent_condizioni_termiche_ok"
+        unique_id: vent_condizioni_termiche_ok
+        state: >-
+          {{ is_state('binary_sensor.vent_deltat_ok','on') and
+             is_state('binary_sensor.vent_deltaah_ok','on') }}
+
+      - name: "vent_recommend_open"
+        unique_id: vent_recommend_open
+        device_class: opening
+        state: >-
+          {{ is_state('binary_sensor.stagione_calda','on') and
+             is_state('binary_sensor.vent_condizioni_meteo_ok','on') and
+             is_state('binary_sensor.vent_condizioni_termiche_ok','on') }}
+
+      - name: "vent_recommend_close"
+        unique_id: vent_recommend_close
+        device_class: opening
+        state: >-
+          {{ not is_state('binary_sensor.vent_recommend_open','on') }}
+
+      - name: "Clima — Apri finestre raccomandato"
+        unique_id: clima_open_windows_recommended
+        device_class: opening
+        state: >
+          {% set open_ok = is_state('binary_sensor.vent_recommend_open','on') %}
+          {% set vmc_busy = is_state('sensor.vmc_freecooling_status','active') %}
+          {{ open_ok and not vmc_busy }}
+
+      - name: "vent_weather_block"
+        unique_id: vent_weather_block
+        icon: mdi:alert-octagon
+        state: >-
+          {{ not is_state('binary_sensor.vent_condizioni_meteo_ok','on') }}
+
+  - sensor:
+      - name: "UR interna minima"
+        unique_id: ur_in_min
+        unit_of_measurement: "%"
+        icon: mdi:water-percent
+        state_class: measurement
+        state: >
+          {% set sensors = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_notte3',
+            'sensor.ur_in_bagno',
+            'sensor.ur_lavanderia'
+          ] %}
+          {% set values = [] %}
+          {% for s in sensors %}
+            {% set raw = states(s) %}
+            {% if raw not in ['unknown','unavailable','', none] %}
+              {% set values = values + [ raw | float ] %}
+            {% endif %}
+          {% endfor %}
+          {{ (values | min | round(1)) if values | length > 0 else 'unknown' }}
+
+      - name: "VMC Vel target"
+        unique_id: vmc_vel_target
+        icon: mdi:fan
+        state: >
+          {% if is_state('switch.vmc_vel_3','on') %}vel_3
+          {% elif is_state('switch.vmc_vel_2','on') %}vel_2
+          {% elif is_state('switch.vmc_vel_1','on') %}vel_1
+          {% elif is_state('switch.vmc_vel_0','on') %}vel_0
+          {% else %}off{% endif %}
+
+      - name: "VMC velocità indice"
+        unique_id: vmc_vel_index
+        unit_of_measurement: "step"
+        icon: mdi:fan-speed-1
+        state_class: measurement
+        state: >
+          {% if is_state('switch.vmc_vel_3','on') %}3
+          {% elif is_state('switch.vmc_vel_2','on') %}2
+          {% elif is_state('switch.vmc_vel_1','on') %}1
+          {% elif is_state('switch.vmc_vel_0','on') %}0
+          {% else %}0{% endif %}
+
+      - name: "VMC Freecooling Status"
+        unique_id: vmc_freecooling_status
+        icon: mdi:weather-night
+        state: >
+          {% set free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
+          {% set cooldown = is_state('timer.vmc_freecooling_cooldown','active') %}
+          {% set maxrun_lock = (not is_state('timer.vmc_freecooling_max_run','active')) and (state_attr('sensor.vmc_reason','reason') == 'P3_freecooling') and (not cooldown) and (not free) %}
+          {% if cooldown %}cooldown
+          {% elif free %}active
+          {% elif maxrun_lock %}maxrun_lock
+          {% else %}off
+          {% endif %}
+        attributes:
+          last_mode: "{{ state_attr('sensor.vmc_reason','reason') }}"
+          cooldown_remaining: "{{ state_attr('timer.vmc_freecooling_cooldown','remaining') }}"
+
+      - name: "VMC Reason"
+        unique_id: vmc_reason
+        icon: mdi:text
+        state: >
+          {% set attr_reason = state_attr('sensor.vmc_reason','reason') %}
+          {% set failsafe = is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+          {% set manual = is_state('input_boolean.vmc_manual','on') %}
+          {% set boost = is_state('switch.vmc_vel_3','on') or is_state('timer.vmc_boost_lock','active') or attr_reason == 'P2_boost_bagno' %}
+          {% set anti_secco = is_state('timer.vmc_anti_secco_lock','active') or attr_reason == 'P1_anti_secco' %}
+          {% set freecooling_trigger = is_state('switch.vmc_vel_2','on') or is_state('timer.vmc_freecooling_max_run','active') or is_state('timer.vmc_freecooling_cooldown','active') %}
+          {% set freecooling_attr = attr_reason == 'P3_freecooling' %}
+          {% set freecooling = (freecooling_trigger and (attr_reason in ['P3_freecooling', none, 'idle'] or is_state('binary_sensor.stagione_calda','on'))) or freecooling_attr %}
+
+          {% if failsafe %}
+            P0_failsafe
+          {% elif manual %}
+            manual
+          {% elif boost %}
+            P2_boost_bagno
+          {% elif anti_secco %}
+            P1_anti_secco
+          {% elif freecooling %}
+            P3_freecooling
+          {% else %}
+            idle
+          {% endif %}
+        attributes:
+          reason: "{{ state_attr('sensor.vmc_reason','reason') }}"
+
+      - name: "VMC Last Event"
+        unique_id: vmc_last_event
+        icon: mdi:clock-outline
+        state: "{{ states('input_text.vmc_last_event') if states('input_text.vmc_last_event') not in ['unknown','unavailable'] else '—' }}"
+
+      - name: "VMC Priority"
+        unique_id: vmc_priority
+        icon: mdi:arrow-top-right-bold-outline
+        state: >
+          {% set URb_raw = states('sensor.ur_in_bagno') %}
+          {% set URb = URb_raw|float(default=none) if URb_raw not in ['unknown','unavailable','', none] else none %}
+          {% set URo_raw = states('sensor.ur_out') %}
+          {% set URo = URo_raw|float(default=none) if URo_raw not in ['unknown','unavailable','', none] else none %}
+          {% set URm_raw = states('sensor.ur_in_media') %}
+          {% set URm = URm_raw|float(default=none) if URm_raw not in ['unknown','unavailable','', none] else none %}
+          {% set soglia_raw = states('input_number.vmc_bagno_on') %}
+          {% set soglia = soglia_raw|float(75) if soglia_raw not in ['unknown','unavailable','', none] else 75 %}
+          {% set delta_ur = (URb - URo) if (URb is not none and URo is not none) else none %}
+          {% set soft_boost = is_state('binary_sensor.vmc_bagno_boost','on') and is_state('switch.vmc_vel_2','on') %}
+          {% set lite_ok = URm is not none and URo is not none and URm > 50 and (URm - URo) >= 10 %}
+          {% set fc_ph = is_state('binary_sensor.vmc_free_cooling_ph','on') %}
+          {% set fc_mac = is_state('binary_sensor.vmc_free_cooling_machine','on') %}
+          {% set p1_lite = is_state('switch.vmc_vel_2','on') and not soft_boost and lite_ok and not fc_ph and not fc_mac %}
+          {% if is_state('binary_sensor.vmc_bagno_boost','on') %}P1 — Bagno/BOOST
+          {% elif p1_lite %}P1-Lite — ΔUR interno vs esterno
+          {% elif is_state('switch.vmc_vel_2','on') %}P2 — Free-cooling
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}P3 — Anti-secco
+          {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
+          {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
+          {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
+          {% else %}—{% endif %}
+
+      - name: "vent_ah_in"
+        unique_id: vent_ah_in
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water
+        state: >-
+          {% set ah_in = states('sensor.ah_in') %}
+          {% if ah_in not in ['unknown','unavailable',''] %}
+            {{ ah_in|float|round(2) }}
+          {% else %}
+            {% set T = states('input_number.vent_backup_t_in')|float(default=none) %}
+            {% set RH = states('input_number.vent_backup_ur_in')|float(default=none) %}
+            {% if T is number and RH is number %}
+              {% set RHc = [RH, 100]|min %}
+              {% set RHc = [RHc, 1]|max %}
+              {% set exponent = (17.67*T)/(T+243.5) %}
+              {% set es = 6.112 * (2.718281828 ** exponent) %}
+              {% set pv = RHc/100 * es %}
+              {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+            {% else %}unavailable{% endif %}
+          {% endif %}
+        availability: >-
+          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] or
+             (states('input_number.vent_backup_t_in') not in ['unknown','unavailable',''] and
+              states('input_number.vent_backup_ur_in') not in ['unknown','unavailable','']) }}
+
+      - name: "vent_ah_out"
+        unique_id: vent_ah_out
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-outline
+        state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unavailable' }}"
+        availability: >-
+          {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
+
+      - name: "vent_finestre_aperte"
+        unique_id: vent_finestre_aperte
+        unit_of_measurement: "finestre"
+        icon: mdi:window-open
+        state: >-
+          {% set toggles = [
+            'input_boolean.vent_finestra_giorno1_aperta',
+            'input_boolean.vent_finestra_giorno2_aperta',
+            'input_boolean.vent_portoncino_ingresso_aperto',
+            'input_boolean.vent_foro_cappa_aperto',
+            'input_boolean.vent_finestra_notte1_aperta',
+            'input_boolean.vent_finestra_notte2_aperta',
+            'input_boolean.vent_finestra_notte3_aperta',
+            'input_boolean.vent_finestra_bagno_aperta'
+          ] %}
+          {% set count = namespace(total=0) %}
+          {% for toggle in toggles %}
+            {% if is_state(toggle,'on') %}
+              {% set count.total = count.total + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ count.total }}
+
+      - name: "vent_finestre_state"
+        unique_id: vent_finestre_state
+        icon: mdi:text
+        state: >-
+          {% set labels = {
+            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno — Finestra 1',
+            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno — Finestra 2',
+            'input_boolean.vent_portoncino_ingresso_aperto': 'Portoncino ingresso',
+            'input_boolean.vent_foro_cappa_aperto': 'Foro cappa',
+            'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
+            'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
+            'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
+            'input_boolean.vent_finestra_bagno_aperta': 'Bagno'
+          } %}
+          {% set aperte = [] %}
+          {% for ent, label in labels.items() %}
+            {% if is_state(ent,'on') %}
+              {% set aperte = aperte + [label] %}
+            {% endif %}
+          {% endfor %}
+          {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}
+
+      - name: "Vent pioggia"
+        unique_id: vent_pioggia
+        device_class: moisture
+        state: >
+          {{ states('sensor.vent_meteo_precip')|float(0) > 0 }}
+
+      - name: "Vent vento blocco"
+        unique_id: vent_vento_blocco
+        device_class: safety
+        state: >
+          {% set vento = states('sensor.vent_meteo_vento')|float(default=0) %}
+          {% set soglia = states('input_number.vent_vento_max')|float(6) %}
+          {{ vento >= soglia }}
+
+      - name: "Vent air quality ok"
+        unique_id: vent_air_quality_ok
+        device_class: safety
+        state: >
+          {% set pm = states('sensor.vent_meteo_pm25')|float(default=0) %}
+          {% set soglia = states('input_number.vent_pm25_max')|float(25) %}
+          {{ pm <= soglia }}
+
+      - name: "vent_weather_label"
+        unique_id: vent_weather_label
+        icon: mdi:weather-cloudy
+        state: >-
+          {% if is_state('binary_sensor.vent_pioggia','on') %}Pioggia
+          {% elif is_state('binary_sensor.vent_vento_blocco','on') %}Vento forte
+          {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
+          {% else %}OK{% endif %}
+
+      - name: "ventilation_priority"
+        unique_id: ventilation_priority
+        icon: mdi:arrow-top-right-bold-outline
+        state: >
+          {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+            P0_failsafe
+          {% elif is_state('switch.vmc_vel_3','on') %}
+            P1_boost_bagno
+          {% elif is_state('sensor.vmc_freecooling_status','active') %}
+            P2_freecooling
+          {% elif is_state('binary_sensor.vent_recommend_open','on') %}
+            P3_apri_finestre
+          {% else %}
+            idle
+          {% endif %}
+        attributes:
+          reason: "{{ state_attr('sensor.vmc_reason','reason') or '—' }}"
+          vmc_status: "{{ states('sensor.vmc_freecooling_status') }}"
+          suggest_open: "{{ is_state('binary_sensor.vent_recommend_open','on') }}"
+
+      - name: "ventilation_reason"
+        unique_id: ventilation_reason
+        icon: mdi:text
+        state: "{{ states('sensor.ventilation_priority') }}"
+        attributes:
+          vmc_reason: "{{ state_attr('sensor.vmc_reason','reason') }}"
+          freecooling_status: "{{ states('sensor.vmc_freecooling_status') }}"
+          vent_recommend_open: "{{ is_state('binary_sensor.vent_recommend_open','on') }}"
+
+# =============================
+# 3) SCRIPT (non presenti)
+# =============================
+
+# =============================
+# 4) AUTOMAZIONI — priorità VMC + freecooling + hook + night flush
+# =============================
+automation:
+  - id: vmc_manual_override
+    alias: "VMC — Modalità manuale (override velocità)"
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id:
+          - input_boolean.vmc_manual
+          - input_select.vmc_manual_speed
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.vmc_manual
+                state: "on"
+            sequence:
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_manual_timeout
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_0' }}"
+                    sequence:
+                      - service: switch.turn_off
+                        target:
+                          entity_id:
+                            - switch.vmc_vel_1
+                            - switch.vmc_vel_2
+                            - switch.vmc_vel_3
+                      - service: switch.turn_on
+                        target:
+                          entity_id: switch.vmc_vel_0
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_1' }}"
+                    sequence:
+                      - service: switch.turn_off
+                        target:
+                          entity_id:
+                            - switch.vmc_vel_0
+                            - switch.vmc_vel_2
+                            - switch.vmc_vel_3
+                      - service: switch.turn_on
+                        target:
+                          entity_id: switch.vmc_vel_1
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_2' }}"
+                    sequence:
+                      - service: switch.turn_off
+                        target:
+                          entity_id:
+                            - switch.vmc_vel_0
+                            - switch.vmc_vel_1
+                            - switch.vmc_vel_3
+                      - service: switch.turn_on
+                        target:
+                          entity_id: switch.vmc_vel_2
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('input_select.vmc_manual_speed') == 'vel_3' }}"
+                    sequence:
+                      - service: switch.turn_off
+                        target:
+                          entity_id:
+                            - switch.vmc_vel_0
+                            - switch.vmc_vel_1
+                            - switch.vmc_vel_2
+                      - service: switch.turn_on
+                        target:
+                          entity_id: switch.vmc_vel_3
+        default:
+          - service: switch.turn_off
+            target:
+              entity_id:
+                - switch.vmc_vel_0
+                - switch.vmc_vel_1
+                - switch.vmc_vel_2
+                - switch.vmc_vel_3
+
+  - id: vmc_manual_timeout
+    alias: "VMC — Timeout modalità manuale"
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.vmc_manual_timeout
+      - trigger: state
+        entity_id: input_boolean.vmc_manual
+        to: "off"
+    actions:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.vmc_manual
+
+  - id: vmc_p0_failsafe
+    alias: "VMC P0 — Failsafe sensori"
+    mode: restart
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.vmc_failsafe_sensors_bad
+      - trigger: time_pattern
+        minutes: "/5"
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.vmc_failsafe_sensors_bad
+        state: "on"
+    actions:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.vmc_vel_0
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.vmc_vel_1
+            - switch.vmc_vel_2
+            - switch.vmc_vel_3
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P0_failsafe' }}"
+            sequence:
+              - event: template_event
+                event_data:
+                  entity_id: sensor.vmc_reason
+                  attributes:
+                    reason: "P0_failsafe"
+
+  - id: vmc_controllo_prioritario
+    alias: "VMC — Controllo priorità P0–P4"
+    mode: restart
+    triggers:
+      - trigger: time_pattern
+        minutes: "/2"
+      - trigger: state
+        entity_id:
+          - sensor.ur_in_min
+          - sensor.delta_ah_in_out
+          - sensor.ur_in_bagno
+          - sensor.ur_in_media
+          - sensor.ur_out
+          - sensor.t_in_media
+          - sensor.t_out
+          - binary_sensor.stagione_calda
+          - input_boolean.vmc_manual
+          - input_number.vmc_bagno_on
+          - input_number.vmc_freecooling_delta
+          - input_number.vmc_freecooling_delta_ah
+          - timer.vmc_boost_lock
+          - timer.vmc_anti_secco_lock
+          - timer.vmc_freecooling_max_run
+          - timer.vmc_freecooling_cooldown
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.vmc_failsafe_sensors_bad
+                state: "on"
+            sequence: []
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.vmc_manual
+                state: "on"
+            sequence: []
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set ur_b = states('sensor.ur_in_bagno')|float(0) %}
+                  {% set soglia_on = states('input_number.vmc_bagno_on')|float(75) %}
+                  {% set ur_out = states('sensor.ur_out')|float(0) %}
+                  {% set ur_media = states('sensor.ur_in_media')|float(0) %}
+                  {% set delta_ok = (ur_b - ur_out) >= 10 %}
+                  {% set media_ok = (ur_media > 50) and ((ur_media - ur_out) >= 10) %}
+                  {% set boost_cond = (ur_b >= soglia_on) or delta_ok or media_ok %}
+                  {% set boost_lock = is_state('timer.vmc_boost_lock','active') %}
+                  {{ boost_lock or boost_cond }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_3
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_boost_lock
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P2_boost_bagno' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P2_boost_bagno"
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set ur_min_raw = states('sensor.ur_in_min') %}
+                  {% set soglia_raw = states('input_number.vmc_anti_secco_ur_min') %}
+                  {% set ur_min = ur_min_raw|float(default=none) if ur_min_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set soglia = soglia_raw|float(40) if soglia_raw not in ['unknown','unavailable','', none] else 40 %}
+                  {% set inverno = now().month in [11,12,1,2,3] %}
+                  {% set notte = now().hour >= 23 or now().hour < 7 %}
+                  {% set lock_attivo = is_state('timer.vmc_anti_secco_lock','active') %}
+                  {{ lock_attivo or (inverno and notte and ur_min is not none and ur_min < soglia) }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_1
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_anti_secco_lock
+              - event: hook_vmc_request_ac_block
+                event_data:
+                  reason: "anti_secco"
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P1_anti_secco' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P1_anti_secco"
+          - conditions:
+              - condition: template
+                value_template: >
+                  {% set Tin_raw = states('sensor.t_in_media') %}
+                  {% set Tout_raw = states('sensor.t_out') %}
+                  {% set AHin_raw = states('sensor.ah_in') %}
+                  {% set AHout_raw = states('sensor.ah_out') %}
+
+                  {% set Tin = Tin_raw|float(default=none) if Tin_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set Tout = Tout_raw|float(default=none) if Tout_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set AHin = AHin_raw|float(default=none) if AHin_raw not in ['unknown','unavailable','', none] else none %}
+                  {% set AHout = AHout_raw|float(default=none) if AHout_raw not in ['unknown','unavailable','', none] else none %}
+
+                  {% set T_on_raw = states('input_number.vmc_fc_ph_tin_on') %}
+                  {% set T_on = T_on_raw|float(24) if T_on_raw not in ['unknown','unavailable','', none] else 24 %}
+                  {% set T_off = T_on - 0.8 %}
+                  {% set dT = states('input_number.vmc_freecooling_delta')|float(2) %}
+                  {% set dAH = states('input_number.vmc_freecooling_delta_ah')|float(2) %}
+
+                  {% set stagione_ok = is_state('binary_sensor.stagione_calda','on') %}
+                  {% set ac_spenta = not is_state('switch.ac_notte','on') and not is_state('switch.ac_giorno','on') %}
+                  {% set cooldown_off = not is_state('timer.vmc_freecooling_cooldown','active') %}
+                  {% set maxrun_attivo = is_state('timer.vmc_freecooling_max_run','active') %}
+                  {% set in_free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
+
+                  {% set cond_on = stagione_ok and ac_spenta and cooldown_off and (Tin is not none) and (Tout is not none) and (AHin is not none) and (AHout is not none) and (Tin >= T_on) and (Tout <= (Tin - dT)) and (AHout <= (AHin - dAH)) and is_state('binary_sensor.vmc_failsafe_sensors_bad','off') and is_state('input_boolean.vmc_manual','off') %}
+
+                  {% set cond_hold = in_free and maxrun_attivo and (Tin is not none) and (Tout is not none) and (AHin is not none) and (AHout is not none) and (Tin >= T_off) and (Tout <= (Tin - (dT - 0.5))) and (AHout <= (AHin - (dAH - 0.5))) and ac_spenta and is_state('binary_sensor.vmc_failsafe_sensors_bad','off') and is_state('input_boolean.vmc_manual','off') %}
+
+                  {{ cond_on or cond_hold }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_3
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_2
+              - service: timer.start
+                target:
+                  entity_id: timer.vmc_freecooling_max_run
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ states('sensor.ah_out')|float(0) > states('sensor.ah_in')|float(0) }}"
+                    sequence:
+                      - event: hook_vmc_request_ac_block
+                        event_data:
+                          reason: "delta_AH_sfavorevole"
+              - event: hook_vent_enable_night_flush
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P3_freecooling' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P3_freecooling"
+          - conditions: []
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_3
+                    - switch.vmc_vel_2
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_1
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'P4_baseline' }}"
+                    sequence:
+                      - event: template_event
+                        event_data:
+                          entity_id: sensor.vmc_reason
+                          attributes:
+                            reason: "P4_baseline"
+
+  - id: vmc_freecooling_cooldown
+    alias: "VMC — cooldown fine freecooling"
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.vmc_freecooling_max_run
+    actions:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.vmc_vel_1
+      - service: timer.start
+        target:
+          entity_id: timer.vmc_freecooling_cooldown
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ state_attr('sensor.vmc_reason','reason') != 'cooldown' }}"
+            sequence:
+              - event: template_event
+                event_data:
+                  entity_id: sensor.vmc_reason
+                  attributes:
+                    reason: "cooldown"
+
+  - id: vent_timestamp_finestre
+    alias: "Ventilazione — Timestamp finestre manuali"
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id:
+          - input_boolean.vent_finestra_giorno1_aperta
+          - input_boolean.vent_finestra_giorno2_aperta
+          - input_boolean.vent_portoncino_ingresso_aperto
+          - input_boolean.vent_foro_cappa_aperto
+          - input_boolean.vent_finestra_notte1_aperta
+          - input_boolean.vent_finestra_notte2_aperta
+          - input_boolean.vent_finestra_notte3_aperta
+          - input_boolean.vent_finestra_bagno_aperta
+    actions:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno1_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_giorno1
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_giorno2_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_giorno2
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_portoncino_ingresso_aperto' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_portoncino
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_foro_cappa_aperto' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_foro_cappa
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte1_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte1
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte2_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte2
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_notte3_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_notte3
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'input_boolean.vent_finestra_bagno_aperta' }}"
+            sequence:
+              - service: input_datetime.set_datetime
+                target:
+                  entity_id: input_datetime.vent_last_change_bagno
+                data:
+                  date: "{{ now().date() }}"
+                  time: "{{ now().strftime('%H:%M:%S') }}"
+
+  - id: vent_night_flush_hook
+    alias: "Ventilazione — Hook night flush"
+    mode: single
+    triggers:
+      - trigger: event
+        event_type: hook_vent_enable_night_flush
+    actions:
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.vmc_last_event
+        data:
+          value: "Night flush suggerito dal freecooling"
+

@@ -1,0 +1,65 @@
+###############################################################################
+# window.yaml — Monitoraggio finestre/porte (solo stato contatti)
+# - Gruppi zona giorno/notte/bagno
+# - KPI contatore totale finestre aperte
+###############################################################################
+
+group:
+  windows_zona_giorno:
+    name: "Finestre — Zona giorno"
+    entities:
+      - input_boolean.vent_finestra_giorno1_aperta
+      - input_boolean.vent_finestra_giorno2_aperta
+      - input_boolean.vent_portoncino_ingresso_aperto
+      - input_boolean.vent_foro_cappa_aperto
+  windows_zona_notte:
+    name: "Finestre — Zona notte"
+    entities:
+      - input_boolean.vent_finestra_notte1_aperta
+      - input_boolean.vent_finestra_notte2_aperta
+      - input_boolean.vent_finestra_notte3_aperta
+  windows_bagni:
+    name: "Finestre — Bagni"
+    entities:
+      - input_boolean.vent_finestra_bagno_aperta
+
+template:
+  - binary_sensor:
+      - name: "Casa chiusa"
+        unique_id: windows_all_closed
+        device_class: opening
+        state: >
+          {{ expand('group.windows_zona_giorno') | selectattr('state','eq','on') | list | count == 0
+             and expand('group.windows_zona_notte') | selectattr('state','eq','on') | list | count == 0
+             and expand('group.windows_bagni') | selectattr('state','eq','on') | list | count == 0 }}
+      - name: "Finestre zona giorno aperte"
+        unique_id: windows_giorno_any
+        device_class: opening
+        state: >
+          {{ expand('group.windows_zona_giorno') | selectattr('state','eq','on') | list | count > 0 }}
+      - name: "Finestre zona notte aperte"
+        unique_id: windows_notte_any
+        device_class: opening
+        state: >
+          {{ expand('group.windows_zona_notte') | selectattr('state','eq','on') | list | count > 0 }}
+      - name: "Finestre bagno aperte"
+        unique_id: windows_bagno_any
+        device_class: opening
+        state: >
+          {{ expand('group.windows_bagni') | selectattr('state','eq','on') | list | count > 0 }}
+  - sensor:
+      - name: "Conteggio finestre aperte"
+        unique_id: windows_open_count
+        unit_of_measurement: "finestre"
+        state: >
+          {% set groups = [
+            'group.windows_zona_giorno',
+            'group.windows_zona_notte',
+            'group.windows_bagni'
+          ] %}
+          {% set total = namespace(v=0) %}
+          {% for g in groups %}
+            {% set members = expand(g) | selectattr('state','eq','on') | list %}
+            {% set total.v = total.v + (members | count) %}
+          {% endfor %}
+          {{ total.v }}
