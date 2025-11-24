@@ -1,0 +1,21 @@
+# Checklist post-patch — Clima System
+
+1) Validazioni
+- Eseguire `ha core check` (o `hass --script check_config`) per validare YAML/template.
+- Ricaricare i package clima: `ha core reload` oppure riavviare Home Assistant.
+
+2) Verifica entità
+- Confermare che `sensor.vmc_priority` mostri P1 per anti-secco e P3 per freecooling secondo scenario.
+- Controllare che `sensor.vent_meteo_pm25` sia popolato e visibile nel blocco Meteo/AQ.
+- Verificare che le entità chiave non siano `unknown/unavailable`: `sensor.vmc_reason`, `sensor.vmc_freecooling_status`, `binary_sensor.vmc_failsafe_sensors_bad`.
+
+3) Plance
+- Dashboard "1 Ventilazione": blocco Meteo/AQ deve mostrare PM2.5 dal sensore Open-Meteo (`sensor.vent_meteo_pm25`).
+- Dashboard "1 Ventilazione": card stato VMC deve riflettere priorità coerenti (anti-secco P1, freecooling P3).
+- Dashboard "3 AC" e "3 Riscaldamento": nessuna regressione prevista, controllare che grafici e KPI siano popolati.
+
+4) Condizioni operative da validare
+- Freecooling: verificare che `sensor.vmc_freecooling_status` passi a `active` con stagione calda, ΔT/ΔAH favorevoli e vel_2 ON.
+- Lock Heating: assicurarsi che i lock min ON/OFF siano `on` durante i cicli previsti.
+- Lock AC: verificare `binary_sensor.ac_lock_min_on_ok` / `ac_lock_min_off_ok` durante cicli AC.
+- Consigli finestre: `binary_sensor.vent_recommend_open/close` devono seguire ΔT/ΔAH e blocchi meteo.
