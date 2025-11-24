@@ -44,6 +44,7 @@ template:
         device_class: energy
         state_class: total_increasing
         icon: mdi:counter
+        # Sensore produzione FV usato per grafico giornaliero energia
         state: >-
           {% set s = states('sensor.solaredge_lifetime_energy') %}
           {% if s not in ['unknown','unavailable','none',''] %}

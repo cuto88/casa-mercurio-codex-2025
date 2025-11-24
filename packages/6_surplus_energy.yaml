@@ -113,6 +113,7 @@ template:
       - name: pv_power_reverse
         unit_of_measurement: W
         state: "{{ (states('sensor.b_power_reverse_kw')|float(0) * 1000) | round(0) }}"
+      # Sensore potenza FV usato per grafico istantaneo
       - name: pv_power_signed
         unit_of_measurement: W
         state: "{{ (states('sensor.pv_power_forward')|float(0) - states('sensor.pv_power_reverse')|float(0)) | round(0) }}"
