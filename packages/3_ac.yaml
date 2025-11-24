@@ -166,7 +166,7 @@ template:
           } %}
           {% set ns = namespace(bad=false) %}
           {% for sid, limits in sensors.items() %}
-            {% set entity = states.get(sid) %}
+            {% set entity = states[sid] if sid in states else None %}
             {% if entity is none or entity.state in ['unknown','unavailable',''] %}
               {% set ns.bad = true %}
             {% elif entity.state | float(limits[0]-1) < limits[0] or entity.state | float(limits[1]+1) > limits[1] %}
@@ -186,7 +186,7 @@ template:
           {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
           {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
           {% for ent in entities %}
-            {% set s = states.get(ent) %}
+            {% set s = states[ent] if ent in states else None %}
             {% if s is not none and s.state == 'on' %}
               {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
                 {{ false }}
@@ -201,7 +201,7 @@ template:
           {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
           {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
           {% for ent in entities %}
-            {% set s = states.get(ent) %}
+            {% set s = states[ent] if ent in states else None %}
             {% if s is not none and s.state == 'off' %}
               {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
                 {{ false }}
