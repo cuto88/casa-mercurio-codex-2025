@@ -22,6 +22,6 @@
 - Manual override: `heating_force_on/off` e `heating_manual_active` seguono i lock core ma possono ignorare l’assenza di surplus.
 
 ## Note di implementazione YAML
-- Configurazione e helper in `packages/3_heating.yaml` (toggle zona, target, tolleranza, finestra oraria, lock configurabili e contatori runtime).
+- Configurazione e helper in `packages/2_heating.yaml` (toggle zona, target, tolleranza, finestra oraria, lock configurabili e contatori runtime).
 - Automazioni pubblicano `binary_sensor.heating_should_run`, `binary_sensor.heating_min_on_lock`/`heating_min_off_lock`, flag finestra oraria e condizioni esterne.
 - La plancia usa entità del pacchetto per mostrare KPI e comandi; non duplicare logica qui.

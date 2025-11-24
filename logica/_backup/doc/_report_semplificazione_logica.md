@@ -13,9 +13,9 @@
 | 2_vmc_plancia_regole.txt | Layout plancia VMC (versione dettagliata con manuale) | Riferimento a packages/2_vmc.yaml; usa priorità P0–P4 | Duplica quasi integralmente vmc_plancia_regole.txt |
 | vmc_plancia_regole.txt | Altra versione del layout VMC | Stesse dipendenze della precedente | Duplicato con differenze minime di testi/grafici |
 | 3_heating.txt | Logica riscaldamento a pavimento (finestra 10–16, target 21 °C, condizioni T/UR) | Collega a sensori zona giorno/notte/bagno; link concettuale a PV/surplus | Molto sintetico, mancano priorità e lock dettagliati |
-| 3_heating_plancia_regole.txt | Layout plancia heating con stato, override, KPI e diagnostica | Dipende da packages/3_heating.yaml; richiama soglie/lock | Allineato ma ripete logica già in regole_plancia |
+| 3_heating_plancia_regole.txt | Layout plancia heating con stato, override, KPI e diagnostica | Dipende da packages/2_heating.yaml; richiama soglie/lock | Allineato ma ripete logica già in regole_plancia |
 | 4_ac.txt | Logica AC giorno/notte, DRY vs COOL, anti-ciclo e blocco notturno | Punto di contatto opzionale con VMC (blocco VMC) | Molte soglie replicate in regole_plancia |
-| 4_ac_plancia_regole.txt | Layout plancia AC con manuale e KPI | Dipende da packages/4_ac.yaml | Nessuna criticità, ma logica descritta altrove |
+| 4_ac_plancia_regole.txt | Layout plancia AC con manuale e KPI | Dipende da packages/3_ac.yaml | Nessuna criticità, ma logica descritta altrove |
 | 5_pm_plancia_regole.txt | Plancia consumi prese PM (monitoraggio) | Dipende dai sensori PM* del pacchetto energia | Documentazione pura, isolata |
 | 6_surplus_plancia_regole.txt | Plancia energia/surplus PV | Dipende da pacchetti energia/surplus | Isolata; logica dei lock energia non documentata altrove |
 | 9_debug_sistema_plancia_regole.txt | Plancia di diagnostica incrociata (VMC, AC, heating, vent) | Usa entità chiave di tutti i moduli | Riepiloga logiche già presenti in altri file |

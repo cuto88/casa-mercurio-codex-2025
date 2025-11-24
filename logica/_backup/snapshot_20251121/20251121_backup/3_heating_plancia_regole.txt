@@ -28,6 +28,6 @@ COLONNA 4 — DIAGNOSTICA
 - Sezione dedicata nel file per espandere facilmente altri controlli.
 
 NOTE
-- Tutti gli entity_id provengono da packages/3_heating.yaml e 0_sensors.yaml.
+- Tutti gli entity_id provengono da packages/2_heating.yaml e 0_sensors.yaml.
 - Pulsanti manuali rispettano la logica di override introdotta nel pacchetto.
 - Layout mobile-first (sections) coerente con Regole Plancia.
