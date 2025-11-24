@@ -352,32 +352,39 @@ rest:
 # =============================
 template:
   - binary_sensor:
-      - name: "VMC failsafe — sensori non ok"
-        unique_id: vmc_failsafe_sensors_bad
-        icon: mdi:alert-circle
-        state: >
-          {% set specs = {
-            'sensor.t_in_media': [-20, 50],
-            'sensor.t_out': [-20, 50],
-            'sensor.ur_in_media': [0, 100],
-            'sensor.ur_out': [0, 100],
-            'sensor.ah_in': [0, none],
-            'sensor.ah_out': [0, none],
-            'sensor.ur_in_bagno': [0, 100]
-          } %}
-          {% set bad = namespace(items=[]) %}
-          {% for key, limits in specs.items() %}
-            {% set raw = states(key) %}
-            {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
-            {% if val is none %}
-              {% set bad.items = bad.items + [key] %}
-            {% else %}
-              {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
-                {% set bad.items = bad.items + [key] %}
+        - name: "VMC failsafe — sensori non ok"
+          unique_id: vmc_failsafe_sensors_bad
+          icon: mdi:alert-circle
+          state: >
+            {% set specs = {
+              'sensor.t_in_media': [-20, 50],
+              'sensor.t_out': [-20, 50],
+              'sensor.ur_in_media': [0, 100],
+              'sensor.ur_out': [0, 100],
+              'sensor.ah_in': [0, none],
+              'sensor.ah_out': [0, none],
+              'sensor.ur_in_bagno': [0, 100]
+            } %}
+            {% set bad = false %}
+            {% for sid, limits in specs.items() %}
+              {% if bad %}{% break %}{% endif %}
+              {% if sid in states %}
+                {% set ent = states[sid] %}
+                {% if ent.state in ['unknown','unavailable',''] %}
+                  {% set bad = true %}
+                {% else %}
+                  {% set lo = limits[0] %}
+                  {% set hi = limits[1] %}
+                  {% set val = ent.state | float(0) %}
+                  {% if (lo is not none and val < lo) or (hi is not none and val > hi) %}
+                    {% set bad = true %}
+                  {% endif %}
+                {% endif %}
+              {% else %}
+                {% set bad = true %}
               {% endif %}
-            {% endif %}
-          {% endfor %}
-          {{ bad.items | count > 0 }}
+            {% endfor %}
+            {{ bad }}
         attributes:
           problematic_sensors: >
             {% set specs = {
@@ -485,11 +492,11 @@ template:
         icon: mdi:water-remove
         state: >
           {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
-        attributes:
-          started_minutes_ago: >
-            {% set ns = namespace(times=[]) %}
-            {% set ent_n = states.get('switch.ac_notte') %}
-            {% set ent_g = states.get('switch.ac_giorno') %}
+          attributes:
+            started_minutes_ago: >
+              {% set ns = namespace(times=[]) %}
+              {% set ent_n = states['switch.ac_notte'] if 'switch.ac_notte' in states else None %}
+              {% set ent_g = states['switch.ac_giorno'] if 'switch.ac_giorno' in states else None %}
             {% for obj in [ent_n, ent_g] %}
               {% if obj is not none and obj.last_changed is defined %}
                 {% set ns.times = ns.times + [obj.last_changed] %}
@@ -804,34 +811,26 @@ template:
           {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
           {% else %}OK{% endif %}
 
-      - name: "ventilation_priority"
-        unique_id: ventilation_priority
-        icon: mdi:arrow-top-right-bold-outline
-        state: >
-          {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
-            P0_failsafe
-          {% elif is_state('switch.vmc_vel_3','on') %}
-            P1_boost_bagno
-          {% elif is_state('sensor.vmc_freecooling_status','active') %}
-            P2_freecooling
-          {% elif is_state('binary_sensor.vent_recommend_open','on') %}
-            P3_apri_finestre
-          {% else %}
-            idle
-          {% endif %}
-        attributes:
-          reason: "{{ state_attr('sensor.vmc_reason','reason') or '—' }}"
-          vmc_status: "{{ states('sensor.vmc_freecooling_status') }}"
-          suggest_open: "{{ is_state('binary_sensor.vent_recommend_open','on') }}"
+        - name: "ventilation_priority"
+          unique_id: ventilation_priority
+          icon: mdi:arrow-top-right-bold-outline
+          state: >
+            {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+              P0_failsafe
+            {% elif is_state('switch.vmc_vel_3','on') %}
+              P1_boost_bagno
+            {% elif is_state('sensor.vmc_freecooling_status','active') %}
+              P2_freecooling
+            {% elif is_state('binary_sensor.vent_recommend_open','on') %}
+              P3_apri_finestre
+            {% else %}
+              idle
+            {% endif %}
 
-      - name: "ventilation_reason"
-        unique_id: ventilation_reason
-        icon: mdi:text
-        state: "{{ states('sensor.ventilation_priority') }}"
-        attributes:
-          vmc_reason: "{{ state_attr('sensor.vmc_reason','reason') }}"
-          freecooling_status: "{{ states('sensor.vmc_freecooling_status') }}"
-          vent_recommend_open: "{{ is_state('binary_sensor.vent_recommend_open','on') }}"
+        - name: "ventilation_reason"
+          unique_id: ventilation_reason
+          icon: mdi:text
+          state: "{{ states('sensor.ventilation_priority') }}"
 
 # =============================
 # 3) SCRIPT (non presenti)

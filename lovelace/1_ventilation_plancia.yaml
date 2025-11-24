@@ -1,36 +1,63 @@
----
 title: "1 Ventilazione"
 path: ventilation
-icon: mdi:fan
+icon: mdi:fan-auto
 type: panel
+
 cards:
   - type: vertical-stack
     cards:
-
-      # ==========================
-      # BLOCCO 1 — STATO GENERALE
-      # ==========================
+      # BLOCCO 1 — Stato VMC
       - type: entities
-        title: "Ventilazione — Stato generale"
+        title: "VMC — Stato generale"
         show_header_toggle: false
         entities:
-          - entity: input_boolean.vmc_enable
-            name: "Logica VMC attiva"
           - entity: sensor.vmc_priority
-            name: "Priorità VMC"
+            name: Priorità VMC
           - entity: sensor.vmc_reason
-            name: "Motivo VMC"
+            name: Motivo / Azione
           - entity: binary_sensor.vmc_failsafe_sensors_bad
-            name: "Failsafe sensori VMC"
+            name: Failsafe sensori
           - entity: sensor.vmc_freecooling_status
-            name: "Stato freecooling"
+            name: Stato freecooling
+          - entity: switch.vmc_vel_0
+          - entity: switch.vmc_vel_1
+          - entity: switch.vmc_vel_2
+          - entity: switch.vmc_vel_3
 
-      # ==========================
-      # BLOCCO 2 — FREECOOLING
-      # ==========================
+      # BLOCCO 2 — Consigli finestre
       - type: entities
-        title: "Freecooling — KPI"
+        title: "Consigli finestre"
         show_header_toggle: false
+        entities:
+          - entity: binary_sensor.vent_recommend_open
+            name: "Suggerimento: apri finestre"
+          - entity: binary_sensor.vent_recommend_close
+            name: "Suggerimento: chiudi finestre"
+          - entity: binary_sensor.vent_condizioni_meteo_ok
+            name: "Meteo ok"
+          - entity: binary_sensor.vent_condizioni_termiche_ok
+            name: "ΔT / ΔAH ok"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT in-out (°C)"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH in-out (g/m³)"
+
+      # BLOCCO 3 — Meteo & qualità aria
+      - type: entities
+        title: "Meteo / AQ"
+        show_header_toggle: false
+        entities:
+          - entity: weather.casa
+          - entity: sensor.pm2_5
+          - entity: binary_sensor.vent_pioggia
+          - entity: binary_sensor.vent_vento_blocco
+          - entity: binary_sensor.vent_air_quality_ok
+
+      # BLOCCO 4 — Trend 24h
+      - type: history-graph
+        title: "Trend 24h — T e AH"
+        hours_to_show: 24
+        refresh_interval: 60
         entities:
           - entity: sensor.t_in_media
             name: "T interna media"
@@ -40,68 +67,3 @@ cards:
             name: "AH interna"
           - entity: sensor.ah_out
             name: "AH esterna"
-          - entity: sensor.delta_t_in_out
-            name: "ΔT (int-ext)"
-          - entity: sensor.delta_ah_in_out
-            name: "ΔAH (int-ext)"
-          - entity: input_number.vmc_freecooling_delta
-            name: "Soglia ΔT freecooling"
-          - entity: input_number.vmc_freecooling_delta_ah
-            name: "Soglia ΔAH freecooling"
-
-      # ==========================
-      # BLOCCO 3 — CONSIGLI FINESTRE
-      # ==========================
-      - type: entities
-        title: "Consigli finestre"
-        show_header_toggle: false
-        entities:
-          - entity: binary_sensor.vent_condizioni_meteo_ok
-            name: "Meteo OK per aprire"
-          - entity: binary_sensor.vent_condizioni_termiche_ok
-            name: "Termico OK (ΔT/ΔAH)"
-          - entity: binary_sensor.vent_recommend_open
-            name: "Suggerimento: APRI finestre"
-          - entity: binary_sensor.vent_recommend_close
-            name: "Suggerimento: CHIUDI finestre"
-          - entity: sensor.windows_open_count
-            name: "Finestre aperte"
-          - entity: binary_sensor.windows_all_closed
-            name: "Tutte chiuse"
-
-      # ==========================
-      # BLOCCO 4 — STATO FINESTRE
-      # ==========================
-      - type: entities
-        title: "Stato finestre (input_boolean / contatti)"
-        show_header_toggle: false
-        entities:
-          - entity: group.vent_windows_giorno
-            name: "Zona giorno"
-          - entity: group.vent_windows_notte
-            name: "Zona notte"
-          - entity: group.vent_windows_bagno
-            name: "Bagno/Lavanderia"
-
-      # ==========================
-      # BLOCCO 5 — STORICO 24h
-      # ==========================
-      - type: history-graph
-        title: "Trend 24h — VMC & Finestre"
-        hours_to_show: 24
-        refresh_interval: 60
-        entities:
-          - entity: sensor.t_in_media
-            name: "T interna"
-          - entity: sensor.t_out
-            name: "T esterna"
-          - entity: sensor.delta_t_in_out
-            name: "ΔT int-ext"
-          - entity: sensor.delta_ah_in_out
-            name: "ΔAH int-ext"
-          - entity: binary_sensor.vent_recommend_open
-            name: "Suggerito APRI"
-          - entity: binary_sensor.vent_recommend_close
-            name: "Suggerito CHIUDI"
-          - entity: binary_sensor.vmc_freecooling_active
-            name: "VMC freecooling ON"
