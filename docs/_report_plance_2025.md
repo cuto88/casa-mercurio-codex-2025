@@ -1,10 +1,10 @@
 # Report plance Lovelace — Casa Mercurio 2025
 
 ## Plance modificate
-- 1_vent_plancia.yaml
-- 2_vmc_plancia.yaml
-- 3_heating_plancia.yaml
-- 4_ac_plancia.yaml
+- 1_ventilation_plancia.yaml
+- 1_ventilation_windows.yaml
+- 2_heating_plancia.yaml
+- 3_ac_plancia.yaml
 - 5_pm_plancia.yaml
 - 6_surplus_plancia.yaml
 - 9_debug_sistema_plancia.yaml
