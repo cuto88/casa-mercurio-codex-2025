@@ -1,3 +1,4 @@
+---
 ###############################################################################
 # 1_ventilation.yaml — VMC + Ventilazione naturale (Passivhaus-oriented)
 # - VMC: failsafe, boost, anti-secco, freecooling, hook con AC
@@ -802,35 +803,35 @@ template:
           {% endfor %}
           {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}
 
-        - name: "vent_weather_label"
-          unique_id: vent_weather_label
-          icon: mdi:weather-cloudy
-          state: >-
-            {% if is_state('binary_sensor.vent_pioggia','on') %}Pioggia
-            {% elif is_state('binary_sensor.vent_vento_blocco','on') %}Vento forte
-            {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
-            {% else %}OK{% endif %}
+      - name: "vent_weather_label"
+        unique_id: vent_weather_label
+        icon: mdi:weather-cloudy
+        state: >-
+          {% if is_state('binary_sensor.vent_pioggia','on') %}Pioggia
+          {% elif is_state('binary_sensor.vent_vento_blocco','on') %}Vento forte
+          {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
+          {% else %}OK{% endif %}
 
-        - name: "ventilation_priority"
-          unique_id: ventilation_priority
-          icon: mdi:arrow-top-right-bold-outline
-          state: >
-            {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
-              P0_failsafe
-            {% elif is_state('switch.vmc_vel_3','on') %}
-              P1_boost_bagno
-            {% elif is_state('sensor.vmc_freecooling_status','active') %}
-              P2_freecooling
-            {% elif is_state('binary_sensor.vent_recommend_open','on') %}
-              P3_apri_finestre
-            {% else %}
-              idle
-            {% endif %}
+      - name: "ventilation_priority"
+        unique_id: ventilation_priority
+        icon: mdi:arrow-top-right-bold-outline
+        state: >
+          {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+            P0_failsafe
+          {% elif is_state('switch.vmc_vel_3','on') %}
+            P1_boost_bagno
+          {% elif is_state('sensor.vmc_freecooling_status','active') %}
+            P2_freecooling
+          {% elif is_state('binary_sensor.vent_recommend_open','on') %}
+            P3_apri_finestre
+          {% else %}
+            idle
+          {% endif %}
 
-        - name: "ventilation_reason"
-          unique_id: ventilation_reason
-          icon: mdi:text
-          state: "{{ states('sensor.ventilation_priority') }}"
+      - name: "ventilation_reason"
+        unique_id: ventilation_reason
+        icon: mdi:text
+        state: "{{ states('sensor.ventilation_priority') }}"
 
 # =============================
 # 3) SCRIPT (non presenti)
