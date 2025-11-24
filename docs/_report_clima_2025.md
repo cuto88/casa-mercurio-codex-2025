@@ -15,7 +15,7 @@
   - Priorità: P0_failsafe, P1_block_vmc, P2_dry, P3_cool, idle.
   - Entità di stato: `sensor.ac_reason`, `sensor.ac_priority`, `binary_sensor.ac_failsafe_sensors_bad`, `binary_sensor.ac_block_by_vmc`.
 
-- **window.yaml (monitor finestre)**
+- **1_ventilation_windows.yaml (monitor finestre)**
   - Solo monitoraggio contatti/manuali (`input_boolean.vent_*`), gruppi zona giorno/notte/bagni e KPI `sensor.windows_open_count` / `binary_sensor.windows_all_closed`.
 
 ## Sezione 2 — Plance Lovelace

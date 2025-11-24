@@ -28,7 +28,7 @@ COLONNA 3 — TREND, SOGLIE & DEBUG
 - History-graph dedicati a vento/PM e stato finestre per audit.
 
 NOTE
-- Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (0_sensors.yaml e packages/1_vent.yaml).
+- Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (0_sensors.yaml e packages/1_ventilation.yaml).
 - Layout mobile-first (sections) coerente con Regole Plancia core.
 
 RIFERIMENTI LOGICI

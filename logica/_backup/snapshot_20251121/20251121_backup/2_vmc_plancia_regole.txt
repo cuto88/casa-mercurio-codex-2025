@@ -1,7 +1,7 @@
 ###############################################################################
 # 2_vmc_plancia_regole.txt — Documentazione layout plancia 2_VMC
 # Obiettivo: descrivere struttura e contenuti della plancia Lovelace associata
-#            al modulo VMC (packages/2_vmc.yaml, lovelace/2_vmc_plancia.yaml).
+#            al modulo VMC (packages/1_ventilation.yaml, lovelace/1_ventilation_plancia.yaml).
 ###############################################################################
 
 COLONNA 1 — STATO & ATTUATORI

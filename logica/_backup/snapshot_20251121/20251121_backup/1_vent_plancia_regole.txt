@@ -32,5 +32,5 @@ COLONNA 3 — TREND, SOGLIE & DEBUG
 
 NOTE
 - Nessuna definizione di entità nella plancia: tutti gli entity_id sono
-  canonici (0_sensors.yaml e packages/1_vent.yaml).
+  canonici (0_sensors.yaml e packages/1_ventilation.yaml).
 - Layout mobile-first (sections) coerente con Regole Plancia v2.

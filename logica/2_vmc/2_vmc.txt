@@ -27,6 +27,6 @@
 - Watchdog: se nessuna condizione vera per >10m, fallback vel_1.
 
 ## Note di implementazione YAML
-- Automatismi e sensori definiti in `packages/2_vmc.yaml`; plancia in `lovelace/2_vmc_plancia.yaml`.
+- Automatismi e sensori definiti in `packages/1_ventilation.yaml`; plancia in `lovelace/1_ventilation_plancia.yaml`.
 - I timer/lock seguono la tabella core; aggiornare soglie tramite `input_number` dove previsto (es. soglie UR bagno, ΔUR passivhaus/macchina).
 - Gli hook `hook_vmc_request_ac_block` e `hook_ac_request_vmc_low` sono cablati nei rispettivi package AC per DRY/COOL e nei lock VMC.
