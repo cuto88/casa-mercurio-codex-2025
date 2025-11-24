@@ -247,11 +247,12 @@ template:
       # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
       - name: "Heating — minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
+        object_id: heating_minuti_da_ultimo_cambio
         unit_of_measurement: "min"
         state_class: measurement
         state: >-
           {% set entity_id = 'switch.4_ch_interrutore_3' %}
-          {% set ent = states.get(entity_id) %}
+          {% set ent = states[entity_id] if entity_id in states else None %}
           {% if ent is none or ent.last_changed is none or ent.state in ['unknown', 'unavailable'] %}
             unknown
           {% else %}
@@ -325,7 +326,7 @@ template:
           {% set bad = false %}
           {% for sid, (lo, hi) in specs.items() %}
             {% if bad %}{% break %}{% endif %}
-            {% set ent = states.get(sid) %}
+            {% set ent = states[sid] if sid in states else None %}
             {% if ent is none or ent.state in ['unknown','unavailable',''] %}
               {% set bad = true %}
             {% elif ent.state | float(0) < lo or ent.state | float(0) > hi %}
