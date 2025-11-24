@@ -259,34 +259,6 @@ template:
             {{ ((as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60) | round(1) }}
           {% endif %}
           
-        - name: "Heating Priority"
-          unique_id: heating_priority
-          icon: mdi:arrow-top-right-bold-outline
-          state: >-
-            {% set attr = state_attr('sensor.heating_reason', 'priority') %}
-            {% if attr not in [none, ''] %}
-            {{ attr }}
-            {% elif is_state('binary_sensor.heating_failsafe_sensors_bad', 'on') %}
-            P0_failsafe
-            {% elif is_state('input_boolean.heating_manual', 'on') %}
-            manual
-            {% else %}
-            idle
-            {% endif %}
-          attributes:
-            reason: "{{ state_attr('sensor.heating_reason', 'reason') or '—' }}"
-            action: "{{ state_attr('sensor.heating_reason', 'action') or '—' }}"
-
-        - name: "Heating Reason"
-          unique_id: heating_reason
-          icon: mdi:text
-          state: >-
-            {{ state_attr('sensor.heating_reason', 'priority') if state_attr('sensor.heating_reason', 'priority') not in [none, ''] else 'idle' }}
-          attributes:
-            priority: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
-            reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
-            action: "{{ state_attr('sensor.heating_reason','action') or '—' }}"
-
       - name: "Heating — errore zona giorno"
         unique_id: heating_error_zona_giorno
         unit_of_measurement: "°C"
