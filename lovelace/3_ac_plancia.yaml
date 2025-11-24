@@ -165,3 +165,23 @@ views:
                 name: Failsafe sensori
               - entity: binary_sensor.ac_block_by_vmc
                 name: Block by VMC
+
+      - type: grid
+        cards:
+          - type: history-graph
+            title: "Timeline decisioni — AC (24h)"
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - entity: sensor.ac_priority
+                name: Priorità AC
+              - entity: sensor.ac_reason
+                name: Motivo/azione
+              - entity: switch.ac_giorno
+                name: AC Giorno
+              - entity: switch.ac_notte
+                name: AC Notte
+              - entity: binary_sensor.ac_block_by_vmc
+                name: Block da VMC
+              - entity: binary_sensor.ac_failsafe_sensors_bad
+                name: Failsafe sensori AC

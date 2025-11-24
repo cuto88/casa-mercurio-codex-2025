@@ -146,3 +146,25 @@ views:
                 name: Finestra notte
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: Failsafe sensori
+
+      - type: grid
+        cards:
+          - type: history-graph
+            title: "Timeline decisioni — Heating (24h)"
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - entity: sensor.heating_priority
+                name: Priorità heating
+              - entity: sensor.heating_reason
+                name: Motivo/azione
+              - entity: switch.4_ch_interrutore_3
+                name: Pompa riscaldamento
+              - entity: binary_sensor.heating_window_comfort
+                name: Finestra comfort
+              - entity: binary_sensor.heating_window_pv
+                name: Finestra FV
+              - entity: binary_sensor.heating_window_night
+                name: Finestra notte
+              - entity: binary_sensor.surplus_ok
+                name: Surplus FV OK

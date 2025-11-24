@@ -1,0 +1,53 @@
+---
+title: "Clima — Overview"
+path: clima_overview
+icon: mdi:home-thermometer
+type: panel
+cards:
+  - type: vertical-stack
+    cards:
+      - type: history-graph
+        title: "Priorità moduli — 24h"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.vmc_priority
+            name: Ventilation/VMC priority
+          - entity: sensor.heating_priority
+            name: Heating priority
+          - entity: sensor.ac_priority
+            name: AC priority
+
+      - type: history-graph
+        title: "Attuatori principali — 24h"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: switch.vmc_vel_0
+            name: VMC vel_0
+          - entity: switch.vmc_vel_1
+            name: VMC vel_1
+          - entity: switch.vmc_vel_2
+            name: VMC vel_2
+          - entity: switch.vmc_vel_3
+            name: VMC vel_3
+          - entity: switch.4_ch_interrutore_3
+            name: Heating main
+          - entity: switch.ac_giorno
+            name: AC Giorno
+          - entity: switch.ac_notte
+            name: AC Notte
+
+      - type: history-graph
+        title: "KPI ambiente — 24h"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.t_in_media
+            name: T interna media
+          - entity: sensor.t_out
+            name: T esterna
+          - entity: sensor.ah_in
+            name: AH interna
+          - entity: sensor.ah_out
+            name: AH esterna
