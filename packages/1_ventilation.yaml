@@ -802,14 +802,14 @@ template:
           {% endfor %}
           {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}
 
-      - name: "vent_weather_label"
-        unique_id: vent_weather_label
-        icon: mdi:weather-cloudy
-        state: >-
-          {% if is_state('binary_sensor.vent_pioggia','on') %}Pioggia
-          {% elif is_state('binary_sensor.vent_vento_blocco','on') %}Vento forte
-          {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
-          {% else %}OK{% endif %}
+        - name: "vent_weather_label"
+          unique_id: vent_weather_label
+          icon: mdi:weather-cloudy
+          state: >-
+            {% if is_state('binary_sensor.vent_pioggia','on') %}Pioggia
+            {% elif is_state('binary_sensor.vent_vento_blocco','on') %}Vento forte
+            {% elif is_state('binary_sensor.vent_air_quality_ok','off') %}Qualità aria non ok
+            {% else %}OK{% endif %}
 
         - name: "ventilation_priority"
           unique_id: ventilation_priority
