@@ -154,61 +154,71 @@ timer:
 # ============================================================================
 template:
   - binary_sensor:
-      - name: "AC — Failsafe sensori"
-        unique_id: ac_failsafe_sensors_bad
-        device_class: problem
-        state: >
-          {% set sensors = {
-            'sensor.t_in_media': (-20, 50),
-            'sensor.t_out': (-30, 60),
-            'sensor.ur_in_media': (0, 100),
-            'sensor.ur_out': (0, 100)
-          } %}
-          {% set ns = namespace(bad=false) %}
-          {% for sid, limits in sensors.items() %}
-            {% set entity = states[sid] if sid in states else None %}
-            {% if entity is none or entity.state in ['unknown','unavailable',''] %}
-              {% set ns.bad = true %}
-            {% elif entity.state | float(limits[0]-1) < limits[0] or entity.state | float(limits[1]+1) > limits[1] %}
-              {% set ns.bad = true %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.bad }}
+        - name: "AC — Failsafe sensori"
+          unique_id: ac_failsafe_sensors_bad
+          device_class: problem
+          state: >
+            {% set sensors = {
+              'sensor.t_in_media': (-20, 50),
+              'sensor.t_out': (-30, 60),
+              'sensor.ur_in_media': (0, 100),
+              'sensor.ur_out': (0, 100)
+            } %}
+            {% set bad = false %}
+            {% for sid, limits in sensors.items() %}
+              {% if bad %}{% break %}{% endif %}
+              {% if sid in states %}
+                {% set ent = states[sid] %}
+                {% if ent.state in ['unknown','unavailable',''] %}
+                  {% set bad = true %}
+                {% else %}
+                  {% set lo = limits[0] %}
+                  {% set hi = limits[1] %}
+                  {% set val = ent.state | float(0) %}
+                  {% if val < lo or val > hi %}
+                    {% set bad = true %}
+                  {% endif %}
+                {% endif %}
+              {% else %}
+                {% set bad = true %}
+              {% endif %}
+            {% endfor %}
+            {{ bad }}
 
       - name: "AC — Block by VMC"
         unique_id: ac_block_by_vmc
         device_class: safety
         state: "{{ is_state('input_boolean.ac_block_vmc','on') }}"
 
-      - name: "AC — Lock min ON OK"
-        unique_id: ac_lock_min_on_ok
-        state: >
-          {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
-          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
-          {% for ent in entities %}
-            {% set s = states[ent] if ent in states else None %}
-            {% if s is not none and s.state == 'on' %}
-              {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
+        - name: "AC — Lock min ON OK"
+          unique_id: ac_lock_min_on_ok
+          state: >
+            {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
+            {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+            {% for ent_id in entities %}
+              {% if ent_id in states %}
+                {% set s = states[ent_id] %}
+                {% if s.state == 'on' and (now() - s.last_changed).total_seconds() / 60 < mins %}
+                  {{ false }}
+                {% endif %}
               {% endif %}
-            {% endif %}
-          {% endfor %}
-          true
+            {% endfor %}
+            true
 
-      - name: "AC — Lock min OFF OK"
-        unique_id: ac_lock_min_off_ok
-        state: >
-          {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
-          {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
-          {% for ent in entities %}
-            {% set s = states[ent] if ent in states else None %}
-            {% if s is not none and s.state == 'off' %}
-              {% if (now() - s.last_changed).total_seconds() / 60 < mins %}
-                {{ false }}
+        - name: "AC — Lock min OFF OK"
+          unique_id: ac_lock_min_off_ok
+          state: >
+            {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
+            {% set entities = ['switch.ac_giorno', 'switch.ac_notte'] %}
+            {% for ent_id in entities %}
+              {% if ent_id in states %}
+                {% set s = states[ent_id] %}
+                {% if s.state == 'off' and (now() - s.last_changed).total_seconds() / 60 < mins %}
+                  {{ false }}
+                {% endif %}
               {% endif %}
-            {% endif %}
-          {% endfor %}
-          true
+            {% endfor %}
+            true
 
   - sensor:
       - name: "AC Priority"
