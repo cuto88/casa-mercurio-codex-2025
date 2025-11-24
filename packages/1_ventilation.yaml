@@ -837,8 +837,8 @@ template:
           {% set p1_lite = is_state('switch.vmc_vel_2','on') and not soft_boost and lite_ok and not fc_ph and not fc_mac %}
           {% if is_state('binary_sensor.vmc_bagno_boost','on') %}P1 — Bagno/BOOST
           {% elif p1_lite %}P1-Lite — ΔUR interno vs esterno
-          {% elif is_state('switch.vmc_vel_2','on') %}P2 — Free-cooling
-          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}P3 — Anti-secco
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') %}P1 — Anti-secco
+          {% elif is_state('switch.vmc_vel_2','on') %}P3 — Free-cooling
           {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
           {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
           {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
