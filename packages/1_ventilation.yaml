@@ -352,39 +352,39 @@ rest:
 # =============================
 template:
   - binary_sensor:
-        - name: "VMC failsafe — sensori non ok"
-          unique_id: vmc_failsafe_sensors_bad
-          icon: mdi:alert-circle
-          state: >
-            {% set specs = {
-              'sensor.t_in_media': [-20, 50],
-              'sensor.t_out': [-20, 50],
-              'sensor.ur_in_media': [0, 100],
-              'sensor.ur_out': [0, 100],
-              'sensor.ah_in': [0, none],
-              'sensor.ah_out': [0, none],
-              'sensor.ur_in_bagno': [0, 100]
-            } %}
-            {% set bad = false %}
-            {% for sid, limits in specs.items() %}
-              {% if bad %}{% break %}{% endif %}
-              {% if sid in states %}
-                {% set ent = states[sid] %}
-                {% if ent.state in ['unknown','unavailable',''] %}
-                  {% set bad = true %}
-                {% else %}
-                  {% set lo = limits[0] %}
-                  {% set hi = limits[1] %}
-                  {% set val = ent.state | float(0) %}
-                  {% if (lo is not none and val < lo) or (hi is not none and val > hi) %}
-                    {% set bad = true %}
-                  {% endif %}
-                {% endif %}
-              {% else %}
+      - name: "VMC failsafe — sensori non ok"
+        unique_id: vmc_failsafe_sensors_bad
+        icon: mdi:alert-circle
+        state: >
+          {% set specs = {
+            'sensor.t_in_media': [-20, 50],
+            'sensor.t_out': [-20, 50],
+            'sensor.ur_in_media': [0, 100],
+            'sensor.ur_out': [0, 100],
+            'sensor.ah_in': [0, none],
+            'sensor.ah_out': [0, none],
+            'sensor.ur_in_bagno': [0, 100]
+          } %}
+          {% set bad = false %}
+          {% for sid, limits in specs.items() %}
+            {% if bad %}{% break %}{% endif %}
+            {% if sid in states %}
+              {% set ent = states[sid] %}
+              {% if ent.state in ['unknown','unavailable',''] %}
                 {% set bad = true %}
+              {% else %}
+                {% set lo = limits[0] %}
+                {% set hi = limits[1] %}
+                {% set val = ent.state | float(0) %}
+                {% if (lo is not none and val < lo) or (hi is not none and val > hi) %}
+                  {% set bad = true %}
+                {% endif %}
               {% endif %}
-            {% endfor %}
-            {{ bad }}
+            {% else %}
+              {% set bad = true %}
+            {% endif %}
+          {% endfor %}
+          {{ bad }}
         attributes:
           problematic_sensors: >
             {% set specs = {
@@ -492,11 +492,11 @@ template:
         icon: mdi:water-remove
         state: >
           {{ is_state('switch.ac_notte','on') or is_state('switch.ac_giorno','on') }}
-          attributes:
-            started_minutes_ago: >
-              {% set ns = namespace(times=[]) %}
-              {% set ent_n = states['switch.ac_notte'] if 'switch.ac_notte' in states else None %}
-              {% set ent_g = states['switch.ac_giorno'] if 'switch.ac_giorno' in states else None %}
+        attributes:
+          started_minutes_ago: >
+            {% set ns = namespace(times=[]) %}
+            {% set ent_n = states['switch.ac_notte'] if 'switch.ac_notte' in states else None %}
+            {% set ent_g = states['switch.ac_giorno'] if 'switch.ac_giorno' in states else None %}
             {% for obj in [ent_n, ent_g] %}
               {% if obj is not none and obj.last_changed is defined %}
                 {% set ns.times = ns.times + [obj.last_changed] %}
