@@ -1009,7 +1009,8 @@ automation:
                     target: "vel_0"
 
       # DEFAULT — Baseline ventilazione
-      - default:
+      - choose: []
+        default:
           - service: switch.turn_on
             target:
               entity_id: switch.vmc_vel_1
