@@ -601,6 +601,129 @@ template:
           {{ pm <= soglia }}
 
   - sensor:
+      - name: "T interna media"
+        unique_id: t_in_media
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set sensors = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno'
+          ] %}
+          {% set values = [] %}
+          {% for s in sensors %}
+            {% set raw = states(s) %}
+            {% if raw not in ['unknown','unavailable','', none] %}
+              {% set values = values + [ raw | float ] %}
+            {% endif %}
+          {% endfor %}
+          {% if values | length > 0 %}
+            {{ (values | sum / (values | length)) | round(2) }}
+          {% else %}
+            {% set backup = states('input_number.vent_backup_t_in') %}
+            {{ backup | float(20) | round(2) }}
+          {% endif %}
+
+      - name: "T esterna"
+        unique_id: t_out
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set meteo = states('sensor.vent_meteo_temp') %}
+          {% if meteo not in ['unknown','unavailable','', none] %}
+            {{ meteo | float | round(2) }}
+          {% else %}
+            {% set backup = states('input_number.vent_backup_t_in') %}
+            {{ backup | float(20) | round(2) }}
+          {% endif %}
+
+      - name: "AH interna"
+        unique_id: ah_in
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        state: >-
+          {% set temp_raw = states('sensor.t_in_media') %}
+          {% set temp = temp_raw | float(default=none) if temp_raw not in ['unknown','unavailable','', none] else none %}
+          {% set rh_sources = [
+            'sensor.ur_in_media',
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno'
+          ] %}
+          {% set rh = none %}
+          {% for src in rh_sources %}
+            {% set raw = states(src) %}
+            {% if raw not in ['unknown','unavailable','', none] %}
+              {% set rh = raw | float %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+          {% if temp is none or rh is none %}
+            {% set temp = states('input_number.vent_backup_t_in') | float(20) %}
+            {% set rh = states('input_number.vent_backup_ur_in') | float(55) %}
+          {% endif %}
+          {% set rh_clamped = [1, [rh, 100] | min] | max %}
+          {% set exponent = (17.67 * temp) / (temp + 243.5) %}
+          {% set es = 6.112 * (2.718281828 ** exponent) %}
+          {% set pv = rh_clamped / 100 * es %}
+          {{ (216.7 * pv / (temp + 273.15)) | round(2) }}
+
+      - name: "AH esterna"
+        unique_id: ah_out
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        state: >-
+          {% set temp_raw = states('sensor.t_out') %}
+          {% set temp = temp_raw | float(default=none) if temp_raw not in ['unknown','unavailable','', none] else none %}
+          {% set rh_raw = states('sensor.vent_meteo_rh') %}
+          {% set rh = rh_raw | float(default=none) if rh_raw not in ['unknown','unavailable','', none] else none %}
+          {% if temp is none or rh is none %}
+            {% set temp = states('input_number.vent_backup_t_in') | float(20) %}
+            {% set rh = states('input_number.vent_backup_ur_in') | float(55) %}
+          {% endif %}
+          {% set rh_clamped = [1, [rh, 100] | min] | max %}
+          {% set exponent = (17.67 * temp) / (temp + 243.5) %}
+          {% set es = 6.112 * (2.718281828 ** exponent) %}
+          {% set pv = rh_clamped / 100 * es %}
+          {{ (216.7 * pv / (temp + 273.15)) | round(2) }}
+
+      - name: "Delta T in-out"
+        unique_id: delta_t_in_out
+        unit_of_measurement: "°C"
+        state_class: measurement
+        state: >-
+          {% set tin_raw = states('sensor.t_in_media') %}
+          {% set tin = tin_raw | float(default=none) if tin_raw not in ['unknown','unavailable','', none] else none %}
+          {% set tout_raw = states('sensor.t_out') %}
+          {% set tout = tout_raw | float(default=none) if tout_raw not in ['unknown','unavailable','', none] else none %}
+          {% if tin is not none and tout is not none %}
+            {{ (tin - tout) | round(2) }}
+          {% else %}
+            {% set tin_b = states('input_number.vent_backup_t_in') | float(20) %}
+            {% set tout_b = tin_b %}
+            {{ (tin_b - tout_b) | round(2) }}
+          {% endif %}
+
+      - name: "Delta AH in-out"
+        unique_id: delta_ah_in_out
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        state: >-
+          {% set ah_in_raw = states('sensor.ah_in') %}
+          {% set ah_in = ah_in_raw | float(default=none) if ah_in_raw not in ['unknown','unavailable','', none] else none %}
+          {% set ah_out_raw = states('sensor.ah_out') %}
+          {% set ah_out = ah_out_raw | float(default=none) if ah_out_raw not in ['unknown','unavailable','', none] else none %}
+          {% if ah_in is not none and ah_out is not none %}
+            {{ (ah_in - ah_out) | round(2) }}
+          {% else %}
+            {{ 0 | round(2) }}
+          {% endif %}
+
       - name: "UR interna minima"
         unique_id: ur_in_min
         unit_of_measurement: "%"
@@ -719,7 +842,7 @@ template:
           {% elif is_state('switch.ac_notte','on') and is_state('switch.vmc_vel_0','on') %}OV — AC notte = DRY
           {% elif is_state('switch.vmc_vel_1','on') %}P4 — Baseline
           {% elif is_state('switch.vmc_vel_0','on') %}P0 — Failsafe/Stop
-          {% else %}—{% endif %}
+          {% else %}idle{% endif %}
 
       - name: "vent_ah_in"
         unique_id: vent_ah_in
