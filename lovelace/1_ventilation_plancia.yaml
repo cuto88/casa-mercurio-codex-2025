@@ -55,9 +55,9 @@ views:
               - entity: binary_sensor.vent_condizioni_meteo_ok
                 name: Meteo OK
               - entity: binary_sensor.vent_recommend_open
-                name: Consiglio: apri finestre
+                name: "Consiglio: apri finestre"
               - entity: binary_sensor.vent_recommend_close
-                name: Consiglio: chiudi finestre
+                name: "Consiglio: chiudi finestre"
               - entity: sensor.ventilation_priority
                 name: Priorità ventilazione
               - entity: sensor.ventilation_reason

@@ -49,3 +49,7 @@ logica/
 
 ## 🔗 Collegamento con YAML
 Ogni file `.txt` corrisponde a un package YAML e alla relativa plancia Lovelace omonima, ma la cartella `logica/` rimane soltanto documentale. Le soglie e i lock devono essere presi dal core; i moduli dichiarano solo le eccezioni locali. Le plance includono sempre la sezione **RIFERIMENTI LOGICI** con link al core e al file logico del modulo.
+
+## 🌡️ Clima 2025 — stack attivo
+- **Packages:** `0_sensors.yaml`, `1_ventilation.yaml`, `1_ventilation_windows.yaml`, `2_heating.yaml`, `3_ac.yaml`.
+- **Plance Lovelace:** `1_ventilation_plancia.yaml`, `1_ventilation_windows.yaml`, `2_heating_plancia.yaml`, `3_ac_plancia.yaml`.

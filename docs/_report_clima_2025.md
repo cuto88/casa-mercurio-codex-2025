@@ -21,11 +21,11 @@
 ## Sezione 2 — Plance Lovelace
 - **1_ventilation_plancia.yaml**
   - Vista unica per VMC + consigli finestre: priorità, freecooling, KPI ΔT/ΔAH, meteo e suggerimenti apertura.
-- **window_plancia.yaml**
+- **1_ventilation_windows.yaml**
   - Monitor dedicato aperture finestre con gruppi per zona e storico aperture.
-- **3_heating_plancia.yaml**
+- **2_heating_plancia.yaml**
   - Allineata con gli helper heating attivi.
-- **4_ac_plancia.yaml**
+- **3_ac_plancia.yaml**
   - Allineata con gli helper AC e blocchi VMC.
 - (Deprecate) `1_vent_plancia.yaml` e `2_vmc_plancia.yaml` rimandano alla nuova vista unificata.
 
@@ -39,5 +39,5 @@
 
 ## Sezione 4 — Incongruenze e TODO consigliati
 - Moduli legacy 1_vent / 2_vmc / 1_ventilation_* deprecati e sostituiti da `1_ventilation.yaml`.
-- Plance legacy sostituite con `1_ventilation_plancia.yaml` e `window_plancia.yaml`; nessuna entità mancante rilevata.
+- Plance legacy sostituite con `1_ventilation_plancia.yaml` e `1_ventilation_windows.yaml`; nessuna entità mancante rilevata.
 - TODO leggero: valutare in futuro l’uso di sensori contatto reali al posto degli `input_boolean.vent_*` per le finestre.
