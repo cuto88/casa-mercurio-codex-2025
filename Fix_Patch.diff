@@ -1,0 +1,50 @@
+diff --git a/packages/1_ventilation.yaml b/packages/1_ventilation.yaml
+index 2ef572b..eab17b7 100644
+--- a/packages/1_ventilation.yaml
++++ b/packages/1_ventilation.yaml
+@@ -650,30 +650,28 @@ template:
+         unique_id: vmc_freecooling_status
+         icon: mdi:weather-night
+         state: >
+-          {% set free = is_state('switch.vmc_vel_2','on') and state_attr('sensor.vmc_reason','reason') == 'P3_freecooling' %}
+           {% set cooldown = is_state('timer.vmc_freecooling_cooldown','active') %}
+-          {% set maxrun_lock = (not is_state('timer.vmc_freecooling_max_run','active')) and (state_attr('sensor.vmc_reason','reason') == 'P3_freecooling') and (not cooldown) and (not free) %}
++          {% set free = is_state('switch.vmc_vel_2','on') and not cooldown %}
++          {% set maxrun_lock = (not is_state('timer.vmc_freecooling_max_run','active')) and not cooldown and not free %}
+           {% if cooldown %}cooldown
+           {% elif free %}active
+           {% elif maxrun_lock %}maxrun_lock
+           {% else %}off
+           {% endif %}
+         attributes:
+-          last_mode: "{{ state_attr('sensor.vmc_reason','reason') }}"
++          last_mode: "{{ states('sensor.vmc_reason') }}"
+           cooldown_remaining: "{{ state_attr('timer.vmc_freecooling_cooldown','remaining') }}"
+ 
+       - name: "VMC Reason"
+         unique_id: vmc_reason
+         icon: mdi:text
+         state: >
+-          {% set attr_reason = state_attr('sensor.vmc_reason','reason') %}
+           {% set failsafe = is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+           {% set manual = is_state('input_boolean.vmc_manual','on') %}
+-          {% set boost = is_state('switch.vmc_vel_3','on') or is_state('timer.vmc_boost_lock','active') or attr_reason == 'P2_boost_bagno' %}
+-          {% set anti_secco = is_state('timer.vmc_anti_secco_lock','active') or attr_reason == 'P1_anti_secco' %}
++          {% set boost = is_state('switch.vmc_vel_3','on') or is_state('timer.vmc_boost_lock','active') %}
++          {% set anti_secco = is_state('timer.vmc_anti_secco_lock','active') %}
+           {% set freecooling_trigger = is_state('switch.vmc_vel_2','on') or is_state('timer.vmc_freecooling_max_run','active') or is_state('timer.vmc_freecooling_cooldown','active') %}
+-          {% set freecooling_attr = attr_reason == 'P3_freecooling' %}
+-          {% set freecooling = (freecooling_trigger and (attr_reason in ['P3_freecooling', none, 'idle'] or is_state('binary_sensor.stagione_calda','on'))) or freecooling_attr %}
++          {% set freecooling = freecooling_trigger and is_state('binary_sensor.stagione_calda','on') %}
+ 
+           {% if failsafe %}
+             P0_failsafe
+@@ -689,7 +687,7 @@ template:
+             idle
+           {% endif %}
+         attributes:
+-          reason: "{{ state_attr('sensor.vmc_reason','reason') }}"
++          reason: "{{ this.state }}"
+ 
+       - name: "VMC Last Event"
+         unique_id: vmc_last_event
