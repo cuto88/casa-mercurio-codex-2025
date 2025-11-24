@@ -3,25 +3,21 @@ chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 REM WATCH_REMOTE.CMD — Controllo nuovi commit su GitHub + sync HA
+REM Versione semplificata: ignora SEMPRE modifiche locali lato repo
 
-REM 1) Determina branch di default
+REM 1) Determina il branch corrente come default
 set "DEFAULT_BRANCH="
 for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "DEFAULT_BRANCH=%%B"
 if "%DEFAULT_BRANCH%"=="" set "DEFAULT_BRANCH=main"
 
-REM 2) Default configurazione
+REM 2) Impostazioni base
 set "BRANCH=%DEFAULT_BRANCH%"
-set "CHECK_INTERVAL=30"   REM secondi tra i controlli
-set "POST_PULL_WAIT=10"   REM attesa prima del sync (non usato ma lasciato per compatibilità)
-set "IGNORE_LOCAL_CHANGES=1"  REM di default IGNORO sempre le modifiche locali
+set "CHECK_INTERVAL=30"
+set "IGNORE_LOCAL_CHANGES=1"
 
-REM 3) Parsing argomenti CLI
+REM 3) Parsing argomenti opzionali
 :PARSE_ARGS
 if "%~1"=="" goto ARGS_DONE
-
-for %%A in (--ignore-local -ignore-local /ignore-local ignore-local --ignore -ignore /ignore ignore) do (
-  if /I "%~1"=="%%~A" set "IGNORE_LOCAL_CHANGES=1"
-)
 
 if /I "%~1"=="--branch" (
   if not "%~2"=="" (
@@ -30,6 +26,10 @@ if /I "%~1"=="--branch" (
   )
   shift
   goto PARSE_ARGS
+)
+
+for %%A in (--ignore-local -ignore-local /ignore-local ignore-local --ignore -ignore /ignore ignore) do (
+  if /I "%~1"=="%%~A" set "IGNORE_LOCAL_CHANGES=1"
 )
 
 shift
@@ -42,15 +42,14 @@ set "WATCH_BRANCH=%BRANCH%"
 set "PULL_SCRIPT=%~dp0pull_repo.ps1"
 set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
 
-echo 🔁 Watcher remoto avviato (branch: %BRANCH%)
+echo 🔁 Watcher remoto avviato \(branch: %BRANCH%\)
 echo Repo: %cd%
-echo Ignoro SEMPRE le modifiche locali \(git reset/pull forzato gestito da pull_repo.ps1\)
+echo Ignoro SEMPRE le modifiche locali \(reset/pull forzato gestito da pull_repo.ps1\)
 echo.
 
 :LOOP
 echo [%time%] Controllo nuovi commit su origin/%BRANCH%...
 
-REM 4) Controlla aggiornamenti remoti
 git fetch origin %BRANCH% >nul 2>&1
 for /f "delims=" %%A in ('git rev-parse HEAD') do set "LOCAL=%%A"
 for /f "delims=" %%A in ('git rev-parse origin/%BRANCH%') do set "REMOTE=%%A"
@@ -61,7 +60,7 @@ if not "%LOCAL%"=="%REMOTE%" (
     echo     remote: %REMOTE%
     echo.
 
-    REM 5) Pull forzato: passiamo sempre -IgnoreLocalChanges a pull_repo.ps1
+    REM Pull forzato: sempre -IgnoreLocalChanges
     powershell -ExecutionPolicy Bypass -File "%PULL_SCRIPT%" -IgnoreLocalChanges
     if errorlevel 1 (
         echo ❌ Pull fallito. Riprovo tra %CHECK_INTERVAL%s...
@@ -81,5 +80,5 @@ if not "%LOCAL%"=="%REMOTE%" (
 
 echo.
 echo [%time%] Prossimo controllo tra %CHECK_INTERVAL% secondi...
-timeout /t %CHECK_INTERVAL% >nul
+timeout /t %CHECK_INTERVAL% /nobreak >nul
 goto LOOP
