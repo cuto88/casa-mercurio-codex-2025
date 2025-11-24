@@ -1,0 +1,55 @@
+views:
+  - title: Finestre
+    path: windows
+    icon: mdi:window-open-variant
+    type: sections
+    max_columns: 3
+
+    sections:
+      - type: grid
+        title: "Stato globale"
+        cards:
+          - type: glance
+            columns: 3
+            entities:
+              - entity: binary_sensor.windows_all_closed
+                name: Casa chiusa
+              - entity: sensor.windows_open_count
+                name: Finestre aperte
+              - entity: sensor.vent_finestre_state
+                name: Dettaglio
+
+      - type: grid
+        title: "Zone"
+        cards:
+          - type: entities
+            title: "Zona giorno"
+            entities:
+              - entity: group.windows_zona_giorno
+                name: Stato zona giorno
+              - entity: binary_sensor.windows_giorno_any
+                name: Finestre aperte
+          - type: entities
+            title: "Zona notte"
+            entities:
+              - entity: group.windows_zona_notte
+                name: Stato zona notte
+              - entity: binary_sensor.windows_notte_any
+                name: Finestre aperte
+          - type: entities
+            title: "Bagni"
+            entities:
+              - entity: group.windows_bagni
+                name: Stato bagni
+              - entity: binary_sensor.windows_bagno_any
+                name: Finestre aperte
+
+      - type: grid
+        title: "Storico"
+        cards:
+          - type: history-graph
+            hours_to_show: 24
+            entities:
+              - entity: sensor.windows_open_count
+              - entity: binary_sensor.windows_all_closed
+            title: "Andamento aperture (24h)"

@@ -38,14 +38,14 @@ lovelace:
       title: "1 Ventilazione"
       icon: mdi:fan
       show_in_sidebar: true
-      filename: lovelace/1_vent_plancia.yaml
+      filename: lovelace/1_ventilation_plancia.yaml
 
     2-vmc:
       mode: yaml
-      title: "Clima / VMC / Finestre"
-      icon: mdi:home-thermometer
+      title: "2 Finestre"
+      icon: mdi:window-open-variant
       show_in_sidebar: true
-      filename: lovelace/1_ventilation_plancia.yaml
+      filename: lovelace/window_plancia.yaml
 
     3-heating:
       mode: yaml
