@@ -42,24 +42,24 @@ lovelace:
 
     2-vmc:
       mode: yaml
-      title: "2 Finestre"
+      title: "1 Finestre"
       icon: mdi:window-open-variant
       show_in_sidebar: true
-      filename: lovelace/window_plancia.yaml
+      filename: lovelace/1_ventilation_windows.yaml
 
     3-heating:
       mode: yaml
-      title: "3 Riscaldamento"
+      title: "2 Riscaldamento"
       icon: mdi:radiator
       show_in_sidebar: true
-      filename: lovelace/3_heating_plancia.yaml
+      filename: lovelace/2_heating_plancia.yaml
 
     4-ac:
       mode: yaml
-      title: "4 Clima"
+      title: "3 Clima"
       icon: mdi:snowflake
       show_in_sidebar: true
-      filename: lovelace/4_ac_plancia.yaml
+      filename: lovelace/3_ac_plancia.yaml
 
     5-powermeter:
       mode: yaml
