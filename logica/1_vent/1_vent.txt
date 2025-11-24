@@ -21,6 +21,6 @@
 - Anti-smog: se PM2.5 o air_quality fuori soglia, sospende suggerimenti di apertura anche con ΔT/ΔAH favorevoli.
 
 ## Note di implementazione YAML
-- Automazioni e helper in `packages/1_vent.yaml`; nessun controllo YAML qui.
+- Automazioni e helper in `packages/1_ventilation.yaml`; nessun controllo YAML qui.
 - Binary_sensor `vent_recommend_open/close` e messaggio testo `input_text.vent_messaggio_consiglio` usati da plancia.
 - Timer/lock per evitare ping-pong di consigli configurati via `timer.vent_*` e `input_number` soglie.

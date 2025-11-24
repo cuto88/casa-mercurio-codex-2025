@@ -1,5 +1,5 @@
 ###############################################################################
-# 1_vent.yaml — Summer Passive Ventilation (Silea, TV — IT)
+# 1_ventilation.yaml — Summer Passive Ventilation (Silea, TV — IT)
 #
 # SCOPO
 #   Consigliare in stagione ESTIVA quando APRIRE/CHIUDERE le finestre in ottica

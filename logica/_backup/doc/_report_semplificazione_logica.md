@@ -10,7 +10,7 @@
 | 1_vent.txt | Logica ventilazione naturale estiva (criteri ΔT/ΔAH, meteo, night flush) | Autonomo; i criteri sono riportati anche in regole_plancia | Solo descrizione, nessuna sezione di integrazione con altri moduli |
 | 1_vent_plancia_regole.txt | Layout plancia ventilazione | Dipende dal set di entità 1_vent/0_sensors | Coerente con regole_plancia; nessuna criticità |
 | 2_vmc.txt | Core logic VMC con priorità P0–P4, free-cooling doppio, anti-secco, escalation DRY | Implicita interazione con AC (override DRY) e bagno; sovrapposto alle sintesi in regole_plancia | Priorità descritte solo qui ma replicate in due file plancia |
-| 2_vmc_plancia_regole.txt | Layout plancia VMC (versione dettagliata con manuale) | Riferimento a packages/2_vmc.yaml; usa priorità P0–P4 | Duplica quasi integralmente vmc_plancia_regole.txt |
+| 2_vmc_plancia_regole.txt | Layout plancia VMC (versione dettagliata con manuale) | Riferimento a packages/1_ventilation.yaml; usa priorità P0–P4 | Duplica quasi integralmente vmc_plancia_regole.txt |
 | vmc_plancia_regole.txt | Altra versione del layout VMC | Stesse dipendenze della precedente | Duplicato con differenze minime di testi/grafici |
 | 3_heating.txt | Logica riscaldamento a pavimento (finestra 10–16, target 21 °C, condizioni T/UR) | Collega a sensori zona giorno/notte/bagno; link concettuale a PV/surplus | Molto sintetico, mancano priorità e lock dettagliati |
 | 3_heating_plancia_regole.txt | Layout plancia heating con stato, override, KPI e diagnostica | Dipende da packages/2_heating.yaml; richiama soglie/lock | Allineato ma ripete logica già in regole_plancia |
