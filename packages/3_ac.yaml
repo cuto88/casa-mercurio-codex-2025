@@ -1,5 +1,5 @@
 ###############################################################################
-# 4_ac.yaml — Controllo Aria Condizionata (Passivhaus-Oriented)
+# 3_ac.yaml — Controllo Aria Condizionata (Passivhaus-Oriented)
 # Controller unico AC con priorità, hook VMC e telemetria
 ###############################################################################
 

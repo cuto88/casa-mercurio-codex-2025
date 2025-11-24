@@ -27,8 +27,8 @@ Ogni funzione è contenuta in un file indipendente `.yaml` (logica attiva) o `.t
 │   ├── 0_sensors.yaml
 │   ├── 1_vent.yaml
 │   ├── 2_vmc.yaml
-│   ├── 3_heating.yaml
-│   ├── 4_ac.yaml
+│   ├── 2_heating.yaml
+│   ├── 3_ac.yaml
 │   ├── 6_powermeter.yaml
 │   ├── 6_surplus_energy.yaml
 │   ├── 6_global_energy.yaml
@@ -58,8 +58,8 @@ Ogni funzione è contenuta in un file indipendente `.yaml` (logica attiva) o `.t
 |:--|:--|:--|
 | **Ventilazione naturale** | `1_vent.yaml` / `1_vent.txt` | Suggerisce quando aprire/chiudere finestre per free-cooling notturno e comfort estivo (ΔT e ΔAH). |
 | **VMC** | `2_vmc.yaml` / `2_vmc1.txt` | Gestisce priorità P0–P4: failsafe, bagno/boost, free-cooling PH o termico, anti-secco, baseline. Override AC notte. |
-| **Riscaldamento** | `3_heating.yaml` / `3_heating.txt` | Ottimizza il riscaldamento a pavimento in base a PV e comfort. Funzione “carica termica” 10-16. |
-| **AC** | `4_ac.yaml` / `4_ac.txt` | Gestisce modalità DRY/COOL, isteresi, anti-ciclo, lock, con priorità comfort. Blocchi notturni integrabili con VMC. |
+| **Riscaldamento** | `2_heating.yaml` / `3_heating.txt` | Ottimizza il riscaldamento a pavimento in base a PV e comfort. Funzione “carica termica” 10-16. |
+| **AC** | `3_ac.yaml` / `4_ac.txt` | Gestisce modalità DRY/COOL, isteresi, anti-ciclo, lock, con priorità comfort. Blocchi notturni integrabili con VMC. |
 | **Energia / PowerMeter** | `5_powermeter.yaml` | Rileva potenza e flussi (A/B), base per logiche di surplus e bilancio. |
 | **Surplus PV** | `6_surplus_energy.yaml` | Gestisce carichi e logiche di autoconsumo energetico intelligente. |
 | **Energia globale** | `9_global_energy.yaml` | Aggrega KPI, bilanci e grafici cumulativi. |

@@ -30,7 +30,7 @@ Per il dettaglio:
 - 4_ac/4_ac.txt → configurazione specifica Casa Mercurio
 
 NOTE
-- Plancia usa solo entity_id già definiti in packages/4_ac.yaml e 0_sensors.yaml.
+- Plancia usa solo entity_id già definiti in packages/3_ac.yaml e 0_sensors.yaml.
 - Layout mobile-first (sections) coerente con Regole Plancia core.
 
 RIFERIMENTI LOGICI

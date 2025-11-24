@@ -22,6 +22,6 @@
 - Manual override: input_boolean.ac_manual + input_select.ac_manual_mode possono scavalcare blocco notte/emergenza con timeout timer.ac_manual_timeout.
 
 ## Note di implementazione YAML
-- Logiche e helper in `packages/4_ac.yaml`: binary_sensor `ac_need_*`, `ac_fascia_ok`, `ac_should_run`, `ac_blocco_vmc`, contatori runtime.
+- Logiche e helper in `packages/3_ac.yaml`: binary_sensor `ac_need_*`, `ac_fascia_ok`, `ac_should_run`, `ac_blocco_vmc`, contatori runtime.
 - Automazioni locali mappano le decisioni sui due switch split rispettando i lock core e gli hook VMC.
 - Nessun duplicato delle regole core: le soglie numeriche sono editabili via input_number e usate dalle automazioni di accensione/spegnimento.
