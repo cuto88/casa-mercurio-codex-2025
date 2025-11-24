@@ -523,21 +523,21 @@ template:
         unique_id: vent_deltat_ok
         state: >-
           {% set delta = states('sensor.delta_t_in_out')|float(default=none) %}
-          {% set soglia = states('input_number.vmc_freecooling_delta')|float(default=none) %}
+          {% set soglia = states('input_number.vent_deltat_min')|float(default=none) %}
           {{ delta is number and soglia is number and delta >= soglia }}
         availability: >-
           {{ states('sensor.delta_t_in_out') not in ['unknown','unavailable',''] and
-             states('input_number.vmc_freecooling_delta') not in ['unknown','unavailable',''] }}
+             states('input_number.vent_deltat_min') not in ['unknown','unavailable',''] }}
 
       - name: "vent_deltaah_ok"
         unique_id: vent_deltaah_ok
         state: >-
           {% set delta = states('sensor.delta_ah_in_out')|float(default=none) %}
-          {% set soglia = states('input_number.vmc_freecooling_delta_ah')|float(default=none) %}
+          {% set soglia = states('input_number.vent_deltaah_min')|float(default=none) %}
           {{ delta is number and soglia is number and delta >= soglia }}
         availability: >-
           {{ states('sensor.delta_ah_in_out') not in ['unknown','unavailable',''] and
-             states('input_number.vmc_freecooling_delta_ah') not in ['unknown','unavailable',''] }}
+             states('input_number.vent_deltaah_min') not in ['unknown','unavailable',''] }}
 
       - name: "vent_condizioni_meteo_ok"
         unique_id: vent_condizioni_meteo_ok

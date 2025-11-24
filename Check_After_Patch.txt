@@ -1,0 +1,16 @@
+Comandi di verifica (da eseguire in Home Assistant):
+1. core check: `ha core check`
+2. reload automazioni/sensori dopo il deploy: `ha core reload`
+
+Validazione logica ventilazione:
+- Accertarsi che `binary_sensor.vent_deltat_ok` e `binary_sensor.vent_deltaah_ok` vadano su ON solo quando le soglie degli slider `input_number.vent_deltat_min` e `input_number.vent_deltaah_min` sono rispettate.
+- Verificare che `binary_sensor.vent_recommend_open` passi a ON solo con meteo ok + ΔT/ΔAH ok.
+
+Test plancia:
+- Aprire la dashboard "1 Ventilazione": le card devono mostrare i sensori VMC e i consigli finestre (non più blank). 
+- Menu laterale: visibili solo le view 1 Ventilazione, 2 Riscaldamento, 3 Clima.
+
+Criteri di accettazione utente:
+- Le soglie di ventilazione naturale rispondono agli slider dedicati (no conflitto con freecooling VMC).
+- Nessun errore in `ha core check`.
+- Navigazione lovelace limitata a 1-2-3.
