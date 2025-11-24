@@ -1,3 +1,4 @@
+---
 # ===============================
 # FILE: config/packages/2_heating.yaml
 # ===============================
@@ -154,127 +155,127 @@ template:
         availability: "true"
         state: >-
           {% set rooms = [
-            ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-            ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-            ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-            ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+          ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+          ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+          ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
           ] %}
           {% set active = [] %}
           {% for label, sid, tog in rooms %}
-            {% if is_state(tog, 'on') %}
-              {% set active = active + [label] %}
-            {% endif %}
+          {% if is_state(tog, 'on') %}
+            {% set active = active + [label] %}
+          {% endif %}
           {% endfor %}
           {{ active | join(', ') if active | length > 0 else 'Nessuna (⚠️)' }}
 
-        # Temperatura interna minima fra le stanze attive
-        - name: "Heating — T interna minima"
-          unique_id: heating_t_in_min
-          unit_of_measurement: "°C"
-          device_class: temperature
-          availability: >-
-            {% set rooms = [
-              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-            ] %}
-            {% set vals = [] %}
-            {% for sid, tog in rooms %}
-              {% set ent = states[sid] if sid in states else None %}
-              {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
-                {% set vals = vals + [ent.state | float] %}
-              {% endif %}
-            {% endfor %}
-            {{ vals | length > 0 }}
-          state: >-
-            {% set rooms = [
-              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-            ] %}
-            {% set vals = [] %}
-            {% for sid, tog in rooms %}
-              {% set ent = states[sid] if sid in states else None %}
-              {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
-                {% set vals = vals + [ent.state | float] %}
-              {% endif %}
-            {% endfor %}
-            {% if vals | length > 0 %}{{ (vals | min) | round(2) }}{% else %}unknown{% endif %}
+      # Temperatura interna minima fra le stanze attive
+      - name: "Heating — T interna minima"
+        unique_id: heating_t_in_min
+        unit_of_measurement: "°C"
+        device_class: temperature
+        availability: >-
+          {% set rooms = [
+          ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+          ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+          ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+          ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set vals = [] %}
+          {% for sid, tog in rooms %}
+          {% set ent = states[sid] if sid in states else None %}
+          {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
+            {% set vals = vals + [ent.state | float] %}
+          {% endif %}
+          {% endfor %}
+          {{ vals | length > 0 }}
+        state: >-
+          {% set rooms = [
+          ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+          ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+          ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+          ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set vals = [] %}
+          {% for sid, tog in rooms %}
+          {% set ent = states[sid] if sid in states else None %}
+          {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
+            {% set vals = vals + [ent.state | float] %}
+          {% endif %}
+          {% endfor %}
+          {% if vals | length > 0 %}{{ (vals | min) | round(2) }}{% else %}unknown{% endif %}
 
-        # Numero stanze conteggiate e quante sono sotto-target
-        - name: "Heating — stanze sotto target"
-          unique_id: heating_rooms_below_target
-          unit_of_measurement: "stanze"
-          availability: >-
-            {{ states('input_number.temp_target_risc') not in ['unknown','unavailable','']
-               and states('input_number.heating_tolerance') not in ['unknown','unavailable',''] }}
-          state: >-
-            {% set rooms = [
-              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-            ] %}
-            {% set t_target = states('input_number.temp_target_risc') | float(21) %}
-            {% set tol = states('input_number.heating_tolerance') | float(0.5) %}
-            {% set below = [] %}
-            {% for sid, tog in rooms %}
-              {% if is_state(tog, 'on') and sid in states and states[sid].state not in ['unknown','unavailable',''] %}
-                {% if states[sid].state | float < (t_target - tol) %}
-                  {% set below = below + [sid] %}
-                {% endif %}
+      # Numero stanze conteggiate e quante sono sotto-target
+      - name: "Heating — stanze sotto target"
+        unique_id: heating_rooms_below_target
+        unit_of_measurement: "stanze"
+        availability: >-
+          {{ states('input_number.temp_target_risc') not in ['unknown','unavailable','']
+             and states('input_number.heating_tolerance') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set rooms = [
+            ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set t_target = states('input_number.temp_target_risc') | float(21) %}
+          {% set tol = states('input_number.heating_tolerance') | float(0.5) %}
+          {% set below = [] %}
+          {% for sid, tog in rooms %}
+            {% if is_state(tog, 'on') and sid in states and states[sid].state not in ['unknown','unavailable',''] %}
+              {% if states[sid].state | float < (t_target - tol) %}
+                {% set below = below + [sid] %}
               {% endif %}
-            {% endfor %}
-            {{ below | length }}
-          attributes:
-            stanze_conteggiate: >-
-              {% set rooms = [
-                ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-                ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-                ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-                ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-              ] %}
-              {% set active = [] %}
-              {% for sid, tog in rooms %}
-                {% if is_state(tog, 'on') %}
-                  {% set active = active + [sid] %}
-                {% endif %}
-              {% endfor %}
-              {{ active | join(', ') }}
-
-        # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
-        - name: "Heating — minuti da ultimo cambio"
-          unique_id: heating_minutes_since_change
-          unit_of_measurement: "min"
-          state_class: measurement
-          state: >-
-            {% set entity_id = 'switch.4_ch_interrutore_3' %}
-            {% set ent = states[entity_id] if entity_id in states else None %}
-            {% if ent is none or ent.last_changed is none or ent.state in ['unknown', 'unavailable'] %}
-              unknown
-            {% else %}
-              {{ ((as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60) | round(1) }}
             {% endif %}
-
+          {% endfor %}
+          {{ below | length }}
+        attributes:
+          stanze_conteggiate: >-
+            {% set rooms = [
+              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set active = [] %}
+            {% for sid, tog in rooms %}
+              {% if is_state(tog, 'on') %}
+                {% set active = active + [sid] %}
+              {% endif %}
+            {% endfor %}
+            {{ active | join(', ') }}
+            
+      # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
+      - name: "Heating — minuti da ultimo cambio"
+        unique_id: heating_minutes_since_change
+        unit_of_measurement: "min"
+        state_class: measurement
+        state: >-
+          {% set entity_id = 'switch.4_ch_interrutore_3' %}
+          {% set ent = states[entity_id] if entity_id in states else None %}
+          {% if ent is none or ent.last_changed is none or ent.state in ['unknown', 'unavailable'] %}
+            unknown
+          {% else %}
+            {{ ((as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60) | round(1) }}
+          {% endif %}
+          
       - name: "Heating Priority"
         unique_id: heating_priority
         icon: mdi:arrow-top-right-bold-outline
         state: >-
           {% set attr = state_attr('sensor.heating_reason', 'priority') %}
           {% if attr not in [none, ''] %}
-            {{ attr }}
+          {{ attr }}
           {% elif is_state('binary_sensor.heating_failsafe_sensors_bad', 'on') %}
-            P0_failsafe
+          P0_failsafe
           {% elif is_state('input_boolean.heating_manual', 'on') %}
-            manual
+          manual
           {% else %}
-            idle
+          idle
           {% endif %}
         attributes:
-          reason: "{{ state_attr('sensor.heating_reason', 'reason') or '—' }}"
-          action: "{{ state_attr('sensor.heating_reason', 'action') or '—' }}"
+        reason: "{{ state_attr('sensor.heating_reason', 'reason') or '—' }}"
+        action: "{{ state_attr('sensor.heating_reason', 'action') or '—' }}"
 
       - name: "Heating Reason"
         unique_id: heating_reason
@@ -282,9 +283,9 @@ template:
         state: >-
           {{ state_attr('sensor.heating_reason', 'priority') if state_attr('sensor.heating_reason', 'priority') not in [none, ''] else 'idle' }}
         attributes:
-          priority: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
-          reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
-          action: "{{ state_attr('sensor.heating_reason','action') or '—' }}"
+        priority: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
+        reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
+        action: "{{ state_attr('sensor.heating_reason','action') or '—' }}"
 
       - name: "Heating — errore zona giorno"
         unique_id: heating_error_zona_giorno
@@ -309,35 +310,35 @@ template:
           {% set setp = states('input_number.temp_target_risc')|float(21) %}
           {% set temp = states('sensor.t_in_notte1')|float(0) %}
           {{ (setp - temp) | round(2) }}
-
+          
   - binary_sensor:
-        - name: "Heating failsafe — sensori non ok"
-          unique_id: heating_failsafe_sensors_bad
-          icon: mdi:alert-circle
-          state: >
-            {% set specs = {
-              'sensor.t_in_giorno': [-20, 40],
-              'sensor.t_in_notte1': [-20, 40],
-              'sensor.t_in_notte2': [-20, 40],
-              'sensor.t_in_bagno': [-20, 40],
-              'sensor.t_out': [-30, 50]
-            } %}
-            {% set bad = false %}
-            {% for sid, limits in specs.items() %}
-              {% if bad %}{% break %}{% endif %}
-              {% if sid in states %}
-                {% set ent = states[sid] %}
-                {% if ent.state in ['unknown','unavailable',''] %}
-                  {% set bad = true %}
-                {% elif ent.state | float(0) < limits[0] or ent.state | float(0) > limits[1] %}
-                  {% set bad = true %}
-                {% endif %}
-              {% else %}
+      - name: "Heating failsafe — sensori non ok"
+        unique_id: heating_failsafe_sensors_bad
+        icon: mdi:alert-circle
+        state: >
+          {% set specs = {
+            'sensor.t_in_giorno': [-20, 40],
+            'sensor.t_in_notte1': [-20, 40],
+            'sensor.t_in_notte2': [-20, 40],
+            'sensor.t_in_bagno': [-20, 40],
+            'sensor.t_out': [-30, 50]
+          } %}
+          {% set bad = false %}
+          {% for sid, limits in specs.items() %}
+            {% if bad %}{% break %}{% endif %}
+            {% if sid in states %}
+              {% set ent = states[sid] %}
+              {% if ent.state in ['unknown','unavailable',''] %}
+                {% set bad = true %}
+              {% elif ent.state | float(0) < limits[0] or ent.state | float(0) > limits[1] %}
                 {% set bad = true %}
               {% endif %}
-            {% endfor %}
-            {{ bad }}
-
+            {% else %}
+              {% set bad = true %}
+            {% endif %}
+          {% endfor %}
+          {{ bad }}
+            
       - name: "Heating — finestra oraria comfort"
         unique_id: heating_window_comfort
         state: >-
@@ -345,7 +346,7 @@ template:
           {% set end = '22:30' %}
           {% set nowt = now().strftime('%H:%M') %}
           {{ start <= nowt <= end }}
-
+          
       - name: "Heating — finestra fotovoltaico"
         unique_id: heating_window_pv
         state: >-
@@ -353,14 +354,14 @@ template:
           {% set end = '16:00' %}
           {% set nowt = now().strftime('%H:%M') %}
           {{ start <= nowt <= end }}
-
+          
       - name: "Heating — finestra notte"
         unique_id: heating_window_night
         state: >-
           {% set notte = now().hour >= 22 or now().hour < 6 %}
           {{ notte }}
-
-
+          
+          
 # ---------------------------------------------------------------------------
 # SENSORI STATISTICI — Ore ON oggi/ieri
 # ---------------------------------------------------------------------------
