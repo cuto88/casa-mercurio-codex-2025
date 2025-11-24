@@ -572,6 +572,26 @@ template:
         state: >-
           {{ not is_state('binary_sensor.vent_condizioni_meteo_ok','on') }}
 
+      - name: "Vent pioggia"
+        unique_id: vent_pioggia
+        device_class: moisture
+        state: >
+          {{ states('sensor.vent_meteo_precip')|float(0) > 0 }}
+
+      - name: "Vent vento blocco"
+        unique_id: vent_vento_blocco
+        state: >
+          {% set vento = states('sensor.vent_meteo_vento')|float(default=0) %}
+          {% set soglia = states('input_number.vent_vento_max')|float(6) %}
+          {{ vento >= soglia }}
+
+      - name: "Vent air quality ok"
+        unique_id: vent_air_quality_ok
+        state: >
+          {% set pm = states('sensor.vent_meteo_pm25')|float(default=0) %}
+          {% set soglia = states('input_number.vent_pm25_max')|float(25) %}
+          {{ pm <= soglia }}
+
   - sensor:
       - name: "UR interna minima"
         unique_id: ur_in_min
@@ -774,26 +794,6 @@ template:
             {% endif %}
           {% endfor %}
           {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}
-
-      - name: "Vent pioggia"
-        unique_id: vent_pioggia
-        device_class: moisture
-        state: >
-          {{ states('sensor.vent_meteo_precip')|float(0) > 0 }}
-
-        - name: "Vent vento blocco"
-          unique_id: vent_vento_blocco
-          state: >
-            {% set vento = states('sensor.vent_meteo_vento')|float(default=0) %}
-            {% set soglia = states('input_number.vent_vento_max')|float(6) %}
-            {{ vento >= soglia }}
-
-        - name: "Vent air quality ok"
-          unique_id: vent_air_quality_ok
-          state: >
-            {% set pm = states('sensor.vent_meteo_pm25')|float(default=0) %}
-            {% set soglia = states('input_number.vent_pm25_max')|float(25) %}
-            {{ pm <= soglia }}
 
       - name: "vent_weather_label"
         unique_id: vent_weather_label
