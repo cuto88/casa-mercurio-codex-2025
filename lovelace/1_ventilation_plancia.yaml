@@ -119,6 +119,28 @@ views:
                   - entity: binary_sensor.vmc_failsafe_sensors_bad
                 title: "Priorità ventilazione"
 
+      - type: history-graph
+        title: "Timeline decisioni — Ventilazione & VMC (24h)"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.vmc_priority
+            name: Priorità VMC
+          - entity: sensor.vmc_reason
+            name: Motivo VMC
+          - entity: switch.vmc_vel_0
+            name: VMC vel_0
+          - entity: switch.vmc_vel_1
+            name: VMC vel_1
+          - entity: switch.vmc_vel_2
+            name: VMC vel_2
+          - entity: switch.vmc_vel_3
+            name: VMC vel_3
+          - entity: binary_sensor.vent_recommend_open
+            name: Consiglio: apri
+          - entity: binary_sensor.vent_recommend_close
+            name: Consiglio: chiudi
+
   # --- VIEW 2: Finestre ---
   - title: "Finestre"
     path: windows
