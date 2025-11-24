@@ -40,13 +40,6 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/1_ventilation_plancia.yaml
 
-    2-vmc:
-      mode: yaml
-      title: "1 Finestre"
-      icon: mdi:window-open-variant
-      show_in_sidebar: true
-      filename: lovelace/1_ventilation_windows.yaml
-
     3-heating:
       mode: yaml
       title: "2 Riscaldamento"
