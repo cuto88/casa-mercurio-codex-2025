@@ -781,21 +781,19 @@ template:
         state: >
           {{ states('sensor.vent_meteo_precip')|float(0) > 0 }}
 
-      - name: "Vent vento blocco"
-        unique_id: vent_vento_blocco
-        device_class: safety
-        state: >
-          {% set vento = states('sensor.vent_meteo_vento')|float(default=0) %}
-          {% set soglia = states('input_number.vent_vento_max')|float(6) %}
-          {{ vento >= soglia }}
+        - name: "Vent vento blocco"
+          unique_id: vent_vento_blocco
+          state: >
+            {% set vento = states('sensor.vent_meteo_vento')|float(default=0) %}
+            {% set soglia = states('input_number.vent_vento_max')|float(6) %}
+            {{ vento >= soglia }}
 
-      - name: "Vent air quality ok"
-        unique_id: vent_air_quality_ok
-        device_class: safety
-        state: >
-          {% set pm = states('sensor.vent_meteo_pm25')|float(default=0) %}
-          {% set soglia = states('input_number.vent_pm25_max')|float(25) %}
-          {{ pm <= soglia }}
+        - name: "Vent air quality ok"
+          unique_id: vent_air_quality_ok
+          state: >
+            {% set pm = states('sensor.vent_meteo_pm25')|float(default=0) %}
+            {% set soglia = states('input_number.vent_pm25_max')|float(25) %}
+            {{ pm <= soglia }}
 
       - name: "vent_weather_label"
         unique_id: vent_weather_label

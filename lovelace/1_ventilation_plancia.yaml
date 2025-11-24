@@ -1,150 +1,107 @@
-title: "1 Ventilazione / VMC"
+---
+title: "1 Ventilazione"
 path: ventilation
 icon: mdi:fan
-views:
-
-  # --- VIEW 1: VMC + KPI ---
-  - title: "VMC"
-    path: vmc
-    icon: mdi:fan
-    type: panel
+type: panel
+cards:
+  - type: vertical-stack
     cards:
-      - type: sections
-        max_columns: 3
 
-        sections:
-          - type: grid
-            title: "Stato generale VMC"
-            cards:
-              - type: glance
-                columns: 3
-                entities:
-                  - entity: sensor.vmc_priority
-                    name: VMC Priority
-                  - entity: sensor.vmc_reason
-                    name: VMC Reason
-                  - entity: sensor.vmc_freecooling_status
-                    name: Freecooling
-              - type: entities
-                title: "Velocità e controlli"
-                show_header_toggle: false
-                entities:
-                  - entity: sensor.vmc_vel_target
-                    name: Velocità target
-                  - entity: sensor.vmc_vel_index
-                    name: Indice velocità
-                  - entity: input_boolean.vmc_manual
-                    name: Manuale attivo
-                  - entity: input_select.vmc_manual_speed
-                    name: Velocità manuale
-                  - entity: timer.vmc_manual_timeout
-                    name: Timeout manuale
-                  - entity: binary_sensor.vmc_failsafe_sensors_bad
-                    name: Failsafe sensori
+      # ==========================
+      # BLOCCO 1 — STATO GENERALE
+      # ==========================
+      - type: entities
+        title: "Ventilazione — Stato generale"
+        show_header_toggle: false
+        entities:
+          - entity: input_boolean.vmc_enable
+            name: "Logica VMC attiva"
+          - entity: sensor.vmc_priority
+            name: "Priorità VMC"
+          - entity: sensor.vmc_reason
+            name: "Motivo VMC"
+          - entity: binary_sensor.vmc_failsafe_sensors_bad
+            name: "Failsafe sensori VMC"
+          - entity: sensor.vmc_freecooling_status
+            name: "Stato freecooling"
 
-          - type: grid
-            title: "KPI + Consigli"
-            cards:
-              - type: entities
-                title: "Freecooling / ΔT / ΔAH"
-                show_header_toggle: false
-                entities:
-                  - entity: sensor.delta_t_in_out
-                    name: ΔT interno-esterno
-                  - entity: sensor.delta_ah_in_out
-                    name: ΔAH interno-esterno
-                  - entity: input_number.vmc_freecooling_delta
-                    name: Soglia ΔT FC
-                  - entity: input_number.vmc_freecooling_delta_ah
-                    name: Soglia ΔAH FC
-                  - entity: binary_sensor.vent_condizioni_termiche_ok
-                    name: Condizioni termiche OK
-                  - entity: binary_sensor.vent_condizioni_meteo_ok
-                    name: Meteo OK
-                  - entity: binary_sensor.vent_recommend_open
-                    name: "Consiglio: apri finestre"
-                  - entity: binary_sensor.vent_recommend_close
-                    name: "Consiglio: chiudi finestre"
-                  - entity: sensor.ventilation_priority
-                    name: Priorità ventilazione
-                  - entity: sensor.ventilation_reason
-                    name: Reason ventilazione
-              - type: entities
-                title: "Stagionalità e meteo"
-                show_header_toggle: false
-                entities:
-                  - entity: binary_sensor.stagione_calda
-                    name: Stagione calda
-                  - entity: binary_sensor.stagione_fredda
-                    name: Stagione fredda
-                  - entity: sensor.vent_meteo_temp
-                    name: T esterna (open-meteo)
-                  - entity: sensor.vent_meteo_rh
-                    name: UR esterna (open-meteo)
-                  - entity: sensor.vent_meteo_vento
-                    name: Vento
-                  - entity: sensor.vent_meteo_precip
-                    name: Pioggia
-                  - entity: sensor.vent_meteo_pm25
-                    name: PM2.5
-                  - entity: binary_sensor.vent_weather_block
-                    name: Blocco meteo
+      # ==========================
+      # BLOCCO 2 — FREECOOLING
+      # ==========================
+      - type: entities
+        title: "Freecooling — KPI"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.t_in_media
+            name: "T interna media"
+          - entity: sensor.t_out
+            name: "T esterna"
+          - entity: sensor.ah_in
+            name: "AH interna"
+          - entity: sensor.ah_out
+            name: "AH esterna"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT (int-ext)"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH (int-ext)"
+          - entity: input_number.vmc_freecooling_delta
+            name: "Soglia ΔT freecooling"
+          - entity: input_number.vmc_freecooling_delta_ah
+            name: "Soglia ΔAH freecooling"
 
-          - type: grid
-            title: "Finestre"
-            cards:
-              - type: entities
-                title: "Stato finestre"
-                show_header_toggle: false
-                entities:
-                  - entity: sensor.vent_finestre_aperte
-                    name: Totale finestre aperte
-                  - entity: sensor.vent_finestre_state
-                    name: Dettaglio finestre aperte
-                  - entity: binary_sensor.clima_open_windows_recommended
-                    name: Apri finestre raccomandato
-              - type: history-graph
-                hours_to_show: 24
-                entities:
-                  - entity: sensor.delta_t_in_out
-                  - entity: sensor.delta_ah_in_out
-                  - entity: sensor.vmc_freecooling_status
-                  - entity: binary_sensor.vent_recommend_open
-                title: "Trend 24h ΔT/ΔAH"
-              - type: history-graph
-                hours_to_show: 48
-                entities:
-                  - entity: sensor.ventilation_priority
-                  - entity: sensor.vmc_priority
-                  - entity: binary_sensor.vmc_failsafe_sensors_bad
-                title: "Priorità ventilazione"
+      # ==========================
+      # BLOCCO 3 — CONSIGLI FINESTRE
+      # ==========================
+      - type: entities
+        title: "Consigli finestre"
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.vent_condizioni_meteo_ok
+            name: "Meteo OK per aprire"
+          - entity: binary_sensor.vent_condizioni_termiche_ok
+            name: "Termico OK (ΔT/ΔAH)"
+          - entity: binary_sensor.vent_recommend_open
+            name: "Suggerimento: APRI finestre"
+          - entity: binary_sensor.vent_recommend_close
+            name: "Suggerimento: CHIUDI finestre"
+          - entity: sensor.windows_open_count
+            name: "Finestre aperte"
+          - entity: binary_sensor.windows_all_closed
+            name: "Tutte chiuse"
 
+      # ==========================
+      # BLOCCO 4 — STATO FINESTRE
+      # ==========================
+      - type: entities
+        title: "Stato finestre (input_boolean / contatti)"
+        show_header_toggle: false
+        entities:
+          - entity: group.vent_windows_giorno
+            name: "Zona giorno"
+          - entity: group.vent_windows_notte
+            name: "Zona notte"
+          - entity: group.vent_windows_bagno
+            name: "Bagno/Lavanderia"
+
+      # ==========================
+      # BLOCCO 5 — STORICO 24h
+      # ==========================
       - type: history-graph
-        title: "Timeline decisioni — Ventilazione & VMC (24h)"
+        title: "Trend 24h — VMC & Finestre"
         hours_to_show: 24
         refresh_interval: 60
         entities:
-          - entity: sensor.vmc_priority
-            name: Priorità VMC
-          - entity: sensor.vmc_reason
-            name: Motivo VMC
-          - entity: switch.vmc_vel_0
-            name: VMC vel_0
-          - entity: switch.vmc_vel_1
-            name: VMC vel_1
-          - entity: switch.vmc_vel_2
-            name: VMC vel_2
-          - entity: switch.vmc_vel_3
-            name: VMC vel_3
+          - entity: sensor.t_in_media
+            name: "T interna"
+          - entity: sensor.t_out
+            name: "T esterna"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT int-ext"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH int-ext"
           - entity: binary_sensor.vent_recommend_open
-            name: Consiglio: apri
+            name: "Suggerito APRI"
           - entity: binary_sensor.vent_recommend_close
-            name: Consiglio: chiudi
-
-  # --- VIEW 2: Finestre ---
-  - title: "Finestre"
-    path: windows
-    icon: mdi:window-open-variant
-    type: panel
-    cards:
-      - !include /config/lovelace/1_ventilation_windows.yaml
+            name: "Suggerito CHIUDI"
+          - entity: binary_sensor.vmc_freecooling_active
+            name: "VMC freecooling ON"
