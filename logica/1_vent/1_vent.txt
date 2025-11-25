@@ -1,26 +1,34 @@
-# 1_vent — Logica ventilazione naturale Casa Mercurio
+# 1 — Ventilazione naturale & Night flush (packages/1_ventilation.yaml)
 
-## Obiettivi
-- Suggerire apertura/chiusura serramenti e attivare night-flush estivo per massimizzare il raffrescamento passivo e ridurre l'uso dell'AC.
-- Evitare ingressi di umidità, pioggia, vento forte o PM elevato che peggiorerebbero comfort e qualità aria.
+## Obiettivo del modulo
+- Suggerire apertura/chiusura serramenti e attivare night-flush estivo coordinato con la VMC per massimizzare il raffrescamento passivo.
+- Evitare ingressi di umidità, pioggia, vento forte o PM elevato che peggiorerebbero comfort e qualità dell’aria interna.
 
-## Sensori e attuatori
-- Meteo esterno: T_out, UR_out, AH_out, precipitazione, velocità/direzione vento, PM2.5/air_quality.
-- Interni: T_in per stanza, UR_in, AH_in; flag finestre aperte per stanza; conteggio finestre aperte.
-- Supporto automazioni: input_boolean override estate / night_flush, input_number soglie ΔT/ΔAH/vento/PM, timer lock.
-- Attuatori coordinati: notifica consigli, hook verso VMC/AC, eventuali flag serramenti (nessun controllo motorizzato diretto).
+## Mappa priorità
+| Stato / priorità | KPI principali | Azione / logica |
+| --- | --- | --- |
+| **P0_failsafe** | Sensori meteo o interni `unknown/unavailable` o fuori range | Non pubblica consigli, disabilita night-flush e rilascia eventuali hook finché i sensori tornano validi. |
+| **P1_night_flush** | Stagione calda + fascia 21:00–08:00 + ΔT/ΔAH favorevole + meteo ok | Suggerisce apertura serramenti, abilita `hook_vent_enable_night_flush` e mantiene la VMC su vel_2 durante il ciclo. |
+| **P2_recommend_open** | ΔT ≥ `input_number.vent_deltat_min` o ΔAH ≥ `input_number.vent_deltaah_min` + meteo ok | Raccomanda apertura serramenti con messaggio in `input_text.vent_messaggio_consiglio`. |
+| **P3_recommend_close** | Meteo sfavorevole (pioggia/vento/PM) o ΔT/ΔAH invertiti | Raccomanda chiusura serramenti e rilascia night-flush/AC block. |
+| **idle** | Nessuna condizione prevalente | Nessuna notifica; mantiene ultimi hook disattivati. |
 
-## Collegamenti ai core rules
-- Logica decisionale completa in `core/regole_core_logiche.md` → sezione "Vent — Ventilazione naturale & night-flush".
-- Riferimento a hook `hook_vent_enable_night_flush` per sincronizzare serramenti suggeriti, VMC vel_2 e blocco AC durante flush.
+## KPI e sensori chiave
+- Meteo: pioggia/vento/qualità aria (`binary_sensor.vent_pioggia`, `binary_sensor.vent_condizioni_meteo_ok`, PM2.5).
+- Termo-igrometria: `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`, `sensor.ur_in_media`, `sensor.ur_out`, `sensor.t_out`.
+- Stato finestre: conteggio e flag stanza; override manuali `input_boolean.vent_override_estate` e timer lock.
+- Output UI: `binary_sensor.vent_recommend_open`, `binary_sensor.vent_recommend_close`, `input_text.vent_messaggio_consiglio`.
 
-## Eccezioni locali / tuning specifico
-- Stagionalità: valido maggio–settembre; in inverno ventilazione demandata a VMC.
-- Priorità lato ovest (zone più calde al pomeriggio) per notifiche e suggerimenti, mantenendo ΔT/ΔAH core.
-- Soglie iniziali Casa Mercurio: ΔT_min≈1.5 °C, ΔAH_min≈1.0 g/m³, vento_max≈6 m/s; night-flush 21:00–08:00.
-- Anti-smog: se PM2.5 o air_quality fuori soglia, sospende suggerimenti di apertura anche con ΔT/ΔAH favorevoli.
+## Hook / eventi verso altri moduli
+- `hook_vent_enable_night_flush`: attiva coordinamento con VMC vel_2 e blocco AC durante flush notturno.
+- Notifiche verso AC/VMC: le raccomandazioni evitano conflitti con `hook_vmc_request_ac_block` già pubblicato da freecooling.
 
-## Note di implementazione YAML
-- Automazioni e helper in `packages/1_ventilation.yaml`; nessun controllo YAML qui.
-- Binary_sensor `vent_recommend_open/close` e messaggio testo `input_text.vent_messaggio_consiglio` usati da plancia.
-- Timer/lock per evitare ping-pong di consigli configurati via `timer.vent_*` e `input_number` soglie.
+## Casi particolari / failsafe / lock
+- Anti-smog: sospende suggerimenti se PM2.5 o qualità aria fuori soglia anche con ΔT/ΔAH favorevoli.
+- Lock timer per evitare ping-pong di notifiche; override manuale estate consente di disattivare consigli.
+- Stagionalità: valida principalmente maggio–settembre; in inverno la ventilazione è demandata alla VMC.
+
+## Note operative
+- La logica si appoggia agli helper in `packages/1_ventilation.yaml`; nessun controllo diretto di serramenti motorizzati.
+- Plancia di riferimento `lovelace/1_ventilation_plancia.yaml` mostra ΔT/ΔAH, meteo e messaggio di consiglio.
+- Per la mappa priorità VMC (boost/anti-secco/freecooling) fare riferimento a `logica/2_vmc/2_vmc.txt` e `sensor.vmc_priority`.

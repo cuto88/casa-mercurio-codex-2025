@@ -1,23 +1,23 @@
 ###############################################################################
-# 2_vmc_plancia_regole.txt — Documentazione layout plancia 2_VMC
-# Obiettivo: descrivere struttura e contenuti della plancia Lovelace associata
-#            al modulo VMC (packages/1_ventilation.yaml, lovelace/1_ventilation_plancia.yaml).
+# 2_vmc_plancia_regole.txt — Documentazione layout plancia VMC
+# Obiettivo: descrivere struttura e contenuti di lovelace/1_ventilation_plancia.yaml
+#            per il modulo VMC/freecooling/anti-secco.
 ###############################################################################
 
 COLONNA 1 — STATO & ATTUATORI
-- Glance "Stato logico": priorità corrente, motivo, ultimo evento e stagione logica.
-- Glance "Attuatori": relè VMC vel_0..vel_3 + climatizzatori giorno/notte.
+- Glance "Stato logico": `sensor.vmc_priority`, `sensor.vmc_reason`, ultimo evento e stagione logica.
+- Glance "Attuatori": relè VMC vel_0..vel_3 + climatizzatori giorno/notte (per hook AC↔VMC).
 - Entities "Modalità manuale": `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout` con reminder ripristino.
 - Markdown "Come decide (sintesi)":
-  - Gestisce velocità VMC in base a comfort igrometrico, free-cooling e anti-secco.
-  - Applica priorità P0–P4 con lock min_on/min_off per evitare cicli rapidi.
+  - Applica P0_failsafe, P1_boost_bagno, P2_anti_secco, P3_freecooling, manual, idle come da README.
+  - Lock min_on/min_off proteggono i relè; max_run/cooldown limita freecooling.
   - Coordina con AC: blocco COOL/DRY se ΔAH esterno favorevole, VMC low quando AC è in DRY.
-  - Per il dettaglio completo: core/regole_core_logiche.md → sezione "VMC" e 2_vmc.txt → mappatura locale.
+  - Per il dettaglio completo: `logica/2_vmc/2_vmc.txt` e `README_ClimaSystem.md` sezione VMC.
 - Markdown "Come succede": breve spiegazione dinamica dello stato corrente.
 
 COLONNA 2 — KPI COMPATTI (24h)
-- Mini-graph temperature (Esterno, T in giorno, notte, bagno) colore rosso/giallo/blu/verde.
-- Mini-graph umidità relativa (Esterno, ur in giorno/notte/bagno + media/min) stessi colori.
+- Mini-graph temperature (esterno, T in giorno, notte, bagno) colore rosso/giallo/blu/verde.
+- Mini-graph umidità relativa (esterno, UR in giorno/notte/bagno + media/min) stessi colori.
 - Mini-graph AH & Dew point (AH_in, AH_out, dewpoint_in) per controllo comfort.
 
 COLONNA 3 — TREND, VELOCITÀ E DEBUG
@@ -29,9 +29,9 @@ COLONNA 3 — TREND, VELOCITÀ E DEBUG
 
 NOTE
 - Colori coerenti con la palette core; card manuale consente override temporaneo.
-- Layout mobile-first (sections) coerente con Regole Plancia core.
+- Layout mobile-first (sections) coerente con regole plancia core.
 
 RIFERIMENTI LOGICI
-- Logiche condivise: vedi core/regole_core_logiche.md
-- Linee guida UI generali: vedi core/regole_plancia.md
-- Logica specifica modulo: vedi 2_vmc.txt
+- Logiche condivise: vedi `logica/core/regole_core_logiche.md`.
+- Linee guida UI generali: vedi `logica/core/regole_plancia.md`.
+- Logica specifica modulo: vedi `logica/2_vmc/2_vmc.txt`.

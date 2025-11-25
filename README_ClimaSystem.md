@@ -54,10 +54,10 @@ Condizioni freecooling:
 `sensor.vmc_reason` → valore logico:
 
 - `P0_failsafe`
-- `manual`
-- `P2_boost_bagno`
-- `P1_anti_secco`
+- `P1_boost_bagno`
+- `P2_anti_secco`
 - `P3_freecooling`
+- `manual`
 - `idle`
 
 Attributo:
@@ -94,10 +94,11 @@ Priorità:
 
 1. `P0_failsafe`  
 2. `P1_anti_frost`  
-3. `P2_comfort`  
-4. `P3_pv_boost`  
-5. `P4_night_setback`  
-6. `idle`
+3. `P2_comfort`
+4. `P3_pv_boost`
+5. `P4_night_setback`
+6. `manual`
+7. `idle`
 
 Elementi chiave:
 - `sensor.heating_reason`

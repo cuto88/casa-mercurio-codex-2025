@@ -1,27 +1,37 @@
-# 3_heating — Logica riscaldamento a pavimento Casa Mercurio
+# 2 — Heating a pavimento (packages/2_heating.yaml)
 
-## Obiettivi
-- Portare le zone abitate al target comfort (default 21 °C giorno/notte) sfruttando l’inerzia del pavimento.
-- Privilegiare la finestra 10:00–16:00 per usare PV/guadagni solari, con eventuale pre-carica se presente surplus.
-- Limitare i cicli brevi applicando lock min_on/min_off e monitorando max_run.
+## Obiettivo del modulo
+- Mantenere le zone al target comfort sfruttando l’inerzia del pavimento radiante con finestra 10:00–16:00 e surplus FV.
+- Applicare lock anti-ciclo, antifreeze e night_setback garantendo sicurezza sensori e override manuale controllato.
 
-## Zone, sensori e attuatori
-- Zone: giorno, notte1, notte2, bagno (tutte selezionabili via `input_boolean.heating_use_*`).
-- Sensori temperatura: `sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.t_in_notte2`, `sensor.t_in_bagno`; esterno `sensor.t_out` per valutare dispersione.
-- Eventuali letture UR: sensori stanza se disponibili (usati solo per diagnostica/condensa, non per il trigger principale).
-- Attuatori: interruttore generale `switch.4_ch_interrutore_3`; valvole di zona gestite dagli attuatori fisici collegati ai termostati; pompa/relay centralizzato pilotato tramite lo switch principale.
+## Mappa priorità
+| Priorità | KPI principali | Azione / logica |
+| --- | --- | --- |
+| **P0_failsafe** | Sensori temperatura zona/esterna invalidi o fuori range | Disabilita richiesta calore e segnala errore stanza (`sensor.heating_error_zona_*`). |
+| **P1_anti_frost** | `sensor.t_out` molto bassa o zone < soglia minima | Accende impianto bypassando finestra oraria per evitare gelo nei circuiti. |
+| **P2_comfort** | Zone abilitate sotto `input_number.temp_target_risc` con isteresi | Attiva riscaldamento rispettando `binary_sensor.heating_lock_min_on_ok` e min_off; segue finestra 10–16 quando non critico. |
+| **P3_pv_boost** | Surplus FV + zona prossima al target | Estende runtime dentro finestra 10–16 per pre-caricare il pavimento senza violare lock. |
+| **P4_night_setback** | Fascia notturna + target setback attivo | Mantiene temperatura ridotta limitando richieste, salvo comfort critico. |
+| **manual** | `input_boolean.heating_manual_active` + `input_select.heating_manual_mode` | Forza ON/OFF rispettando lock min_on/min_off; scade col timer manuale se previsto. |
+| **idle** | Nessuna priorità attiva | Impianto spento, monitora sensori e lock in attesa di nuova richiesta. |
 
-## Collegamenti ai core rules
-- Regole di priorità, finestra 10–16, lock pavimento (min_on/min_off/max_run) e interazione con surplus sono definite in `core/regole_core_logiche.md` → sezione "Heating — Pavimento, lock e priorità".
-- Questo modulo applica `heating_should_run` seguendo quei vincoli e rende visibile l’eventuale `hook_surplus_heating_precharge` proveniente dal modulo surplus.
+## KPI e sensori chiave
+- Temperature zona: `sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.t_in_notte2`, `sensor.t_in_bagno`; esterna `sensor.t_out`.
+- Target e tolleranza: `input_number.temp_target_risc`, `input_number.temp_tolleranza_risc`, fasce orarie (10:00–16:00).
+- Lock: `binary_sensor.heating_lock_min_on_ok`, `binary_sensor.heating_lock_min_off_ok`, contatori runtime `sensor.heating_minuti_da_ultimo_cambio`.
+- Stato logico: `sensor.heating_reason`, `sensor.heating_priority`, `binary_sensor.heating_should_run`, `sensor.heating_stanze_attive`.
 
-## Eccezioni locali / tuning specifico
-- Bagno: può richiedere comfort più alto; mantenere `heating_use_bagno` attivo per includerlo nei calcoli anche quando le altre zone sono soddisfatte.
-- Deroga finestra 10–16: consentita solo per comfort critico (zone sotto target di oltre 1 °C) o emergenze; la deroga è limitata dai lock min_off.
-- Anti-condensa locale: se sensori UR stanza segnalano valori molto alti, evitare pre-carica aggressiva e preferire spegnimento anticipato a target raggiunto.
-- Manual override: `heating_force_on/off` e `heating_manual_active` seguono i lock core ma possono ignorare l’assenza di surplus.
+## Hook / eventi verso altri moduli
+- Riceve `hook_surplus_heating_precharge` dal modulo surplus per P3_pv_boost; nessun blocco diretto da VMC/AC.
+- Output verso plancia: esposizione delle entità di motivo/priorità/lock per diagnosi manuale.
 
-## Note di implementazione YAML
-- Configurazione e helper in `packages/2_heating.yaml` (toggle zona, target, tolleranza, finestra oraria, lock configurabili e contatori runtime).
-- Automazioni pubblicano `binary_sensor.heating_should_run`, `binary_sensor.heating_min_on_lock`/`heating_min_off_lock`, flag finestra oraria e condizioni esterne.
-- La plancia usa entità del pacchetto per mostrare KPI e comandi; non duplicare logica qui.
+## Casi particolari / failsafe / lock
+- Ogni zona può essere esclusa con `input_boolean.heating_use_*`; errori sensori disabilitano solo la zona affetta.
+- Antifreeze bypassa finestra oraria e lock min_off; comfort critico (>1 °C sotto target) può derogare la finestra 10–16.
+- Lock min_on/min_off prevengono cicli brevi; max_run monitorato per audit ma non forza spegnimenti improvvisi.
+- Manual override usa gli stessi lock hardware e restituisce il controllo al termine del timer o su toggle utente.
+
+## Note operative
+- Plancia `lovelace/2_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
+- Tutte le automazioni e helper risiedono in `packages/2_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
+- `sensor.heating_priority` offre descrizione leggibile (P0–P4/manual/idle) coerente con `README_ClimaSystem.md`.
