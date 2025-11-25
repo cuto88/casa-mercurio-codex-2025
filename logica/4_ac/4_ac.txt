@@ -1,27 +1,34 @@
-# 4_ac — Logica climatizzazione Casa Mercurio
+# 3 — Climatizzazione AC (packages/3_ac.yaml)
 
-## Obiettivi
-- Comfort estivo con priorità deumidifica (DRY) prima del raffrescamento (COOL), nel rispetto dei blocchi notturni 23–07.
-- Limitare cicli on/off e coordinare l’AC con la VMC per evitare controbilanciamenti e condensa.
+## Obiettivo del modulo
+- Garantire comfort estivo privilegiando la deumidifica (DRY) prima del raffrescamento (COOL) e rispettando blocchi notturni 23–07.
+- Coordinare l’AC con la VMC per evitare condensa/contro-bilanciamento e applicare lock anti-ciclo sugli split giorno/notte.
 
-## Sensori, clima entity e attuatori
-- Zone: **giorno** (sensor.t_in_giorno, sensor.ur_in_giorno) e **notte** (sensor.t_in_notte1, sensor.ur_in_notte1); meteo: sensor.t_out, sensor.ur_out.
-- Attuatori: `switch.ac_giorno` e `switch.ac_notte` (controllo IR dei due split). Etichette modalità in `sensor.ac_mode_label`.
-- Helper soglie/lock: input_number.ac_ur_high/target, ac_t_cool_on, ac_t_target, ac_hyst_off, ac_min_on, ac_min_off, ac_max_run.
+## Mappa priorità
+| Priorità | KPI principali | Azione / logica |
+| --- | --- | --- |
+| **P0_failsafe** | Sensori T/UR interni o esterni invalidi | Spegne gli split e segnala motivo failsafe su `sensor.ac_reason`. |
+| **P1_block_vmc** | `binary_sensor.ac_block_by_vmc` (freecooling o ΔAH favorevole esterno) | Impedisce COOL/DRY mentre la VMC richiede blocco; mantiene stato OFF salvo manuale. |
+| **P2_dry** | UR stanza sopra `input_number.ac_ur_high` o ΔAH favorevole | Attiva DRY con richiesta `hook_ac_request_vmc_low`; rispetta min_on/min_off e fascia oraria. |
+| **P3_cool** | `sensor.t_in_*` sopra `input_number.ac_t_cool_on` + isteresi | Attiva COOL (giorno/notte separati) se fascia oraria consentita e blocco VMC assente; lock min_on/min_off applicati. |
+| **manual** | `input_boolean.ac_manual` + `input_select.ac_manual_mode` | Forza modalità selezionata ignorando fasce, ma rispetta lock e scade con `timer.ac_manual_timeout`. |
+| **idle** | Nessuna priorità attiva | Split spenti, monitoraggio continuo di T/UR e blocchi. |
 
-## Collegamenti ai core rules
-- La logica DRY/COOL, lock anti-ciclo e blocchi orari seguono **core/regole_core_logiche.md → sezione "AC — Modalità, lock e interazioni"**.
-- `binary_sensor.ac_need_dry` / `ac_need_cool` implementano i trigger core (UR alta, ΔAH favorevole, T_in sopra setpoint+isteresi).
-- `binary_sensor.ac_fascia_ok` applica il blocco 23–07; `binary_sensor.ac_blocco_vmc` rappresenta l’hook `hook_vmc_request_ac_block` (free-cooling/ΔAH sfavorevole).
-- DRY invia `hook_ac_request_vmc_low` tramite automazioni che modulano la VMC su vel_0/vel_1 quando `sensor.ac_mode_label` è DRY.
-- I timer anti on/off usano gli input_number di lock core e filtrano `binary_sensor.ac_should_run` prima di agire sugli switch.
+## KPI e sensori chiave
+- Temperature/UR: `sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.ur_in_giorno`, `sensor.ur_in_notte1`, `sensor.t_out`, `sensor.ur_out`.
+- Stati logici: `binary_sensor.ac_need_dry`, `binary_sensor.ac_need_cool`, `binary_sensor.ac_fascia_ok`, `binary_sensor.ac_should_run`, `sensor.ac_priority`, `sensor.ac_reason`.
+- Lock: `binary_sensor.ac_lock_min_on_ok`, `binary_sensor.ac_lock_min_off_ok`, contatori runtime e `input_number.ac_max_run`.
 
-## Eccezioni locali / tuning specifico
-- Zona notte più conservativa: stesso blocco COOL 23–07 e DRY ammesso solo con UR molto alta o override manuale.
-- Setpoint iniziali Casa Mercurio: DRY sopra 75% UR, COOL da 27 °C (26 °C se UR ≥65%), rientro a 26.2 °C con isteresi 0.2 °C.
-- Manual override: input_boolean.ac_manual + input_select.ac_manual_mode possono scavalcare blocco notte/emergenza con timeout timer.ac_manual_timeout.
+## Hook / eventi verso altri moduli
+- `hook_vmc_request_ac_block`: ricevuto dalla VMC durante freecooling/ΔAH favorevole; imposta `binary_sensor.ac_block_by_vmc`.
+- `hook_ac_request_vmc_low`: inviato quando DRY è attivo per chiedere VMC a vel_1 e ridurre condensa.
 
-## Note di implementazione YAML
-- Logiche e helper in `packages/3_ac.yaml`: binary_sensor `ac_need_*`, `ac_fascia_ok`, `ac_should_run`, `ac_blocco_vmc`, contatori runtime.
-- Automazioni locali mappano le decisioni sui due switch split rispettando i lock core e gli hook VMC.
-- Nessun duplicato delle regole core: le soglie numeriche sono editabili via input_number e usate dalle automazioni di accensione/spegnimento.
+## Casi particolari / failsafe / lock
+- Blocco fascia 23–07: `binary_sensor.ac_fascia_ok` evita avvii notturni salvo manual override.
+- Lock min_on/min_off proteggono i compressori; max_run può spegnere dopo runtime prolungato se definito.
+- Manuale può scavalcare blocco fascia ma non il failsafe sensori; termina col timer o con lo stesso toggle.
+
+## Note operative
+- Plancia `lovelace/3_ac_plancia.yaml` mostra motivi/priorità, stato lock e timer; usare `sensor.ac_priority` come riferimento.
+- Tutte le automazioni e helper sono in `packages/3_ac.yaml`; non esistono file 4_ac.yaml legacy.
+- Coordinamento con VMC avviene solo tramite gli hook indicati, evitando duplicazioni di logica ΔT/ΔAH.
