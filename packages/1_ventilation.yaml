@@ -769,22 +769,6 @@ template:
           {% elif is_state('switch.vmc_vel_0','on') %}0
           {% else %}0{% endif %}
 
-      - name: "VMC Freecooling Status"
-        unique_id: vmc_freecooling_status
-        icon: mdi:weather-night
-        state: >
-          {% set cooldown = is_state('timer.vmc_freecooling_cooldown','active') %}
-          {% set free = is_state('switch.vmc_vel_2','on') and not cooldown %}
-          {% set maxrun_lock = (not is_state('timer.vmc_freecooling_max_run','active')) and not cooldown and not free %}
-          {% if cooldown %}cooldown
-          {% elif free %}active
-          {% elif maxrun_lock %}maxrun_lock
-          {% else %}off
-          {% endif %}
-        attributes:
-          last_mode: "{{ states('sensor.vmc_reason') }}"
-          cooldown_remaining: "{{ state_attr('timer.vmc_freecooling_cooldown','remaining') }}"
-
       - name: "VMC Reason"
         unique_id: vmc_reason
         icon: mdi:text
@@ -792,25 +776,41 @@ template:
           {% set failsafe = is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
           {% set manual = is_state('input_boolean.vmc_manual','on') %}
           {% set boost = is_state('switch.vmc_vel_3','on') or is_state('timer.vmc_boost_lock','active') %}
-          {% set anti_secco = is_state('timer.vmc_anti_secco_lock','active') %}
-          {% set freecooling_trigger = is_state('switch.vmc_vel_2','on') or is_state('timer.vmc_freecooling_max_run','active') or is_state('timer.vmc_freecooling_cooldown','active') %}
-          {% set freecooling = freecooling_trigger and is_state('binary_sensor.stagione_calda','on') %}
+          {% set antisecco = is_state('timer.vmc_anti_secco_lock','active') %}
+          {% set freecooling = (
+              is_state('switch.vmc_vel_2','on')
+              or is_state('timer.vmc_freecooling_max_run','active')
+              or is_state('timer.vmc_freecooling_cooldown','active')
+            ) and is_state('binary_sensor.stagione_calda','on') %}
 
-          {% if failsafe %}
-            P0_failsafe
-          {% elif manual %}
-            manual
-          {% elif boost %}
-            P2_boost_bagno
-          {% elif anti_secco %}
-            P1_anti_secco
-          {% elif freecooling %}
-            P3_freecooling
-          {% else %}
-            idle
+          {% if failsafe %}P0_failsafe
+          {% elif manual %}manual
+          {% elif boost %}P2_boost_bagno
+          {% elif antisecco %}P1_anti_secco
+          {% elif freecooling %}P3_freecooling
+          {% else %}idle
           {% endif %}
         attributes:
           reason: "{{ this.state }}"
+
+      - name: "VMC Freecooling Status"
+        unique_id: vmc_freecooling_status
+        icon: mdi:weather-night
+        state: >
+          {% set cooldown = is_state('timer.vmc_freecooling_cooldown','active') %}
+          {% set running = is_state('switch.vmc_vel_2','on') %}
+          {% set maxrun_expired = (
+               not is_state('timer.vmc_freecooling_max_run','active')
+             ) and running and not cooldown %}
+
+          {% if cooldown %}cooldown
+          {% elif running %}active
+          {% elif maxrun_expired %}maxrun_lock
+          {% else %}off
+          {% endif %}
+        attributes:
+          mode: "{{ states('sensor.vmc_reason') }}"
+          cooldown_remaining: "{{ state_attr('timer.vmc_freecooling_cooldown','remaining') }}"
 
       - name: "VMC Last Event"
         unique_id: vmc_last_event
