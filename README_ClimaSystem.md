@@ -136,6 +136,7 @@ Reason:
 
 ## VMC → AC
 - Il freecooling può attivare `input_boolean.ac_block_vmc`.
+- Il night-flush dei serramenti, quando attivo, mantiene VMC vel_2 e può estendere lo stesso `ac_block_vmc` per evitare contrasti durante il raffrescamento passivo.
 
 ## AC → VMC
 - AC può richiedere VMC bassa (vel_1) in DRY.

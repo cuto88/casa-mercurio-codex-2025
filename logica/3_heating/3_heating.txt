@@ -1,4 +1,5 @@
 # 2 — Heating a pavimento (packages/2_heating.yaml)
+> ATTENZIONE: questo file descrive la logica di `packages/2_heating.yaml` e dovrebbe essere rinominato `2_heating_logic.md` per allinearsi alla struttura ufficiale.
 
 ## Obiettivo del modulo
 - Mantenere le zone al target comfort sfruttando l’inerzia del pavimento radiante con finestra 10:00–16:00 e surplus FV.

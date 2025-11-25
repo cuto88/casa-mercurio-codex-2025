@@ -1,4 +1,5 @@
 # 3 — Climatizzazione AC (packages/3_ac.yaml)
+> ATTENZIONE: questo file descrive la logica di `packages/3_ac.yaml` e dovrebbe essere rinominato `3_ac_logic.md` per allinearsi alla struttura ufficiale.
 
 ## Obiettivo del modulo
 - Garantire comfort estivo privilegiando la deumidifica (DRY) prima del raffrescamento (COOL) e rispettando blocchi notturni 23–07.

@@ -1,4 +1,5 @@
 # 1 — Ventilation / VMC (packages/1_ventilation.yaml)
+> ATTENZIONE: questo file descrive la logica di `packages/1_ventilation.yaml` e dovrebbe essere rinominato `1_ventilation_logic.md` per allinearsi alla struttura ufficiale.
 
 ## Obiettivo del modulo
 - Garantire ricambio aria sicuro e coerente con comfort igrometrico e meteo, usando le priorità VMC ufficiali.
@@ -8,10 +9,10 @@
 | Priorità | KPI principali | Azione / logica |
 | --- | --- | --- |
 | **P0_failsafe** | `binary_sensor.vmc_failsafe_sensors_bad` (validazione T/UR/AH in/out, UR bagno) | Disattiva automazioni dinamiche e forza profilo di sicurezza (vel_0/vel_1) finché i sensori tornano validi. |
-| **P1_boost_bagno** | `sensor.ur_in_bagno` + ΔUR bagno/esterno | Porta la VMC a **vel_3** con timer max_run e cooldown; se aria esterna molto secca degrada a vel_2. |
-| **P2_anti_secco** | UR interna bassa + stagione fredda + fascia 23–07 | Duty-cycle **vel_1** su base vel_0 per riportare UR sopra soglia (isteresi). |
+| **P1_boost_bagno** | `sensor.ur_in_bagno` + ΔUR bagno/esterno | Porta la VMC a **vel_3** con timer max_run e cooldown; se aria esterna molto secca degrada a vel_2 per proteggere comfort. |
+| **P2_anti_secco** | UR interna bassa + stagione fredda + fascia 23–07 | Duty-cycle **vel_1** su base vel_0 per riportare UR sopra soglia (isteresi) rispettando lock min_on/min_off. |
 | **P3_freecooling** | ΔT/ΔAH favorevole + stagione calda + AC OFF + meteo ok | Attiva **vel_2** con max_run/cooldown, pubblica `hook_vmc_request_ac_block` e abilita night_flush serramenti. |
-| **manual** | `input_boolean.vmc_manual` + `input_select.vmc_manual_speed` | Forza la velocità selezionata ignorando altre priorità finché scade `timer.vmc_manual_timeout`. |
+| **manual** | `input_boolean.vmc_manual` + `input_select.vmc_manual_speed` | Forza la velocità selezionata ignorando altre priorità finché scade `timer.vmc_manual_timeout`, rispettando i lock hardware. |
 | **idle** | Nessun trigger attivo | VMC su vel_0/vel_1 in base ai lock min_on/min_off e watchdog di runtime. |
 
 ## KPI e sensori chiave
@@ -21,7 +22,7 @@
 - Lock: `binary_sensor.vmc_lock_min_on_ok`, `binary_sensor.vmc_lock_min_off_ok`, timer max_run/cooldown freecooling.
 
 ## Hook / eventi verso altri moduli
-- `hook_vmc_request_ac_block`: blocca COOL/DRY quando freecooling è attivo o ΔAH esterno è già favorevole.
+- `hook_vmc_request_ac_block`: blocca COOL/DRY quando freecooling è attivo o ΔAH esterno è favorevole.
 - `hook_ac_request_vmc_low`: AC in DRY chiede **vel_1** per evitare condensa e controbilanciamento.
 - `hook_vent_enable_night_flush`: consente il night-flush serramenti e mantiene VMC su vel_2 durante il ciclo.
 
@@ -32,6 +33,6 @@
 - Watchdog: se nessuna condizione valida per troppo tempo, fallback a vel_1 per ricambio minimo.
 
 ## Note operative
-- I file di riferimento sono `packages/1_ventilation.yaml` e `lovelace/1_ventilation_plancia.yaml` (plancia). Nessun uso di file legacy 2_vmc.yaml.
+- File di riferimento: `packages/1_ventilation.yaml` e `lovelace/1_ventilation_plancia.yaml`; nessun uso di file legacy 2_vmc.yaml.
 - `sensor.vmc_priority` mostra il nome umano della priorità, mentre `sensor.vmc_reason` riporta il codice logico (reason) corrente.
 - Gli input_number permettono di regolare soglie UR bagno, ΔUR/ΔAH e timer senza toccare il pacchetto YAML.
