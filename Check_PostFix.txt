@@ -1,5 +1,0 @@
-1) ✅ Eseguire `ha core check` (o `hass --script check_config`) per validare template e automazioni.
-2) ✅ Verificare in Developer Tools → States che `sensor.vmc_reason` e `sensor.vmc_freecooling_status` abbiano stato diverso da `unknown`/`unavailable`.
-3) ✅ Aprire la dashboard "1 Ventilazione" e confermare che le card Entities e History mostrino dati popolati.
-4) ✅ Controllare i log per assenza di TemplateError relativi a `sensor.vmc_reason` e `sensor.vmc_freecooling_status`.
-5) ⚠️ Se si riattiva il controller VMC, rimuovere i commenti dal blocco automation e rieseguire `ha core check`.
