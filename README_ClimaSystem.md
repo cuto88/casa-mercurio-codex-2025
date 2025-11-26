@@ -18,6 +18,20 @@ Questo documento descrive in modo chiaro e definitivo la *struttura, logica e in
 | **2_heating_plancia.yaml** | UI riscaldamento |
 | **3_ac_plancia.yaml** | UI climatizzazione |
 | **1_ventilation_windows.yaml** (opzionale) | Solo monitor reale aperture finestre |
+| **6_helpers_energy.yaml** | Modulo Energia: helper e preferenze energetiche condivise |
+| **6_powermeter.yaml** | Modulo Energia: misure potenza e consumi di rete/carichi |
+| **6_surplus_energy.yaml** | Modulo Energia: logica surplus FV e gestione eccedenze |
+| **9_global_energy.yaml** | Modulo Energia: riepilogo globale KPI energia |
+
+---
+
+# Modulo Energia (estensione stack clima 2025)
+- I pacchetti `6_*.yaml` e `9_global_energy.yaml` espandono l'architettura clima con le logiche energia.
+- `packages/6_helpers_energy.yaml` definisce helper e soglie condivise per l'energia.
+- `packages/6_powermeter.yaml` integra i sensori di potenza/consumo di rete e dei carichi principali.
+- `packages/6_surplus_energy.yaml` gestisce surplus fotovoltaico, deviazione carichi e indicatori di autoconsumo.
+- `packages/9_global_energy.yaml` fornisce il riepilogo globale KPI energia e viste aggregate.
+
 
 ---
 
