@@ -1,12 +1,10 @@
-title: "1 Ventilazione"
-path: ventilation
-icon: mdi:fan-auto
-type: panel
-
-cards:
-  - type: vertical-stack
+title: "1 — Ventilazione"
+icon: mdi:fan
+views:
+  - title: "VMC"
+    icon: mdi:fan-auto
+    path: vmc
     cards:
-      # VIEW 1 — CONTROLLO VMC
       - type: markdown
         content: |
           ## VMC — Stato e comandi
@@ -56,12 +54,34 @@ cards:
             name: Freecooling candidato
           - entity: binary_sensor.clima_open_windows_recommended
             name: Apri finestre (clima)
-      - type: markdown
-        content: |
-          ### Consiglio corrente
-          {{ states('input_text.vent_messaggio_consiglio') }}
+      - type: entities
+        title: "VMC — Consigli e messaggi"
+        show_header_toggle: false
+        entities:
+          - entity: input_text.vent_messaggio_consiglio
+            name: Consiglio corrente
+      - type: history-graph
+        title: "Trend 24h — T e AH"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.t_in_media
+            name: "T interna media"
+          - entity: sensor.t_out
+            name: "T esterna"
+          - entity: sensor.ah_in
+            name: "AH interna"
+          - entity: sensor.ah_out
+            name: "AH esterna"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT in-out"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH in-out"
 
-      # VIEW 2 — VENTILAZIONE NATURALE / FINESTRE
+  - title: "Finestre"
+    icon: mdi:window-open-variant
+    path: windows
+    cards:
       - type: markdown
         content: |
           ## Ventilazione naturale — finestre
@@ -87,6 +107,21 @@ cards:
           - entity: sensor.vent_finestre_state
             name: Dettaglio finestre
       - type: entities
+        title: "Stato finestre"
+        show_header_toggle: false
+        entities:
+          - entity: input_boolean.vent_finestra_cucina
+            name: Finestra cucina
+          - entity: input_boolean.vent_finestra_soggiorno
+            name: Finestra soggiorno
+          - entity: input_boolean.vent_finestra_camera
+            name: Finestra camera
+          - entity: input_boolean.vent_finestra_bagno
+            name: Finestra bagno
+          - entity: input_boolean.vent_finestra_studio
+            name: Finestra studio
+          # TODO: verificare eventuali altre finestre o entità mancanti
+      - type: entities
         title: "Meteo / AQ"
         show_header_toggle: false
         entities:
@@ -109,24 +144,7 @@ cards:
           - input_boolean.vent_override_estate
           - input_boolean.vent_notifiche_attive
       - type: history-graph
-        title: "Trend 24h — T e AH"
-        hours_to_show: 24
-        refresh_interval: 60
-        entities:
-          - entity: sensor.t_in_media
-            name: "T interna media"
-          - entity: sensor.t_out
-            name: "T esterna"
-          - entity: sensor.ah_in
-            name: "AH interna"
-          - entity: sensor.ah_out
-            name: "AH esterna"
-          - entity: sensor.delta_t_in_out
-            name: "ΔT in-out"
-          - entity: sensor.delta_ah_in_out
-            name: "ΔAH in-out"
-      - type: history-graph
-        title: "Meteo / Finestre — 24h"
+        title: "Trend meteo / finestre — 24h"
         hours_to_show: 24
         refresh_interval: 60
         entities:
