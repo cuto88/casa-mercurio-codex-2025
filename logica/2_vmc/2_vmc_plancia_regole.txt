@@ -1,37 +1,10 @@
 ###############################################################################
-# 2_vmc_plancia_regole.txt — Documentazione layout plancia VMC
-# Obiettivo: descrivere struttura e contenuti di lovelace/1_ventilation_plancia.yaml
-#            per il modulo VMC/freecooling/anti-secco.
+# 2_vmc_plancia_regole.txt — Plancia VMC (consolidata in 1_vent)
 ###############################################################################
 
-COLONNA 1 — STATO & ATTUATORI
-- Glance "Stato logico": `sensor.vmc_priority`, `sensor.vmc_reason`, ultimo evento e stagione logica.
-- Glance "Attuatori": relè VMC vel_0..vel_3 + climatizzatori giorno/notte (per hook AC↔VMC).
-- Entities "Modalità manuale": `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout` con reminder ripristino.
-- Markdown "Come decide (sintesi)":
-  - Applica P0_failsafe, P1_boost_bagno, P2_anti_secco, P3_freecooling, manual, idle come da README.
-  - Lock min_on/min_off proteggono i relè; max_run/cooldown limita freecooling.
-  - Coordina con AC: blocco COOL/DRY se ΔAH esterno favorevole, VMC low quando AC è in DRY.
-  - Per il dettaglio completo: `logica/2_vmc/2_vmc.txt` e `README_ClimaSystem.md` sezione VMC.
-- Markdown "Come succede": breve spiegazione dinamica dello stato corrente.
+La plancia VMC è stata fusa con la plancia Vent unica. Usa la documentazione aggiornata in:
+- `logica/1_vent/1_vent_plancia_regole.txt` per il layout di `lovelace/1_ventilation_plancia.yaml`.
+- `logica/1_vent/1_vent.txt` per la logica e le priorità VMC integrate.
+- `logica/core/regole_plancia.md` per le linee guida UI comuni.
 
-COLONNA 2 — KPI COMPATTI (24h)
-- Mini-graph temperature (esterno, T in giorno, notte, bagno) colore rosso/giallo/blu/verde.
-- Mini-graph umidità relativa (esterno, UR in giorno/notte/bagno + media/min) stessi colori.
-- Mini-graph AH & Dew point (AH_in, AH_out, dewpoint_in) per controllo comfort.
-
-COLONNA 3 — TREND, VELOCITÀ E DEBUG
-- Mini-graph T_in_media vs T_out (24h) e AH_in vs AH_out (24h).
-- Mini-graph dedicato a `sensor.ur_in_bagno` (24h) per monitorare il trigger BOOST.
-- Statistics-graph "Velocità VMC — 24h" (stat_types=state, period=hour) su `sensor.vmc_vel_index` con legenda 0→vel_0 … 3→vel_3.
-- History-graph UR_media/UR_out/dewpoint (24h) e statistics-graph 7gg T/UR medie.
-- Entities "Debug sensori base" e "Debug derivate e diagnostica" (incluso vmc_vel_index).
-
-NOTE
-- Colori coerenti con la palette core; card manuale consente override temporaneo.
-- Layout mobile-first (sections) coerente con regole plancia core.
-
-RIFERIMENTI LOGICI
-- Logiche condivise: vedi `logica/core/regole_core_logiche.md`.
-- Linee guida UI generali: vedi `logica/core/regole_plancia.md`.
-- Logica specifica modulo: vedi `logica/2_vmc/2_vmc.txt`.
+> Revisione documentazione clima Vent – allineata a implementazione attuale.
