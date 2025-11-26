@@ -9,7 +9,6 @@ template:
   - sensor:
       - name: "Temperatura esterna (canonico)"
         unique_id: t_out_canonico
-        entity_id: sensor.t_out
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
@@ -35,7 +34,6 @@ template:
 
       - name: "AH esterna (canonico)"
         unique_id: ah_out_canonico
-        entity_id: sensor.ah_out
         unit_of_measurement: "g/m³"
         state_class: measurement
         icon: mdi:water-outline
