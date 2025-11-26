@@ -1,9 +1,36 @@
 ---
 ###############################################################################
-# 1_ventilation_windows.yaml — Monitoraggio finestre/porte (solo stato contatti)
+# 1_ventilation_windows.yaml — Monitoraggio finestre/porte e KPI collegati
+# - Definisce input_boolean per finestre
 # - Gruppi zona giorno/notte/bagno
-# - KPI contatore totale finestre aperte
+# - Conteggi e label finestre aperte
 ###############################################################################
+
+input_boolean:
+  vent_finestra_giorno1_aperta:
+    name: "Ventilazione — Finestra zona giorno 1"
+    icon: mdi:window-open-variant
+  vent_finestra_giorno2_aperta:
+    name: "Ventilazione — Finestra zona giorno 2"
+    icon: mdi:window-open-variant
+  vent_portoncino_ingresso_aperto:
+    name: "Ventilazione — Portoncino ingresso"
+    icon: mdi:door-open
+  vent_foro_cappa_aperto:
+    name: "Ventilazione — Foro cappa"
+    icon: mdi:tailwind
+  vent_finestra_notte1_aperta:
+    name: "Ventilazione — Finestra zona notte 1"
+    icon: mdi:window-open-variant
+  vent_finestra_notte2_aperta:
+    name: "Ventilazione — Finestra zona notte 2"
+    icon: mdi:window-open-variant
+  vent_finestra_notte3_aperta:
+    name: "Ventilazione — Finestra zona notte 3"
+    icon: mdi:window-open-variant
+  vent_finestra_bagno_aperta:
+    name: "Ventilazione — Finestra bagno"
+    icon: mdi:window-open-variant
 
 group:
   windows_zona_giorno:
@@ -64,3 +91,46 @@ template:
             {% set total.v = total.v + (members | count) %}
           {% endfor %}
           {{ total.v }}
+      - name: "vent_finestre_aperte"
+        unique_id: vent_finestre_aperte
+        unit_of_measurement: "finestre"
+        icon: mdi:window-open
+        state: >-
+          {% set toggles = [
+            'input_boolean.vent_finestra_giorno1_aperta',
+            'input_boolean.vent_finestra_giorno2_aperta',
+            'input_boolean.vent_portoncino_ingresso_aperto',
+            'input_boolean.vent_foro_cappa_aperto',
+            'input_boolean.vent_finestra_notte1_aperta',
+            'input_boolean.vent_finestra_notte2_aperta',
+            'input_boolean.vent_finestra_notte3_aperta',
+            'input_boolean.vent_finestra_bagno_aperta'
+          ] %}
+          {% set count = namespace(total=0) %}
+          {% for toggle in toggles %}
+            {% if is_state(toggle,'on') %}
+              {% set count.total = count.total + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ count.total }}
+      - name: "vent_finestre_state"
+        unique_id: vent_finestre_state
+        icon: mdi:text
+        state: >-
+          {% set labels = {
+            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno — Finestra 1',
+            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno — Finestra 2',
+            'input_boolean.vent_portoncino_ingresso_aperto': 'Portoncino ingresso',
+            'input_boolean.vent_foro_cappa_aperto': 'Foro cappa',
+            'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
+            'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
+            'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
+            'input_boolean.vent_finestra_bagno_aperta': 'Bagno'
+          } %}
+          {% set aperte = [] %}
+          {% for ent, label in labels.items() %}
+            {% if is_state(ent,'on') %}
+              {% set aperte = aperte + [label] %}
+            {% endif %}
+          {% endfor %}
+          {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}

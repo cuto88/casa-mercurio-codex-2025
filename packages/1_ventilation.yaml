@@ -1,16 +1,16 @@
 ---
 ###############################################################################
-# 1_ventilation.yaml — Modulo VMC + Ventilazione naturale (stack clima 2025)
-# Scopo: gestione VMC (auto/manual/off, boost bagno, freecooling, anti-secco)
-#        + suggerimenti finestre e night-flush estivo.
-# Riferimenti: README_ClimaSystem.md, logica/1_vent/1_vent.txt
+# 1_ventilation.yaml — Modulo VMC (auto/manual/off, boost bagno, freecooling,
+# anti-secco) e suggerimenti ventilazione naturale.
+# Riferimenti: README_ClimaSystem.md, logica/1_vent/1_vent.txt,
+#              logica/1_vent/1_vent_plancia_regole.txt
 ###############################################################################
 
 homeassistant:
   customize: {}
 
 # ======================
-# VENTILATION – HELPERS
+# HELPERS — MODALITÀ E SOGLIE
 # ======================
 input_select:
   vmc_mode:
@@ -44,30 +44,6 @@ input_boolean:
     name: "Ventilazione — Notifiche abilitate"
     icon: mdi:bell-alert
     initial: true
-  vent_finestra_giorno1_aperta:
-    name: "Ventilazione — Finestra zona giorno 1"
-    icon: mdi:window-open-variant
-  vent_finestra_giorno2_aperta:
-    name: "Ventilazione — Finestra zona giorno 2"
-    icon: mdi:window-open-variant
-  vent_portoncino_ingresso_aperto:
-    name: "Ventilazione — Portoncino ingresso"
-    icon: mdi:door-open
-  vent_foro_cappa_aperto:
-    name: "Ventilazione — Foro cappa"
-    icon: mdi:tailwind
-  vent_finestra_notte1_aperta:
-    name: "Ventilazione — Finestra zona notte 1"
-    icon: mdi:window-open-variant
-  vent_finestra_notte2_aperta:
-    name: "Ventilazione — Finestra zona notte 2"
-    icon: mdi:window-open-variant
-  vent_finestra_notte3_aperta:
-    name: "Ventilazione — Finestra zona notte 3"
-    icon: mdi:window-open-variant
-  vent_finestra_bagno_aperta:
-    name: "Ventilazione — Finestra bagno"
-    icon: mdi:window-open-variant
 
 input_number:
   vmc_bagno_on:
@@ -194,7 +170,7 @@ input_datetime:
     icon: mdi:weather-sunset-up
     initial: "08:00"
 
-# Timer
+# Timers
 timer:
   vmc_manual_timeout:
     name: Timeout modalità manuale
@@ -293,7 +269,7 @@ rest:
           {% endif %}
 
 # =============================
-# TEMPLATE — KPI, REASON, PRIORITY, CONSIGLI FINESTRE
+# TEMPLATE — KPI, PRIORITÀ E CONSIGLI
 # =============================
 template:
   - binary_sensor:
@@ -528,10 +504,24 @@ template:
       - name: "VMC reason"
         unique_id: vmc_reason
         state: >
-          {{ states('sensor.vmc_priority') }}
+          {% if is_state('binary_sensor.vmc_failsafe_sensors_bad','on') %}
+            failsafe_sensori
+          {% elif is_state('binary_sensor.vmc_boost_active','on') %}
+            boost_bagno
+          {% elif is_state('binary_sensor.vmc_anti_secco','on') and is_state('timer.vmc_anti_secco_lock','active') %}
+            anti_secco
+          {% elif is_state('sensor.vmc_freecooling_status','active') %}
+            freecooling
+          {% elif is_state('input_select.vmc_mode','manual') %}
+            manual_user
+          {% elif is_state('input_select.vmc_mode','off') %}
+            spento
+          {% else %}
+            idle_auto
+          {% endif %}
         attributes:
           priority: "{{ states('sensor.vmc_priority') }}"
-          reason: "{{ states('sensor.vmc_priority') }}"
+          reason: "{{ this.state }}"
 
       - name: "VMC priority"
         unique_id: vmc_priority
@@ -586,51 +576,6 @@ template:
         state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unavailable' }}"
         availability: >-
           {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
-
-      - name: "vent_finestre_aperte"
-        unique_id: vent_finestre_aperte
-        unit_of_measurement: "finestre"
-        icon: mdi:window-open
-        state: >-
-          {% set toggles = [
-            'input_boolean.vent_finestra_giorno1_aperta',
-            'input_boolean.vent_finestra_giorno2_aperta',
-            'input_boolean.vent_portoncino_ingresso_aperto',
-            'input_boolean.vent_foro_cappa_aperto',
-            'input_boolean.vent_finestra_notte1_aperta',
-            'input_boolean.vent_finestra_notte2_aperta',
-            'input_boolean.vent_finestra_notte3_aperta',
-            'input_boolean.vent_finestra_bagno_aperta'
-          ] %}
-          {% set count = namespace(total=0) %}
-          {% for toggle in toggles %}
-            {% if is_state(toggle,'on') %}
-              {% set count.total = count.total + 1 %}
-            {% endif %}
-          {% endfor %}
-          {{ count.total }}
-
-      - name: "vent_finestre_state"
-        unique_id: vent_finestre_state
-        icon: mdi:text
-        state: >-
-          {% set labels = {
-            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno — Finestra 1',
-            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno — Finestra 2',
-            'input_boolean.vent_portoncino_ingresso_aperto': 'Portoncino ingresso',
-            'input_boolean.vent_foro_cappa_aperto': 'Foro cappa',
-            'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
-            'input_boolean.vent_finestra_notte2_aperta': 'Zona notte 2',
-            'input_boolean.vent_finestra_notte3_aperta': 'Zona notte 3',
-            'input_boolean.vent_finestra_bagno_aperta': 'Bagno'
-          } %}
-          {% set aperte = [] %}
-          {% for ent, label in labels.items() %}
-            {% if is_state(ent,'on') %}
-              {% set aperte = aperte + [label] %}
-            {% endif %}
-          {% endfor %}
-          {{ ', '.join(aperte) if aperte else 'Tutte chiuse' }}
 
       - name: "vent_weather_label"
         unique_id: vent_weather_label
