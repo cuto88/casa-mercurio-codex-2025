@@ -15,6 +15,7 @@ homeassistant:
     switch.4_ch_interrutore_3:
       friendly_name: "Riscaldamento — Interruttore Generale"
       icon: mdi:radiator
+      # NOTA: relè hardware invertito (state ON = circuito disattivo, OFF = attivo)
 
 # ---------------------------------------------------------------------------
 # TOGGLE DI ZONA + OVERRIDE
@@ -342,7 +343,7 @@ sensor:
     name: "Riscaldamento — Ore ON oggi"
     unique_id: heating_hours_on_today
     entity_id: switch.4_ch_interrutore_3
-    state: "on"
+    state: "off"
     type: time
     start: "{{ today_at('00:00') }}"
     end: "{{ now() }}"
@@ -351,7 +352,7 @@ sensor:
     name: "Riscaldamento — Ore ON ieri"
     unique_id: heating_hours_on_yesterday
     entity_id: switch.4_ch_interrutore_3
-    state: "on"
+    state: "off"
     type: time
     start: "{{ (today_at('00:00') - timedelta(days=1)) }}"
     end: "{{ today_at('00:00') }}"
@@ -408,7 +409,7 @@ automation:
               - choose:
                   - conditions: "{{ is_state('input_select.heating_manual_mode','OFF') }}"
                     sequence:
-                      - service: switch.turn_off
+                      - service: switch.turn_on
                         target:
                           entity_id: switch.4_ch_interrutore_3
                       - event: template_event
@@ -417,10 +418,10 @@ automation:
                           attributes:
                             priority: manual
                             reason: "Manuale OFF"
-                            action: "switch.off"
+                            action: "switch.on (stop)"
                   - conditions: "{{ is_state('input_select.heating_manual_mode','ECO') }}"
                     sequence:
-                      - service: switch.turn_on
+                      - service: switch.turn_off
                         target:
                           entity_id: switch.4_ch_interrutore_3
                       - event: template_event
@@ -429,10 +430,10 @@ automation:
                           attributes:
                             priority: manual
                             reason: "Manuale ECO"
-                            action: "switch.on (eco)"
+                            action: "switch.off (eco)"
                   - conditions: "{{ is_state('input_select.heating_manual_mode','COMFORT') }}"
                     sequence:
-                      - service: switch.turn_on
+                      - service: switch.turn_off
                         target:
                           entity_id: switch.4_ch_interrutore_3
                       - event: template_event
@@ -441,10 +442,10 @@ automation:
                           attributes:
                             priority: manual
                             reason: "Manuale COMFORT"
-                            action: "switch.on"
+                            action: "switch.off"
                   - conditions: "{{ is_state('input_select.heating_manual_mode','BOOST') }}"
                     sequence:
-                      - service: switch.turn_on
+                      - service: switch.turn_off
                         target:
                           entity_id: switch.4_ch_interrutore_3
                       - event: template_event
@@ -453,7 +454,7 @@ automation:
                           attributes:
                             priority: manual
                             reason: "Manuale BOOST"
-                            action: "switch.on (boost)"
+                            action: "switch.off (boost)"
         default:
           - choose:
               - conditions:
@@ -481,7 +482,7 @@ automation:
         entity_id: binary_sensor.heating_failsafe_sensors_bad
         state: "on"
     actions:
-      - service: switch.turn_off
+      - service: switch.turn_on
         target:
           entity_id: switch.4_ch_interrutore_3
       - event: template_event
@@ -490,7 +491,7 @@ automation:
           attributes:
             priority: P0_failsafe
             reason: "Sensore non valido (stop di sicurezza)"
-            action: "switch.off"
+            action: "switch.on (stop)"
 
   - id: heating_controller_priority
     alias: "HEATING — Controllo priorità P1–P4"
@@ -554,7 +555,7 @@ automation:
               - condition: template
                 value_template: "{{ t_min is not none and t_min < anti_frost }}"
             sequence:
-              - service: switch.turn_on
+              - service: switch.turn_off
                 target:
                   entity_id: switch.4_ch_interrutore_3
               - event: template_event
@@ -563,7 +564,7 @@ automation:
                   attributes:
                     priority: P1_anti_frost
                     reason: "T interna {{ t_min }}°C < soglia antigelo"
-                    action: "switch.on"
+                    action: "switch.off"
 
           # P2: comfort base
           - conditions:
@@ -577,7 +578,7 @@ automation:
                     t_min < (comfort - tol)
                   }}
             sequence:
-              - service: switch.turn_on
+              - service: switch.turn_off
                 target:
                   entity_id: switch.4_ch_interrutore_3
               - event: template_event
@@ -586,7 +587,7 @@ automation:
                   attributes:
                     priority: P2_comfort
                     reason: "Comfort: T_min {{ t_min }}°C < target {{ comfort - tol }}°C"
-                    action: "switch.on"
+                    action: "switch.off"
 
           # P3: boost FV
           - conditions:
@@ -600,7 +601,7 @@ automation:
                     t_min < (comfort - boost_delta)
                   }}
             sequence:
-              - service: switch.turn_on
+              - service: switch.turn_off
                 target:
                   entity_id: switch.4_ch_interrutore_3
               - event: template_event
@@ -609,7 +610,7 @@ automation:
                   attributes:
                     priority: P3_pv_boost
                     reason: "Surplus FV: T_min {{ t_min }}°C < target boost {{ comfort - boost_delta }}°C"
-                    action: "switch.on"
+                    action: "switch.off"
 
           # P4: night setback
           - conditions:
@@ -622,7 +623,7 @@ automation:
                     t_min < (night_sp - tol)
                   }}
             sequence:
-              - service: switch.turn_on
+              - service: switch.turn_off
                 target:
                   entity_id: switch.4_ch_interrutore_3
               - event: template_event
@@ -631,16 +632,16 @@ automation:
                   attributes:
                     priority: P4_night_setback
                     reason: "Night: T_min {{ t_min }}°C < soglia notte {{ night_sp - tol }}°C"
-                    action: "switch.on"
+                    action: "switch.off"
 
         default:
           - choose:
               - conditions:
                   - condition: state
                     entity_id: switch.4_ch_interrutore_3
-                    state: "on"
+                    state: "off"
                 sequence:
-                  - service: switch.turn_off
+                  - service: switch.turn_on
                     target:
                       entity_id: switch.4_ch_interrutore_3
           - event: template_event
@@ -649,7 +650,7 @@ automation:
               attributes:
                 priority: idle
                 reason: "Nessuna priorità attiva"
-                action: "switch.off"
+                action: "switch.on (idle)"
 
   # LEGACY AUTOMATIONS (disattivate dopo refactor)
   # - heating_decision_loop
