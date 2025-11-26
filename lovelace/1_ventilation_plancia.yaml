@@ -110,17 +110,23 @@ views:
         title: "Stato finestre"
         show_header_toggle: false
         entities:
-          - entity: input_boolean.vent_finestra_cucina
-            name: Finestra cucina
-          - entity: input_boolean.vent_finestra_soggiorno
-            name: Finestra soggiorno
-          - entity: input_boolean.vent_finestra_camera
-            name: Finestra camera
-          - entity: input_boolean.vent_finestra_bagno
+          - entity: input_boolean.vent_finestra_giorno1_aperta
+            name: Finestra zona giorno 1
+          - entity: input_boolean.vent_finestra_giorno2_aperta
+            name: Finestra zona giorno 2
+          - entity: input_boolean.vent_portoncino_ingresso_aperto
+            name: Portoncino ingresso
+          - entity: input_boolean.vent_foro_cappa_aperto
+            name: Foro cappa
+          - entity: input_boolean.vent_finestra_notte1_aperta
+            name: Finestra zona notte 1
+          - entity: input_boolean.vent_finestra_notte2_aperta
+            name: Finestra zona notte 2
+          - entity: input_boolean.vent_finestra_notte3_aperta
+            name: Finestra zona notte 3
+          - entity: input_boolean.vent_finestra_bagno_aperta
             name: Finestra bagno
-          - entity: input_boolean.vent_finestra_studio
-            name: Finestra studio
-          # TODO: verificare eventuali altre finestre o entità mancanti
+          # TODO: aggiungere eventuali altre aperture
       - type: entities
         title: "Meteo / AQ"
         show_header_toggle: false
