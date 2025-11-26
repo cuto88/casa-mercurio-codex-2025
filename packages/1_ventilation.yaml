@@ -276,48 +276,59 @@ template:
       - name: "VMC failsafe — sensori non ok"
         unique_id: vmc_failsafe_sensors_bad
         icon: mdi:alert-circle
-        state: >
+        state: >-
           {% set specs = {
             'sensor.t_in_media': [-20, 50],
             'sensor.t_out': [-20, 50],
             'sensor.ur_in_media': [0, 100],
             'sensor.ur_out': [0, 100],
-            'sensor.ah_in': [0, none],
-            'sensor.ah_out': [0, none],
+            'sensor.ah_in': [0, None],
+            'sensor.ah_out': [0, None],
             'sensor.ur_in_bagno': [0, 100]
           } %}
+
           {% for sid, limits in specs.items() %}
-            {% if sid not in states or states[sid].state in ['unknown','unavailable',''] %}
-              {{ true }}
+            {% set s = states(sid) %}
+            {% if s in ['unknown','unavailable','none',''] %}
+              true
               {% break %}
             {% else %}
-              {% set val = states[sid].state | float(0) %}
+              {% set val = s|float(default=None) %}
+              {% if val is none %}
+                true
+                {% break %}
+              {% endif %}
               {% if (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
-                {{ true }}
+                true
                 {% break %}
               {% endif %}
             {% endif %}
-            {% if loop.last %}{{ false }}{% endif %}
+          {% else %}
+            false
           {% endfor %}
         attributes:
-          problematic_sensors: >
+          problematic_sensors: >-
             {% set specs = {
               'sensor.t_in_media': [-20, 50],
               'sensor.t_out': [-20, 50],
               'sensor.ur_in_media': [0, 100],
               'sensor.ur_out': [0, 100],
-              'sensor.ah_in': [0, none],
-              'sensor.ah_out': [0, none],
+              'sensor.ah_in': [0, None],
+              'sensor.ah_out': [0, None],
               'sensor.ur_in_bagno': [0, 100]
             } %}
             {% set bad = [] %}
-            {% for key, limits in specs.items() %}
-              {% set raw = states(key) %}
-              {% set val = raw|float(default=none) if raw not in ['unknown','unavailable','', none] else none %}
-              {% if val is none %}
-                {% set bad = bad + [key] %}
-              {% elif (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
-                {% set bad = bad + [key] %}
+            {% for sid, limits in specs.items() %}
+              {% set s = states(sid) %}
+              {% if s in ['unknown','unavailable','', None] %}
+                {% set bad = bad + [sid] %}
+              {% else %}
+                {% set val = s|float(default=None) %}
+                {% if val is none %}
+                  {% set bad = bad + [sid] %}
+                {% elif (limits[0] is not none and val < limits[0]) or (limits[1] is not none and val > limits[1]) %}
+                  {% set bad = bad + [sid] %}
+                {% endif %}
               {% endif %}
             {% endfor %}
             {{ bad }}
