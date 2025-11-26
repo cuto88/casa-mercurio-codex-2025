@@ -5,160 +5,165 @@ views:
     icon: mdi:fan-auto
     path: vmc
     cards:
-      - type: markdown
-        content: |
-          ## VMC — Stato e comandi
-          Modalità auto/manual/off, boost bagno, freecooling e anti-secco.
       - type: entities
-        title: "VMC — Stato generale"
+        title: "Stato generale VMC"
         show_header_toggle: false
         entities:
           - entity: sensor.vmc_priority
-            name: Priorità VMC
+            name: Priorità
           - entity: sensor.vmc_reason
-            name: Motivo / Azione
+            name: Motivo corrente
           - entity: binary_sensor.vmc_failsafe_sensors_bad
             name: Failsafe sensori
           - entity: sensor.vmc_freecooling_status
             name: Stato freecooling
-          - entity: binary_sensor.vmc_anti_secco
-            name: Anti-secco attivo
-          - entity: binary_sensor.vmc_bagno_boost_auto
-            name: Boost bagno auto
           - entity: sensor.vmc_vel_target
             name: Velocità target
+          - entity: sensor.vmc_vel_index
+            name: Indice velocità
+          - entity: binary_sensor.vmc_bagno_boost_auto
+            name: Boost bagno automatico
+          - entity: binary_sensor.vmc_freecooling_candidate
+            name: Candidato freecooling
+          - entity: binary_sensor.vmc_anti_secco
+            name: Anti-secco attivo
+
       - type: entities
-        title: "VMC — Comandi manuali"
+        title: "Comandi manuali VMC"
         show_header_toggle: false
         entities:
-          - input_select.vmc_mode
-          - input_select.vmc_manual_speed
-          - input_boolean.vmc_manual
-          - input_boolean.vmc_boost_bagno
-          - input_number.vmc_bagno_on
-          - input_number.vmc_bagno_off
-          - input_number.vmc_freecooling_delta
-          - input_number.vmc_freecooling_delta_ah
-          - input_number.vmc_anti_secco_ur_min
+          - entity: input_select.vmc_mode
+            name: Modalità VMC
+          - entity: input_select.vmc_manual_speed
+            name: Velocità manuale
+          - entity: input_boolean.vmc_manual
+            name: Manuale attivo
+          - entity: input_boolean.vmc_boost_bagno
+            name: Boost bagno manuale
+          - entity: input_number.vmc_bagno_on
+            name: Soglia UR boost bagno ON
+          - entity: input_number.vmc_bagno_off
+            name: Soglia UR boost bagno OFF
+          - entity: input_number.vmc_freecooling_delta
+            name: Delta °C freecooling
+          - entity: input_number.vmc_freecooling_delta_ah
+            name: Delta AH freecooling
+          - entity: input_number.vmc_anti_secco_ur_min
+            name: UR minima anti-secco
+          - entity: input_number.vent_deltat_min
+            name: DeltaT minimo
+          - entity: input_number.vent_deltaah_min
+            name: DeltaAH minimo
+          - entity: input_number.vent_vento_max
+            name: Vento massimo
+          - entity: input_number.vent_pm25_max
+            name: PM2.5 massimo
+
       - type: entities
-        title: "VMC — KPI ΔT/ΔAH"
+        title: "KPI ΔT / ΔAH"
         show_header_toggle: false
         entities:
           - entity: sensor.delta_t_in_out
-            name: "ΔT in-out (°C)"
+            name: ΔT (interno-esterno)
           - entity: sensor.delta_ah_in_out
-            name: "ΔAH in-out (g/m³)"
-          - entity: binary_sensor.vent_condizioni_termiche_ok
-            name: "ΔT / ΔAH ok"
-          - entity: binary_sensor.vmc_freecooling_candidate
-            name: Freecooling candidato
-          - entity: binary_sensor.clima_open_windows_recommended
-            name: Apri finestre (clima)
+            name: ΔAH (interno-esterno)
+          - entity: binary_sensor.vent_deltat_ok
+            name: ΔT ok
+          - entity: binary_sensor.vent_deltaah_ok
+            name: ΔAH ok
+          - entity: sensor.vent_ah_in
+            name: AH interno
+          - entity: sensor.vent_ah_out
+            name: AH esterno
+
       - type: entities
-        title: "VMC — Consigli e messaggi"
+        title: "Meteo e aria esterna"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.vent_meteo_temp
+            name: Temperatura esterna
+          - entity: sensor.vent_meteo_rh
+            name: Umidità esterna
+          - entity: binary_sensor.vent_pioggia
+            name: Pioggia
+          - entity: sensor.vent_meteo_vento
+            name: Vento
+          - entity: binary_sensor.vent_vento_blocco
+            name: Blocco per vento
+          - entity: sensor.vent_meteo_pm25
+            name: PM2.5 esterno
+          - entity: binary_sensor.vent_air_quality_ok
+            name: Qualità aria ok
+          - entity: sensor.vent_weather_label
+            name: Condizione meteo
+
+      - type: entities
+        title: "Consigli e notifiche"
         show_header_toggle: false
         entities:
           - entity: input_text.vent_messaggio_consiglio
-            name: Consiglio corrente
-      - type: history-graph
-        title: "Trend 24h — T e AH"
-        hours_to_show: 24
-        refresh_interval: 60
-        entities:
-          - entity: sensor.t_in_media
-            name: "T interna media"
-          - entity: sensor.t_out
-            name: "T esterna"
-          - entity: sensor.ah_in
-            name: "AH interna"
-          - entity: sensor.ah_out
-            name: "AH esterna"
-          - entity: sensor.delta_t_in_out
-            name: "ΔT in-out"
-          - entity: sensor.delta_ah_in_out
-            name: "ΔAH in-out"
+            name: Messaggio corrente
+          - entity: input_boolean.vent_notifiche_attive
+            name: Notifiche attive
 
   - title: "Finestre"
     icon: mdi:window-open-variant
     path: windows
     cards:
-      - type: markdown
-        content: |
-          ## Ventilazione naturale — finestre
-          Suggerimenti apertura/chiusura in base a ΔT/ΔAH, meteo e qualità aria.
-      - type: entities
-        title: "Consigli finestre"
-        show_header_toggle: false
-        entities:
-          - entity: binary_sensor.vent_recommend_open
-            name: "Suggerimento: apri finestre"
-          - entity: binary_sensor.vent_recommend_close
-            name: "Suggerimento: chiudi finestre"
-          - entity: binary_sensor.vent_condizioni_meteo_ok
-            name: "Meteo ok"
-          - entity: binary_sensor.vent_air_quality_ok
-            name: Qualità aria ok (PM2.5)
-          - entity: binary_sensor.vent_condizioni_termiche_ok
-            name: "ΔT / ΔAH ok"
-          - entity: sensor.vent_weather_label
-            name: Meteo sintetico
-          - entity: sensor.vent_finestre_aperte
-            name: Finestre aperte
-          - entity: sensor.vent_finestre_state
-            name: Dettaglio finestre
       - type: entities
         title: "Stato finestre"
         show_header_toggle: false
         entities:
           - entity: input_boolean.vent_finestra_giorno1_aperta
-            name: Finestra zona giorno 1
+            name: Finestra giorno 1
           - entity: input_boolean.vent_finestra_giorno2_aperta
-            name: Finestra zona giorno 2
+            name: Finestra giorno 2
           - entity: input_boolean.vent_portoncino_ingresso_aperto
             name: Portoncino ingresso
           - entity: input_boolean.vent_foro_cappa_aperto
             name: Foro cappa
           - entity: input_boolean.vent_finestra_notte1_aperta
-            name: Finestra zona notte 1
+            name: Finestra notte 1
           - entity: input_boolean.vent_finestra_notte2_aperta
-            name: Finestra zona notte 2
+            name: Finestra notte 2
           - entity: input_boolean.vent_finestra_notte3_aperta
-            name: Finestra zona notte 3
+            name: Finestra notte 3
           - entity: input_boolean.vent_finestra_bagno_aperta
             name: Finestra bagno
-          # TODO: aggiungere eventuali altre aperture
+
       - type: entities
-        title: "Meteo / AQ"
+        title: "KPI aperture"
         show_header_toggle: false
         entities:
-          - entity: weather.casa
-          - entity: sensor.vent_meteo_temp
-            name: T esterna (meteo)
-          - entity: sensor.vent_meteo_rh
-            name: UR esterna (meteo)
-          - entity: sensor.vent_meteo_pm25
-          - entity: binary_sensor.vent_pioggia
-          - entity: binary_sensor.vent_vento_blocco
-      - type: entities
-        title: "Soglie e override"
-        show_header_toggle: false
-        entities:
-          - input_number.vent_deltat_min
-          - input_number.vent_deltaah_min
-          - input_number.vent_vento_max
-          - input_number.vent_pm25_max
-          - input_boolean.vent_override_estate
-          - input_boolean.vent_notifiche_attive
-      - type: history-graph
-        title: "Trend meteo / finestre — 24h"
-        hours_to_show: 24
-        refresh_interval: 60
-        entities:
-          - entity: sensor.vent_meteo_vento
-            name: Vento (m/s)
-          - entity: sensor.vent_meteo_pm25
-            name: PM2.5 (µg/m³)
-          - entity: binary_sensor.vent_pioggia
-          - entity: binary_sensor.vent_vento_blocco
           - entity: sensor.vent_finestre_aperte
             name: Finestre aperte
+          - entity: sensor.vent_finestre_state
+            name: Stato complessivo
+
+      - type: entities
+        title: "Suggerimenti ventilazione naturale"
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.vent_recommend_open
+            name: Consiglio aprire
+          - entity: binary_sensor.vent_recommend_close
+            name: Consiglio chiudere
+          - entity: binary_sensor.clima_open_windows_recommended
+            name: Aprire finestre raccomandato
+
+      - type: entities
+        title: "Meteo rilevante"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.vent_meteo_vento
+            name: Vento
+          - entity: binary_sensor.vent_vento_blocco
+            name: Blocco per vento
+          - entity: binary_sensor.vent_pioggia
+            name: Pioggia
+          - entity: sensor.vent_meteo_pm25
+            name: PM2.5 esterno
+          - entity: binary_sensor.vent_air_quality_ok
+            name: Qualità aria ok
+          - entity: sensor.vent_weather_label
+            name: Condizione meteo
