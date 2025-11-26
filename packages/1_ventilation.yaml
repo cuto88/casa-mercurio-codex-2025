@@ -693,7 +693,7 @@ template:
               {% set es = 6.112 * (2.718281828 ** exponent) %}
               {% set pv = RHc/100 * es %}
               {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-            {% else %}unavailable{% endif %}
+            {% else %}unknown{% endif %}
           {% endif %}
         availability: >-
           {{ states('sensor.ah_in') not in ['unknown','unavailable',''] or (states('input_number.vent_backup_t_in') not in ['unknown','unavailable',''] and states('input_number.vent_backup_ur_in') not in ['unknown','unavailable','']) }}
@@ -703,7 +703,7 @@ template:
         unit_of_measurement: "g/m³"
         state_class: measurement
         icon: mdi:water-outline
-        state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unavailable' }}"
+        state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unknown' }}"
         availability: >-
           {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
 

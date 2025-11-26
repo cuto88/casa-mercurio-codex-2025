@@ -32,24 +32,126 @@ template:
              states('sensor.vent_meteo_temp') not in ['unknown','unavailable',''] }}
         # Home Assistant genererà l'entity_id sensor.t_out
 
-      - name: "AH esterna (canonico)"
-        unique_id: ah_out_canonico
+      - name: "Umidità esterna (canonico)"
+        unique_id: ur_out_canonico
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        state: >-
+          {% set rh_real = states('sensor.umidita_esterna') %}
+          {% if rh_real not in ['unknown','unavailable',''] %}
+            {{ rh_real|float }}
+          {% else %}
+            {% set rh_met = states('sensor.vent_meteo_rh') %}
+            {% if rh_met not in ['unknown','unavailable',''] %}
+              {{ rh_met|float }}
+            {% else %}
+              unknown
+            {% endif %}
+          {% endif %}
+        availability: >-
+          {{ states('sensor.umidita_esterna') not in ['unknown','unavailable',''] or
+             states('sensor.vent_meteo_rh') not in ['unknown','unavailable',''] }}
+
+      - name: "Temperatura interna media"
+        unique_id: t_in_media
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:home-thermometer
+        state: >-
+          {% set sids = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno'
+          ] %}
+          {% set vals = [] %}
+          {% for sid in sids %}
+            {% set v = states(sid)|float(default=none) %}
+            {% if v is number %}
+              {% set vals = vals + [v] %}
+            {% endif %}
+          {% endfor %}
+          {% set backup = states('input_number.vent_backup_t_in')|float(default=none) %}
+          {% if vals %}
+            {{ (vals | sum(attribute=None) / vals|length) | round(2) }}
+          {% elif backup is number %}
+            {{ backup | round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
+        availability: >-
+          {% set sids = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno'
+          ] %}
+          {% set valid = [] %}
+          {% for sid in sids %}
+            {% set v = states(sid)|float(default=none) %}
+            {% if v is number %}
+              {% set valid = valid + [1] %}
+            {% endif %}
+          {% endfor %}
+          {% set backup = states('input_number.vent_backup_t_in')|float(default=none) %}
+          {{ valid|length > 0 or backup is number }}
+
+      - name: "Umidità interna media"
+        unique_id: ur_in_media
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        state: >-
+          {% set sids = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno'
+          ] %}
+          {% set vals = [] %}
+          {% for sid in sids %}
+            {% set v = states(sid)|float(default=none) %}
+            {% if v is number %}
+              {% set vals = vals + [v] %}
+            {% endif %}
+          {% endfor %}
+          {% set backup = states('input_number.vent_backup_ur_in')|float(default=none) %}
+          {% if vals %}
+            {{ (vals | sum(attribute=None) / vals|length) | round(2) }}
+          {% elif backup is number %}
+            {{ backup | round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
+        availability: >-
+          {% set sids = [
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno'
+          ] %}
+          {% set valid = [] %}
+          {% for sid in sids %}
+            {% set v = states(sid)|float(default=none) %}
+            {% if v is number %}
+              {% set valid = valid + [1] %}
+            {% endif %}
+          {% endfor %}
+          {% set backup = states('input_number.vent_backup_ur_in')|float(default=none) %}
+          {{ valid|length > 0 or backup is number }}
+
+      - name: "AH interna"
+        unique_id: ah_in
         unit_of_measurement: "g/m³"
         state_class: measurement
-        icon: mdi:water-outline
+        icon: mdi:water
         state: >-
-          {# sorgente principale: sensore esterno reale (T + UR) #}
-          {% set T_real = states('sensor.temperatura_esterna')|float(default=none) %}
-          {% set RH_real = states('sensor.umidita_esterna')|float(default=none) %}
-          {% if T_real is number and RH_real is number %}
-            {% set T = T_real %}
-            {% set RH = RH_real %}
-          {% else %}
-            {# fallback: meteo #}
-            {% set T = states('sensor.vent_meteo_temp')|float(default=none) %}
-            {% set RH = states('sensor.vent_meteo_rh')|float(default=none) %}
-          {% endif %}
-
+          {% set T = states('sensor.t_in_media')|float(default=none) %}
+          {% set RH = states('sensor.ur_in_media')|float(default=none) %}
           {% if T is number and RH is number %}
             {% set RHc = [ [RH, 100]|min, 1]|max %}
             {% set exponent = (17.67*T)/(T+243.5) %}
@@ -60,10 +162,29 @@ template:
             unknown
           {% endif %}
         availability: >-
-          {{ (states('sensor.temperatura_esterna') not in ['unknown','unavailable',''] and
-              states('sensor.umidita_esterna') not in ['unknown','unavailable','']) or
-             (states('sensor.vent_meteo_temp') not in ['unknown','unavailable',''] and
-              states('sensor.vent_meteo_rh') not in ['unknown','unavailable','']) }}
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and
+             states('sensor.ur_in_media') not in ['unknown','unavailable',''] }}
+
+      - name: "AH esterna (canonico)"
+        unique_id: ah_out_canonico
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-outline
+        state: >-
+          {% set T = states('sensor.t_out')|float(default=none) %}
+          {% set RH = states('sensor.ur_out')|float(default=none) %}
+          {% if T is number and RH is number %}
+            {% set RHc = [ [RH, 100]|min, 1]|max %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% set es = 6.112 * (2.718281828 ** exponent) %}
+            {% set pv = RHc/100 * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
+        availability: >-
+          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
+             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
 
       - name: "Delta T in-out"
         unique_id: delta_t_in_out
@@ -99,22 +220,3 @@ template:
         availability: >-
           {{ states('sensor.ah_in') not in ['unknown','unavailable',''] and
              states('sensor.ah_out') not in ['unknown','unavailable',''] }}
-
-      - name: "AH esterna (canonico)"
-        unique_id: ah_out_canonico
-        unit_of_measurement: "g/m³"
-        state_class: measurement
-        icon: mdi:water-outline
-        state: >-
-          {% set T = states('sensor.t_out')|float(default=none) %}
-          {% set RH = states('sensor.ur_out')|float(default=none) %}
-          {% if T is number and RH is number %}
-            {% set es = 6.112 * (2.718281828 ** ((17.67*T)/(T+243.5))) %}
-            {% set pv = (RH/100) * es %}
-            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-          {% else %}
-            unknown
-          {% endif %}
-        availability: >-
-          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
-             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
