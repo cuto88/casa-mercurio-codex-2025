@@ -1,0 +1,41 @@
+---
+###############################################################################
+# 0_sensors.yaml — Sensori climatici canonici e KPI base (ΔT/ΔAH)
+# - ΔT in-out
+# - ΔAH in-out
+###############################################################################
+
+template:
+  - sensor:
+      - name: "Delta T in-out"
+        unique_id: delta_t_in_out
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer-chevron-up
+        state: >-
+          {% set tin = states('sensor.t_in_media') %}
+          {% set tout = states('sensor.t_out') %}
+          {% if tin not in ['unknown','unavailable',''] and tout not in ['unknown','unavailable',''] %}
+            {{ (tin|float - tout|float) | round(2) }}
+          {% else %}
+            unavailable
+          {% endif %}
+        availability: >-
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and states('sensor.t_out') not in ['unknown','unavailable',''] }}
+
+      - name: "Delta AH in-out"
+        unique_id: delta_ah_in_out
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-percent
+        state: >-
+          {% set ah_in = states('sensor.ah_in') %}
+          {% set ah_out = states('sensor.ah_out') %}
+          {% if ah_in not in ['unknown','unavailable',''] and ah_out not in ['unknown','unavailable',''] %}
+            {{ (ah_in|float - ah_out|float) | round(2) }}
+          {% else %}
+            unavailable
+          {% endif %}
+        availability: >-
+          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] and states('sensor.ah_out') not in ['unknown','unavailable',''] }}
