@@ -7,6 +7,64 @@
 
 template:
   - sensor:
+      - name: "Temperatura esterna (canonico)"
+        unique_id: t_out_canonico
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        state: >-
+          {# sorgente principale: sensore esterno reale #}
+          {% set t_real = states('sensor.temperatura_esterna') %}
+          {% if t_real not in ['unknown','unavailable',''] %}
+            {{ t_real|float }}
+          {% else %}
+            {# fallback: meteo Open-Meteo #}
+            {% set t_met = states('sensor.vent_meteo_temp') %}
+            {% if t_met not in ['unknown','unavailable',''] %}
+              {{ t_met|float }}
+            {% else %}
+              unknown
+            {% endif %}
+          {% endif %}
+        availability: >-
+          {{ states('sensor.temperatura_esterna') not in ['unknown','unavailable',''] or
+             states('sensor.vent_meteo_temp') not in ['unknown','unavailable',''] }}
+        # Home Assistant genererà l'entity_id sensor.t_out
+
+      - name: "AH esterna (canonico)"
+        unique_id: ah_out_canonico
+        unit_of_measurement: "g/m³"
+        state_class: measurement
+        icon: mdi:water-outline
+        state: >-
+          {# sorgente principale: sensore esterno reale (T + UR) #}
+          {% set T_real = states('sensor.temperatura_esterna')|float(default=none) %}
+          {% set RH_real = states('sensor.umidita_esterna')|float(default=none) %}
+          {% if T_real is number and RH_real is number %}
+            {% set T = T_real %}
+            {% set RH = RH_real %}
+          {% else %}
+            {# fallback: meteo #}
+            {% set T = states('sensor.vent_meteo_temp')|float(default=none) %}
+            {% set RH = states('sensor.vent_meteo_rh')|float(default=none) %}
+          {% endif %}
+
+          {% if T is number and RH is number %}
+            {% set RHc = [ [RH, 100]|min, 1]|max %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% set es = 6.112 * (2.718281828 ** exponent) %}
+            {% set pv = RHc/100 * es %}
+            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
+        availability: >-
+          {{ (states('sensor.temperatura_esterna') not in ['unknown','unavailable',''] and
+              states('sensor.umidita_esterna') not in ['unknown','unavailable','']) or
+             (states('sensor.vent_meteo_temp') not in ['unknown','unavailable',''] and
+              states('sensor.vent_meteo_rh') not in ['unknown','unavailable','']) }}
+
       - name: "Delta T in-out"
         unique_id: delta_t_in_out
         unit_of_measurement: "°C"
