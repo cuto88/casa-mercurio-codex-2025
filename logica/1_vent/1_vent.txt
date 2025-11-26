@@ -1,36 +1,50 @@
-# 1 — Ventilation / VMC — Ventilazione naturale & night flush (packages/1_ventilation.yaml)
-> ATTENZIONE: questo file descrive la logica di `packages/1_ventilation.yaml` e dovrebbe essere rinominato `1_ventilation_logic.md` per allinearsi alla struttura ufficiale.
+# 1 — Vent (ventilazione naturale + VMC)
 
-## Obiettivo del modulo
-- Suggerire apertura/chiusura serramenti e abilitare il night-flush estivo coordinato con la VMC per massimizzare il raffrescamento passivo.
-- Evitare ingressi di umidità, pioggia, vento forte o PM elevato che peggiorerebbero comfort e qualità dell’aria interna, mantenendo coerenza con le priorità VMC del README.
+## Obiettivo
+- Gestire con un unico modulo la ventilazione naturale e la VMC, coordinando night-flush estivo e ricambio aria in sicurezza.
+- Massimizzare il raffrescamento passivo evitando ingressi di umidità, vento forte, pioggia o PM elevati e rispettando le priorità core VMC.
 
-## Mappa priorità
-| Stato / priorità | KPI principali | Azione / logica |
-| --- | --- | --- |
-| **P0_failsafe** | Sensori meteo o termo-igrometrici `unknown/unavailable` o fuori range (`binary_sensor.vmc_failsafe_sensors_bad`) | Disabilita consigli e night-flush; mantiene rilasciati gli hook finché i sensori tornano validi. |
-| **P1_night_flush** | Stagione calda + fascia 21:00–08:00 + ΔT/ΔAH favorevole + meteo ok | Suggerisce apertura serramenti, abilita `hook_vent_enable_night_flush` e mantiene la VMC su vel_2 durante il ciclo; blocca AC via `input_boolean.ac_block_vmc`. |
-| **P2_recommend_open** | ΔT ≥ `input_number.vent_deltat_min` o ΔAH ≥ `input_number.vent_deltaah_min` + meteo ok | Raccomanda apertura serramenti con messaggio in `input_text.vent_messaggio_consiglio`; non blocca AC ma evita conflitto con freecooling. |
-| **P3_recommend_close** | Meteo sfavorevole (pioggia/vento/PM) o ΔT/ΔAH invertiti | Raccomanda chiusura serramenti e rilascia night-flush/AC block. |
-| **idle** | Nessuna condizione prevalente | Nessuna notifica; mantiene hook disattivati e monitora i KPI. |
+## Input (sensori, KPI, stati)
+- Meteo: `binary_sensor.vent_condizioni_meteo_ok`, `binary_sensor.vent_pioggia`, velocità vento, PM2.5 (`input_number.vent_vento_max`, `input_number.vent_pm25_max`).
+- Termo-igrometria: `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`, `sensor.ur_in_media`, `sensor.ur_out`, `sensor.t_out`, `sensor.ah_in`, `sensor.ah_out`.
+- Bagno: `sensor.ur_in_bagno` con soglie `input_number.vmc_bagno_on/off` e ΔUR.
+- Stato VMC e controlli: `sensor.vmc_priority`, `sensor.vmc_reason`, `sensor.vmc_vel_target`, `sensor.vmc_freecooling_status`, `binary_sensor.vmc_failsafe_sensors_bad`.
+- Manuale/override: `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout`, `input_boolean.vent_override_estate`, `input_boolean.vent_notifiche_attive`.
+- Fasce e timer: `input_datetime.vent_night_flush_start/end`, timer lock freecooling (`vmc_freecooling_max_run`, `vmc_freecooling_cooldown`) e anti-secco/boost (`vmc_anti_secco_lock`, `vmc_boost_lock`).
 
-## KPI e sensori chiave
-- Meteo: `binary_sensor.vent_pioggia`, `binary_sensor.vent_condizioni_meteo_ok`, qualità aria (PM2.5), vento forte.
-- Termo-igrometria: `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`, `sensor.ur_in_media`, `sensor.ur_out`, `sensor.t_out`.
-- Stato finestre: conteggio e flag stanza; override manuale `input_boolean.vent_override_estate` e timer lock.
-- Output UI: `binary_sensor.vent_recommend_open`, `binary_sensor.vent_recommend_close`, `input_text.vent_messaggio_consiglio`.
+## Output (switch, scene, hook)
+- Attuatori VMC: relè vel_0/vel_1/vel_2/vel_3 pilotati dal reason calcolato nel package.
+- Notifiche/consigli: `binary_sensor.vent_recommend_open`, `binary_sensor.vent_recommend_close`, testo `input_text.vent_messaggio_consiglio`.
+- Hook: `hook_vent_enable_night_flush` per night-flush serramenti/VMC vel_2; `hook_vmc_request_ac_block` e `hook_ac_request_vmc_low` coordinati con AC.
 
-## Hook / eventi verso altri moduli
-- `hook_vent_enable_night_flush`: attiva night-flush VMC vel_2 e può pubblicare `input_boolean.ac_block_vmc` durante il ciclo.
-- Coordinamento con VMC freecooling: rispetta `hook_vmc_request_ac_block` e non duplica ΔT/ΔAH usati da `sensor.vmc_reason`.
-- Nessun controllo diretto su heating; fornisce solo suggerimenti ambientali.
+## KPI usati e soglie
+- ΔT/ΔAH minimi regolabili: `input_number.vent_deltat_min`, `input_number.vent_deltaah_min` per consigli apertura; `input_number.vmc_freecooling_delta` e `input_number.vmc_freecooling_delta_ah` per free-cooling VMC.
+- Anti-secco: soglia `input_number.vmc_anti_secco_ur_min` con isteresi; duty vel_0 con impulsi vel_1 notturni/invernali.
+- Boost bagno: UR on/off e ΔUR interno/esterno; max_run/cooldown tramite timer dedicati.
+- Night-flush: finestra `vent_night_flush_start/end`, meteo ok e ΔT/ΔAH favorevoli; max_run 120m, rispetto lock min_on/min_off.
 
-## Casi particolari / failsafe / lock
-- Anti-smog: sospende suggerimenti se PM2.5 o qualità aria fuori soglia anche con ΔT/ΔAH favorevoli.
-- Lock timer evitano ping-pong di notifiche; l’override manuale estate disattiva i consigli mantenendo monitoraggio sensori.
-- Stagionalità: logica primaria maggio–settembre; in inverno la ventilazione è demandata alla VMC con priorità P1/P2/P3 come da README.
+## Regole core (sintesi)
+- **P0_failsafe**: sensori `unknown/unavailable` → disattiva consigli, forza profilo sicuro (vel_0/vel_1) finché `binary_sensor.vmc_failsafe_sensors_bad` è false.
+- **P1_boost_bagno**: UR bagno sopra soglia o ΔUR alto → VMC vel_3 con downgrade a vel_2 se aria esterna troppo secca; applica max_run/cooldown.
+- **P2_anti_secco**: UR interna bassa + stagione fredda + fascia 23–07 → duty vel_0/vel_1, blocca DRY e limita free-cooling.
+- **P3_freecooling**: ΔT/ΔAH favorevole + stagione calda + AC OFF + meteo ok → VMC vel_2, attiva `hook_vmc_request_ac_block`, abilita night-flush serramenti.
+- **P1_night_flush (Vent)**: finestra 21:00–08:00 e ΔT/ΔAH favorevoli → suggerisce apertura serramenti e mantiene VMC vel_2 tramite hook.
+- **Manuale**: `input_boolean.vmc_manual` + velocità scelta → scavalca altre priorità finché il timer manuale scade, rispettando lock hardware.
+- **Idle/baseline**: nessun trigger → VMC vel_1 continua, consigli serramenti disattivi salvo meteo critico.
 
-## Note operative
-- Riferimenti principali: `packages/1_ventilation.yaml` per automazioni e `lovelace/1_ventilation_plancia.yaml` per UI con ΔT/ΔAH e messaggi.
-- `sensor.vmc_priority` e `sensor.vmc_reason` visualizzano le priorità VMC (P0_failsafe, P1_boost_bagno, P2_anti_secco, P3_freecooling, manual, idle) e sono la fonte di verità per l’intero modulo 1.
-- Nessun riferimento a file legacy (es. 2_vmc.yaml); la logica ΔT/ΔAH è unificata nel pacchetto ufficiale.
+## Modalità manuali / override
+- Modalità VMC: `input_select.vmc_mode` (auto/manual/off) con `input_select.vmc_manual_speed`; timer `vmc_manual_timeout` per rientro automatico.
+- Ventilazione: `input_boolean.vent_override_estate` forza stagione estiva; `input_boolean.vent_notifiche_attive` abilita/disabilita i messaggi.
+
+## Edge cases / protezioni
+- Anti-smog/vento/pioggia: sospende consigli e night-flush se PM2.5 o vento superano soglia o se piove.
+- Backup sensori: uso di `input_number.vent_backup_t_in` e `vent_backup_ur_in` in caso di assenza sensori interni.
+- Lock anti on/off: timer min_on/min_off per boost e anti-secco; cooldown free-cooling per evitare ping-pong.
+- Watchdog: se nessun evento per lungo tempo, `sensor.vmc_reason` torna a baseline garantendo ricambio minimo.
+
+## Riferimenti
+- Automazioni e sensori: `packages/1_ventilation.yaml` e `packages/1_ventilation_windows.yaml`.
+- Regole trasversali e hook: `logica/core/regole_core_logiche.md`.
+- Plancia: `lovelace/1_ventilation_plancia.yaml` documentata in `logica/1_vent/1_vent_plancia_regole.txt`.
+
+> Revisione documentazione clima Vent – allineata a implementazione attuale.

@@ -10,6 +10,7 @@ Panoramica aggiornata della cartella `logica/` dopo la semplificazione: separa l
   - Nessuna logica duplicata dentro i file di plancia: le regole puntano sempre al core per priorità, lock e hook.
 - **Documentazione soltanto**: la cartella `logica/` ospita solo documenti testuali (nessun YAML o automazione).
 - **Collegamenti ai package**: i moduli fanno riferimento al core per le regole condivise e dichiarano solo le eccezioni locali.
+- **Consolidamento VMC**: la logica VMC vive nel modulo `1_vent`; la cartella `2_vmc/` contiene solo rimandi documentali.
 
 ## 📂 Struttura ad albero
 ```
@@ -18,11 +19,11 @@ logica/
 │  ├─ regole_core_logiche.md      ← convenzioni, priorità, lock, hook e logiche ufficiali
 │  └─ regole_plancia.md           ← linee guida UI comuni
 ├─ 1_vent/
-│  ├─ 1_vent.txt                  ← logica ventilazione naturale
+│  ├─ 1_vent.txt                  ← logica ventilazione naturale + VMC
 │  └─ 1_vent_plancia_regole.txt   ← layout plancia 1_vent
 ├─ 2_vmc/
-│  ├─ 2_vmc.txt                   ← logica VMC
-│  └─ 2_vmc_plancia_regole.txt    ← layout plancia VMC
+│  ├─ 2_vmc.txt                   ← rimando a 1_vent (documentazione consolidata)
+│  └─ 2_vmc_plancia_regole.txt    ← rimando a plancia 1_vent
 ├─ 3_heating/
 │  ├─ 3_heating.txt               ← logica riscaldamento a pavimento
 │  └─ 3_heating_plancia_regole.txt← layout plancia heating
@@ -53,3 +54,5 @@ Ogni file `.txt` corrisponde a un package YAML e alla relativa plancia Lovelace 
 ## 🌡️ Clima 2025 — stack attivo
 - **Packages:** `0_sensors.yaml`, `1_ventilation.yaml`, `1_ventilation_windows.yaml`, `2_heating.yaml`, `3_ac.yaml`.
 - **Plance Lovelace:** `1_ventilation_plancia.yaml`, `1_ventilation_windows.yaml`, `2_heating_plancia.yaml`, `3_ac_plancia.yaml`.
+
+> Revisione documentazione clima Vent – allineata a implementazione attuale.
