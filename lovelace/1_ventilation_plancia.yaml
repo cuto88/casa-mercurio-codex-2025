@@ -6,7 +6,11 @@ type: panel
 cards:
   - type: vertical-stack
     cards:
-      # BLOCCO 1 — Stato VMC
+      # VIEW 1 — CONTROLLO VMC
+      - type: markdown
+        content: |
+          ## VMC — Stato e comandi
+          Modalità auto/manual/off, boost bagno, freecooling e anti-secco.
       - type: entities
         title: "VMC — Stato generale"
         show_header_toggle: false
@@ -19,12 +23,49 @@ cards:
             name: Failsafe sensori
           - entity: sensor.vmc_freecooling_status
             name: Stato freecooling
-          - entity: switch.vmc_vel_0
-          - entity: switch.vmc_vel_1
-          - entity: switch.vmc_vel_2
-          - entity: switch.vmc_vel_3
+          - entity: binary_sensor.vmc_anti_secco
+            name: Anti-secco attivo
+          - entity: binary_sensor.vmc_bagno_boost_auto
+            name: Boost bagno auto
+          - entity: sensor.vmc_vel_target
+            name: Velocità target
+      - type: entities
+        title: "VMC — Comandi manuali"
+        show_header_toggle: false
+        entities:
+          - input_select.vmc_mode
+          - input_select.vmc_manual_speed
+          - input_boolean.vmc_manual
+          - input_boolean.vmc_boost_bagno
+          - input_number.vmc_bagno_on
+          - input_number.vmc_bagno_off
+          - input_number.vmc_freecooling_delta
+          - input_number.vmc_freecooling_delta_ah
+          - input_number.vmc_anti_secco_ur_min
+      - type: entities
+        title: "VMC — KPI ΔT/ΔAH"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.delta_t_in_out
+            name: "ΔT in-out (°C)"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH in-out (g/m³)"
+          - entity: binary_sensor.vent_condizioni_termiche_ok
+            name: "ΔT / ΔAH ok"
+          - entity: binary_sensor.vmc_freecooling_candidate
+            name: Freecooling candidato
+          - entity: binary_sensor.clima_open_windows_recommended
+            name: Apri finestre (clima)
+      - type: markdown
+        content: |
+          ### Consiglio corrente
+          {{ states('input_text.vent_messaggio_consiglio') }}
 
-      # BLOCCO 2 — Consigli finestre
+      # VIEW 2 — VENTILAZIONE NATURALE / FINESTRE
+      - type: markdown
+        content: |
+          ## Ventilazione naturale — finestre
+          Suggerimenti apertura/chiusura in base a ΔT/ΔAH, meteo e qualità aria.
       - type: entities
         title: "Consigli finestre"
         show_header_toggle: false
@@ -35,25 +76,38 @@ cards:
             name: "Suggerimento: chiudi finestre"
           - entity: binary_sensor.vent_condizioni_meteo_ok
             name: "Meteo ok"
+          - entity: binary_sensor.vent_air_quality_ok
+            name: Qualità aria ok (PM2.5)
           - entity: binary_sensor.vent_condizioni_termiche_ok
             name: "ΔT / ΔAH ok"
-          - entity: sensor.delta_t_in_out
-            name: "ΔT in-out (°C)"
-          - entity: sensor.delta_ah_in_out
-            name: "ΔAH in-out (g/m³)"
-
-      # BLOCCO 3 — Meteo & qualità aria
+          - entity: sensor.vent_weather_label
+            name: Meteo sintetico
+          - entity: sensor.vent_finestre_aperte
+            name: Finestre aperte
+          - entity: sensor.vent_finestre_state
+            name: Dettaglio finestre
       - type: entities
         title: "Meteo / AQ"
         show_header_toggle: false
         entities:
           - entity: weather.casa
+          - entity: sensor.vent_meteo_temp
+            name: T esterna (meteo)
+          - entity: sensor.vent_meteo_rh
+            name: UR esterna (meteo)
           - entity: sensor.vent_meteo_pm25
           - entity: binary_sensor.vent_pioggia
           - entity: binary_sensor.vent_vento_blocco
-          - entity: binary_sensor.vent_air_quality_ok
-
-      # BLOCCO 4 — Trend 24h
+      - type: entities
+        title: "Soglie e override"
+        show_header_toggle: false
+        entities:
+          - input_number.vent_deltat_min
+          - input_number.vent_deltaah_min
+          - input_number.vent_vento_max
+          - input_number.vent_pm25_max
+          - input_boolean.vent_override_estate
+          - input_boolean.vent_notifiche_attive
       - type: history-graph
         title: "Trend 24h — T e AH"
         hours_to_show: 24
@@ -67,3 +121,20 @@ cards:
             name: "AH interna"
           - entity: sensor.ah_out
             name: "AH esterna"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT in-out"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH in-out"
+      - type: history-graph
+        title: "Meteo / Finestre — 24h"
+        hours_to_show: 24
+        refresh_interval: 60
+        entities:
+          - entity: sensor.vent_meteo_vento
+            name: Vento (m/s)
+          - entity: sensor.vent_meteo_pm25
+            name: PM2.5 (µg/m³)
+          - entity: binary_sensor.vent_pioggia
+          - entity: binary_sensor.vent_vento_blocco
+          - entity: sensor.vent_finestre_aperte
+            name: Finestre aperte
