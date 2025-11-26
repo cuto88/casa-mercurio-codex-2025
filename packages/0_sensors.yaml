@@ -12,24 +12,32 @@ template:
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
+        icon: mdi:thermometer-chevron-up
         state: >-
-          {% set tin = states('sensor.t_in_media')|float(default=nan) %}
-          {% set tout = states('sensor.t_out')|float(default=nan) %}
+          {% set tin = states('sensor.t_in_media')|float(default=none) %}
+          {% set tout = states('sensor.t_out')|float(default=none) %}
           {% if tin is number and tout is number %}
             {{ (tin - tout) | round(2) }}
           {% else %}
             unknown
           {% endif %}
+        availability: >-
+          {{ states('sensor.t_in_media') not in ['unknown','unavailable',''] and
+             states('sensor.t_out') not in ['unknown','unavailable',''] }}
 
       - name: "Delta AH in-out"
         unique_id: delta_ah_in_out
         unit_of_measurement: "g/m³"
         state_class: measurement
+        icon: mdi:water-percent
         state: >-
-          {% set ah_in = states('sensor.ah_in')|float(default=nan) %}
-          {% set ah_out = states('sensor.ah_out')|float(default=nan) %}
+          {% set ah_in = states('sensor.ah_in')|float(default=none) %}
+          {% set ah_out = states('sensor.ah_out')|float(default=none) %}
           {% if ah_in is number and ah_out is number %}
             {{ (ah_in - ah_out) | round(2) }}
           {% else %}
             unknown
           {% endif %}
+        availability: >-
+          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] and
+             states('sensor.ah_out') not in ['unknown','unavailable',''] }}
