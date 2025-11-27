@@ -10,7 +10,7 @@ script: !include scripts.yaml
 scene: !include scenes.yaml
 
 homeassistant:
-  packages: !include_dir_named packages
+  packages: !include_dir_recursive packages
 
 
 lovelace:
