@@ -11,6 +11,180 @@
 template:
   - sensor:
       # -----------------------------------------------------------------------
+      # SENSORI AMBIENTALI CANONICI (alias ai sensori fisici reali)
+      # TODO: sostituire gli ID *_hw con i sensori fisici effettivi
+      # -----------------------------------------------------------------------
+      - name: "T interna — Zona giorno"
+        unique_id: t_in_giorno
+        object_id: t_in_giorno
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_in_giorno_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.t_in_giorno_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "T interna — Zona notte 1"
+        unique_id: t_in_notte1
+        object_id: t_in_notte1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_in_notte1_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.t_in_notte1_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "T interna — Zona notte 2"
+        unique_id: t_in_notte2
+        object_id: t_in_notte2
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_in_notte2_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.t_in_notte2_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "T interna — Bagno"
+        unique_id: t_in_bagno
+        object_id: t_in_bagno
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_in_bagno_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.t_in_bagno_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "Temperatura esterna"
+        unique_id: t_out
+        object_id: t_out
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        icon: mdi:thermometer
+        availability: >-
+          {{ states('sensor.t_out_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.t_out_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "UR interna — Zona giorno"
+        unique_id: ur_in_giorno
+        object_id: ur_in_giorno
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_giorno_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.ur_in_giorno_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "UR interna — Zona notte 1"
+        unique_id: ur_in_notte1
+        object_id: ur_in_notte1
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_notte1_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.ur_in_notte1_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "UR interna — Zona notte 2"
+        unique_id: ur_in_notte2
+        object_id: ur_in_notte2
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_notte2_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.ur_in_notte2_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "UR interna — Bagno"
+        unique_id: ur_in_bagno
+        object_id: ur_in_bagno
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_in_bagno_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.ur_in_bagno_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "UR esterna"
+        unique_id: ur_out
+        object_id: ur_out
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent
+        availability: >-
+          {{ states('sensor.ur_out_hw') not in ['unknown','unavailable',''] }}
+        state: >-
+          {% set raw = states('sensor.ur_out_hw') %}
+          {% if raw not in ['unknown','unavailable',''] %}
+            {{ raw|float }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      # -----------------------------------------------------------------------
       # TEMPERATURE / UMIDITÀ ESTERNE CANONICHE
       # -----------------------------------------------------------------------
       - name: "Temperatura esterna (canonico)"
