@@ -1,18 +1,17 @@
-# FILE: packages/0_sensors.yaml
+# FILE: packages/climate_0_sensors.yaml
 ---
 ###############################################################################
 # 0_sensors.yaml — Sensori climatici canonici e KPI base (ΔT / ΔAH)
-# - sensori media interna T/UR
-# - AH interna / esterna
-# - ΔT in-out
-# - ΔAH in-out
+# - alias verso i sensori fisici (temperatura/UR interne ed esterne)
+# - KPI aggregati per T/UR/AH interna ed esterna
+# - ΔT / ΔAH canonici usati da VMC, heating, AC
+# NOTE: gli alias *_hw vanno collegati ai sensori fisici reali (TODO dove indicato)
 ###############################################################################
 
 template:
   - sensor:
       # -----------------------------------------------------------------------
       # SENSORI AMBIENTALI CANONICI (alias ai sensori fisici reali)
-      # TODO: sostituire gli ID *_hw con i sensori fisici effettivi
       # -----------------------------------------------------------------------
       - name: "T interna — Zona giorno"
         unique_id: t_in_giorno
@@ -24,6 +23,7 @@ template:
         availability: >-
           {{ states('sensor.t_in_giorno_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.t_in_giorno_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -41,6 +41,7 @@ template:
         availability: >-
           {{ states('sensor.t_in_notte1_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.t_in_notte1_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -58,6 +59,7 @@ template:
         availability: >-
           {{ states('sensor.t_in_notte2_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.t_in_notte2_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -75,6 +77,7 @@ template:
         availability: >-
           {{ states('sensor.t_in_bagno_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.t_in_bagno_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -92,6 +95,7 @@ template:
         availability: >-
           {{ states('sensor.t_out_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.t_out_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -109,6 +113,7 @@ template:
         availability: >-
           {{ states('sensor.ur_in_giorno_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.ur_in_giorno_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -126,6 +131,7 @@ template:
         availability: >-
           {{ states('sensor.ur_in_notte1_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.ur_in_notte1_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -143,6 +149,7 @@ template:
         availability: >-
           {{ states('sensor.ur_in_notte2_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.ur_in_notte2_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -160,6 +167,7 @@ template:
         availability: >-
           {{ states('sensor.ur_in_bagno_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.ur_in_bagno_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
@@ -177,40 +185,10 @@ template:
         availability: >-
           {{ states('sensor.ur_out_hw') not in ['unknown','unavailable',''] }}
         state: >-
+          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
           {% set raw = states('sensor.ur_out_hw') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
-          {% else %}
-            unknown
-          {% endif %}
-
-      # -----------------------------------------------------------------------
-      # TEMPERATURE / UMIDITÀ ESTERNE CANONICHE
-      # -----------------------------------------------------------------------
-      - name: "Temperatura esterna (canonico)"
-        unique_id: t_out_canonico
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        icon: mdi:thermometer
-        state: >-
-          {% set t_real = states('sensor.t_out') %}
-          {% if t_real not in ['unknown','unavailable',''] %}
-            {{ t_real|float }}
-          {% else %}
-            unknown
-          {% endif %}
-
-      - name: "UR esterna (canonico)"
-        unique_id: ur_out_canonico
-        unit_of_measurement: "%"
-        device_class: humidity
-        state_class: measurement
-        icon: mdi:water-percent
-        state: >-
-          {% set rh_real = states('sensor.ur_out') %}
-          {% if rh_real not in ['unknown','unavailable',''] %}
-            {{ rh_real|float }}
           {% else %}
             unknown
           {% endif %}
@@ -231,9 +209,7 @@ template:
             states('sensor.t_in_notte2'),
             states('sensor.t_in_bagno')
           ] %}
-          {% set valid = vals
-             | reject('in', ['unknown','unavailable',''])
-             | map('float') | list %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
           {% if valid | length > 0 %}
             {{ (valid | sum / (valid | length)) | round(2) }}
           {% else %}
@@ -253,9 +229,7 @@ template:
             states('sensor.ur_in_notte2'),
             states('sensor.ur_in_bagno')
           ] %}
-          {% set valid = vals
-             | reject('in', ['unknown','unavailable',''])
-             | map('float') | list %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
           {% if valid | length > 0 %}
             {{ (valid | sum / (valid | length)) | round(1) }}
           {% else %}
@@ -283,9 +257,7 @@ template:
             states('sensor.ur_in_notte2'),
             states('sensor.ur_in_bagno')
           ] %}
-          {% set valid = vals
-             | reject('in', ['unknown','unavailable',''])
-             | map('float') | list %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
           {% if valid | length > 0 %}
             {{ (valid | min) | round(1) }}
           {% else %}
@@ -304,7 +276,7 @@ template:
           {% set T = states('sensor.t_in_media')|float(default=none) %}
           {% set RH = states('sensor.ur_in_media')|float(default=none) %}
           {% if T is number and RH is number %}
-            {% set RHc = [ [RH, 100]|min, 1]|max %}
+            {% set RHc = [[RH, 100]|min, 1]|max %}
             {% set es = 6.112 * (2.718281828 ** ((17.67*T)/(T+243.5))) %}
             {% set pv = (RHc/100) * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
@@ -317,11 +289,14 @@ template:
         unit_of_measurement: "g/m³"
         state_class: measurement
         icon: mdi:water-outline
+        availability: >-
+          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
+             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
         state: >-
           {% set T = states('sensor.t_out')|float(default=none) %}
           {% set RH = states('sensor.ur_out')|float(default=none) %}
           {% if T is number and RH is number %}
-            {% set RHc = [ [RH, 100]|min, 1]|max %}
+            {% set RHc = [[RH, 100]|min, 1]|max %}
             {% set exponent = (17.67*T)/(T+243.5) %}
             {% set es = 6.112 * (2.718281828 ** exponent) %}
             {% set pv = RHc/100 * es %}
@@ -329,9 +304,6 @@ template:
           {% else %}
             unknown
           {% endif %}
-        availability: >-
-          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
-             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
 
       # -----------------------------------------------------------------------
       # KPI ΔT / ΔAH
