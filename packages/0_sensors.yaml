@@ -171,25 +171,6 @@ template:
         state_class: measurement
         icon: mdi:water-outline
         state: >-
-          {% set T = states('sensor.t_out')|float(default=nan) %}
-          {% set RH = states('sensor.ur_out')|float(default=nan) %}
-          {% if T is number and RH is number %}
-            {% set es = 6.112 * (2.718281828 ** ((17.67*T)/(T+243.5))) %}
-            {% set pv = (RH/100) * es %}
-            {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-          {% else %}
-            unknown
-          {% endif %}
-        availability: >-
-          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
-             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
-
-      - name: "AH esterna (canonico)"
-        unique_id: ah_out_canonico
-        unit_of_measurement: "g/m³"
-        state_class: measurement
-        icon: mdi:water-outline
-        state: >-
           {% set T = states('sensor.t_out')|float(default=none) %}
           {% set RH = states('sensor.ur_out')|float(default=none) %}
           {% if T is number and RH is number %}

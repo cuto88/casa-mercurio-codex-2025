@@ -681,29 +681,27 @@ template:
         state_class: measurement
         icon: mdi:water
         state: >-
-          {% set ah_in = states('sensor.ah_in') %}
-          {% if ah_in not in ['unknown','unavailable',''] %}
-            {{ ah_in|float|round(2) }}
+          {% set v = states('sensor.ah_in') %}
+          {% if v not in ['unknown','unavailable',''] %}
+            {{ v|float|round(2) }}
           {% else %}
-            {% set T = states('input_number.vent_backup_t_in')|float(default=none) %}
-            {% set RH = states('input_number.vent_backup_ur_in')|float(default=none) %}
-            {% if T is number and RH is number %}
-              {% set RHc = [ [RH, 100]|min, 1]|max %}
-              {% set exponent = (17.67*T)/(T+243.5) %}
-              {% set es = 6.112 * (2.718281828 ** exponent) %}
-              {% set pv = RHc/100 * es %}
-              {{ (216.7 * pv / (T + 273.15)) | round(2) }}
-            {% else %}unknown{% endif %}
+            unknown
           {% endif %}
         availability: >-
-          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] or (states('input_number.vent_backup_t_in') not in ['unknown','unavailable',''] and states('input_number.vent_backup_ur_in') not in ['unknown','unavailable','']) }}
+          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] }}
 
       - name: "vent_ah_out"
         unique_id: vent_ah_out
         unit_of_measurement: "g/m³"
         state_class: measurement
         icon: mdi:water-outline
-        state: "{{ states('sensor.ah_out') if states('sensor.ah_out') not in ['unknown','unavailable',''] else 'unknown' }}"
+        state: >-
+          {% set v = states('sensor.ah_out') %}
+          {% if v not in ['unknown','unavailable',''] %}
+            {{ v|float|round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
         availability: >-
           {{ states('sensor.ah_out') not in ['unknown','unavailable',''] }}
 
