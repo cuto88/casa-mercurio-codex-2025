@@ -88,6 +88,36 @@ template:
             {{ states('input_number.vent_backup_ur_in') }}
           {% endif %}
 
+      - name: "UR interna minima"
+        unique_id: ur_in_min
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        icon: mdi:water-percent-alert
+        availability: >-
+          {% set vals = [
+            states('sensor.ur_in_giorno'),
+            states('sensor.ur_in_notte1'),
+            states('sensor.ur_in_notte2'),
+            states('sensor.ur_in_bagno')
+          ] %}
+          {{ vals | reject('in', ['unknown','unavailable','']) | list | count > 0 }}
+        state: >-
+          {% set vals = [
+            states('sensor.ur_in_giorno'),
+            states('sensor.ur_in_notte1'),
+            states('sensor.ur_in_notte2'),
+            states('sensor.ur_in_bagno')
+          ] %}
+          {% set valid = vals
+             | reject('in', ['unknown','unavailable',''])
+             | map('float') | list %}
+          {% if valid | length > 0 %}
+            {{ (valid | min) | round(1) }}
+          {% else %}
+            unknown
+          {% endif %}
+
       # -----------------------------------------------------------------------
       # AH INTERNA / ESTERNA (canoniche)
       # -----------------------------------------------------------------------
