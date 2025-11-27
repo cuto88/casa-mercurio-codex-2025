@@ -1,15 +1,14 @@
 ---
-# ===============================
-# FILE: config/packages/2_heating.yaml
-# ===============================
 ###############################################################################
-# Riscaldamento a pavimento — logica, helper e automazioni
-# Sensori reali: sensor.t_in_giorno, _notte1, _notte2, _bagno, sensor.t_out
+# climate_2_heating.yaml — Modulo riscaldamento a pavimento (2025)
+# Dipendenze: sensori base da climate_0_sensors.yaml (t_in_*, t_out, t_in_media)
+# KPI chiave esposti:
+# - sensor.heating_priority / sensor.heating_reason
+# - binary_sensor.heating_should_run (comando logico)
+# - binary_sensor.heating_lock_min_on_ok / binary_sensor.heating_lock_min_off_ok
+# - binary_sensor.heating_finestra_oraria / binary_sensor.heating_esterna_fredda
 ###############################################################################
 
-# ---------------------------------------------------------------------------
-# PERSONALIZZAZIONI
-# ---------------------------------------------------------------------------
 homeassistant:
   customize:
     switch.4_ch_interrutore_3:
@@ -17,201 +16,154 @@ homeassistant:
       icon: mdi:radiator
       # NOTA: relè hardware invertito (state ON = circuito disattivo, OFF = attivo)
 
-# ---------------------------------------------------------------------------
-# TOGGLE DI ZONA + OVERRIDE
-# ---------------------------------------------------------------------------
+###############################################################################
+# 1) HELPERS — abilitazioni, modalità, setpoint
+###############################################################################
 input_boolean:
-  # Inclusione delle stanze nel calcolo
+  # Inclusione delle stanze nel controllo
   heating_use_giorno:
-    name: Usa Zona Giorno
+    name: "Heating — Usa zona giorno"
     icon: mdi:home
   heating_use_notte1:
-    name: Usa Notte1
+    name: "Heating — Usa zona notte 1"
     icon: mdi:bed
   heating_use_notte2:
-    name: Usa Notte2
+    name: "Heating — Usa zona notte 2"
     icon: mdi:bed
   heating_use_bagno:
-    name: Usa Bagno
+    name: "Heating — Usa bagno"
     icon: mdi:shower
 
-  # Logica generale e override
+  # Abilitazione generale e override manuale
   heating_enable:
-    name: Abilita logica riscaldamento
+    name: "Heating — Abilita logica"
     icon: mdi:radiator
-  heating_force_on:
-    name: Forza ON (override)
-    icon: mdi:flash
-  heating_force_off:
-    name: Forza OFF (override)
-    icon: mdi:cancel
-  heating_manual:
-    name: Controllo manuale riscaldamento
-    icon: mdi:hand-back-right
   heating_manual_active:
-    name: Modalità manuale attiva
+    name: "Heating — Modalità manuale attiva"
     icon: mdi:hand-back-right
 
 input_select:
   heating_manual_mode:
-    name: Riscaldamento — Modalità manuale
-    options: ["OFF", "ECO", "COMFORT", "BOOST"]
+    name: "Heating — Modalità manuale"
+    options:
+      - off
+      - eco
+      - comfort
+      - boost
     icon: mdi:tune-variant
-    initial: "COMFORT"
+    initial: comfort
 
-# ---------------------------------------------------------------------------
-# PARAMETRI / SOGLIE
-# ---------------------------------------------------------------------------
 input_number:
   temp_target_risc:
-    name: Target comfort (°C)
+    name: "Heating — Setpoint comfort"
     min: 18
     max: 23
     step: 0.1
     unit_of_measurement: "°C"
     icon: mdi:home-thermometer
-  heating_tolerance:
-    name: Isteresi sotto-target (°C)
-    min: 0.2
-    max: 1.0
-    step: 0.1
-    unit_of_measurement: "°C"
-    icon: mdi:axis-x-arrow
-  heating_ext_cold_threshold:
-    name: Soglia esterna "freddo" (°C)
-    min: -10
-    max: 20
-    step: 0.5
-    unit_of_measurement: "°C"
-    icon: mdi:snowflake
-  heating_min_on_minutes:
-    name: Min ON (min)
-    min: 5
-    max: 120
-    step: 5
-    unit_of_measurement: "min"
-    icon: mdi:timer-play
-  heating_min_off_minutes:
-    name: Min OFF (min)
-    min: 5
-    max: 120
-    step: 5
-    unit_of_measurement: "min"
-    icon: mdi:timer-off
-  heating_hours_on_daily:
-    name: "Riscaldamento — Ore ON / giorno"
-    unit_of_measurement: "h"
-    min: 0
-    max: 24
-    step: 0.1
-    icon: mdi:timeline-clock
   heating_setpoint_night:
-    name: Setpoint notte (°C)
-    min: 16
+    name: "Heating — Setpoint night setback"
+    min: 15
     max: 21
     step: 0.1
     unit_of_measurement: "°C"
     icon: mdi:weather-night
+  heating_hysteresis:
+    name: "Heating — Isteresi"
+    min: 0.2
+    max: 1.5
+    step: 0.1
+    unit_of_measurement: "°C"
+    icon: mdi:axis-x-arrow
+  heating_antifreeze_threshold:
+    name: "Heating — Soglia antigelo"
+    min: 5
+    max: 15
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:snowflake-alert
+  heating_ext_cold_threshold:
+    name: "Heating — Esterna fredda"
+    min: -10
+    max: 10
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-minus
   heating_boost_delta:
-    name: Delta boost FV (°C)
+    name: "Heating — Delta boost FV"
     min: 0
     max: 1.0
     step: 0.1
     unit_of_measurement: "°C"
     icon: mdi:flash
-  heating_antifreeze_threshold:
-    name: Soglia anti-gelo (°C)
+  heating_min_on_minutes:
+    name: "Heating — Min ON"
     min: 5
-    max: 18
-    step: 0.5
-    unit_of_measurement: "°C"
-    icon: mdi:snowflake-alert
+    max: 180
+    step: 5
+    unit_of_measurement: "min"
+    icon: mdi:timer-play
+  heating_min_off_minutes:
+    name: "Heating — Min OFF"
+    min: 5
+    max: 180
+    step: 5
+    unit_of_measurement: "min"
+    icon: mdi:timer-off
+  heating_hours_on_daily:
+    name: "Heating — Ore ON (snapshot)"
+    unit_of_measurement: "h"
+    min: 0
+    max: 24
+    step: 0.1
+    icon: mdi:timeline-clock
 
 input_datetime:
   heating_window_start:
-    name: Fascia start (orario)
+    name: "Heating — Fascia start"
     has_time: true
     has_date: false
   heating_window_end:
-    name: Fascia end (orario)
+    name: "Heating — Fascia end"
     has_time: true
     has_date: false
 
-# ---------------------------------------------------------------------------
-# TIMER
-# ---------------------------------------------------------------------------
+###############################################################################
+# 2) TIMER
+###############################################################################
 timer:
   heating_manual_timeout:
-    name: Riscaldamento — Timeout manuale
+    name: "Heating — Timeout manuale"
     duration: "01:00:00"
 
-# ---------------------------------------------------------------------------
-# TEMPLATE (SENSORI E BINARI)
-# ---------------------------------------------------------------------------
+###############################################################################
+# 3) TEMPLATE SENSOR — KPI logici
+###############################################################################
 template:
   - sensor:
-      # Elenco delle stanze attive (solo quelle abilitate)
+      # Elenco stanze attive
       - name: "Heating — stanze attive"
         unique_id: heating_rooms_active
-        availability: "true"
         state: >-
           {% set rooms = [
-          ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-          ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-          ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-          ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
           ] %}
-          {% set active = [] %}
-          {% for label, sid, tog in rooms %}
-          {% if is_state(tog, 'on') %}
-            {% set active = active + [label] %}
-          {% endif %}
+          {% set labels = [] %}
+          {% for label, sid, flag in rooms %}
+            {% if is_state(flag, 'on') %}
+              {% set labels = labels + [label] %}
+            {% endif %}
           {% endfor %}
-          {{ active | join(', ') if active | length > 0 else 'Nessuna (⚠️)' }}
+          {{ labels | join(', ') if labels | length > 0 else 'Nessuna (⚠️)' }}
 
-      # Temperatura interna minima fra le stanze attive
+      # Temperatura minima delle stanze abilitate
       - name: "Heating — T interna minima"
         unique_id: heating_t_in_min
         unit_of_measurement: "°C"
         device_class: temperature
-        availability: >-
-          {% set rooms = [
-          ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-          ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-          ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-          ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-          ] %}
-          {% set vals = [] %}
-          {% for sid, tog in rooms %}
-          {% set ent = states[sid] if sid in states else None %}
-          {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
-            {% set vals = vals + [ent.state | float] %}
-          {% endif %}
-          {% endfor %}
-          {{ vals | length > 0 }}
-        state: >-
-          {% set rooms = [
-          ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-          ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-          ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-          ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-          ] %}
-          {% set vals = [] %}
-          {% for sid, tog in rooms %}
-          {% set ent = states[sid] if sid in states else None %}
-          {% if is_state(tog, 'on') and ent is not none and ent.state not in ['unknown', 'unavailable', ''] %}
-            {% set vals = vals + [ent.state | float] %}
-          {% endif %}
-          {% endfor %}
-          {% if vals | length > 0 %}{{ (vals | min) | round(2) }}{% else %}unknown{% endif %}
-
-      # Numero stanze conteggiate e quante sono sotto-target
-      - name: "Heating — stanze sotto target"
-        unique_id: heating_rooms_below_target
-        unit_of_measurement: "stanze"
-        availability: >-
-          {{ states('input_number.temp_target_risc') not in ['unknown','unavailable','']
-             and states('input_number.heating_tolerance') not in ['unknown','unavailable',''] }}
         state: >-
           {% set rooms = [
             ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
@@ -219,355 +171,271 @@ template:
             ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
             ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
           ] %}
-          {% set t_target = states('input_number.temp_target_risc') | float(21) %}
-          {% set tol = states('input_number.heating_tolerance') | float(0.5) %}
-          {% set below = [] %}
-          {% for sid, tog in rooms %}
-            {% if is_state(tog, 'on') and sid in states and states[sid].state not in ['unknown','unavailable',''] %}
-              {% if states[sid].state | float < (t_target - tol) %}
-                {% set below = below + [sid] %}
+          {% set vals = [] %}
+          {% for sid, flag in rooms %}
+            {% if is_state(flag, 'on') and states(sid) not in ['unknown','unavailable',''] %}
+              {% set vals = vals + [states(sid) | float] %}
+            {% endif %}
+          {% endfor %}
+          {{ (vals | min) | round(2) if vals | length > 0 else 'unknown' }}
+
+      # Conteggio stanze sotto target comfort
+      - name: "Heating — stanze sotto target"
+        unique_id: heating_rooms_below_target
+        state: >-
+          {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+          {% set hyst = states('input_number.heating_hysteresis') | float(0.3) %}
+          {% set rooms = [
+            ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+            ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+            ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+            ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+          ] %}
+          {% set count = 0 %}
+          {% for sid, flag in rooms %}
+            {% if is_state(flag, 'on') and states(sid) not in ['unknown','unavailable',''] %}
+              {% if states(sid) | float < comfort - hyst %}
+                {% set count = count + 1 %}
               {% endif %}
             {% endif %}
           {% endfor %}
-          {{ below | length }}
-        attributes:
-          stanze_conteggiate: >-
-            {% set rooms = [
-              ('sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
-              ('sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
-              ('sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
-              ('sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
-            ] %}
-            {% set active = [] %}
-            {% for sid, tog in rooms %}
-              {% if is_state(tog, 'on') %}
-                {% set active = active + [sid] %}
-              {% endif %}
-            {% endfor %}
-            {{ active | join(', ') }}
-            
-      # Minuti dall'ultimo cambio dello switch generale (ON↔OFF)
+          {{ count }}
+
+      # Errori sensore zona giorno
+      - name: "Heating — errore zona giorno"
+        unique_id: heating_error_zona_giorno
+        state: >-
+          {% set v = states('sensor.t_in_giorno') %}
+          {% if v in ['unknown','unavailable',''] %}
+            sensor_missing
+          {% elif (v | float) < 5 or (v | float) > 35 %}
+            out_of_range
+          {% else %}
+            ok
+          {% endif %}
+
+      # Errori sensori zona notte (include notte1/notte2)
+      - name: "Heating — errore zona notte"
+        unique_id: heating_error_zona_notte
+        state: >-
+          {% set vals = [states('sensor.t_in_notte1'), states('sensor.t_in_notte2')] %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
+          {% if valid | length == 0 %}
+            sensor_missing
+          {% elif (valid | min) < 5 or (valid | max) > 35 %}
+            out_of_range
+          {% else %}
+            ok
+          {% endif %}
+
+      # Minuti da ultimo cambio stato del relè fisico (considerando inversione)
       - name: "Heating — minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
         unit_of_measurement: "min"
-        state_class: measurement
         state: >-
-          {% set entity_id = 'switch.4_ch_interrutore_3' %}
-          {% set ent = states[entity_id] if entity_id in states else None %}
-          {% if ent is none or ent.last_changed is none or ent.state in ['unknown', 'unavailable'] %}
+          {% set ent = states.switch['4_ch_interrutore_3'] if 'switch.4_ch_interrutore_3' in states.switch else none %}
+          {% if ent is none %}
             unknown
           {% else %}
             {{ ((as_timestamp(now()) - as_timestamp(ent.last_changed)) / 60) | round(1) }}
           {% endif %}
-          
-      - name: "Heating — errore zona giorno"
-        unique_id: heating_error_zona_giorno
-        unit_of_measurement: "°C"
-        state_class: measurement
-        device_class: temperature
-        availability: >-
-          {{ states('sensor.t_in_giorno') not in ['unknown','unavailable',''] }}
-        state: >-
-          {% set setp = states('input_number.temp_target_risc')|float(21) %}
-          {% set temp = states('sensor.t_in_giorno')|float(0) %}
-          {{ (setp - temp) | round(2) }}
 
-      - name: "Heating — errore zona notte"
-        unique_id: heating_error_zona_notte
-        unit_of_measurement: "°C"
-        state_class: measurement
-        device_class: temperature
-        availability: >-
-          {{ states('sensor.t_in_notte1') not in ['unknown','unavailable',''] }}
-        state: >-
-          {% set setp = states('input_number.temp_target_risc')|float(21) %}
-          {% set temp = states('sensor.t_in_notte1')|float(0) %}
-          {{ (setp - temp) | round(2) }}
-
-      # KPI controller — priorità/diagnostica
-      - name: "Heating Priority"
-        unique_id: heating_priority
-        icon: mdi:arrow-top-right-bold-outline
-        state: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
-        attributes:
-          reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
-          action: "{{ state_attr('sensor.heating_reason','action') or 'idle' }}"
-
-      - name: "Heating Reason"
+      # Reason & priority complessiva
+      - name: "Heating — reason"
         unique_id: heating_reason
-        icon: mdi:text-box-check
         state: >-
-          {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
-          {% set t_min = states('sensor.heating_t_in_min') %}
-          {% set comfort = states('input_number.temp_target_risc')|float(21) %}
-          {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
-          {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
-          {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
-          {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
-          {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
-          {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
-          {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
-
           {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
-            {% set info.priority = 'P0_failsafe' %}
-            {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
-            {% set info.action = 'switch.on (stop)' %}
-          {% elif manuale %}
-            {% set info.priority = 'manual' %}
-            {% set info.reason = 'Controllo manuale attivo' %}
-            {% set info.action = 'manual' %}
-          {% elif t_val is number and t_val < anti_frost %}
-            {% set info.priority = 'P1_anti_frost' %}
-            {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
-            {% set info.action = 'switch.off' %}
-          {% elif t_val is number and
-            is_state('input_boolean.heating_enable','on') and
-            not stagione_calda and
-            is_state('binary_sensor.heating_window_comfort','on') and
-            t_val < (comfort - tol) %}
-            {% set info.priority = 'P2_comfort' %}
-            {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
-            {% set info.action = 'switch.off' %}
-          {% elif t_val is number and
-            is_state('input_boolean.heating_enable','on') and
-            is_state('binary_sensor.heating_window_pv','on') and
-            is_state('binary_sensor.surplus_ok','on') and
-            t_val < (comfort - boost_delta) %}
-            {% set info.priority = 'P3_pv_boost' %}
-            {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
-            {% set info.action = 'switch.off' %}
-          {% elif t_val is number and
-            is_state('input_boolean.heating_enable','on') and
-            is_state('binary_sensor.heating_window_night','on') and
-            t_val < (night_sp - tol) %}
-            {% set info.priority = 'P4_night_setback' %}
-            {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
-            {% set info.action = 'switch.off' %}
+            P0_failsafe
+          {% elif is_state('input_boolean.heating_manual_active','on') %}
+            manual_{{ states('input_select.heating_manual_mode') }}
           {% else %}
-            {% set info.priority = 'idle' %}
-            {% set info.reason = 'Nessuna priorità attiva' %}
-            {% set info.action = 'switch.on (idle)' %}
-          {% endif %}
+            {% set comfort = states('input_number.temp_target_risc') | float(21) %}
+            {% set hyst = states('input_number.heating_hysteresis') | float(0.3) %}
+            {% set night_sp = states('input_number.heating_setpoint_night') | float(18.5) %}
+            {% set anti = states('input_number.heating_antifreeze_threshold') | float(8) %}
+            {% set boost = states('input_number.heating_boost_delta') | float(0.3) %}
+            {% set tmin = states('sensor.heating_t_in_min') | float(default=none) %}
+            {% set tout = states('sensor.t_out') | float(default=none) %}
+            {% set window_comfort = is_state('binary_sensor.heating_finestra_oraria','on') %}
+            {% set pv_hook = is_state('binary_sensor.surplus_ok','on') %}
+            {% set enable = is_state('input_boolean.heating_enable','on') %}
 
-          {{ info.priority }}
+            {% if tmin is none %}
+              sensors_unavailable
+            {% elif tmin < anti or (tout is number and tout < states('input_number.heating_ext_cold_threshold')|float(2)) %}
+              P1_anti_frost
+            {% elif enable and tmin < comfort - hyst and (window_comfort or (comfort - tmin) >= 1.0) %}
+              P2_comfort
+            {% elif enable and window_comfort and pv_hook and tmin <= comfort - boost %}
+              P3_pv_boost
+            {% elif enable and not window_comfort and tmin < night_sp - hyst %}
+              P4_night_setback
+            {% else %}
+              idle
+            {% endif %}
+          {% endif %}
         attributes:
           priority: >-
-            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
-            {% set t_min = states('sensor.heating_t_in_min') %}
-            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
-            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
-            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
-            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
-            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
-            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
-            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
-            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
-
-            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
-              {% set info.priority = 'P0_failsafe' %}
-              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
-              {% set info.action = 'switch.on (stop)' %}
-            {% elif manuale %}
-              {% set info.priority = 'manual' %}
-              {% set info.reason = 'Controllo manuale attivo' %}
-              {% set info.action = 'manual' %}
-            {% elif t_val is number and t_val < anti_frost %}
-              {% set info.priority = 'P1_anti_frost' %}
-              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              not stagione_calda and
-              is_state('binary_sensor.heating_window_comfort','on') and
-              t_val < (comfort - tol) %}
-              {% set info.priority = 'P2_comfort' %}
-              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_pv','on') and
-              is_state('binary_sensor.surplus_ok','on') and
-              t_val < (comfort - boost_delta) %}
-              {% set info.priority = 'P3_pv_boost' %}
-              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_night','on') and
-              t_val < (night_sp - tol) %}
-              {% set info.priority = 'P4_night_setback' %}
-              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% else %}
-              {% set info.priority = 'idle' %}
-              {% set info.reason = 'Nessuna priorità attiva' %}
-              {% set info.action = 'switch.on (idle)' %}
-            {% endif %}
-
-            {{ info.priority }}
-          reason: >-
-            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
-            {% set t_min = states('sensor.heating_t_in_min') %}
-            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
-            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
-            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
-            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
-            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
-            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
-            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
-            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
-
-            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
-              {% set info.priority = 'P0_failsafe' %}
-              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
-              {% set info.action = 'switch.on (stop)' %}
-            {% elif manuale %}
-              {% set info.priority = 'manual' %}
-              {% set info.reason = 'Controllo manuale attivo' %}
-              {% set info.action = 'manual' %}
-            {% elif t_val is number and t_val < anti_frost %}
-              {% set info.priority = 'P1_anti_frost' %}
-              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              not stagione_calda and
-              is_state('binary_sensor.heating_window_comfort','on') and
-              t_val < (comfort - tol) %}
-              {% set info.priority = 'P2_comfort' %}
-              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_pv','on') and
-              is_state('binary_sensor.surplus_ok','on') and
-              t_val < (comfort - boost_delta) %}
-              {% set info.priority = 'P3_pv_boost' %}
-              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_night','on') and
-              t_val < (night_sp - tol) %}
-              {% set info.priority = 'P4_night_setback' %}
-              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% else %}
-              {% set info.priority = 'idle' %}
-              {% set info.reason = 'Nessuna priorità attiva' %}
-              {% set info.action = 'switch.on (idle)' %}
-            {% endif %}
-
-            {{ info.reason }}
+            {% set r = this.state %}
+            {% if r.startswith('P0') or r == 'sensors_unavailable' %}P0_failsafe{% elif r.startswith('P1') %}P1_anti_frost{% elif r.startswith('P2') %}P2_comfort{% elif r.startswith('P3') %}P3_pv_boost{% elif r.startswith('P4') %}P4_night_setback{% elif r.startswith('manual') %}manual{% elif r == 'idle' %}idle{% else %}idle{% endif %}
           action: >-
-            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
-            {% set t_min = states('sensor.heating_t_in_min') %}
-            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
-            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
-            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
-            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
-            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
-            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
-            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
-            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
+            {% set r = this.state %}
+            {% if r == 'P0_failsafe' or r == 'sensors_unavailable' %}off{% elif r.startswith('manual_off') %}off{% elif r == 'idle' %}off{% else %}on{% endif %}
+          reason: "{{ this.state }}"
 
-            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
-              {% set info.priority = 'P0_failsafe' %}
-              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
-              {% set info.action = 'switch.on (stop)' %}
-            {% elif manuale %}
-              {% set info.priority = 'manual' %}
-              {% set info.reason = 'Controllo manuale attivo' %}
-              {% set info.action = 'manual' %}
-            {% elif t_val is number and t_val < anti_frost %}
-              {% set info.priority = 'P1_anti_frost' %}
-              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              not stagione_calda and
-              is_state('binary_sensor.heating_window_comfort','on') and
-              t_val < (comfort - tol) %}
-              {% set info.priority = 'P2_comfort' %}
-              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_pv','on') and
-              is_state('binary_sensor.surplus_ok','on') and
-              t_val < (comfort - boost_delta) %}
-              {% set info.priority = 'P3_pv_boost' %}
-              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% elif t_val is number and
-              is_state('input_boolean.heating_enable','on') and
-              is_state('binary_sensor.heating_window_night','on') and
-              t_val < (night_sp - tol) %}
-              {% set info.priority = 'P4_night_setback' %}
-              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
-              {% set info.action = 'switch.off' %}
-            {% else %}
-              {% set info.priority = 'idle' %}
-              {% set info.reason = 'Nessuna priorità attiva' %}
-              {% set info.action = 'switch.on (idle)' %}
-            {% endif %}
-
-            {{ info.action }}
+      - name: "Heating — priority"
+        unique_id: heating_priority
+        state: >-
+          {% set pr = state_attr('sensor.heating_reason','priority') %}
+          {{ pr if pr is not none else 'idle' }}
 
   - binary_sensor:
-      - name: "Heating failsafe — sensori non ok"
+      # Failsafe: sensori mancanti o fuori range
+      - name: "Heating — failsafe sensori"
         unique_id: heating_failsafe_sensors_bad
-        icon: mdi:alert-circle
-        state: >
-          {% set specs = {
-            'sensor.t_in_giorno': [-20, 40],
-            'sensor.t_in_notte1': [-20, 40],
-            'sensor.t_in_notte2': [-20, 40],
-            'sensor.t_in_bagno': [-20, 40],
-            'sensor.t_out': [-30, 50]
-          } %}
-          {% set bad = false %}
-          {% for sid, limits in specs.items() %}
-            {% if bad %}{% break %}{% endif %}
-            {% if sid in states %}
-              {% set ent = states[sid] %}
-              {% if ent.state in ['unknown','unavailable',''] %}
-                {% set bad = true %}
-              {% elif ent.state | float(0) < limits[0] or ent.state | float(0) > limits[1] %}
-                {% set bad = true %}
-              {% endif %}
-            {% else %}
-              {% set bad = true %}
-            {% endif %}
-          {% endfor %}
-          {{ bad }}
-            
-      - name: "Heating — finestra oraria comfort"
-        unique_id: heating_window_comfort
+        device_class: problem
         state: >-
-          {% set start = '06:30' %}
-          {% set end = '22:30' %}
-          {% set nowt = now().strftime('%H:%M') %}
-          {{ start <= nowt <= end }}
-          
-      - name: "Heating — finestra fotovoltaico"
+          {% set temps = [
+            states('sensor.t_in_giorno'),
+            states('sensor.t_in_notte1'),
+            states('sensor.t_in_notte2'),
+            states('sensor.t_in_bagno'),
+            states('sensor.t_out')
+          ] %}
+          {% set valid = temps | reject('in', ['unknown','unavailable','']) | list %}
+          {% if valid | length != temps | length %}
+            true
+          {% else %}
+            {% set vals = temps | map('float') | list %}
+            {% if vals | select('lt', -20) | list | length > 0 %}
+              true
+            {% elif vals | select('gt', 45) | list | length > 0 %}
+              true
+            {% else %}
+              false
+            {% endif %}
+          {% endif %}
+
+      # Finestra di funzionamento comfort (default 10:00–16:00)
+      - name: "Heating — finestra oraria"
+        unique_id: heating_finestra_oraria
+        state: >-
+          {% set start = states('input_datetime.heating_window_start') %}
+          {% set end = states('input_datetime.heating_window_end') %}
+          {% if start in ['unknown','unavailable',''] %}
+            {% set start = '10:00:00' %}
+          {% endif %}
+          {% if end in ['unknown','unavailable',''] %}
+            {% set end = '16:00:00' %}
+          {% endif %}
+          {% set s_time = strptime(start, '%H:%M:%S') %}
+          {% set e_time = strptime(end, '%H:%M:%S') %}
+          {% set now_t = now().time() %}
+          {{ s_time.time() <= now_t <= e_time.time() }}
+
+      # Alias PV: finestra + hook surplus
+      - name: "Heating — finestra PV"
         unique_id: heating_window_pv
         state: >-
-          {% set start = '10:00' %}
-          {% set end = '16:00' %}
-          {% set nowt = now().strftime('%H:%M') %}
-          {{ start <= nowt <= end }}
-          
+          {{ is_state('binary_sensor.heating_finestra_oraria','on') and is_state('binary_sensor.surplus_ok','on') }}
+
+      # Finestra notte (fuori fascia comfort)
       - name: "Heating — finestra notte"
         unique_id: heating_window_night
         state: >-
-          {% set notte = now().hour >= 22 or now().hour < 6 %}
-          {{ notte }}
-          
-          
-# ---------------------------------------------------------------------------
-# SENSORI STATISTICI — Ore ON oggi/ieri
-# ---------------------------------------------------------------------------
+          {{ not is_state('binary_sensor.heating_finestra_oraria','on') }}
+
+      # Esterna fredda (supporto antifreeze)
+      - name: "Heating — esterna fredda"
+        unique_id: heating_esterna_fredda
+        state: >-
+          {% set tout = states('sensor.t_out') %}
+          {% if tout in ['unknown','unavailable',''] %}
+            false
+          {% else %}
+            {{ tout | float <= states('input_number.heating_ext_cold_threshold') | float(2) }}
+          {% endif %}
+
+      # Almeno una stanza sotto target
+      - name: "Heating — almeno una stanza sotto target"
+        unique_id: heating_almeno_una_stanza_sotto_target
+        state: >-
+          {{ states('sensor.heating_rooms_below_target') | int(0) > 0 }}
+
+      # Lock anti-ciclo min OFF
+      - name: "Heating — lock min OFF ok"
+        unique_id: heating_lock_min_off_ok
+        state: >-
+          {% set mins = states('input_number.heating_min_off_minutes') | float(30) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {{ relay_on or runtime >= mins }}
+
+      # Lock anti-ciclo min ON
+      - name: "Heating — lock min ON ok"
+        unique_id: heating_lock_min_on_ok
+        state: >-
+          {% set mins = states('input_number.heating_min_on_minutes') | float(15) %}
+          {% set runtime = states('sensor.heating_minutes_since_change') | float(default=0) %}
+          {% set relay_on = is_state('switch.heating_master','on') %}
+          {{ (not relay_on) or runtime >= mins }}
+
+      # Comando logico finale
+      - name: "Heating — should run"
+        unique_id: heating_should_run
+        state: >-
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            false
+          {% else %}
+            {% set desired = state_attr('sensor.heating_reason','action') %}
+            {% set relay_on = is_state('switch.heating_master','on') %}
+            {% if desired == 'on' %}
+              {{ relay_on or is_state('binary_sensor.heating_lock_min_off_ok','on') }}
+            {% else %}
+              {% if relay_on and is_state('binary_sensor.heating_lock_min_on_ok','off') %}
+                true
+              {% else %}
+                false
+              {% endif %}
+            {% endif %}
+          {% endif %}
+
+###############################################################################
+# 4) SWITCH TEMPLATE — alias relè invertito
+###############################################################################
+switch:
+  - platform: template
+    switches:
+      heating_master:
+        unique_id: heating_master
+        friendly_name: "Riscaldamento — comando"
+        value_template: "{{ is_state('switch.4_ch_interrutore_3','off') }}"
+        icon_template: mdi:radiator
+        turn_on:
+          service: switch.turn_off
+          target:
+            entity_id: switch.4_ch_interrutore_3
+        turn_off:
+          service: switch.turn_on
+          target:
+            entity_id: switch.4_ch_interrutore_3
+      heating_night_block:
+        unique_id: heating_night_block
+        friendly_name: "Riscaldamento — blocco notturno"
+        value_template: "{{ is_state('switch.4_ch_interrutore_3','on') }}"
+        icon_template: mdi:power
+        turn_on:
+          service: switch.turn_on
+          target:
+            entity_id: switch.4_ch_interrutore_3
+        turn_off:
+          service: switch.turn_off
+          target:
+            entity_id: switch.4_ch_interrutore_3
+
+###############################################################################
+# 5) SENSORI STATISTICI — runtime storico
+###############################################################################
 sensor:
   - platform: history_stats
     name: "Riscaldamento — Ore ON oggi"
@@ -587,39 +455,29 @@ sensor:
     start: "{{ (today_at('00:00') - timedelta(days=1)) }}"
     end: "{{ today_at('00:00') }}"
 
-# ---------------------------------------------------------------------------
-# SCRIPT
-# ---------------------------------------------------------------------------
+###############################################################################
+# 6) SCRIPT DI SUPPORTO
+###############################################################################
 script:
-  heating_clear_overrides:
-    alias: "Heating — reset override"
+  heating_reset_manual:
+    alias: "Heating — reset manuale"
     sequence:
       - service: input_boolean.turn_off
-        target: { entity_id: input_boolean.heating_force_on }
-      - service: input_boolean.turn_off
-        target: { entity_id: input_boolean.heating_force_off }
+        target: { entity_id: input_boolean.heating_manual_active }
       - service: timer.cancel
         target: { entity_id: timer.heating_manual_timeout }
 
-# ---------------------------------------------------------------------------
-# AUTOMAZIONI
-# ---------------------------------------------------------------------------
+###############################################################################
+# 7) AUTOMAZIONI
+###############################################################################
 automation:
-  # PRIORITÀ CONTROLLER HEATING
-  # P0) Failsafe sensori / sicurezza → spegni tutto
-  # P1) Protezione gelo → garantisci minima T interna
-  # P2) Comfort base → mantieni 21°C in orari standard
-  # P3) Spinta con FV → usa surplus 10:00–16:00 per anticipare/estendere
-  # P4) Night setback → tollera calo notturno ma evita raffreddamenti eccessivi
-
-  - id: heating_manual_override
-    alias: "HEATING — Modalità manuale"
-    mode: restart
+  # Gestione timeout manuale
+  - id: heating_manual_timeout
+    alias: "HEATING — timeout manuale"
     triggers:
       - trigger: state
-        entity_id:
-          - input_boolean.heating_manual
-          - input_select.heating_manual_mode
+        entity_id: input_boolean.heating_manual_active
+        to: "on"
       - trigger: event
         event_type: timer.finished
         event_data:
@@ -628,272 +486,48 @@ automation:
       - choose:
           - conditions:
               - condition: state
-                entity_id: input_boolean.heating_manual
+                entity_id: input_boolean.heating_manual_active
                 state: "on"
-              - condition: template
-                value_template: "{{ trigger.platform != 'event' }}"
             sequence:
               - service: timer.start
-                target:
-                  entity_id: timer.heating_manual_timeout
-              - choose:
-                  - conditions: "{{ is_state('input_select.heating_manual_mode','OFF') }}"
-                    sequence:
-                      - service: switch.turn_on
-                        target:
-                          entity_id: switch.4_ch_interrutore_3
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.heating_reason
-                          attributes:
-                            priority: manual
-                            reason: "Manuale OFF"
-                            action: "switch.on (stop)"
-                  - conditions: "{{ is_state('input_select.heating_manual_mode','ECO') }}"
-                    sequence:
-                      - service: switch.turn_off
-                        target:
-                          entity_id: switch.4_ch_interrutore_3
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.heating_reason
-                          attributes:
-                            priority: manual
-                            reason: "Manuale ECO"
-                            action: "switch.off (eco)"
-                  - conditions: "{{ is_state('input_select.heating_manual_mode','COMFORT') }}"
-                    sequence:
-                      - service: switch.turn_off
-                        target:
-                          entity_id: switch.4_ch_interrutore_3
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.heating_reason
-                          attributes:
-                            priority: manual
-                            reason: "Manuale COMFORT"
-                            action: "switch.off"
-                  - conditions: "{{ is_state('input_select.heating_manual_mode','BOOST') }}"
-                    sequence:
-                      - service: switch.turn_off
-                        target:
-                          entity_id: switch.4_ch_interrutore_3
-                      - event: template_event
-                        event_data:
-                          entity_id: sensor.heating_reason
-                          attributes:
-                            priority: manual
-                            reason: "Manuale BOOST"
-                            action: "switch.off (boost)"
-        default:
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: "{{ trigger.platform == 'event' }}"
-                sequence:
-                  - service: input_boolean.turn_off
-                    target:
-                      entity_id: input_boolean.heating_manual
-          - service: timer.cancel
-            target:
-              entity_id: timer.heating_manual_timeout
-          # Nessuna azione ulteriore: controller automatico riprende
+                target: { entity_id: timer.heating_manual_timeout }
+          - conditions:
+              - condition: event
+                event_type: timer.finished
+            sequence:
+              - service: input_boolean.turn_off
+                target: { entity_id: input_boolean.heating_manual_active }
 
-  - id: heating_p0_failsafe
-    alias: "HEATING P0 — Failsafe sensori"
+  # Attuazione comando logico
+  - id: heating_drive_master
+    alias: "HEATING — attua should_run"
     mode: restart
     triggers:
-      - trigger: state
-        entity_id: binary_sensor.heating_failsafe_sensors_bad
-      - trigger: time_pattern
-        minutes: "/5"
-    conditions:
-      - condition: state
-        entity_id: binary_sensor.heating_failsafe_sensors_bad
-        state: "on"
-    actions:
-      - service: switch.turn_on
-        target:
-          entity_id: switch.4_ch_interrutore_3
-      - event: template_event
-        event_data:
-          entity_id: sensor.heating_reason
-          attributes:
-            priority: P0_failsafe
-            reason: "Sensore non valido (stop di sicurezza)"
-            action: "switch.on (stop)"
-
-  - id: heating_controller_priority
-    alias: "HEATING — Controllo priorità P1–P4"
-    mode: restart
-    triggers:
-      - trigger: time_pattern
-        minutes: "/5"
       - trigger: state
         entity_id:
-          - binary_sensor.heating_failsafe_sensors_bad
-          - binary_sensor.heating_window_comfort
-          - binary_sensor.heating_window_pv
-          - binary_sensor.heating_window_night
-          - binary_sensor.surplus_ok
-          - input_boolean.heating_enable
-          - input_boolean.heating_use_giorno
-          - input_boolean.heating_use_notte1
-          - input_boolean.heating_use_notte2
-          - input_boolean.heating_use_bagno
-          - input_boolean.heating_manual
-          - switch.4_ch_interrutore_3
-          - sensor.t_in_giorno
-          - sensor.t_in_notte1
-          - sensor.t_in_notte2
-          - sensor.t_in_bagno
-          - sensor.t_out
+          - binary_sensor.heating_should_run
+          - switch.heating_master
+      - trigger: state
+        entity_id:
+          - input_boolean.heating_manual_active
+          - input_select.heating_manual_mode
     actions:
-      - variables:
-          t_min: >-
-            {% set raw = states('sensor.heating_t_in_min') %}
-            {{ raw|float(0) if raw not in ['unknown','unavailable','', none] else 0 }}
-          comfort: "{{ states('input_number.temp_target_risc')|float(21) }}"
-          tol: "{{ states('input_number.heating_tolerance')|float(0.5) }}"
-          night_sp: "{{ states('input_number.heating_setpoint_night')|float(19) }}"
-          anti_frost: "{{ states('input_number.heating_antifreeze_threshold')|float(10) }}"
-          boost_delta: "{{ states('input_number.heating_boost_delta')|float(0.3) }}"
-          stagione_calda: "{{ is_state('binary_sensor.stagione_calda','on') }}"
-
       - choose:
-          # P0: failsafe → esci
           - conditions:
               - condition: state
-                entity_id: binary_sensor.heating_failsafe_sensors_bad
+                entity_id: binary_sensor.heating_should_run
                 state: "on"
-            sequence: []
-
-          # Manuale attivo → esci
-          - conditions:
-              - condition: or
-                conditions:
-                  - condition: state
-                    entity_id: input_boolean.heating_manual
-                    state: "on"
-                  - condition: state
-                    entity_id: input_boolean.heating_manual_active
-                    state: "on"
-            sequence: []
-
-          # P1: antigelo
-          - conditions:
-              - condition: template
-                value_template: "{{ t_min is not none and t_min < anti_frost }}"
             sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.4_ch_interrutore_3
-              - event: template_event
-                event_data:
-                  entity_id: sensor.heating_reason
-                  attributes:
-                    priority: P1_anti_frost
-                    reason: "T interna {{ t_min }}°C < soglia antigelo"
-                    action: "switch.off"
-
-          # P2: comfort base
+              - service: switch.turn_on
+                target: { entity_id: switch.heating_master }
           - conditions:
-              - condition: template
-                value_template: >
-                  {{
-                    is_state('input_boolean.heating_enable','on') and
-                    not stagione_calda and
-                    is_state('binary_sensor.heating_window_comfort','on') and
-                    t_min is not none and
-                    t_min < (comfort - tol)
-                  }}
+              - condition: state
+                entity_id: binary_sensor.heating_should_run
+                state: "off"
             sequence:
+              - condition: state
+                entity_id: binary_sensor.heating_lock_min_on_ok
+                state: "on"
               - service: switch.turn_off
-                target:
-                  entity_id: switch.4_ch_interrutore_3
-              - event: template_event
-                event_data:
-                  entity_id: sensor.heating_reason
-                  attributes:
-                    priority: P2_comfort
-                    reason: "Comfort: T_min {{ t_min }}°C < target {{ comfort - tol }}°C"
-                    action: "switch.off"
+                target: { entity_id: switch.heating_master }
 
-          # P3: boost FV
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{
-                    is_state('input_boolean.heating_enable','on') and
-                    is_state('binary_sensor.heating_window_pv','on') and
-                    is_state('binary_sensor.surplus_ok','on') and
-                    t_min is not none and
-                    t_min < (comfort - boost_delta)
-                  }}
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.4_ch_interrutore_3
-              - event: template_event
-                event_data:
-                  entity_id: sensor.heating_reason
-                  attributes:
-                    priority: P3_pv_boost
-                    reason: "Surplus FV: T_min {{ t_min }}°C < target boost {{ comfort - boost_delta }}°C"
-                    action: "switch.off"
-
-          # P4: night setback
-          - conditions:
-              - condition: template
-                value_template: >
-                  {{
-                    is_state('input_boolean.heating_enable','on') and
-                    is_state('binary_sensor.heating_window_night','on') and
-                    t_min is not none and
-                    t_min < (night_sp - tol)
-                  }}
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.4_ch_interrutore_3
-              - event: template_event
-                event_data:
-                  entity_id: sensor.heating_reason
-                  attributes:
-                    priority: P4_night_setback
-                    reason: "Night: T_min {{ t_min }}°C < soglia notte {{ night_sp - tol }}°C"
-                    action: "switch.off"
-
-        default:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: switch.4_ch_interrutore_3
-                    state: "off"
-                sequence:
-                  - service: switch.turn_on
-                    target:
-                      entity_id: switch.4_ch_interrutore_3
-          - event: template_event
-            event_data:
-              entity_id: sensor.heating_reason
-              attributes:
-                priority: idle
-                reason: "Nessuna priorità attiva"
-                action: "switch.on (idle)"
-
-  # LEGACY AUTOMATIONS (disattivate dopo refactor)
-  # - heating_decision_loop
-  # - heating_manual_handler
-
-  - id: heating_log_hours_daily
-    alias: "Heating — scrivi ore ON di ieri nell'helper giornaliero"
-    trigger:
-      - platform: time
-        at: "00:05:00"
-    action:
-      - service: input_number.set_value
-        target:
-          entity_id: input_number.heating_hours_on_daily
-        data:
-          value: "{{ states('sensor.heating_hours_on_yesterday') | float(0) }}"

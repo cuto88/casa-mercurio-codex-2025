@@ -12,20 +12,24 @@ views:
           - type: glance
             columns: 4
             entities:
+              - entity: binary_sensor.heating_should_run
+                name: Should run
               - entity: sensor.heating_priority
                 name: Priorità
               - entity: sensor.heating_reason
                 name: Reason
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: Failsafe
-              - entity: switch.4_ch_interrutore_3
-                name: Pompa
 
           - type: entities
             show_header_toggle: false
             entities:
               - entity: input_boolean.heating_enable
                 name: Logica attiva
+              - entity: binary_sensor.heating_lock_min_on_ok
+                name: Lock min ON ok
+              - entity: binary_sensor.heating_lock_min_off_ok
+                name: Lock min OFF ok
               - entity: input_boolean.heating_manual_active
                 name: Manuale attivo
               - entity: input_select.heating_manual_mode
@@ -74,12 +78,16 @@ views:
                 name: Stanze sotto target
               - entity: sensor.heating_rooms_active
                 name: Stanze conteggiate
-              - entity: binary_sensor.heating_window_comfort
+              - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort
               - entity: binary_sensor.heating_window_pv
                 name: Finestra FV
               - entity: binary_sensor.heating_window_night
                 name: Finestra notte
+              - entity: binary_sensor.heating_esterna_fredda
+                name: Esterna fredda
+              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
+                name: Sotto target
 
       - type: grid
         title: "Grafici 24h / 7gg"
@@ -138,7 +146,7 @@ views:
                 name: T interna minima
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
-              - entity: binary_sensor.heating_window_comfort
+              - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort
               - entity: binary_sensor.heating_window_pv
                 name: Finestra FV
@@ -146,6 +154,8 @@ views:
                 name: Finestra notte
               - entity: binary_sensor.heating_failsafe_sensors_bad
                 name: Failsafe sensori
+              - entity: binary_sensor.heating_almeno_una_stanza_sotto_target
+                name: Almeno una stanza sotto target
 
       - type: grid
         cards:
@@ -160,7 +170,7 @@ views:
                 name: Motivo/azione
               - entity: switch.4_ch_interrutore_3
                 name: Pompa riscaldamento
-              - entity: binary_sensor.heating_window_comfort
+              - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort
               - entity: binary_sensor.heating_window_pv
                 name: Finestra FV
