@@ -683,8 +683,6 @@ template:
           {% else %}
             unknown
           {% endif %}
-        availability: >-
-          {{ states('sensor.ah_in') not in ['unknown','unavailable',''] }}
 
       - name: "vent_ah_out"
         unique_id: vent_ah_out
