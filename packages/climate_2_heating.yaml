@@ -283,7 +283,237 @@ template:
           {% set setp = states('input_number.temp_target_risc')|float(21) %}
           {% set temp = states('sensor.t_in_notte1')|float(0) %}
           {{ (setp - temp) | round(2) }}
-          
+
+      # KPI controller — priorità/diagnostica
+      - name: "Heating Priority"
+        unique_id: heating_priority
+        icon: mdi:arrow-top-right-bold-outline
+        state: "{{ state_attr('sensor.heating_reason','priority') or 'idle' }}"
+        attributes:
+          reason: "{{ state_attr('sensor.heating_reason','reason') or '—' }}"
+          action: "{{ state_attr('sensor.heating_reason','action') or 'idle' }}"
+
+      - name: "Heating Reason"
+        unique_id: heating_reason
+        icon: mdi:text-box-check
+        state: >-
+          {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
+          {% set t_min = states('sensor.heating_t_in_min') %}
+          {% set comfort = states('input_number.temp_target_risc')|float(21) %}
+          {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
+          {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
+          {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
+          {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
+          {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
+          {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
+          {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
+
+          {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+            {% set info.priority = 'P0_failsafe' %}
+            {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
+            {% set info.action = 'switch.on (stop)' %}
+          {% elif manuale %}
+            {% set info.priority = 'manual' %}
+            {% set info.reason = 'Controllo manuale attivo' %}
+            {% set info.action = 'manual' %}
+          {% elif t_val is number and t_val < anti_frost %}
+            {% set info.priority = 'P1_anti_frost' %}
+            {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
+            {% set info.action = 'switch.off' %}
+          {% elif t_val is number and
+            is_state('input_boolean.heating_enable','on') and
+            not stagione_calda and
+            is_state('binary_sensor.heating_window_comfort','on') and
+            t_val < (comfort - tol) %}
+            {% set info.priority = 'P2_comfort' %}
+            {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
+            {% set info.action = 'switch.off' %}
+          {% elif t_val is number and
+            is_state('input_boolean.heating_enable','on') and
+            is_state('binary_sensor.heating_window_pv','on') and
+            is_state('binary_sensor.surplus_ok','on') and
+            t_val < (comfort - boost_delta) %}
+            {% set info.priority = 'P3_pv_boost' %}
+            {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
+            {% set info.action = 'switch.off' %}
+          {% elif t_val is number and
+            is_state('input_boolean.heating_enable','on') and
+            is_state('binary_sensor.heating_window_night','on') and
+            t_val < (night_sp - tol) %}
+            {% set info.priority = 'P4_night_setback' %}
+            {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
+            {% set info.action = 'switch.off' %}
+          {% else %}
+            {% set info.priority = 'idle' %}
+            {% set info.reason = 'Nessuna priorità attiva' %}
+            {% set info.action = 'switch.on (idle)' %}
+          {% endif %}
+
+          {{ info.priority }}
+        attributes:
+          priority: >-
+            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
+            {% set t_min = states('sensor.heating_t_in_min') %}
+            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
+            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
+            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
+            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
+            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
+            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
+            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
+            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
+
+            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+              {% set info.priority = 'P0_failsafe' %}
+              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
+              {% set info.action = 'switch.on (stop)' %}
+            {% elif manuale %}
+              {% set info.priority = 'manual' %}
+              {% set info.reason = 'Controllo manuale attivo' %}
+              {% set info.action = 'manual' %}
+            {% elif t_val is number and t_val < anti_frost %}
+              {% set info.priority = 'P1_anti_frost' %}
+              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              not stagione_calda and
+              is_state('binary_sensor.heating_window_comfort','on') and
+              t_val < (comfort - tol) %}
+              {% set info.priority = 'P2_comfort' %}
+              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_pv','on') and
+              is_state('binary_sensor.surplus_ok','on') and
+              t_val < (comfort - boost_delta) %}
+              {% set info.priority = 'P3_pv_boost' %}
+              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_night','on') and
+              t_val < (night_sp - tol) %}
+              {% set info.priority = 'P4_night_setback' %}
+              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% else %}
+              {% set info.priority = 'idle' %}
+              {% set info.reason = 'Nessuna priorità attiva' %}
+              {% set info.action = 'switch.on (idle)' %}
+            {% endif %}
+
+            {{ info.priority }}
+          reason: >-
+            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
+            {% set t_min = states('sensor.heating_t_in_min') %}
+            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
+            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
+            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
+            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
+            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
+            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
+            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
+            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
+
+            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+              {% set info.priority = 'P0_failsafe' %}
+              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
+              {% set info.action = 'switch.on (stop)' %}
+            {% elif manuale %}
+              {% set info.priority = 'manual' %}
+              {% set info.reason = 'Controllo manuale attivo' %}
+              {% set info.action = 'manual' %}
+            {% elif t_val is number and t_val < anti_frost %}
+              {% set info.priority = 'P1_anti_frost' %}
+              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              not stagione_calda and
+              is_state('binary_sensor.heating_window_comfort','on') and
+              t_val < (comfort - tol) %}
+              {% set info.priority = 'P2_comfort' %}
+              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_pv','on') and
+              is_state('binary_sensor.surplus_ok','on') and
+              t_val < (comfort - boost_delta) %}
+              {% set info.priority = 'P3_pv_boost' %}
+              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_night','on') and
+              t_val < (night_sp - tol) %}
+              {% set info.priority = 'P4_night_setback' %}
+              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% else %}
+              {% set info.priority = 'idle' %}
+              {% set info.reason = 'Nessuna priorità attiva' %}
+              {% set info.action = 'switch.on (idle)' %}
+            {% endif %}
+
+            {{ info.reason }}
+          action: >-
+            {% set info = namespace(priority='idle', reason='Nessuna priorità attiva', action='switch.on (idle)') %}
+            {% set t_min = states('sensor.heating_t_in_min') %}
+            {% set comfort = states('input_number.temp_target_risc')|float(21) %}
+            {% set tol = states('input_number.heating_tolerance')|float(0.5) %}
+            {% set night_sp = states('input_number.heating_setpoint_night')|float(19) %}
+            {% set anti_frost = states('input_number.heating_antifreeze_threshold')|float(10) %}
+            {% set boost_delta = states('input_number.heating_boost_delta')|float(0.3) %}
+            {% set stagione_calda = is_state('binary_sensor.stagione_calda','on') %}
+            {% set manuale = is_state('input_boolean.heating_manual','on') or is_state('input_boolean.heating_manual_active','on') %}
+            {% set t_val = t_min|float(0) if t_min not in ['unknown','unavailable',''] else none %}
+
+            {% if is_state('binary_sensor.heating_failsafe_sensors_bad','on') %}
+              {% set info.priority = 'P0_failsafe' %}
+              {% set info.reason = 'Sensore non valido (stop di sicurezza)' %}
+              {% set info.action = 'switch.on (stop)' %}
+            {% elif manuale %}
+              {% set info.priority = 'manual' %}
+              {% set info.reason = 'Controllo manuale attivo' %}
+              {% set info.action = 'manual' %}
+            {% elif t_val is number and t_val < anti_frost %}
+              {% set info.priority = 'P1_anti_frost' %}
+              {% set info.reason = 'T interna ' ~ t_val ~ '°C < soglia antigelo' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              not stagione_calda and
+              is_state('binary_sensor.heating_window_comfort','on') and
+              t_val < (comfort - tol) %}
+              {% set info.priority = 'P2_comfort' %}
+              {% set info.reason = 'Comfort: T_min ' ~ t_val ~ '°C < target ' ~ (comfort - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_pv','on') and
+              is_state('binary_sensor.surplus_ok','on') and
+              t_val < (comfort - boost_delta) %}
+              {% set info.priority = 'P3_pv_boost' %}
+              {% set info.reason = 'Surplus FV: T_min ' ~ t_val ~ '°C < target boost ' ~ (comfort - boost_delta) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% elif t_val is number and
+              is_state('input_boolean.heating_enable','on') and
+              is_state('binary_sensor.heating_window_night','on') and
+              t_val < (night_sp - tol) %}
+              {% set info.priority = 'P4_night_setback' %}
+              {% set info.reason = 'Night: T_min ' ~ t_val ~ '°C < soglia notte ' ~ (night_sp - tol) ~ '°C' %}
+              {% set info.action = 'switch.off' %}
+            {% else %}
+              {% set info.priority = 'idle' %}
+              {% set info.reason = 'Nessuna priorità attiva' %}
+              {% set info.action = 'switch.on (idle)' %}
+            {% endif %}
+
+            {{ info.action }}
+
   - binary_sensor:
       - name: "Heating failsafe — sensori non ok"
         unique_id: heating_failsafe_sensors_bad
