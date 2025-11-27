@@ -26,21 +26,21 @@ lovelace:
       title: "1 Ventilazione"
       icon: mdi:fan
       show_in_sidebar: true
-      filename: lovelace/1_ventilation_plancia.yaml
+      filename: lovelace/climate_1_vent_plancia.yaml
 
     2-heating:
       mode: yaml
       title: "2 Riscaldamento"
       icon: mdi:radiator
       show_in_sidebar: true
-      filename: lovelace/2_heating_plancia.yaml
+      filename: lovelace/climate_2_heating_plancia.yaml
 
     3-ac:
       mode: yaml
       title: "3 Clima"
       icon: mdi:snowflake
       show_in_sidebar: true
-      filename: lovelace/3_ac_plancia.yaml
+      filename: lovelace/climate_3_ac_plancia.yaml
 
     6-energia:
       mode: yaml
