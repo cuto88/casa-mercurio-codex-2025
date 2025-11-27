@@ -8,17 +8,6 @@ $SRC = "C:\_Tools\casa-mercurio-codex-2025"   # repo locale
 $DST = "Z:\"                                  # root cartella config HA (es. \\homeassistant\config)
 
 # === FUNZIONI ===
-function Sync-Dir($subpath) {
-  $srcPath = Join-Path $SRC $subpath
-  $dstPath = Join-Path $DST $subpath
-  if (Test-Path $srcPath) {
-    # crea la dir di destinazione se non esiste
-    New-Item -ItemType Directory -Path $dstPath -Force | Out-Null
-    robocopy $srcPath $dstPath /E /FFT /XO /XD ".git" ".vscode" /NFL /NDL /NP /R:1 /W:1 | Out-Null
-    Write-Host ("[DIR]  {0} -> {1}" -f $subpath, $dstPath)
-  }
-}
-
 function Sync-File($relfile) {
   $srcFile = Join-Path $SRC $relfile
   $dstFile = Join-Path $DST $relfile
@@ -33,10 +22,23 @@ function Sync-File($relfile) {
   }
 }
 
+function Mirror-Folders($folders) {
+  foreach ($folder in $folders) {
+    $src = Join-Path $SRC $folder
+    $dst = Join-Path $DST $folder
+
+    if (Test-Path $src) {
+      New-Item -ItemType Directory -Path $dst -Force | Out-Null
+      robocopy $src $dst /MIR /XO /XD ".git" ".storage" "backup" /NFL /NDL /NP /R:1 /W:1 | Out-Null
+      Write-Host ("[MIRROR] {0} -> {1}" -f $folder, $dst)
+    }
+  }
+}
+
 # === WHITELIST ===
-Sync-Dir  "packages"
-Sync-Dir  "lovelace"
-Sync-Dir  "logica"                  # documentazione ignorata da HA
+$foldersToMirror = @("logica", "lovelace", "packages")
+
+Mirror-Folders $foldersToMirror
 Sync-File "configuration.yaml"
 
 Write-Host ""
