@@ -1,9 +1,9 @@
 ---
 ###############################################################################
-# 1_ventilation_windows.yaml — Monitoraggio finestre/porte e KPI collegati
-# - Definisce input_boolean per finestre
-# - Gruppi zona giorno/notte/bagno
-# - Conteggi e label finestre aperte
+# 1_ventilation_windows.yaml — Aggregazione stato finestre per modulo VMC/Vent
+# - alias (input_boolean) da sostituire con sensori reed reali
+# - gruppi zona giorno/notte/bagno
+# - binary_sensor aggregati e contatori
 ###############################################################################
 
 input_boolean:
@@ -32,6 +32,8 @@ input_boolean:
     name: "Ventilazione — Finestra bagno"
     icon: mdi:window-open-variant
 
+# TODO: sostituire gli input_boolean con i sensori finestra reali (binary_sensor.*)
+
 group:
   windows_zona_giorno:
     name: "Finestre — Zona giorno"
@@ -53,13 +55,6 @@ group:
 
 template:
   - binary_sensor:
-      - name: "Casa chiusa"
-        unique_id: windows_all_closed
-        device_class: opening
-        state: >
-          {{ expand('group.windows_zona_giorno') | selectattr('state','eq','on') | list | count == 0
-             and expand('group.windows_zona_notte') | selectattr('state','eq','on') | list | count == 0
-             and expand('group.windows_bagni') | selectattr('state','eq','on') | list | count == 0 }}
       - name: "Finestre zona giorno aperte"
         unique_id: windows_giorno_any
         device_class: opening
@@ -75,6 +70,15 @@ template:
         device_class: opening
         state: >
           {{ expand('group.windows_bagni') | selectattr('state','eq','on') | list | count > 0 }}
+      - name: "Casa chiusa"
+        unique_id: windows_all_closed
+        device_class: opening
+        state: >
+          {{
+            expand('group.windows_zona_giorno') | selectattr('state','eq','on') | list | count == 0 and
+            expand('group.windows_zona_notte') | selectattr('state','eq','on') | list | count == 0 and
+            expand('group.windows_bagni') | selectattr('state','eq','on') | list | count == 0
+          }}
   - sensor:
       - name: "Conteggio finestre aperte"
         unique_id: windows_open_count
@@ -91,28 +95,6 @@ template:
             {% set total.v = total.v + (members | count) %}
           {% endfor %}
           {{ total.v }}
-      - name: "vent_finestre_aperte"
-        unique_id: vent_finestre_aperte
-        unit_of_measurement: "finestre"
-        icon: mdi:window-open
-        state: >-
-          {% set toggles = [
-            'input_boolean.vent_finestra_giorno1_aperta',
-            'input_boolean.vent_finestra_giorno2_aperta',
-            'input_boolean.vent_portoncino_ingresso_aperto',
-            'input_boolean.vent_foro_cappa_aperto',
-            'input_boolean.vent_finestra_notte1_aperta',
-            'input_boolean.vent_finestra_notte2_aperta',
-            'input_boolean.vent_finestra_notte3_aperta',
-            'input_boolean.vent_finestra_bagno_aperta'
-          ] %}
-          {% set count = namespace(total=0) %}
-          {% for toggle in toggles %}
-            {% if is_state(toggle,'on') %}
-              {% set count.total = count.total + 1 %}
-            {% endif %}
-          {% endfor %}
-          {{ count.total }}
       - name: "vent_finestre_state"
         unique_id: vent_finestre_state
         icon: mdi:text
