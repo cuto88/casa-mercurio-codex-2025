@@ -194,7 +194,7 @@ template:
       # Disponibilità sensori base (P0 — failsafe)
       - name: "VMC sensori critici ok"
         unique_id: vmc_sensors_ok
-        device_class: connectivity
+        device_class: problem
         state: >-
           {{ not (
             states('sensor.t_out') in ['unknown','unavailable',''] or
