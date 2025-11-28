@@ -194,14 +194,29 @@ template:
       # Disponibilità sensori base (P0 — failsafe)
       - name: "VMC sensori critici ok"
         unique_id: vmc_sensors_ok
-        device_class: problem
+        device_class: connectivity
         state: >-
-          {{ not (
-            states('sensor.t_out') in ['unknown','unavailable',''] or
-            states('sensor.ur_out') in ['unknown','unavailable',''] or
-            states('sensor.t_in_media') in ['unknown','unavailable',''] or
-            states('sensor.ur_in_media') in ['unknown','unavailable','']
-          ) }}
+          {% set required = [
+            'sensor.t_in_giorno',
+            'sensor.t_in_notte1',
+            'sensor.t_in_notte2',
+            'sensor.t_in_bagno',
+            'sensor.ur_in_giorno',
+            'sensor.ur_in_notte1',
+            'sensor.ur_in_notte2',
+            'sensor.ur_in_bagno',
+            'sensor.t_out',
+            'sensor.ur_out',
+            'sensor.ah_in',
+            'sensor.ah_out'
+          ] %}
+          {% set missing = [] %}
+          {% for ent in required %}
+            {% if states(ent) in ['unknown','unavailable',''] %}
+              {% set missing = missing + [ent] %}
+            {% endif %}
+          {% endfor %}
+          {{ missing | length == 0 }}
       - name: "VMC anti-secco attivo"
         unique_id: vmc_anti_secco
         state: >-
