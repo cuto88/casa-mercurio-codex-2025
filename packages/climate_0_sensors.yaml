@@ -1,11 +1,14 @@
 # FILE: packages/climate_0_sensors.yaml
 ---
 ###############################################################################
-# 0_sensors.yaml — Sensori climatici canonici e KPI base (ΔT / ΔAH)
-# - alias verso i sensori fisici (temperatura/UR interne ed esterne)
-# - KPI aggregati per T/UR/AH interna ed esterna
-# - ΔT / ΔAH canonici usati da VMC, heating, AC
-# NOTE: gli alias *_hw vanno collegati ai sensori fisici reali (TODO dove indicato)
+# climate_0_sensors.yaml — Sensori canonici clima/VMC
+#
+# ATTENZIONE:
+# - L’elenco ufficiale dei sensori (fisici + canonici + KPI) è documentato in:
+#   logica/core/README_sensori_clima.md
+# - Tutta la logica dei moduli climate_1_ventilation / climate_2_heating /
+#   climate_3_ac DEVE usare solo i sensori canonici definiti qui.
+# - Alias legacy e duplicati NON vanno più utilizzati nei nuovi moduli.
 ###############################################################################
 
 template:
