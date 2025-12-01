@@ -17,79 +17,6 @@
 # 1) HELPER INPUTS — soglie, timer, blocchi
 # ============================================================================
 input_number:
-  # Storici (legacy) mantenuti per compatibilità UI
-  ac_ur_high:
-    name: "AC — UR alta (DRY ON)"
-    min: 40
-    max: 90
-    step: 1
-    unit_of_measurement: "%"
-    icon: mdi:water-percent
-    initial: 75
-
-  ac_ur_target:
-    name: "AC — UR target (DRY OFF)"
-    min: 40
-    max: 90
-    step: 1
-    unit_of_measurement: "%"
-    icon: mdi:water-percent
-    initial: 60
-
-  ac_t_cool_on:
-    name: "AC — T COOL ON"
-    min: 24
-    max: 30
-    step: 0.2
-    unit_of_measurement: "°C"
-    icon: mdi:thermometer
-    initial: 27
-
-  ac_t_target:
-    name: "AC — T target (COOL OFF)"
-    min: 23
-    max: 27
-    step: 0.2
-    unit_of_measurement: "°C"
-    icon: mdi:thermometer
-    initial: 26.2
-
-  ac_hyst_off:
-    name: "AC — isteresi OFF (°C)"
-    min: 0.0
-    max: 1.0
-    step: 0.1
-    unit_of_measurement: "°C"
-    icon: mdi:delta
-    initial: 0.2
-
-  ac_min_on:
-    name: "AC — Min ON (min)"
-    min: 10
-    max: 120
-    step: 5
-    unit_of_measurement: "min"
-    icon: mdi:timer-outline
-    initial: 30
-
-  ac_min_off:
-    name: "AC — Min OFF (min)"
-    min: 10
-    max: 120
-    step: 5
-    unit_of_measurement: "min"
-    icon: mdi:timer-off-outline
-    initial: 30
-
-  ac_max_run:
-    name: "AC — Max run (min)"
-    min: 30
-    max: 180
-    step: 10
-    unit_of_measurement: "min"
-    icon: mdi:timer-sand-complete
-    initial: 90
-
   # Nuovi helper uniformati alla nuova architettura
   ac_cool_setpoint:
     name: "AC — setpoint COOL (°C)"
@@ -185,6 +112,18 @@ template:
             {% endif %}
           {% endfor %}
           {{ bad }}
+
+      - name: "Stagione calda attiva"
+        unique_id: stagione_calda
+        device_class: heat
+        state: >-
+          {% set stagione = states('sensor.vent_stagione') %}
+          {% if stagione in ['estate','inverno'] %}
+            {{ stagione == 'estate' }}
+          {% else %}
+            {% set m = now().month %}
+            {{ m in [5,6,7,8,9] }}
+          {% endif %}
 
       - name: "AC — Block by VMC"
         unique_id: ac_block_by_vmc

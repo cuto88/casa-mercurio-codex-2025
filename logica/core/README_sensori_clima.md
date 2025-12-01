@@ -25,12 +25,12 @@ Documentazione unica dei sensori fisici, alias canonici e KPI usati dai moduli c
 ### 3. Helper logici (input_boolean / input_number / input_select / input_datetime)
 **Ventilazione/VMC**
 - Modalità: `input_select.vmc_mode`, `input_select.vmc_manual_speed`, `input_boolean.vmc_manual`, `input_boolean.vmc_boost_bagno`.
-- Soglie ΔT/ΔAH/UR/vento/PM: `input_number.vmc_freecooling_delta`, `input_number.vmc_freecooling_delta_ah`, `input_number.vent_deltat_min`, `input_number.vent_deltaah_min`, `input_number.vmc_anti_secco_ur_min`, `input_number.vmc_bagno_on`, `input_number.vmc_bagno_off`, `input_number.vent_vento_max`, `input_number.vent_pm25_max`.
+- Soglie ΔT/ΔAH/UR: `input_number.vmc_freecooling_delta`, `input_number.vmc_freecooling_delta_ah`, `input_number.vent_deltat_min`, `input_number.vent_deltaah_min`, `input_number.vmc_anti_secco_ur_min`, `input_number.vmc_bagno_on`, `input_number.vmc_bagno_off`.
 - Backup sensori: `input_number.vent_backup_t_in`, `input_number.vent_backup_ur_in`.
-- Override e notifiche: `input_boolean.vent_override_estate`, `input_boolean.vent_notifiche_attive`.
+- Override: `input_boolean.vent_override_estate`.
 - Fasce night-flush: `input_datetime.vent_night_flush_start`, `input_datetime.vent_night_flush_end`.
 - Messaggi: `input_text.vent_messaggio_consiglio`.
-- Timer/lock: `timer.vmc_manual_timeout`, `timer.vmc_anti_secco_lock`, `timer.vmc_boost_lock`, `timer.vmc_freecooling_max_run`, `timer.vmc_freecooling_cooldown`.
+- Timer: `timer.vmc_manual_timeout`.
 
 **Heating**
 - Abilitazioni stanze e logica: `input_boolean.heating_use_giorno`, `input_boolean.heating_use_notte1`, `input_boolean.heating_use_notte2`, `input_boolean.heating_use_bagno`, `input_boolean.heating_enable`, `input_boolean.heating_manual_active`.
@@ -41,13 +41,30 @@ Documentazione unica dei sensori fisici, alias canonici e KPI usati dai moduli c
 
 **AC**
 - Modalità manuale/blocco: `input_boolean.ac_manual`, `input_select.ac_manual_mode`, `timer.ac_manual_timeout`, `input_boolean.ac_block_vmc`, `timer.ac_block_vmc_timeout`.
-- Soglie UR/temperatura e lock: `input_number.ac_ur_high`, `input_number.ac_ur_target`, `input_number.ac_t_cool_on`, `input_number.ac_t_target`, `input_number.ac_hyst_off`, `input_number.ac_min_on`, `input_number.ac_min_off`, `input_number.ac_max_run`.
-- Nuovi setpoint uniformati: `input_number.ac_cool_setpoint`, `input_number.ac_dry_ur_on`, `input_number.ac_dry_ur_off`, `input_number.ac_min_on_minutes`, `input_number.ac_min_off_minutes`.
+- Setpoint e lock canonici: `input_number.ac_cool_setpoint`, `input_number.ac_dry_ur_on`, `input_number.ac_dry_ur_off`, `input_number.ac_min_on_minutes`, `input_number.ac_min_off_minutes`.
 
 ### 4. Sensori diagnostici clima/VMC
 - **Ventilazione/VMC**: `binary_sensor.vmc_sensori_critici_ok`, `binary_sensor.vmc_anti_secco`, `binary_sensor.vmc_bagno_boost_auto`, `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_attivo`, `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_freecooling_status`, `sensor.clima_open_windows_recommended`, `sensor.vent_stagione`.
 - **Heating**: `sensor.heating_reason` (priority/azione), `sensor.heating_priority` (estratto da reason), `binary_sensor.heating_failsafe_sensors_bad`, `sensor.heating_t_in_min`, `sensor.heating_rooms_below_target`, `binary_sensor.heating_lock_min_on_ok`, `binary_sensor.heating_lock_min_off_ok`, `binary_sensor.heating_finestra_oraria`, `binary_sensor.heating_esterna_fredda`, `binary_sensor.heating_almeno_una_stanza_sotto_target`, `sensor.heating_minutes_since_change`, `sensor.heating_hours_on_today`, `sensor.heating_hours_on_yesterday`.
 - **AC**: `binary_sensor.ac_failsafe_sensors_bad`, `binary_sensor.ac_block_by_vmc`, `binary_sensor.ac_lock_min_on_ok`, `binary_sensor.ac_lock_min_off_ok`, `sensor.ac_priority`, `sensor.ac_reason`, `binary_sensor.stagione_calda` (vincolo stagionale per AC/ventilazione).
+
+### Heating — diagnostica opzionale
+- `sensor.heating_rooms_active` — numero stanze effettivamente attive.
+- `sensor.heating_error_zona_giorno` — errori/criticità zona giorno.
+- `sensor.heating_error_zona_notte` — errori/criticità zona notte.
+- `binary_sensor.heating_window_pv` — blocco heating per finestre aperte in fascia FV.
+- `binary_sensor.heating_window_night` — blocco heating per finestre aperte in fascia notturna.
+- `binary_sensor.heating_should_run` — decisione finale ON/OFF della logica heating.
+
+### AC — diagnostica e runtime opzionale
+- `sensor.ac_giorno_tempo_on_oggi`
+- `sensor.ac_giorno_cicli_on_oggi`
+- `sensor.ac_notte_tempo_on_oggi`
+- `sensor.ac_notte_cicli_on_oggi`
+- `sensor.ac_giorno_ultimo_on`, `sensor.ac_giorno_ultimo_off`
+- `sensor.ac_notte_ultimo_on`, `sensor.ac_notte_ultimo_off`
+
+Questi sensori sono opzionali (grafici/diagnostica) e non fanno parte della logica core.
 
 ### 5. Attuatori e stati finestre
 - **VMC**: `switch.vmc_vel_0`, `switch.vmc_vel_1`, `switch.vmc_vel_2`, `switch.vmc_vel_3` (attuazione velocità); `timer.vmc_*` come lock runtime.

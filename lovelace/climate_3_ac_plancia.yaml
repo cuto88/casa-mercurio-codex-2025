@@ -16,6 +16,8 @@ views:
                 name: Priorità
               - entity: sensor.ac_reason
                 name: Reason
+              - entity: binary_sensor.stagione_calda
+                name: Stagione calda
               - entity: binary_sensor.ac_failsafe_sensors_bad
                 name: Failsafe
               - entity: binary_sensor.ac_block_by_vmc
@@ -165,6 +167,8 @@ views:
                 name: Failsafe sensori
               - entity: binary_sensor.ac_block_by_vmc
                 name: Block by VMC
+              - entity: binary_sensor.stagione_calda
+                name: Stagione calda
 
       - type: grid
         cards:
