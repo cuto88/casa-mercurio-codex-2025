@@ -194,7 +194,6 @@ template:
       # Disponibilità sensori base (P0 — failsafe)
       - name: "VMC sensori critici ok"
         unique_id: vmc_sensori_critici_ok
-        object_id: vmc_sensori_critici_ok
         device_class: connectivity
         state: >-
           {% set required = [
@@ -221,7 +220,6 @@ template:
           {{ ns.ok }}
       - name: "VMC anti-secco"
         unique_id: vmc_anti_secco
-        object_id: vmc_anti_secco
         state: >-
           {% set night = now().hour >= 23 or now().hour < 7 %}
           {% set winter = now().month in [11,12,1,2,3] %}
@@ -230,7 +228,6 @@ template:
           {{ night and winter and ur_min <= soglia }}
       - name: "VMC boost bagno automatico"
         unique_id: vmc_bagno_boost_auto
-        object_id: vmc_bagno_boost_auto
         state: >-
           {% set ur = states('sensor.ur_in_bagno')|float(default=0) %}
           {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
@@ -244,7 +241,6 @@ template:
           {% endif %}
       - name: "VMC freecooling candidabile"
         unique_id: vmc_freecooling_candidate
-        object_id: vmc_freecooling_candidate
         state: >-
           {% set tin = states('sensor.t_in_media')|float(default=none) %}
           {% set tout = states('sensor.t_out')|float(default=none) %}
@@ -258,7 +254,6 @@ template:
           {% endif %}
       - name: "VMC freecooling attivo"
         unique_id: vmc_freecooling_attivo
-        object_id: vmc_freecooling_attivo
         state: >-
           {{ is_state('sensor.ventilation_priority','P2_freecooling') }}
 
