@@ -2,10 +2,9 @@
 ---
 ###############################################################################
 # 0_sensors.yaml — Sensori climatici canonici e KPI base (ΔT / ΔAH)
-# - alias verso i sensori fisici (temperatura/UR interne ed esterne)
+# - sensori canonici collegati direttamente ai sensori fisici reali
 # - KPI aggregati per T/UR/AH interna ed esterna
 # - ΔT / ΔAH canonici usati da VMC, heating, AC
-# NOTE: gli alias *_hw vanno collegati ai sensori fisici reali (TODO dove indicato)
 ###############################################################################
 
 template:
@@ -20,10 +19,9 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_in_giorno_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.temperatura_zona_giorno') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.t_in_giorno_hw') %}
+          {% set raw = states('sensor.temperatura_zona_giorno') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -37,10 +35,9 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_in_notte1_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.temperatura_zona_notte1') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.t_in_notte1_hw') %}
+          {% set raw = states('sensor.temperatura_zona_notte1') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -54,10 +51,9 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_in_notte2_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.temperatura_zona_notte2') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.t_in_notte2_hw') %}
+          {% set raw = states('sensor.temperatura_zona_notte2') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -71,10 +67,9 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_in_bagno_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.temperatura_bagno') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.t_in_bagno_hw') %}
+          {% set raw = states('sensor.temperatura_bagno') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -88,10 +83,9 @@ template:
         state_class: measurement
         icon: mdi:thermometer
         availability: >-
-          {{ states('sensor.t_out_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.temperatura_esterna') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.t_out_hw') %}
+          {% set raw = states('sensor.temperatura_esterna') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -105,10 +99,9 @@ template:
         state_class: measurement
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_giorno_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.umidita_zona_giorno') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.ur_in_giorno_hw') %}
+          {% set raw = states('sensor.umidita_zona_giorno') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -122,10 +115,9 @@ template:
         state_class: measurement
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_notte1_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.umidita_zona_notte1') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.ur_in_notte1_hw') %}
+          {% set raw = states('sensor.umidita_zona_notte1') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -139,10 +131,9 @@ template:
         state_class: measurement
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_notte2_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.umidita_zona_notte2') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.ur_in_notte2_hw') %}
+          {% set raw = states('sensor.umidita_zona_notte2') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -156,10 +147,9 @@ template:
         state_class: measurement
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_in_bagno_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.umidita_bagno') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.ur_in_bagno_hw') %}
+          {% set raw = states('sensor.umidita_bagno') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
@@ -173,10 +163,9 @@ template:
         state_class: measurement
         icon: mdi:water-percent
         availability: >-
-          {{ states('sensor.ur_out_hw') not in ['unknown','unavailable',''] }}
+          {{ states('sensor.umidita_esterna') not in ['unknown','unavailable',''] }}
         state: >-
-          # TODO: collegare a sensore fisico reale (es. sensor.xxx)
-          {% set raw = states('sensor.ur_out_hw') %}
+          {% set raw = states('sensor.umidita_esterna') %}
           {% if raw not in ['unknown','unavailable',''] %}
             {{ raw|float }}
           {% else %}
