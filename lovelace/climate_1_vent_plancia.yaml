@@ -6,30 +6,33 @@ views:
     path: vmc
     cards:
       - type: entities
-        title: "Stato VMC"
+        title: "1 — Stato generale VMC"
         show_header_toggle: false
         entities:
-          - entity: sensor.vmc_priority
+          - entity: sensor.ventilation_priority
             name: Priorità corrente
           - entity: sensor.ventilation_reason
             name: Motivo
-          - entity: sensor.vmc_vel_index
-            name: Velocità attuale
-          - entity: sensor.vmc_vel_target
-            name: Velocità target
-          - entity: binary_sensor.vmc_freecooling_candidate
-            name: Candidato freecooling
           - entity: sensor.vmc_freecooling_status
             name: Stato freecooling
-          - entity: binary_sensor.vmc_anti_secco
-            name: Anti-secco
-          - entity: binary_sensor.vmc_bagno_boost_auto
-            name: Boost bagno auto
           - entity: binary_sensor.vmc_sensors_ok
             name: Sensori critici ok
 
       - type: entities
-        title: "Comandi manuali"
+        title: "2 — KPI ambiente"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.t_in_media
+            name: T interna media
+          - entity: sensor.ur_in_media
+            name: UR interna media
+          - entity: sensor.delta_t_in_out
+            name: ΔT (interno-esterno)
+          - entity: sensor.delta_ah_in_out
+            name: ΔAH (interno-esterno)
+
+      - type: entities
+        title: "3 — Controllo manuale VMC"
         show_header_toggle: false
         entities:
           - entity: input_select.vmc_mode
@@ -42,108 +45,43 @@ views:
             name: Boost bagno manuale
           - entity: input_boolean.vent_override_estate
             name: Forza estate
-          - entity: input_boolean.vent_notifiche_attive
-            name: Notifiche attive
 
       - type: entities
-        title: "KPI aria"
+        title: "4 — Velocità reali e target"
         show_header_toggle: false
         entities:
-          - entity: sensor.t_in_media
-            name: T interna media
-          - entity: sensor.t_out
-            name: T esterna
-          - entity: sensor.ur_in_media
-            name: UR interna media
-          - entity: sensor.ur_in_min
-            name: UR interna minima
-          - entity: sensor.ur_out
-            name: UR esterna
-          - entity: sensor.ah_in
-            name: AH interna
-          - entity: sensor.ah_out
-            name: AH esterna
+          - entity: sensor.vmc_vel_target
+            name: Velocità target
+          - entity: sensor.vmc_vel_index
+            name: Velocità attuale
+          - entity: switch.vmc_vel_0
+            name: Velocità 0
+          - entity: switch.vmc_vel_1
+            name: Velocità 1
+          - entity: switch.vmc_vel_2
+            name: Velocità 2
+          - entity: switch.vmc_vel_3
+            name: Velocità 3
 
       - type: entities
-        title: "ΔT / ΔAH"
+        title: "5 — Freecooling"
         show_header_toggle: false
         entities:
-          - entity: sensor.delta_t_in_out
-            name: ΔT (interno-esterno)
-          - entity: sensor.delta_ah_in_out
-            name: ΔAH (interno-esterno)
-          - entity: sensor.clima_open_windows_recommended
-            name: Apri finestre raccomandato
+          - entity: binary_sensor.vmc_freecooling_candidate
+            name: Candidato freecooling
+          - entity: binary_sensor.vmc_freecooling_active
+            name: Freecooling attivo
 
       - type: entities
-        title: "Soglie e timer"
-        show_header_toggle: false
-        entities:
-          - entity: input_number.vmc_bagno_on
-            name: UR bagno ON
-          - entity: input_number.vmc_bagno_off
-            name: UR bagno OFF
-          - entity: input_number.vmc_anti_secco_ur_min
-            name: UR minima anti-secco
-          - entity: input_number.vmc_freecooling_delta
-            name: ΔT min freecooling
-          - entity: input_number.vmc_freecooling_delta_ah
-            name: ΔAH min freecooling
-          - entity: input_number.vent_deltat_min
-            name: ΔT minimo consigli apertura
-          - entity: input_number.vent_deltaah_min
-            name: ΔAH minimo consigli apertura
-          - entity: input_number.vent_vento_max
-            name: Vento max
-          - entity: input_number.vent_pm25_max
-            name: PM2.5 max
-          - entity: input_datetime.vent_night_flush_start
-            name: Night flush start
-          - entity: input_datetime.vent_night_flush_end
-            name: Night flush end
-
-      - type: markdown
-        title: "Messaggio"
-        content: |
-          {{ states('input_text.vent_messaggio_consiglio') }}
-
-  - title: "Finestre"
-    icon: mdi:window-open-variant
-    path: windows
-    cards:
-      - type: entities
-        title: "Stato finestre"
+        title: "6 — Finestre e ricambio consigliato"
         show_header_toggle: false
         entities:
           - entity: binary_sensor.windows_all_closed
             name: Casa chiusa
-          - entity: binary_sensor.windows_giorno_any
-            name: Zona giorno aperta
-          - entity: binary_sensor.windows_notte_any
-            name: Zona notte aperta
-          - entity: binary_sensor.windows_bagno_any
-            name: Bagno aperto
-          - entity: sensor.windows_open_count
-            name: Conteggio aperte
-          - entity: sensor.vent_finestre_state
-            name: Dettaglio
-      - type: entities
-        title: "Comandi/alias finestre"
-        show_header_toggle: false
-        entities:
-          - entity: input_boolean.vent_finestra_giorno1_aperta
-            name: Finestra giorno 1
-          - entity: input_boolean.vent_finestra_giorno2_aperta
-            name: Finestra giorno 2
-          - entity: input_boolean.vent_portoncino_ingresso_aperto
-            name: Portoncino ingresso
-          - entity: input_boolean.vent_foro_cappa_aperto
-            name: Foro cappa
-          - entity: input_boolean.vent_finestra_notte1_aperta
-            name: Finestra notte 1
-          - entity: input_boolean.vent_finestra_notte2_aperta
-            name: Finestra notte 2
-          - entity: input_boolean.vent_finestra_notte3_aperta
-            name: Finestra notte 3
-          - entity: input_boolean.vent_finestra_bagno_aperta
-            name: Finestra bagno
+          - entity: sensor.clima_open_windows_recommended
+            name: Apri finestre raccomandato
+
+      - type: markdown
+        title: "7 — Messaggi diagnostici"
+        content: |
+          {{ states('input_text.vent_messaggio_consiglio') }}
