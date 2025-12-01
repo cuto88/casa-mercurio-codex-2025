@@ -375,16 +375,6 @@ template:
             inattivo
           {% endif %}
 
-      - name: "VMC motivo target"
-        unique_id: vmc_reason
-        state: >-
-          {{ states('sensor.ventilation_reason') }}
-
-      - name: "VMC priority"
-        unique_id: vmc_priority
-        state: >-
-          {{ states('sensor.ventilation_priority') }}
-
       - name: "clima_open_windows_recommended"
         unique_id: clima_open_windows_recommended
         state: >-
@@ -459,7 +449,7 @@ automation:
         entity_id:
           - sensor.ventilation_reason
           - sensor.vmc_freecooling_status
-          - sensor.vmc_priority
+          - sensor.ventilation_priority
     action:
       - service: input_text.set_value
         target:
