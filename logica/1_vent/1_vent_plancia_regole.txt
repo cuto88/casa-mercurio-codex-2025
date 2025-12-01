@@ -4,24 +4,18 @@
 #            per ventilazione naturale + VMC come unico modulo.
 ###############################################################################
 
-COLONNA 1 — STATO & COMANDI
-- Glance "Stato attuale": `binary_sensor.vent_recommend_open/close`, flag stagione, night_flush, `sensor.vmc_priority`.
-- Entities "Comandi rapidi": override estate, toggle notifiche e mapping manuale aperture (giorno/notte/bagno) sugli `input_boolean.vent_*`.
-- Markdown "Consiglio": testo di `input_text.vent_messaggio_consiglio` e spiegazione priorità VMC correnti.
-- Markdown "COME DECIDE (SINTESI)":
-  - Suggerisce apertura/chiusura serramenti e night-flush in base a ΔT, ΔAH e meteo.
-  - Coordina con VMC/AC tramite hook (`hook_vent_enable_night_flush`, `hook_vmc_request_ac_block`).
-  - Tiene conto di vento/pioggia/PM per non peggiorare comfort e qualità dell’aria.
+COLONNA 1 — STATO & KPI
+- Entities "Stato generale": `sensor.ventilation_priority`, `sensor.ventilation_reason`, `binary_sensor.vmc_sensori_critici_ok`.
+- Entities "KPI aria": `sensor.t_in_media`, `sensor.ur_in_media`, `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`.
 
-COLONNA 2 — KPI PRINCIPALI
-- Entities "KPI — Temperatura" e mini-graph 24h T_in/T_out (`sensor.t_out`, `sensor.t_in_media`, `sensor.delta_t_in_out`).
-- Entities "KPI — Umidità assoluta" e mini-graph 24h AH_in/AH_out (`sensor.ah_in`, `sensor.ah_out`, `sensor.delta_ah_in_out`).
-- Entities "Meteo operativo": vento, pioggia, qualità aria e PM2.5 (`binary_sensor.vent_condizioni_meteo_ok`, `vent_air_quality_ok`).
+COLONNA 2 — COMANDI & VELOCITÀ
+- Entities "Controlli manuali": `input_select.vmc_mode`, `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `input_boolean.vmc_boost_bagno`.
+- Entities "Velocità reali": `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `switch.vmc_vel_0/1/2/3`.
 
-COLONNA 3 — TREND, SOGLIE & DEBUG
-- Statistics-graph settimanale su temperature e AH interne/esterne.
-- Entities "Soglie & stato finestre": input_number ΔT_min/ΔAH_min, soglia vento/PM, night_flush e contatori finestre.
-- History-graph dedicati a vento/PM e stato finestre per audit.
+COLONNA 3 — CONDIZIONI & MESSAGGI
+- Entities "Freecooling": `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_attivo`, `sensor.vmc_freecooling_status`.
+- Entities "Finestre": `binary_sensor.windows_all_closed`, `sensor.clima_open_windows_recommended`.
+- Entities "Messaggi": `input_text.vent_messaggio_consiglio`.
 
 NOTE
 - Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (`packages/1_ventilation.yaml` + sensori base).

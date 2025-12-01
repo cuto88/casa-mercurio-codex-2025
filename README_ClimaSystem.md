@@ -65,20 +65,18 @@ Condizioni freecooling:
 ---
 
 ## 2.3 Reason & Priority VMC
-`sensor.vmc_reason` → valore logico:
+`sensor.ventilation_priority` → stato logico canonico:
 
+- `P0_off`
+- `P_manual`
 - `P0_failsafe`
 - `P1_boost_bagno`
-- `P2_anti_secco`
-- `P3_freecooling`
-- `manual`
-- `idle`
+- `P1_anti_secco`
+- `P1_delta_ur`
+- `P2_freecooling`
+- `P4_baseline`
 
-Attributo:
-- `reason: "{{ this.state }}"`
-
-`sensor.vmc_priority` → descrizione leggibile:  
-`P1 — Bagno/BOOST`, `P3 — Freecooling`, ecc.
+`sensor.ventilation_reason` → descrizione leggibile allineata alla priority corrente.
 
 ---
 
