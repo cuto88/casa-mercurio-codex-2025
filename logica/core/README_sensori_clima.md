@@ -71,3 +71,10 @@ Questi sensori sono opzionali (grafici/diagnostica) e non fanno parte della logi
 - **Heating**: `switch.heating_master` (alias invertito di `switch.4_ch_interrutore_3`), `switch.heating_night_block` (alias blocco), `switch.4_ch_interrutore_3` hardware.
 - **AC**: `switch.ac_giorno`, `switch.ac_notte` (split giorno/notte pilotati da logica AC).
 - **Finestre**: `binary_sensor.windows_all_closed` (canonico aggregato), `binary_sensor.windows_giorno_any`, `binary_sensor.windows_notte_any`, `binary_sensor.windows_bagno_any`, `sensor.windows_open_count`, `sensor.vent_finestre_state`.
+
+### 6. Hook energia / surplus (entità esterne)
+- `binary_sensor.surplus_ok` — sensore esterno (tipicamente modulo energia/surplus) che vale `on` quando c'è surplus FV utilizzabile. Viene usato dal modulo heating per:
+  - abilitare logiche di boost in presenza di energia in eccesso
+  - evitare di accendere la PDC quando non c'è surplus, se configurato.
+
+  Non viene definito nei file `climate_*`: deve essere creato in un package energia dedicato (es. gestione surplus FV). È opzionale: se assente, le condizioni basate su `is_state('binary_sensor.surplus_ok','on')` risultano false e il sistema continua a funzionare in modalità standard.

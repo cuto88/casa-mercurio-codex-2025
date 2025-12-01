@@ -459,13 +459,6 @@ sensor:
 # 6) SCRIPT DI SUPPORTO
 ###############################################################################
 script:
-  heating_reset_manual:
-    alias: "Heating — reset manuale"
-    sequence:
-      - service: input_boolean.turn_off
-        target: { entity_id: input_boolean.heating_manual_active }
-      - service: timer.cancel
-        target: { entity_id: timer.heating_manual_timeout }
 
 ###############################################################################
 # 7) AUTOMAZIONI
