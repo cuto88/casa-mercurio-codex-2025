@@ -6,82 +6,59 @@ views:
     path: vmc
     cards:
       - type: entities
-        title: "1 — Stato generale VMC"
+        title: "Stato generale"
         show_header_toggle: false
         entities:
-          - entity: sensor.ventilation_priority
-            name: Priorità corrente
-          - entity: sensor.ventilation_reason
-            name: Motivo
-          - entity: sensor.vmc_freecooling_status
-            name: Stato freecooling
-          - entity: binary_sensor.vmc_sensors_ok
-            name: Sensori critici ok
+          - sensor.ventilation_priority
+          - sensor.ventilation_reason
+          - binary_sensor.vmc_sensori_critici_ok
 
       - type: entities
-        title: "2 — KPI ambiente"
+        title: "KPI aria"
         show_header_toggle: false
         entities:
-          - entity: sensor.t_in_media
-            name: T interna media
-          - entity: sensor.ur_in_media
-            name: UR interna media
-          - entity: sensor.delta_t_in_out
-            name: ΔT (interno-esterno)
-          - entity: sensor.delta_ah_in_out
-            name: ΔAH (interno-esterno)
+          - sensor.t_in_media
+          - sensor.ur_in_media
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
 
       - type: entities
-        title: "3 — Controllo manuale VMC"
+        title: "Controlli manuali"
         show_header_toggle: false
         entities:
-          - entity: input_select.vmc_mode
-            name: Modalità VMC
-          - entity: input_boolean.vmc_manual
-            name: Manuale abilitato
-          - entity: input_select.vmc_manual_speed
-            name: Velocità manuale
-          - entity: input_boolean.vmc_boost_bagno
-            name: Boost bagno manuale
-          - entity: input_boolean.vent_override_estate
-            name: Forza estate
+          - input_select.vmc_mode
+          - input_boolean.vmc_manual
+          - input_select.vmc_manual_speed
+          - input_boolean.vmc_boost_bagno
 
       - type: entities
-        title: "4 — Velocità reali e target"
+        title: "Velocità reali"
         show_header_toggle: false
         entities:
-          - entity: sensor.vmc_vel_target
-            name: Velocità target
-          - entity: sensor.vmc_vel_index
-            name: Velocità attuale
-          - entity: switch.vmc_vel_0
-            name: Velocità 0
-          - entity: switch.vmc_vel_1
-            name: Velocità 1
-          - entity: switch.vmc_vel_2
-            name: Velocità 2
-          - entity: switch.vmc_vel_3
-            name: Velocità 3
+          - sensor.vmc_vel_target
+          - sensor.vmc_vel_index
+          - switch.vmc_vel_0
+          - switch.vmc_vel_1
+          - switch.vmc_vel_2
+          - switch.vmc_vel_3
 
       - type: entities
-        title: "5 — Freecooling"
+        title: "Freecooling"
         show_header_toggle: false
         entities:
-          - entity: binary_sensor.vmc_freecooling_candidate
-            name: Candidato freecooling
-          - entity: binary_sensor.vmc_freecooling_active
-            name: Freecooling attivo
+          - binary_sensor.vmc_freecooling_candidate
+          - binary_sensor.vmc_freecooling_attivo
+          - sensor.vmc_freecooling_status
 
       - type: entities
-        title: "6 — Finestre e ricambio consigliato"
+        title: "Finestre"
         show_header_toggle: false
         entities:
-          - entity: binary_sensor.windows_all_closed
-            name: Casa chiusa
-          - entity: sensor.clima_open_windows_recommended
-            name: Apri finestre raccomandato
+          - binary_sensor.windows_all_closed
+          - sensor.clima_open_windows_recommended
 
-      - type: markdown
-        title: "7 — Messaggi diagnostici"
-        content: |
-          {{ states('input_text.vent_messaggio_consiglio') }}
+      - type: entities
+        title: "Messaggi"
+        show_header_toggle: false
+        entities:
+          - input_text.vent_messaggio_consiglio
