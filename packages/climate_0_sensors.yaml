@@ -26,18 +26,17 @@ template:
         device_class: humidity
         state_class: measurement
         state: >-
-          {% set values = [
-            states('sensor.ur_in_giorno')|float(default=none),
-            states('sensor.ur_in_notte1')|float(default=none),
-            states('sensor.ur_in_notte2')|float(default=none),
-            states('sensor.ur_in_bagno')|float(default=none)
-          ] | select('ne', none) | list %}
-          {% if values %}
-            {% set total = values | sum %}
-            {% set count = values | length %}
-            {{ (total / count) | round(1) }}
+          {% set vals = [
+            states('sensor.ur_in_giorno'),
+            states('sensor.ur_in_notte1'),
+            states('sensor.ur_in_notte2'),
+            states('sensor.ur_in_bagno')
+          ] %}
+          {% set valid = vals | reject('in', ['unknown','unavailable','']) | map('float') | list %}
+          {% if valid | length > 0 %}
+            {{ (valid | sum / (valid | length)) | round(1) }}
           {% else %}
-            unknown
+            {{ states('input_number.vent_backup_ur_in') }}
           {% endif %}
 
       - name: "UR interna minima"
