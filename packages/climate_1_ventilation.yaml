@@ -210,13 +210,14 @@ template:
             'sensor.ah_in',
             'sensor.ah_out'
           ] %}
-          {% set missing = [] %}
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set ns = namespace(ok=true) %}
           {% for ent in required %}
-            {% if states(ent) in ['unknown','unavailable',''] %}
-              {% set missing = missing + [ent] %}
+            {% if states(ent) in invalid %}
+              {% set ns.ok = false %}
             {% endif %}
           {% endfor %}
-          {{ missing | length == 0 }}
+          {{ ns.ok }}
       - name: "VMC anti-secco attivo"
         unique_id: vmc_anti_secco
         state: >-
@@ -231,7 +232,7 @@ template:
           {% set ur = states('sensor.ur_in_bagno')|float(default=0) %}
           {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
           {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
-          {% set delta = (states('sensor.ur_in_bagno')|float(default=0)) - (states('sensor.ur_out')|float(default=0)) %}
+          {% set delta = ur - (states('sensor.ur_out')|float(default=0)) %}
           {% set prev = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
           {% if prev %}
             {{ ur >= ur_off or delta >= 8 }}
@@ -324,6 +325,8 @@ template:
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
           {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+          {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
+          {% set ur_out = states('sensor.ur_out')|float(default=0) %}
           {% if mode_off %}
             P0_off
           {% elif manual %}
@@ -334,7 +337,7 @@ template:
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
             P1_anti_secco
-          {% elif states('sensor.ur_in_media')|float(default=0) > 50 and (states('sensor.ur_in_media')|float(default=0) - states('sensor.ur_out')|float(default=0)) >= 10 %}
+          {% elif ur_in_media > 50 and (ur_in_media - ur_out) >= 10 %}
             P1_delta_ur
           {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
             P2_freecooling
