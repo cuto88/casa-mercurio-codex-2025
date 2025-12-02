@@ -208,7 +208,7 @@ template:
       - name: "VMC freecooling candidabile"
         unique_id: vmc_freecooling_candidate
         state: >-
-          {% set tin = states('sensor.t_in_media')|float(default=none) %}
+          {% set tin = states('sensor.t_in_med')|float(default=none) %}
           {% set tout = states('sensor.t_out')|float(default=none) %}
           {% set dah = states('sensor.delta_ah_in_out')|float(default=none) %}
           {% set dt_min = states('input_number.vmc_freecooling_delta')|float(2) %}
@@ -218,8 +218,8 @@ template:
           {% else %}
             false
           {% endif %}
-      - name: "VMC freecooling attivo"
-        unique_id: vmc_freecooling_attivo
+      - name: vmc_freecooling_active
+        unique_id: vmc_freecooling_active
         state: >-
           {{ is_state('sensor.ventilation_priority','P2_freecooling') }}
 
@@ -255,7 +255,7 @@ template:
             {{ map.get(sel,1) }}
           {% else %}
             {% set priority = states('sensor.ventilation_priority') %}
-            {% if priority == 'P0_failsafe' %}
+            {% if priority in ['P0_failsafe','P0_off'] %}
               0
             {% elif priority == 'P1_boost_bagno' %}
               3
@@ -305,7 +305,7 @@ template:
             P1_anti_secco
           {% elif ur_in_media > 50 and (ur_in_media - ur_out) >= 10 %}
             P1_delta_ur
-          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') and is_state('binary_sensor.windows_all_closed','on') %}
+          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') %} {# TODO: ripristinare controllo finestre chiuse #}
             P2_freecooling
           {% else %}
             P4_baseline
@@ -375,7 +375,6 @@ automation:
           - binary_sensor.vmc_bagno_boost_auto
           - binary_sensor.vmc_anti_secco
           - binary_sensor.vmc_freecooling_candidate
-          - binary_sensor.windows_all_closed
           - sensor.ventilation_priority
     action:
       - variables:

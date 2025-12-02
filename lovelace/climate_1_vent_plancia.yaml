@@ -17,7 +17,7 @@ views:
         title: "KPI aria"
         show_header_toggle: false
         entities:
-          - sensor.t_in_media
+          - sensor.t_in_med
           - sensor.ur_in_media
           - sensor.delta_t_in_out
           - sensor.delta_ah_in_out
@@ -47,15 +47,16 @@ views:
         show_header_toggle: false
         entities:
           - binary_sensor.vmc_freecooling_candidate
-          - binary_sensor.vmc_freecooling_attivo
+          - binary_sensor.vmc_freecooling_active
           - sensor.vmc_freecooling_status
 
       - type: entities
         title: "Finestre"
         show_header_toggle: false
         entities:
-          - binary_sensor.windows_all_closed
           - sensor.clima_open_windows_recommended
+          - type: section
+            label: "TODO: collegare stato finestre (modulo dedicato)"
 
       - type: entities
         title: "Messaggi"
