@@ -159,7 +159,7 @@ template:
   - binary_sensor:
       # Disponibilità sensori base (P0 — failsafe)
       - name: "VMC sensori critici ok"
-        unique_id: vmc_sensori_critici_ok
+        unique_id: vmc_sensors_ok
         device_class: connectivity
         state: >-
           {% set required = [

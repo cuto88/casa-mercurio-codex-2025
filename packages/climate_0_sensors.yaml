@@ -86,18 +86,22 @@ template:
 
       - name: ah_out
         unique_id: ah_out
-        icon: mdi:water
+        icon: mdi:water-outline
         unit_of_measurement: "g/m³"
         state_class: measurement
         attributes:
           friendly_name: "AH esterna"
+        availability: >-
+          {{ states('sensor.t_out') not in ['unknown','unavailable',''] and
+             states('sensor.ur_out') not in ['unknown','unavailable',''] }}
         state: >-
           {% set T = states('sensor.t_out')|float(default=none) %}
           {% set RH = states('sensor.ur_out')|float(default=none) %}
           {% if T is number and RH is number %}
             {% set RHc = [[RH, 100]|min, 1]|max %}
-            {% set es = 6.112 * (2.718281828 ** ((17.67*T)/(T+243.5))) %}
-            {% set pv = (RHc/100) * es %}
+            {% set exponent = (17.67*T)/(T+243.5) %}
+            {% set es = 6.112 * (2.718281828 ** exponent) %}
+            {% set pv = RHc/100 * es %}
             {{ (216.7 * pv / (T + 273.15)) | round(2) }}
           {% else %}
             unknown
