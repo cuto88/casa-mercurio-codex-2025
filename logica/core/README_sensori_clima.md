@@ -16,7 +16,7 @@ Documentazione unica dei sensori fisici, alias canonici e KPI usati dai moduli c
 | UR esterna | **sensor.ur_out** |
 
 ### 2. KPI derivati (medie, minimi, AH, delta)
-- **sensor.t_in_media** — media temperatura interna; fallback `input_number.vent_backup_t_in` se tutti i sensori sono indisponibili.
+- **sensor.t_in_med** — media temperatura interna; fallback `input_number.vent_backup_t_in` se tutti i sensori sono indisponibili.
 - **sensor.ur_in_media** — media UR interna; fallback `input_number.vent_backup_ur_in` se tutti i sensori sono indisponibili.
 - **sensor.ur_in_min** — UR interna minima fra i sensori canonici.
 - **sensor.ah_in** / **sensor.ah_out** — umidità assoluta interna/esterna calcolata da T/UR.
@@ -44,7 +44,7 @@ Documentazione unica dei sensori fisici, alias canonici e KPI usati dai moduli c
 - Setpoint e lock canonici: `input_number.ac_cool_setpoint`, `input_number.ac_dry_ur_on`, `input_number.ac_dry_ur_off`, `input_number.ac_min_on_minutes`, `input_number.ac_min_off_minutes`.
 
 ### 4. Sensori diagnostici clima/VMC
-- **Ventilazione/VMC**: `binary_sensor.vmc_sensori_critici_ok`, `binary_sensor.vmc_anti_secco`, `binary_sensor.vmc_bagno_boost_auto`, `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_attivo`, `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_freecooling_status`, `sensor.clima_open_windows_recommended`, `sensor.vent_stagione`.
+- **Ventilazione/VMC**: `binary_sensor.vmc_sensori_critici_ok`, `binary_sensor.vmc_anti_secco`, `binary_sensor.vmc_bagno_boost_auto`, `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_active`, `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_freecooling_status`, `sensor.clima_open_windows_recommended`, `sensor.vent_stagione`.
 - **Heating**: `sensor.heating_reason` (priority/azione), `sensor.heating_priority` (estratto da reason), `binary_sensor.heating_failsafe_sensors_bad`, `sensor.heating_t_in_min`, `sensor.heating_rooms_below_target`, `binary_sensor.heating_lock_min_on_ok`, `binary_sensor.heating_lock_min_off_ok`, `binary_sensor.heating_finestra_oraria`, `binary_sensor.heating_esterna_fredda`, `binary_sensor.heating_almeno_una_stanza_sotto_target`, `sensor.heating_minutes_since_change`, `sensor.heating_hours_on_today`, `sensor.heating_hours_on_yesterday`.
 - **AC**: `binary_sensor.ac_failsafe_sensors_bad`, `binary_sensor.ac_block_by_vmc`, `binary_sensor.ac_lock_min_on_ok`, `binary_sensor.ac_lock_min_off_ok`, `sensor.ac_priority`, `sensor.ac_reason`, `binary_sensor.stagione_calda` (vincolo stagionale per AC/ventilazione).
 

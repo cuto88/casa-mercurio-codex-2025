@@ -1,11 +1,13 @@
 template:
   - sensor:
-      - name: "T interna media"
-        unique_id: t_in_media
+      - name: t_in_med
+        unique_id: t_in_med
+        icon: mdi:thermometer
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-        icon: mdi:thermometer
+        attributes:
+          friendly_name: "T interna media"
         state: >-
           {% set vals = [
             states('sensor.t_in_giorno'),
@@ -20,11 +22,14 @@ template:
             {{ states('input_number.vent_backup_t_in') }}
           {% endif %}
 
-      - name: "UR interna media"
+      - name: ur_in_media
         unique_id: ur_in_media
+        icon: mdi:water-percent
         unit_of_measurement: "%"
         device_class: humidity
         state_class: measurement
+        attributes:
+          friendly_name: "UR interna media"
         state: >-
           {% set vals = [
             states('sensor.ur_in_giorno'),
@@ -39,11 +44,14 @@ template:
             {{ states('input_number.vent_backup_ur_in') }}
           {% endif %}
 
-      - name: "UR interna minima"
+      - name: ur_in_min
         unique_id: ur_in_min
+        icon: mdi:water-percent
         unit_of_measurement: "%"
         device_class: humidity
         state_class: measurement
+        attributes:
+          friendly_name: "UR interna minima"
         state: >-
           {% set values = [
             states('sensor.ur_in_giorno')|float(default=none),
@@ -57,12 +65,15 @@ template:
             unknown
           {% endif %}
 
-      - name: "AH interna"
+      - name: ah_in
         unique_id: ah_in
+        icon: mdi:water
         unit_of_measurement: "g/m³"
         state_class: measurement
+        attributes:
+          friendly_name: "AH interna"
         state: >-
-          {% set T = states('sensor.t_in_media')|float(default=none) %}
+          {% set T = states('sensor.t_in_med')|float(default=none) %}
           {% set RH = states('sensor.ur_in_media')|float(default=none) %}
           {% if T is number and RH is number %}
             {% set RHc = [[RH, 100]|min, 1]|max %}
@@ -73,10 +84,13 @@ template:
             unknown
           {% endif %}
 
-      - name: "AH esterna"
+      - name: ah_out
         unique_id: ah_out
+        icon: mdi:water
         unit_of_measurement: "g/m³"
         state_class: measurement
+        attributes:
+          friendly_name: "AH esterna"
         state: >-
           {% set T = states('sensor.t_out')|float(default=none) %}
           {% set RH = states('sensor.ur_out')|float(default=none) %}
@@ -89,13 +103,16 @@ template:
             unknown
           {% endif %}
 
-      - name: "Delta T in-out"
+      - name: delta_t_in_out
         unique_id: delta_t_in_out
+        icon: mdi:thermometer-chevron-down
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
+        attributes:
+          friendly_name: "Delta T in-out"
         state: >-
-          {% set tin = states('sensor.t_in_media')|float(default=none) %}
+          {% set tin = states('sensor.t_in_med')|float(default=none) %}
           {% set tout = states('sensor.t_out')|float(default=none) %}
           {% if tin is number and tout is number %}
             {{ (tin - tout) | round(2) }}
@@ -103,10 +120,13 @@ template:
             unknown
           {% endif %}
 
-      - name: "Delta AH in-out"
+      - name: delta_ah_in_out
         unique_id: delta_ah_in_out
+        icon: mdi:water-percent
         unit_of_measurement: "g/m³"
         state_class: measurement
+        attributes:
+          friendly_name: "Delta AH in-out"
         state: >-
           {% set ah_i = states('sensor.ah_in')|float(default=none) %}
           {% set ah_o = states('sensor.ah_out')|float(default=none) %}
