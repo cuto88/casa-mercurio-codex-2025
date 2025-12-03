@@ -7,7 +7,7 @@ views:
 
     sections:
       - type: grid
-        title: "Stato generale"
+        title: "Heating — Stato generale"
         cards:
           - type: glance
             columns: 4
@@ -38,7 +38,7 @@ views:
                 name: Timeout manuale
 
       - type: grid
-        title: "Setpoint e comandi"
+        title: "Heating — Setpoint e comandi"
         cards:
           - type: entities
             show_header_toggle: false
@@ -66,7 +66,7 @@ views:
                 name: Usa bagno
 
       - type: grid
-        title: "KPI principali"
+        title: "Heating — KPI e diagnostica"
         cards:
           - type: entities
             entities:
@@ -90,7 +90,7 @@ views:
                 name: Sotto target
 
       - type: grid
-        title: "Grafici 24h / 7gg"
+        title: "Heating — Grafici 24h / 7gg"
         cards:
           - type: history-graph
             title: "Temperature interne/esterna (24h)"
@@ -121,7 +121,7 @@ views:
                 name: Errore notte
 
       - type: grid
-        title: "Runtime e cicli"
+        title: "Heating — Runtime e cicli"
         cards:
           - type: entities
             show_header_toggle: false
@@ -136,7 +136,7 @@ views:
                 name: Minuti da ultimo cambio
 
       - type: grid
-        title: "Debug"
+        title: "Heating — Debug"
         cards:
           - type: entities
             show_header_toggle: false
@@ -178,3 +178,5 @@ views:
                 name: Finestra notte
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
+
+# Heating dashboard normalized to ENTITY MAP (2025-02)
