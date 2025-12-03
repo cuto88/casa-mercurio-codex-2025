@@ -1,0 +1,55 @@
+###############################################################################
+# PACKAGE: energy_solaredge_pv.yaml
+# Modulo Energia – Produzione Fotovoltaico SolarEdge
+# Sensori canonici per pannello Energia + plance Casa Mercurio
+###############################################################################
+
+####################################
+# 1) TEMPLATE SENSOR – POTENZA PV
+####################################
+template:
+  - sensor:
+      - name: "PV Potenza Attuale"
+        unique_id: pv_power_now
+        device_class: power
+        unit_of_measurement: "W"
+        state: >
+          {{ states('sensor.solaredge_potenza_attuale') }}
+
+####################################
+# 2) TEMPLATE SENSOR – ENERGIA TOTALE PV (kWh)
+####################################
+  - sensor:
+      - name: "PV Energia Totale"
+        unique_id: pv_energy_total
+        device_class: energy
+        state_class: total_increasing
+        unit_of_measurement: "kWh"
+        state: >
+          {{ (states('sensor.solaredge_energia_dall_installazione') | float(0) / 1000) | round(3) }}
+
+####################################
+# 3) UTILITY METER – PRODUZIONE PV
+####################################
+utility_meter:
+  pv_energy_daily:
+    name: PV Energia Giornaliera
+    unique_id: pv_energy_daily
+    source: sensor.pv_energy_total
+    cycle: daily
+
+  pv_energy_monthly:
+    name: PV Energia Mensile
+    unique_id: pv_energy_monthly
+    source: sensor.pv_energy_total
+    cycle: monthly
+
+  pv_energy_yearly:
+    name: PV Energia Annuale
+    unique_id: pv_energy_yearly
+    source: sensor.pv_energy_total
+    cycle: yearly
+
+###############################################################################
+# FINE FILE
+###############################################################################
