@@ -48,3 +48,10 @@ lovelace:
       icon: mdi:solar-power
       show_in_sidebar: true
       filename: lovelace/6_surplus_plancia.yaml
+
+    pv-solaredge:
+      mode: yaml
+      title: "PV SolarEdge"
+      icon: mdi:solar-power
+      show_in_sidebar: true
+      filename: lovelace/energy_solaredge_pv_plancia.yaml
