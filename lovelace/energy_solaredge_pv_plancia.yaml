@@ -1,0 +1,69 @@
+views:
+  - title: "PV · SolarEdge"
+    path: pv_solaredge
+    icon: mdi:solar-power
+    type: sections
+    max_columns: 3
+
+    sections:
+      # ==========================
+      # SEZIONE 1 · STATO ATTUALE
+      # ==========================
+      - type: grid
+        title: "Stato attuale"
+        cards:
+          - type: gauge
+            name: Potenza FV istantanea
+            entity: sensor.pv_power_now
+            min: 0
+            max: 7000         # impianto 6,7 kW → aggiungi un po' di margine
+            needle: true
+
+          - type: statistic-graph
+            name: Potenza FV · oggi
+            entities:
+              - sensor.pv_power_now
+            chart_type: line
+            days_to_show: 1
+            period: 5min
+
+      # ==========================
+      # SEZIONE 2 · ENERGIA
+      # ==========================
+      - type: grid
+        title: "Energia"
+        cards:
+          - type: entities
+            title: "Produzione"
+            entities:
+              - entity: sensor.pv_energy_daily
+                name: Oggi
+              - entity: sensor.pv_energy_monthly
+                name: Questo mese
+              - entity: sensor.pv_energy_yearly
+                name: Questo anno
+
+          - type: statistic-graph
+            name: "PV · ultimi 7 giorni"
+            chart_type: bar
+            period: day
+            days_to_show: 7
+            entities:
+              - sensor.pv_energy_daily
+
+      # ==========================
+      # SEZIONE 3 · DEBUG (OPZIONALE)
+      # ==========================
+      - type: grid
+        title: "Debug sensori"
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.solaredge_potenza_attuale
+                name: SolarEdge Potenza RAW
+              - entity: sensor.solaredge_energia_dall_installazione
+                name: SolarEdge Energia RAW
+              - entity: sensor.pv_power_now
+                name: PV Potenza canonico
+              - entity: sensor.pv_energy_total
+                name: PV Energia Totale
