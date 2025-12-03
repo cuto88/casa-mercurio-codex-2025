@@ -158,7 +158,7 @@ timer:
 template:
   - binary_sensor:
       # Disponibilità sensori base (P0 — failsafe)
-      - name: "VMC sensori critici ok"
+      - name: "VMC sensors ok"
         unique_id: vmc_sensors_ok
         device_class: connectivity
         state: >-
@@ -290,7 +290,7 @@ template:
         state: >-
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
-          {% set sensors_ok = is_state('binary_sensor.vmc_sensori_critici_ok','on') %}
+          {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
           {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
           {% set ur_out = states('sensor.ur_out')|float(default=0) %}
           {% if mode_off %}
