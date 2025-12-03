@@ -1,7 +1,7 @@
 ---
 ###############################################################################
 # climate_2_heating.yaml — Modulo riscaldamento a pavimento (2025)
-# Dipendenze: sensori base da climate_0_sensors.yaml (t_in_*, t_out, t_in_media)
+# Dipendenze: sensori base da climate_0_sensors.yaml (t_in_*, t_out, t_in_med)
 # KPI chiave esposti:
 # - sensor.heating_priority / sensor.heating_reason
 # - binary_sensor.heating_should_run (comando logico)

@@ -72,7 +72,7 @@ views:
         cards:
           - type: entities
             entities:
-              - entity: sensor.t_in_media
+              - entity: sensor.t_in_med
                 name: T interna media
               - entity: sensor.t_out
                 name: T esterna
@@ -89,7 +89,7 @@ views:
             hours_to_show: 24
             refresh_interval: 60
             entities:
-              - entity: sensor.t_in_media
+              - entity: sensor.t_in_med
                 name: T interna media
               - entity: sensor.t_out
                 name: T esterna

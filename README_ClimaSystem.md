@@ -39,7 +39,7 @@ Questo documento descrive in modo chiaro e definitivo la *struttura, logica e in
 
 ## 2.1 Failsafe sensori
 Binary:
-- `binary_sensor.vmc_failsafe_sensors_bad`
+- `binary_sensor.vmc_sensors_ok`
 
 Controlla coerenza e range di:
 - T interna media, T esterna
@@ -47,7 +47,7 @@ Controlla coerenza e range di:
 - AH interna/esterna
 - UR bagno
 
-Se un sensore è `unknown/unavailable` o fuori range → **P0_failsafe**.
+Se un sensore è `unknown/unavailable` o fuori range → **P0_failsafe** (flag `vmc_sensors_ok` = off).
 
 ---
 

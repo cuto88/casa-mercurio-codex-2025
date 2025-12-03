@@ -87,7 +87,7 @@ template:
         device_class: problem
         state: >
           {% set sensors = {
-            'sensor.t_in_media': (-20, 50),
+            'sensor.t_in_med': (-20, 50),
             'sensor.t_out': (-30, 60),
             'sensor.ur_in_media': (0, 100),
             'sensor.ur_out': (0, 100)
@@ -264,7 +264,7 @@ automation:
           - binary_sensor.stagione_calda
           - binary_sensor.ac_lock_min_on_ok
           - binary_sensor.ac_lock_min_off_ok
-          - sensor.t_in_media
+          - sensor.t_in_med
           - sensor.t_out
           - sensor.ur_in_media
           - sensor.ur_out
@@ -274,7 +274,7 @@ automation:
           - input_select.ac_manual_mode
     action:
       - variables:
-          Tin: "{{ states('sensor.t_in_media')|float(0) }}"
+          Tin: "{{ states('sensor.t_in_med')|float(0) }}"
           Tout: "{{ states('sensor.t_out')|float(0) }}"
           URin: "{{ states('sensor.ur_in_media')|float(0) }}"
           URout: "{{ states('sensor.ur_out')|float(0) }}"

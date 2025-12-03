@@ -8,7 +8,7 @@
 - Meteo: `binary_sensor.vent_condizioni_meteo_ok`, `binary_sensor.vent_pioggia`, velocità vento, PM2.5 (`input_number.vent_vento_max`, `input_number.vent_pm25_max`).
 - Termo-igrometria: `sensor.delta_t_in_out`, `sensor.delta_ah_in_out`, `sensor.ur_in_media`, `sensor.ur_out`, `sensor.t_out`, `sensor.ah_in`, `sensor.ah_out`.
 - Bagno: `sensor.ur_in_bagno` con soglie `input_number.vmc_bagno_on/off` e ΔUR.
-- Stato VMC e controlli: `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_vel_target`, `sensor.vmc_freecooling_status`, `binary_sensor.vmc_sensori_critici_ok`.
+- Stato VMC e controlli: `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_vel_target`, `sensor.vmc_freecooling_status`, `binary_sensor.vmc_sensors_ok`.
 - Manuale/override: `input_boolean.vmc_manual`, `input_select.vmc_manual_speed`, `timer.vmc_manual_timeout`, `input_boolean.vent_override_estate`, `input_boolean.vent_notifiche_attive`.
 - Fasce e timer: `input_datetime.vent_night_flush_start/end`, timer lock freecooling (`vmc_freecooling_max_run`, `vmc_freecooling_cooldown`) e anti-secco/boost (`vmc_anti_secco_lock`, `vmc_boost_lock`).
 
@@ -24,7 +24,7 @@
 - Night-flush: finestra `vent_night_flush_start/end`, meteo ok e ΔT/ΔAH favorevoli; max_run 120m, rispetto lock min_on/min_off.
 
 ## Regole core (sintesi)
-- **P0_failsafe**: sensori `unknown/unavailable` → disattiva consigli, forza profilo sicuro (vel_0/vel_1) finché `binary_sensor.vmc_sensori_critici_ok` è false.
+- **P0_failsafe**: sensori `unknown/unavailable` → disattiva consigli, forza profilo sicuro (vel_0/vel_1) finché `binary_sensor.vmc_sensors_ok` è false.
 - **P1_boost_bagno**: UR bagno sopra soglia o ΔUR alto → VMC vel_3 con downgrade a vel_2 se aria esterna troppo secca; applica max_run/cooldown.
 - **P2_anti_secco**: UR interna bassa + stagione fredda + fascia 23–07 → duty vel_0/vel_1, blocca DRY e limita free-cooling.
 - **P3_freecooling**: ΔT/ΔAH favorevole + stagione calda + AC OFF + meteo ok → VMC vel_2, attiva `hook_vmc_request_ac_block`, abilita night-flush serramenti.
