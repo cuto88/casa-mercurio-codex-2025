@@ -1,80 +1,241 @@
-# Mappa sensori clima/VMC
-Documentazione unica dei sensori fisici, alias canonici e KPI usati dai moduli clima (ventilazione, heating, AC).
+# Climate system — ENTITY MAP (canonical)
 
-### 1. Sensori fisici ambientali (T/UR/esterno)
-| Ruolo | Entity ID CANONICO |
-| --- | --- |
-| T interna zona giorno | **sensor.t_in_giorno** |
-| T interna zona notte 1 | **sensor.t_in_notte1** |
-| T interna zona notte 2 | **sensor.t_in_notte2** |
-| T interna bagno | **sensor.t_in_bagno** |
-| T esterna | **sensor.t_out** |
-| UR interna zona giorno | **sensor.ur_in_giorno** |
-| UR interna zona notte 1 | **sensor.ur_in_notte1** |
-| UR interna zona notte 2 | **sensor.ur_in_notte2** |
-| UR interna bagno | **sensor.ur_in_bagno** |
-| UR esterna | **sensor.ur_out** |
+Single source of truth per tutte le entità climate (VMC / Heating / AC / Windows).
+Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 
-### 2. KPI derivati (medie, minimi, AH, delta)
-- **sensor.t_in_med** — media temperatura interna; fallback `input_number.vent_backup_t_in` se tutti i sensori sono indisponibili.
-- **sensor.ur_in_media** — media UR interna; fallback `input_number.vent_backup_ur_in` se tutti i sensori sono indisponibili.
-- **sensor.ur_in_min** — UR interna minima fra i sensori canonici.
-- **sensor.ah_in** / **sensor.ah_out** — umidità assoluta interna/esterna calcolata da T/UR.
-- **sensor.delta_t_in_out** / **sensor.delta_ah_in_out** — differenze in/out usate per free-cooling, consigli finestre e hook AC.
+> NOTA: descrizioni in italiano, ma `entity_id` sempre in inglese.
 
-### 3. Helper logici (input_boolean / input_number / input_select / input_datetime)
-**Ventilazione/VMC**
-- Modalità: `input_select.vmc_mode`, `input_select.vmc_manual_speed`, `input_boolean.vmc_manual`, `input_boolean.vmc_boost_bagno`.
-- Soglie ΔT/ΔAH/UR: `input_number.vmc_freecooling_delta`, `input_number.vmc_freecooling_delta_ah`, `input_number.vent_deltat_min`, `input_number.vent_deltaah_min`, `input_number.vmc_anti_secco_ur_min`, `input_number.vmc_bagno_on`, `input_number.vmc_bagno_off`.
-- Backup sensori: `input_number.vent_backup_t_in`, `input_number.vent_backup_ur_in`.
-- Override: `input_boolean.vent_override_estate`.
-- Fasce night-flush: `input_datetime.vent_night_flush_start`, `input_datetime.vent_night_flush_end`.
-- Messaggi: `input_text.vent_messaggio_consiglio`.
-- Timer: `timer.vmc_manual_timeout`.
+---
 
-**Heating**
-- Abilitazioni stanze e logica: `input_boolean.heating_use_giorno`, `input_boolean.heating_use_notte1`, `input_boolean.heating_use_notte2`, `input_boolean.heating_use_bagno`, `input_boolean.heating_enable`, `input_boolean.heating_manual_active`.
-- Modalità manuale: `input_select.heating_manual_mode`, `timer.heating_manual_timeout`.
-- Setpoint e isteresi: `input_number.temp_target_risc`, `input_number.heating_setpoint_night`, `input_number.heating_hysteresis`, `input_number.heating_antifreeze_threshold`, `input_number.heating_ext_cold_threshold`, `input_number.heating_boost_delta`.
-- Lock e diagnostica: `input_number.heating_min_on_minutes`, `input_number.heating_min_off_minutes`, `input_number.heating_hours_on_daily`.
-- Fasce orarie: `input_datetime.heating_window_start`, `input_datetime.heating_window_end`.
+## 1. Physical ambient sensors (T / RH)
 
-**AC**
-- Modalità manuale/blocco: `input_boolean.ac_manual`, `input_select.ac_manual_mode`, `timer.ac_manual_timeout`, `input_boolean.ac_block_vmc`, `timer.ac_block_vmc_timeout`.
-- Setpoint e lock canonici: `input_number.ac_cool_setpoint`, `input_number.ac_dry_ur_on`, `input_number.ac_dry_ur_off`, `input_number.ac_min_on_minutes`, `input_number.ac_min_off_minutes`.
+| Ruolo                         | Entity ID canonico       |
+|-------------------------------|--------------------------|
+| T indoor — living area        | `sensor.t_in_giorno`     |
+| T indoor — night 1            | `sensor.t_in_notte1`     |
+| T indoor — night 2            | `sensor.t_in_notte2`     |
+| T indoor — bathroom           | `sensor.t_in_bagno`      |
+| T outdoor                     | `sensor.t_out`           |
+| RH indoor — living area       | `sensor.ur_in_giorno`    |
+| RH indoor — night 1           | `sensor.ur_in_notte1`    |
+| RH indoor — night 2           | `sensor.ur_in_notte2`    |
+| RH indoor — bathroom          | `sensor.ur_in_bagno`     |
+| RH outdoor                    | `sensor.ur_out`          |
 
-### 4. Sensori diagnostici clima/VMC
-- **Ventilazione/VMC**: `binary_sensor.vmc_sensori_critici_ok`, `binary_sensor.vmc_anti_secco`, `binary_sensor.vmc_bagno_boost_auto`, `binary_sensor.vmc_freecooling_candidate`, `binary_sensor.vmc_freecooling_active`, `sensor.vmc_vel_target`, `sensor.vmc_vel_index`, `sensor.ventilation_priority`, `sensor.ventilation_reason`, `sensor.vmc_freecooling_status`, `sensor.clima_open_windows_recommended`, `sensor.vent_stagione`.
-- **Heating**: `sensor.heating_reason` (priority/azione), `sensor.heating_priority` (estratto da reason), `binary_sensor.heating_failsafe_sensors_bad`, `sensor.heating_t_in_min`, `sensor.heating_rooms_below_target`, `binary_sensor.heating_lock_min_on_ok`, `binary_sensor.heating_lock_min_off_ok`, `binary_sensor.heating_finestra_oraria`, `binary_sensor.heating_esterna_fredda`, `binary_sensor.heating_almeno_una_stanza_sotto_target`, `sensor.heating_minutes_since_change`, `sensor.heating_hours_on_today`, `sensor.heating_hours_on_yesterday`.
-- **AC**: `binary_sensor.ac_failsafe_sensors_bad`, `binary_sensor.ac_block_by_vmc`, `binary_sensor.ac_lock_min_on_ok`, `binary_sensor.ac_lock_min_off_ok`, `sensor.ac_priority`, `sensor.ac_reason`, `binary_sensor.stagione_calda` (vincolo stagionale per AC/ventilazione).
+---
 
-### Heating — diagnostica opzionale
-- `sensor.heating_rooms_active` — numero stanze effettivamente attive.
-- `sensor.heating_error_zona_giorno` — errori/criticità zona giorno.
-- `sensor.heating_error_zona_notte` — errori/criticità zona notte.
-- `binary_sensor.heating_window_pv` — blocco heating per finestre aperte in fascia FV.
-- `binary_sensor.heating_window_night` — blocco heating per finestre aperte in fascia notturna.
-- `binary_sensor.heating_should_run` — decisione finale ON/OFF della logica heating.
+## 2. KPI sensors (derived)
 
-### AC — diagnostica e runtime opzionale
-- `sensor.ac_giorno_tempo_on_oggi`
-- `sensor.ac_giorno_cicli_on_oggi`
-- `sensor.ac_notte_tempo_on_oggi`
-- `sensor.ac_notte_cicli_on_oggi`
-- `sensor.ac_giorno_ultimo_on`, `sensor.ac_giorno_ultimo_off`
-- `sensor.ac_notte_ultimo_on`, `sensor.ac_notte_ultimo_off`
+| KPI                                      | Entity ID canonico       |
+|------------------------------------------|--------------------------|
+| T indoor average                         | `sensor.t_in_med`        |
+| RH indoor average                        | `sensor.ur_in_media`     |
+| RH indoor minimum                        | `sensor.ur_in_min`       |
+| Absolute humidity indoor                 | `sensor.ah_in`           |
+| Absolute humidity outdoor                | `sensor.ah_out`          |
+| ΔT indoor–outdoor                        | `sensor.delta_t_in_out`  |
+| ΔAH indoor–outdoor                       | `sensor.delta_ah_in_out` |
 
-Questi sensori sono opzionali (grafici/diagnostica) e non fanno parte della logica core.
+---
 
-### 5. Attuatori e stati finestre
-- **VMC**: `switch.vmc_vel_0`, `switch.vmc_vel_1`, `switch.vmc_vel_2`, `switch.vmc_vel_3` (attuazione velocità); `timer.vmc_*` come lock runtime.
-- **Heating**: `switch.heating_master` (alias invertito di `switch.4_ch_interrutore_3`), `switch.heating_night_block` (alias blocco), `switch.4_ch_interrutore_3` hardware.
-- **AC**: `switch.ac_giorno`, `switch.ac_notte` (split giorno/notte pilotati da logica AC).
-- **Finestre**: `binary_sensor.windows_all_closed` (canonico aggregato), `binary_sensor.windows_giorno_any`, `binary_sensor.windows_notte_any`, `binary_sensor.windows_bagno_any`, `sensor.windows_open_count`, `sensor.vent_finestre_state`.
+## 3. Ventilazione / VMC
 
-### 6. Hook energia / surplus (entità esterne)
-- `binary_sensor.surplus_ok` — sensore esterno (tipicamente modulo energia/surplus) che vale `on` quando c'è surplus FV utilizzabile. Viene usato dal modulo heating per:
-  - abilitare logiche di boost in presenza di energia in eccesso
-  - evitare di accendere la PDC quando non c'è surplus, se configurato.
+### 3.1 Helpers (input_* / timer / text)
 
-  Non viene definito nei file `climate_*`: deve essere creato in un package energia dedicato (es. gestione surplus FV). È opzionale: se assente, le condizioni basate su `is_state('binary_sensor.surplus_ok','on')` risultano false e il sistema continua a funzionare in modalità standard.
+| Ruolo                                      | Entity ID canonico                   |
+|-------------------------------------------|--------------------------------------|
+| VMC mode (auto / manual / off…)           | `input_select.vmc_mode`              |
+| VMC manual speed selection                | `input_select.vmc_manual_speed`      |
+| Manual enable toggle                      | `input_boolean.vmc_manual`           |
+| Bathroom boost enable                     | `input_boolean.vmc_boost_bagno`      |
+| Freecooling ΔT threshold                  | `input_number.vmc_freecooling_delta` |
+| Freecooling ΔAH threshold                 | `input_number.vmc_freecooling_delta_ah` |
+| ΔT min for open windows advice            | `input_number.vent_deltat_min`       |
+| ΔAH min for open windows advice           | `input_number.vent_deltaah_min`      |
+| Anti-dry RH min                           | `input_number.vmc_anti_secco_ur_min` |
+| Bathroom boost ON threshold               | `input_number.vmc_bagno_on`          |
+| Bathroom boost OFF threshold              | `input_number.vmc_bagno_off`         |
+| Backup T indoor                           | `input_number.vent_backup_t_in`      |
+| Backup RH indoor                          | `input_number.vent_backup_ur_in`     |
+| Summer override flag                      | `input_boolean.vent_override_estate` |
+| Night-flush start time                    | `input_datetime.vent_night_flush_start` |
+| Night-flush end time                      | `input_datetime.vent_night_flush_end`   |
+| VMC message text (dashboard)              | `input_text.vent_messaggio_consiglio`   |
+| Manual mode timeout                       | `timer.vmc_manual_timeout`           |
+
+### 3.2 Diagnostic sensors / flags
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| Critical sensors availability OK          | `binary_sensor.vmc_sensors_ok`             |
+| Anti-dry active                           | `binary_sensor.vmc_anti_secco`             |
+| Bathroom boost auto active                | `binary_sensor.vmc_bagno_boost_auto`       |
+| Freecooling candidate                     | `binary_sensor.vmc_freecooling_candidate`  |
+| Freecooling active                        | `binary_sensor.vmc_freecooling_active`     |
+| VMC target speed (0–3)                    | `sensor.vmc_vel_target`                    |
+| VMC speed index (debug)                   | `sensor.vmc_vel_index`                     |
+| Ventilation priority (P0–P4)              | `sensor.ventilation_priority`              |
+| Ventilation reason (human-readable)       | `sensor.ventilation_reason`                |
+| Freecooling textual status                | `sensor.vmc_freecooling_status`            |
+| Open windows recommended                  | `sensor.clima_open_windows_recommended`    |
+| Season flag for ventilation (optional)    | `sensor.vent_stagione`                     |
+
+---
+
+## 4. Heating
+
+### 4.1 Helpers
+
+| Ruolo                                      | Entity ID canonico                            |
+|-------------------------------------------|-----------------------------------------------|
+| Use heating — living                      | `input_boolean.heating_use_giorno`            |
+| Use heating — night 1                     | `input_boolean.heating_use_notte1`            |
+| Use heating — night 2                     | `input_boolean.heating_use_notte2`            |
+| Use heating — bathroom                    | `input_boolean.heating_use_bagno`             |
+| Heating global enable                     | `input_boolean.heating_enable`                |
+| Heating manual active                     | `input_boolean.heating_manual_active`         |
+| Manual mode selection                     | `input_select.heating_manual_mode`            |
+| Manual timeout                            | `timer.heating_manual_timeout`                |
+| Daytime comfort setpoint                  | `input_number.temp_target_risc`               |
+| Night setpoint                            | `input_number.heating_setpoint_night`         |
+| Hysteresis                                | `input_number.heating_hysteresis`             |
+| Antifreeze threshold                      | `input_number.heating_antifreeze_threshold`   |
+| External cold threshold                   | `input_number.heating_ext_cold_threshold`     |
+| Boost ΔT above target                     | `input_number.heating_boost_delta`            |
+| Min ON time (minutes)                     | `input_number.heating_min_on_minutes`         |
+| Min OFF time (minutes)                    | `input_number.heating_min_off_minutes`        |
+| Max daily ON hours (limit)                | `input_number.heating_hours_on_daily`         |
+| Heating window start (PV-friendly)        | `input_datetime.heating_window_start`         |
+| Heating window end (PV-friendly)          | `input_datetime.heating_window_end`           |
+
+### 4.2 Diagnostic (core)
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| Heating reason (text)                     | `sensor.heating_reason`                    |
+| Heating priority (P0–P4)                  | `sensor.heating_priority`                  |
+| Min indoor T (all rooms)                  | `sensor.heating_t_in_min`                  |
+| Rooms below target                        | `sensor.heating_rooms_below_target`        |
+| Failsafe bad sensors                      | `binary_sensor.heating_failsafe_sensors_bad`|
+| Min-ON lock ok                            | `binary_sensor.heating_lock_min_on_ok`     |
+| Min-OFF lock ok                           | `binary_sensor.heating_lock_min_off_ok`    |
+| Time-window active                        | `binary_sensor.heating_finestra_oraria`    |
+| External cold flag                        | `binary_sensor.heating_esterna_fredda`     |
+| At least one room below target            | `binary_sensor.heating_almeno_una_stanza_sotto_target` |
+| Minutes since last change (ON/OFF)        | `sensor.heating_minutes_since_change`      |
+| Hours ON today                            | `sensor.heating_hours_on_today`            |
+| Hours ON yesterday                        | `sensor.heating_hours_on_yesterday`        |
+
+### 4.3 Diagnostic (optional / advanced)
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| Number of active rooms                    | `sensor.heating_rooms_active`              |
+| Error / issues — living                   | `sensor.heating_error_zona_giorno`         |
+| Error / issues — night                    | `sensor.heating_error_zona_notte`          |
+| Window PV-block flag                      | `binary_sensor.heating_window_pv`          |
+| Window night-block flag                   | `binary_sensor.heating_window_night`       |
+| Final “should run” decision               | `binary_sensor.heating_should_run`         |
+
+---
+
+## 5. Air Conditioning (AC)
+
+### 5.1 Helpers
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| AC manual enable                          | `input_boolean.ac_manual`                  |
+| AC manual mode selection                  | `input_select.ac_manual_mode`              |
+| AC manual timeout                         | `timer.ac_manual_timeout`                  |
+| AC block-by-VMC flag                      | `input_boolean.ac_block_vmc`               |
+| AC block-by-VMC timeout                   | `timer.ac_block_vmc_timeout`               |
+| Cooling setpoint                          | `input_number.ac_cool_setpoint`            |
+| Dry mode RH ON threshold                  | `input_number.ac_dry_ur_on`                |
+| Dry mode RH OFF threshold                 | `input_number.ac_dry_ur_off`               |
+| Min ON time (minutes)                     | `input_number.ac_min_on_minutes`           |
+| Min OFF time (minutes)                    | `input_number.ac_min_off_minutes`          |
+
+### 5.2 Diagnostic
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| Failsafe bad sensors                      | `binary_sensor.ac_failsafe_sensors_bad`   |
+| Blocked by VMC                            | `binary_sensor.ac_block_by_vmc`           |
+| Min-ON lock ok                            | `binary_sensor.ac_lock_min_on_ok`         |
+| Min-OFF lock ok                           | `binary_sensor.ac_lock_min_off_ok`        |
+| AC priority (P0–P4)                       | `sensor.ac_priority`                      |
+| AC reason (text)                          | `sensor.ac_reason`                        |
+| Season hot/cold flag                      | `binary_sensor.stagione_calda`            |
+
+### 5.3 Runtime diagnostics (optional)
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| AC day — ON time today                    | `sensor.ac_giorno_tempo_on_oggi`          |
+| AC day — ON cycles today                  | `sensor.ac_giorno_cicli_on_oggi`          |
+| AC night — ON time today                  | `sensor.ac_notte_tempo_on_oggi`           |
+| AC night — ON cycles today                | `sensor.ac_notte_cicli_on_oggi`           |
+| AC day — last ON                          | `sensor.ac_giorno_ultimo_on`              |
+| AC day — last OFF                         | `sensor.ac_giorno_ultimo_off`             |
+| AC night — last ON                        | `sensor.ac_notte_ultimo_on`               |
+| AC night — last OFF                       | `sensor.ac_notte_ultimo_off`              |
+
+---
+
+## 6. Windows & actuators
+
+### 6.1 Windows (aggregated state)
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| All windows closed (global)               | `binary_sensor.windows_all_closed`        |
+| Any window open — living area             | `binary_sensor.windows_giorno_any`        |
+| Any window open — night area              | `binary_sensor.windows_notte_any`         |
+| Any window open — bathroom                | `binary_sensor.windows_bagno_any`         |
+| Total open windows count                  | `sensor.windows_open_count`               |
+| Windows state text (for dashboard)        | `sensor.vent_finestre_state`              |
+
+### 6.2 Actuators — VMC
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| VMC speed 0 relay                         | `switch.vmc_vel_0`                        |
+| VMC speed 1 relay                         | `switch.vmc_vel_1`                        |
+| VMC speed 2 relay                         | `switch.vmc_vel_2`                        |
+| VMC speed 3 relay                         | `switch.vmc_vel_3`                        |
+
+### 6.3 Actuators — Heating
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| Heating master (logical)                  | `switch.heating_master`                   |
+| Heating night block                       | `switch.heating_night_block`              |
+| Heating hardware relay                    | `switch.4_ch_interrutore_3`               |
+
+### 6.4 Actuators — AC
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| AC day split                              | `switch.ac_giorno`                        |
+| AC night split                            | `switch.ac_notte`                         |
+
+---
+
+## 7. External dependencies (non-climate packages)
+
+Queste entità NON sono definite nel modulo climate ma sono richieste dalla logica.
+
+| Ruolo                                      | Entity ID canonico                         | Note |
+|-------------------------------------------|--------------------------------------------|------|
+| PV surplus available                      | `binary_sensor.surplus_ok`                | Usato per boost heating con FV |
+| Weather conditions OK for open windows    | `binary_sensor.vent_condizioni_meteo_ok`  | Hook per `clima_open_windows_recommended` (TODO) |
+
+---
+
+## 8. Rules for Codex
+
+1. **Use only these entity_id values** quando si creano o modificano package e dashboard clima.
+2. Se trovi un nome diverso (italiano, legacy, typo), **rimpiazzalo** con quello canonico riportato qui.
+3. Non creare nuove entità clima senza aggiungerle prima in questa tabella.
+4. Qualsiasi failsafe basato su “sensors OK” deve usare `binary_sensor.vmc_sensors_ok` e i sensori fisici/KPI sopra elencati.
