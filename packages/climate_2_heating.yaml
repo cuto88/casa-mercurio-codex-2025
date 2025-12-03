@@ -162,7 +162,22 @@ template:
               {% set labels = labels + [label] %}
             {% endif %}
           {% endfor %}
-          {{ labels | join(', ') if labels | length > 0 else 'Nessuna (⚠️)' }}
+          {{ labels | length }}
+        attributes:
+          rooms: >-
+            {% set rooms = [
+              ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
+              ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
+              ('Notte2', 'sensor.t_in_notte2', 'input_boolean.heating_use_notte2'),
+              ('Bagno', 'sensor.t_in_bagno', 'input_boolean.heating_use_bagno')
+            ] %}
+            {% set labels = [] %}
+            {% for label, sid, flag in rooms %}
+              {% if is_state(flag, 'on') %}
+                {% set labels = labels + [label] %}
+              {% endif %}
+            {% endfor %}
+            {{ labels | join(', ') if labels | length > 0 else 'Nessuna (⚠️)' }}
 
       # Temperatura minima delle stanze abilitate
       - name: "Heating — T interna minima"
