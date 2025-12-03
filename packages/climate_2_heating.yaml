@@ -187,45 +187,32 @@ template:
         state_class: measurement
         icon: mdi:thermometer-low
         state: >-
+          {% set invalid = ['unknown', 'unavailable', '', 'none', 'None'] %}
+          {% set zones = [
+              ('sensor.t_in_giorno',  'input_boolean.heating_use_giorno'),
+              ('sensor.t_in_notte1',  'input_boolean.heating_use_notte1'),
+              ('sensor.t_in_notte2',  'input_boolean.heating_use_notte2'),
+              ('sensor.t_in_bagno',   'input_boolean.heating_use_bagno')
+          ] %}
           {% set temps = [] %}
-
-          {# Zona giorno #}
-          {% if is_state('input_boolean.heating_use_giorno','on') %}
-            {% set v = states('sensor.t_in_giorno') %}
-            {% if v not in ['unknown','unavailable',''] %}
-              {% set temps = temps + [ v|float ] %}
+          {% for s, flag in zones %}
+            {% if is_state(flag, 'on') and states(s) not in invalid %}
+              {% set v = states(s)|float(default=none) %}
+              {% if v is not none %}
+                {% set temps = temps + [v] %}
+              {% endif %}
             {% endif %}
-          {% endif %}
-
-          {# Zona notte 1 #}
-          {% if is_state('input_boolean.heating_use_notte1','on') %}
-            {% set v = states('sensor.t_in_notte1') %}
-            {% if v not in ['unknown','unavailable',''] %}
-              {% set temps = temps + [ v|float ] %}
-            {% endif %}
-          {% endif %}
-
-          {# Zona notte 2 #}
-          {% if is_state('input_boolean.heating_use_notte2','on') %}
-            {% set v = states('sensor.t_in_notte2') %}
-            {% if v not in ['unknown','unavailable',''] %}
-              {% set temps = temps + [ v|float ] %}
-            {% endif %}
-          {% endif %}
-
-          {# Bagno #}
-          {% if is_state('input_boolean.heating_use_bagno','on') %}
-            {% set v = states('sensor.t_in_bagno') %}
-            {% if v not in ['unknown','unavailable',''] %}
-              {% set temps = temps + [ v|float ] %}
-            {% endif %}
-          {% endif %}
-
-          {# Output: minima tra le stanze abilitate, altrimenti fallback #}
+          {% endfor %}
           {% if temps | length > 0 %}
-            {{ (temps | min) | round(1) }}
+            {{ (temps|min) | round(1) }}
           {% else %}
-            {{ states('sensor.t_in_med') }}
+            {# fallback: use average indoor temperature #}
+            {% set t_med = states('sensor.t_in_med') %}
+            {% if t_med not in invalid %}
+              {{ t_med|float | round(1) }}
+            {% else %}
+              unknown
+            {% endif %}
           {% endif %}
 
       # Conteggio stanze sotto target comfort
