@@ -1,5 +1,5 @@
 # 2 — Heating a pavimento (packages/2_heating.yaml)
-> ATTENZIONE: questo file descrive la logica di `packages/2_heating.yaml` e dovrebbe essere rinominato `2_heating_logic.md` per allinearsi alla struttura ufficiale.
+> ATTENZIONE: questo file descrive la logica di `packages/climate_2_heating.yaml` e dovrebbe essere rinominato `2_heating_logic.md` per allinearsi alla struttura ufficiale.
 
 ## Obiettivo del modulo
 - Mantenere le zone al target comfort sfruttando l’inerzia del pavimento radiante con finestra 10:00–16:00 e surplus FV.
@@ -34,5 +34,5 @@
 
 ## Note operative
 - Plancia `lovelace/2_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
-- Tutte le automazioni e helper risiedono in `packages/2_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
+- Tutte le automazioni e helper risiedono in `packages/climate_2_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
 - `sensor.heating_priority` offre descrizione leggibile (P0–P4/manual/idle) coerente con `README_ClimaSystem.md`.
