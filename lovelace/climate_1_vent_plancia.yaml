@@ -11,7 +11,7 @@ views:
         entities:
           - sensor.ventilation_priority
           - sensor.ventilation_reason
-          - binary_sensor.vmc_sensori_critici_ok
+          - binary_sensor.vmc_sensors_ok
 
       - type: entities
         title: "KPI aria"
