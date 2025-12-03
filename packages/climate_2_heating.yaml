@@ -8,6 +8,11 @@
 # - binary_sensor.heating_lock_min_on_ok / binary_sensor.heating_lock_min_off_ok
 # - binary_sensor.heating_finestra_oraria / binary_sensor.heating_esterna_fredda
 ###############################################################################
+# NOTE ANALISI ENTITÀ (normalizzazione 2025-02)
+# - Canonical OK: tutti gli helpers e sensori definiti coincidono con README_sensori_clima.md.
+# - Normalizzati: nessuno (nessun alias legacy presente).
+# - Rimossi: nessuno (nessun helper inutilizzato individuato in questa revisione).
+# - Dipendenze esterne: binary_sensor.surplus_ok (modulo energia/surplus).
 
 homeassistant:
   customize:
@@ -523,4 +528,9 @@ automation:
                 state: "on"
               - service: switch.turn_off
                 target: { entity_id: switch.heating_master }
+
+# ENTITY MAP STATUS (heating)
+# - All entity_id aligned with logica/core/README_sensori_clima.md
+# - No unused helpers except optional diagnostics listed in README
+# - External dependencies: binary_sensor.surplus_ok (PV surplus)
 
