@@ -38,27 +38,18 @@ utility_meter:
     unique_id: pv_energy_daily
     source: sensor.pv_energy_total
     cycle: daily
-    device_class: energy
-    state_class: total
-    unit_of_measurement: "kWh"
 
   pv_energy_monthly:
     name: PV Energia Mensile
     unique_id: pv_energy_monthly
     source: sensor.pv_energy_total
     cycle: monthly
-    device_class: energy
-    state_class: total
-    unit_of_measurement: "kWh"
 
   pv_energy_yearly:
     name: PV Energia Annuale
     unique_id: pv_energy_yearly
     source: sensor.pv_energy_total
     cycle: yearly
-    device_class: energy
-    state_class: total
-    unit_of_measurement: "kWh"
 
 ###############################################################################
 # FINE FILE
