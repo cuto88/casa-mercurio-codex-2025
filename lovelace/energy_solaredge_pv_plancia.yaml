@@ -6,9 +6,10 @@ views:
     max_columns: 3
 
     sections:
-      # ==========================
-      # SEZIONE 1 · STATO ATTUALE
-      # ==========================
+
+      #######################################################################
+      # 1) STATO ATTUALE
+      #######################################################################
       - type: grid
         title: "Stato attuale"
         cards:
@@ -16,20 +17,12 @@ views:
             name: Potenza FV istantanea
             entity: sensor.pv_power_now
             min: 0
-            max: 7000         # impianto 6,7 kW → aggiungi un po' di margine
+            max: 7000       # Impianto 6,7 kW → leggero margine
             needle: true
 
-          - type: statistic-graph
-            name: Potenza FV · oggi
-            entities:
-              - sensor.pv_power_now
-            chart_type: line
-            days_to_show: 1
-            period: 5min
-
-      # ==========================
-      # SEZIONE 2 · ENERGIA
-      # ==========================
+      #######################################################################
+      # 2) ENERGIA
+      #######################################################################
       - type: grid
         title: "Energia"
         cards:
@@ -43,17 +36,9 @@ views:
               - entity: sensor.pv_energy_yearly
                 name: Questo anno
 
-          - type: statistic-graph
-            name: "PV · ultimi 7 giorni"
-            chart_type: bar
-            period: day
-            days_to_show: 7
-            entities:
-              - sensor.pv_energy_daily
-
-      # ==========================
-      # SEZIONE 3 · DEBUG (OPZIONALE)
-      # ==========================
+      #######################################################################
+      # 3) DEBUG (OPZIONALE)
+      #######################################################################
       - type: grid
         title: "Debug sensori"
         cards:
