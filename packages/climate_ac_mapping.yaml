@@ -1,0 +1,252 @@
+# Mapping clima AC giorno e notte via SwitchBot (template climate)
+
+input_number:
+  ac_giorno_setpoint:
+    name: AC Giorno Setpoint
+    min: 16
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:air-conditioner
+  ac_notte_setpoint:
+    name: AC Notte Setpoint
+    min: 16
+    max: 30
+    step: 1
+    unit_of_measurement: "°C"
+    mode: slider
+    icon: mdi:air-conditioner
+
+input_select:
+  ac_giorno_mode:
+    name: AC Giorno Mode
+    options:
+      - off
+      - cool
+      - heat
+      - dry
+      - fan_only
+      - auto
+    icon: mdi:air-conditioner
+  ac_notte_mode:
+    name: AC Notte Mode
+    options:
+      - off
+      - cool
+      - heat
+      - dry
+      - fan_only
+      - auto
+    icon: mdi:air-conditioner
+  ac_giorno_fan:
+    name: AC Giorno Fan
+    options:
+      - auto
+      - low
+      - medium
+      - high
+    icon: mdi:fan
+  ac_notte_fan:
+    name: AC Notte Fan
+    options:
+      - auto
+      - low
+      - medium
+      - high
+    icon: mdi:fan
+
+sensor:
+  - platform: template
+    sensors:
+      t_in_notte_media:
+        friendly_name: "Temperatura Notte Media"
+        unit_of_measurement: "°C"
+        value_template: >-
+          {% set vals = [states('sensor.t_in_notte1')|float(none), states('sensor.t_in_notte2')|float(none)]
+            | select('!=', none) | list %}
+          {% if vals | length > 0 %}
+            {{ (vals | sum / (vals | length)) | round(1) }}
+          {% else %}
+            {{ 'unavailable' }}
+          {% endif %}
+
+climate:
+  - platform: template
+    name: "AC Giorno"
+    unique_id: climate_ac_giorno
+    hvac_modes:
+      - "off"
+      - cool
+      - heat
+      - dry
+      - fan_only
+      - auto
+    fan_modes:
+      - auto
+      - low
+      - medium
+      - high
+    min_temp: 16
+    max_temp: 30
+    temp_step: 1
+    current_temperature_template: "{{ states('sensor.t_in_giorno') | float(0) }}"
+    temperature_template: "{{ states('input_number.ac_giorno_setpoint') | float(24) }}"
+    hvac_mode_template: >-
+      {% if is_state('switch.ac_giorno', 'off') %}
+        off
+      {% else %}
+        {{ states('input_select.ac_giorno_mode') }}
+      {% endif %}
+    fan_mode_template: "{{ states('input_select.ac_giorno_fan') }}"
+    set_temperature:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.ac_giorno_setpoint
+        data:
+          value: "{{ temperature }}"
+      - condition: template
+        value_template: "{{ not is_state('switch.ac_giorno', 'off') }}"
+      - service: script.turn_on
+        target:
+          entity_id: script.ac_giorno_apply
+    set_hvac_mode:
+      - choose:
+          - conditions: "{{ hvac_mode == 'off' }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_giorno
+          - conditions: "{{ hvac_mode != 'off' }}"
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.ac_giorno_mode
+                data:
+                  option: "{{ hvac_mode }}"
+              - service: script.turn_on
+                target:
+                  entity_id: script.ac_giorno_apply
+    set_fan_mode:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.ac_giorno_fan
+        data:
+          option: "{{ fan_mode }}"
+      - service: script.turn_on
+        target:
+          entity_id: script.ac_giorno_apply
+    turn_on:
+      service: script.turn_on
+      target:
+        entity_id: script.ac_giorno_apply
+    turn_off:
+      service: switch.turn_off
+      target:
+        entity_id: switch.ac_giorno
+
+  - platform: template
+    name: "AC Notte"
+    unique_id: climate_ac_notte
+    hvac_modes:
+      - "off"
+      - cool
+      - heat
+      - dry
+      - fan_only
+      - auto
+    fan_modes:
+      - auto
+      - low
+      - medium
+      - high
+    min_temp: 16
+    max_temp: 30
+    temp_step: 1
+    current_temperature_template: "{{ states('sensor.t_in_notte_media') | float(0) }}"
+    temperature_template: "{{ states('input_number.ac_notte_setpoint') | float(24) }}"
+    hvac_mode_template: >-
+      {% if is_state('switch.ac_notte', 'off') %}
+        off
+      {% else %}
+        {{ states('input_select.ac_notte_mode') }}
+      {% endif %}
+    fan_mode_template: "{{ states('input_select.ac_notte_fan') }}"
+    set_temperature:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.ac_notte_setpoint
+        data:
+          value: "{{ temperature }}"
+      - condition: template
+        value_template: "{{ not is_state('switch.ac_notte', 'off') }}"
+      - service: script.turn_on
+        target:
+          entity_id: script.ac_notte_apply
+    set_hvac_mode:
+      - choose:
+          - conditions: "{{ hvac_mode == 'off' }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_notte
+          - conditions: "{{ hvac_mode != 'off' }}"
+            sequence:
+              - service: input_select.select_option
+                target:
+                  entity_id: input_select.ac_notte_mode
+                data:
+                  option: "{{ hvac_mode }}"
+              - service: script.turn_on
+                target:
+                  entity_id: script.ac_notte_apply
+    set_fan_mode:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.ac_notte_fan
+        data:
+          option: "{{ fan_mode }}"
+      - service: script.turn_on
+        target:
+          entity_id: script.ac_notte_apply
+    turn_on:
+      service: script.turn_on
+      target:
+        entity_id: script.ac_notte_apply
+    turn_off:
+      service: switch.turn_off
+      target:
+        entity_id: switch.ac_notte
+
+script:
+  ac_giorno_apply:
+    alias: AC Giorno Apply
+    mode: restart
+    sequence:
+      - choose:
+          - conditions: "{{ is_state('switch.ac_giorno', 'off') }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.ac_giorno
+      - service: switchbot.send_command
+        data:
+          device: ac_giorno
+          command: setAll
+          parameters: "{{ states('input_select.ac_giorno_mode') }},{{ states('input_number.ac_giorno_setpoint') | int }},{{ states('input_select.ac_giorno_fan') }}"
+
+  ac_notte_apply:
+    alias: AC Notte Apply
+    mode: restart
+    sequence:
+      - choose:
+          - conditions: "{{ is_state('switch.ac_notte', 'off') }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.ac_notte
+      - service: switchbot.send_command
+        data:
+          device: ac_notte
+          command: setAll
+          parameters: "{{ states('input_select.ac_notte_mode') }},{{ states('input_number.ac_notte_setpoint') | int }},{{ states('input_select.ac_notte_fan') }}"
