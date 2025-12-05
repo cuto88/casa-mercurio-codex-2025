@@ -14,9 +14,15 @@ views:
         name: "UR esterna"
         color: indigo
       - type: entity
-        entity: binary_sensor.clima_ac_from_vmc_request
-        name: "Richiesta AC"
+        entity: switch.ac_giorno
+        name: "AC"
         color: amber
+        state_color: true
+      - type: entity
+        entity: input_boolean.heating_enable
+        name: "Riscaldamento"
+        color: orange
+        state_color: true
     sections:
       - cards:
           - type: heading
@@ -36,8 +42,6 @@ views:
               # TODO: aggiungere binary_sensor.clima_open_windows quando disponibile nella MAP
               - entity: binary_sensor.clima_ac_from_vmc_request
                 name: "Richiesta AC dal clima"
-          - type: weather-forecast
-            entity: weather.home
       - type: grid
         cards:
           - type: heading
@@ -45,7 +49,7 @@ views:
             icon: mdi:sofa
             badges:
               - type: entity
-                entity: sensor.t_in_giorno
+                entity: sensor.temperatura_zona_giorno
                 name: "T zona giorno"
                 color: red
               - type: entity
@@ -53,17 +57,23 @@ views:
                 name: "UR zona giorno"
                 color: indigo
           - type: tile
-            entity: sensor.t_in_giorno
+            entity: sensor.temperatura_zona_giorno
             name: "T zona giorno"
           - type: tile
             entity: sensor.ur_in_giorno
             name: "UR zona giorno"
           - type: tile
+            # TODO: creare climate per AC giorno per tile avanzata
             entity: switch.ac_giorno
             name: "AC giorno"
           - type: tile
-            entity: binary_sensor.windows_giorno_any
-            name: "Finestre zona giorno"
+            entity: input_boolean.vent_finestra_giorno1_aperta
+            name: "Finestra giorno 1"
+            # TODO: collegare binary_sensor.vent_finestra_giorno1_aperta
+          - type: tile
+            entity: input_boolean.vent_finestra_giorno2_aperta
+            name: "Finestra giorno 2"
+            # TODO: collegare binary_sensor.vent_finestra_giorno2_aperta
       - type: grid
         cards:
           - type: heading
@@ -76,27 +86,32 @@ views:
                 color: red
               - type: entity
                 entity: sensor.ur_in_notte1
-                name: "UR notte 1"
-                color: indigo
-              - type: entity
-                entity: sensor.ur_in_notte2
-                name: "UR notte 2"
+                name: "UR notte"
                 color: indigo
           - type: tile
             entity: sensor.t_in_notte1
             name: "T zona notte"
           - type: tile
             entity: sensor.ur_in_notte1
-            name: "UR notte 1"
+            name: "UR notte"
+          - type: tile
+            entity: switch.ac_notte
+            # TODO: creare climate per AC notte per tile avanzata
+            name: "AC notte"
+          - type: tile
+            entity: sensor.t_in_notte2
+            name: "T notte 2"
           - type: tile
             entity: sensor.ur_in_notte2
             name: "UR notte 2"
           - type: tile
-            entity: switch.ac_notte
-            name: "AC notte"
+            entity: input_boolean.vent_finestra_notte1_aperta
+            name: "Finestra notte 1"
+            # TODO: collegare binary_sensor.vent_finestra_notte1_aperta
           - type: tile
-            entity: binary_sensor.windows_notte_any
-            name: "Finestre zona notte"
+            entity: input_boolean.vent_finestra_notte2_aperta
+            name: "Finestra notte 2"
+            # TODO: collegare binary_sensor.vent_finestra_notte2_aperta
       - type: grid
         cards:
           - type: heading
