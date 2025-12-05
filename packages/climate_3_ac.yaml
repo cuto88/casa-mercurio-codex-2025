@@ -435,6 +435,33 @@ automation:
             mode: "off"
             target: "none"
 
+  - id: clima_vmc_ac_request_alert
+    alias: "Clima – Alert richiesta AC da VMC"
+    description: "Mostra alert e registra log quando il clima/VMC richiede l'intervento dell'AC."
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.clima_ac_from_vmc_request
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - service: logbook.log
+        data:
+          name: "Clima – richiesta AC"
+          message: >
+            VMC ha richiesto l'intervento dell'AC.
+            Priority: {{ states('sensor.ventilation_priority') }},
+            reason: {{ states('sensor.ventilation_reason') }}.
+          entity_id: binary_sensor.clima_ac_from_vmc_request
+      - service: persistent_notification.create
+        data:
+          title: "VMC – richiesta AC"
+          message: >
+            La VMC / logica clima ha richiesto l'intervento dell'AC.
+            Motivo: {{ states('sensor.ventilation_reason') }}
+            (priority {{ states('sensor.ventilation_priority') }}).
+
 # ============================================================================
 # 4) CONTATORI RUN-TIME & CICLI (oggi) — separati per Giorno/Notte
 # ============================================================================

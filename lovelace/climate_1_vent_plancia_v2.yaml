@@ -1,0 +1,149 @@
+title: "1 — Ventilazione (v2)"
+icon: mdi:fan
+views:
+  - title: "VMC v2"
+    icon: mdi:fan-auto
+    path: vmc-v2
+    cards:
+      # Row 1 – Overview
+      - type: horizontal-stack
+        cards:
+          - type: entities
+            title: "Stato VMC"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ventilation_priority
+                name: "Ventilation priority"
+              - entity: sensor.ventilation_reason
+                name: "Ventilation reason"
+              - entity: binary_sensor.vmc_sensors_ok
+                name: "VMC sensors ok"
+              - entity: binary_sensor.vent_condizioni_meteo_ok
+                name: "Condizioni meteo ok"
+              - entity: binary_sensor.clima_ac_from_vmc_request
+                name: "AC richiesta dal clima"
+          - type: vertical-stack
+            cards:
+              - type: sensor
+                name: "T interna media"
+                entity: sensor.t_in_med
+                graph: line
+                hours_to_show: 24
+                detail: 1
+              - type: sensor
+                name: "UR interna media"
+                entity: sensor.ur_in_media
+                graph: line
+                hours_to_show: 24
+                detail: 1
+              - type: entities
+                title: "KPI aria"
+                show_header_toggle: false
+                entities:
+                  - sensor.delta_t_in_out
+                  - sensor.delta_ah_in_out
+
+      # Row 2 – Modalità & Velocità
+      - type: horizontal-stack
+        cards:
+          - type: entities
+            title: "Modalità & controlli manuali"
+            show_header_toggle: false
+            entities:
+              - entity: input_select.vmc_mode
+                name: "VMC – Modalità"
+              - entity: input_boolean.vmc_manual
+                name: "VMC – Abilita manuale"
+              - entity: input_select.vmc_manual_speed
+                name: "VMC – Velocità manuale"
+              - entity: input_boolean.vmc_boost_bagno
+                name: "VMC – Boost bagno"
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: "Velocità reali"
+                show_header_toggle: false
+                entities:
+                  - entity: sensor.vmc_vel_target
+                    name: "VMC velocità target"
+                  - entity: sensor.vmc_vel_index
+                    name: "VMC velocità indice"
+                  - entity: switch.vmc_vel_0
+                    name: "vel 0"
+                  - entity: switch.vmc_vel_1
+                    name: "vel 1"
+                  - entity: switch.vmc_vel_2
+                    name: "vel 2"
+                  - entity: switch.vmc_vel_3
+                    name: "vel 3"
+              - type: history-graph
+                title: "Storico velocità (24h)"
+                entities:
+                  - entity: sensor.vmc_vel_index
+                hours_to_show: 24
+
+      # Row 3 – Freecooling
+      - type: entities
+        title: "Freecooling"
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.vmc_freecooling_candidate
+            name: "VMC freecooling candidabile"
+          - entity: binary_sensor.vmc_freecooling_active
+            name: "VMC freecooling active"
+          - entity: sensor.vmc_freecooling_status
+            name: "VMC freecooling status"
+          - entity: sensor.t_in_med
+            name: "T interna media"
+          - entity: sensor.t_out
+            name: "T esterna"
+
+      # Row 4 – Trigger & Explanation
+      - type: entities
+        title: "Trigger principali"
+        show_header_toggle: false
+        entities:
+          - type: section
+            label: "Soglie UR bagno"
+          - entity: input_number.vmc_bagno_on
+            name: "Bagno — UR ON"
+          - entity: input_number.vmc_bagno_off
+            name: "Bagno — UR OFF"
+          - entity: sensor.ur_in_bagno
+            name: "UR bagno"
+          - type: section
+            label: "Anti-secco"
+          - entity: input_number.vmc_anti_secco_ur_min
+            name: "Anti-secco — UR_min"
+          - entity: sensor.ur_in_media
+            name: "UR interna media"
+          - type: section
+            label: "Freecooling"
+          - entity: input_number.vmc_freecooling_delta
+            name: "FC — ΔT minimo"
+          - entity: input_number.vmc_freecooling_delta_ah
+            name: "FC — ΔAH minimo"
+          - entity: sensor.delta_t_in_out
+            name: "ΔT in–out"
+          - entity: sensor.delta_ah_in_out
+            name: "ΔAH in–out"
+          - type: section
+            label: "Finestre aperte / consigli"
+          - entity: input_number.vent_deltat_min
+            name: "ΔT minimo per finestre"
+          - entity: input_number.vent_deltaah_min
+            name: "ΔAH minimo per finestre"
+          - entity: sensor.clima_open_windows_recommended
+            name: "Finestre consigliate aperte"
+          # TODO: se vengono aggiunte nuove soglie hard-coded nelle automazioni, estrarle in input_number visibili qui.
+
+      - type: entities
+        title: "Spiegazione stato attuale"
+        show_header_toggle: false
+        entities:
+          - entity: sensor.ventilation_reason
+            name: "Motivo ventilazione"
+          - entity: sensor.ventilation_priority
+            name: "Priorità ventilazione"
+          - entity: binary_sensor.clima_ac_from_vmc_request
+            name: "AC richiesta dal clima"

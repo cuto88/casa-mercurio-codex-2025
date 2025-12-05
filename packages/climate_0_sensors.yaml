@@ -1,4 +1,11 @@
 template:
+  - binary_sensor:
+      - name: "clima_ac_from_vmc_request"
+        unique_id: clima_ac_from_vmc_request
+        state: >
+          {{ is_state('switch.ac_giorno', 'on') or is_state('switch.ac_notte', 'on') }}
+        attributes:
+          friendly_name: "AC richiesta dal clima"
   - sensor:
       - name: t_in_med
         unique_id: t_in_med

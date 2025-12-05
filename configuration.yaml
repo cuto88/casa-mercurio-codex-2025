@@ -28,6 +28,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/climate_1_vent_plancia.yaml
 
+    1-ventilazione-v2:
+      mode: yaml
+      title: "1 Ventilazione (v2)"
+      icon: mdi:fan
+      show_in_sidebar: false
+      filename: lovelace/climate_1_vent_plancia_v2.yaml
+
     2-heating:
       mode: yaml
       title: "2 Riscaldamento"
