@@ -162,6 +162,7 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 |-------------------------------------------|--------------------------------------------|
 | Failsafe bad sensors                      | `binary_sensor.ac_failsafe_sensors_bad`   |
 | Blocked by VMC                            | `binary_sensor.ac_block_by_vmc`           |
+| AC richiesta automaticamente dal clima    | `binary_sensor.clima_ac_from_vmc_request` |
 | Min-ON lock ok                            | `binary_sensor.ac_lock_min_on_ok`         |
 | Min-OFF lock ok                           | `binary_sensor.ac_lock_min_off_ok`        |
 | AC priority (P0–P4)                       | `sensor.ac_priority`                      |
