@@ -224,12 +224,22 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 
 ## 7. External dependencies (non-climate packages)
 
+Le dipendenze esterne sono entità richieste dalla logica clima ma definite in altri
+package o integrazioni (energia, meteo, dispositivi hardware). Includono sia
+sensori (surplus, meteo) sia attuatori (relè VMC/AC) quando derivano da
+configurazioni ESPHome/Modbus/IR-bridge e non dai package `climate_*`.
+
 Queste entità NON sono definite nel modulo climate ma sono richieste dalla logica.
 
 | Ruolo                                      | Entity ID canonico                         | Note |
 |-------------------------------------------|--------------------------------------------|------|
 | PV surplus available                      | `binary_sensor.surplus_ok`                | Usato per boost heating con FV |
 | Weather conditions OK for open windows    | `binary_sensor.vent_condizioni_meteo_ok`  | Hook per `clima_open_windows_recommended` (TODO) |
+
+- I relè VMC `switch.vmc_vel_0/1/2/3` possono essere definiti in ESPHome o in
+  package hardware separati, non in `climate_1_ventilation`.
+- I relè AC `switch.ac_giorno` e `switch.ac_notte` possono essere definiti in
+  altri package (es. bridge IR, SwitchBot) e non in `climate_3_ac`.
 
 ---
 
