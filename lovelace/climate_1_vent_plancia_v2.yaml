@@ -16,11 +16,11 @@ views:
       - type: entity
         entity: binary_sensor.clima_ac_from_vmc_request
         name: "Richiesta AC"
-        color: snow
+        color: mdi:air-conditioner
       - type: entity
         entity: binary_sensor.heating_should_run
         name: "Richiesta AC"
-        color: sun
+        color: heating-coil
     sections:
       - cards:
           - type: heading
