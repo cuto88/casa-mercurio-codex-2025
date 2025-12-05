@@ -16,7 +16,11 @@ views:
       - type: entity
         entity: binary_sensor.clima_ac_from_vmc_request
         name: "Richiesta AC"
-        color: amber
+        color: snow
+      - type: entity
+        entity: binary_sensor.heating_should_run
+        name: "Richiesta AC"
+        color: sun
     sections:
       - cards:
           - type: heading
@@ -31,13 +35,8 @@ views:
                 name: "Motivo ventilazione"
               - entity: binary_sensor.vmc_sensors_ok
                 name: "Sensori VMC ok"
-              - entity: binary_sensor.vent_condizioni_meteo_ok
-                name: "Condizioni meteo ok"
-              # TODO: aggiungere binary_sensor.clima_open_windows quando disponibile nella MAP
               - entity: binary_sensor.clima_ac_from_vmc_request
                 name: "Richiesta AC dal clima"
-          - type: weather-forecast
-            entity: weather.home
       - type: grid
         cards:
           - type: heading
@@ -60,7 +59,14 @@ views:
             name: "UR zona giorno"
           - type: tile
             entity: switch.ac_giorno
-            name: "AC giorno"
+            name: AC Giorno
+            state_content:
+            - preset_mode
+            - current_temperature
+            vertical: false
+            features:
+            - type: target-temperature
+            features_position: bottom
           - type: tile
             entity: binary_sensor.windows_giorno_any
             name: "Finestre zona giorno"
