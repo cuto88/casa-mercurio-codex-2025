@@ -171,6 +171,25 @@ views:
           - type: tile
             entity: sensor.t_out
             name: "T esterna"
+
+      - type: grid
+        columns: 1
+        cards:
+          - type: heading
+            heading: "Freecooling Passivhaus"
+            icon: mdi:home-thermometer
+          - type: tile
+            entity: sensor.vmc_freecooling_status
+            name: "Stato freecooling"
+          - type: tile
+            entity: sensor.delta_t_in_out
+            name: "ΔT in-out"
+          - type: tile
+            entity: sensor.delta_ah_in_out
+            name: "ΔAH in-out"
+          - type: tile
+            entity: sensor.clima_open_windows_recommended
+            name: "Finestre consigliate"
       - type: grid
         cards:
           - type: heading

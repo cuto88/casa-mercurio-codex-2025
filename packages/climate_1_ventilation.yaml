@@ -339,26 +339,85 @@ template:
             P4 — baseline vel_1
           {% endif %}
 
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.t_in_med
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
+        id: instant_update
+      - platform: template
+        id: low_margin_30m
+        value_template: >-
+          {{ states('sensor.delta_t_in_out')|float(0) < 1 and states('sensor.delta_ah_in_out')|float(0) < 1 }}
+        for: "00:30:00"
+      - platform: time_pattern
+        minutes: "/5"
+        id: periodic_update
+    sensor:
       - name: "VMC freecooling status"
         unique_id: vmc_freecooling_status
         state: >-
-          {% if is_state('sensor.ventilation_priority','P2_freecooling') %}
-            attivo
-          {% elif is_state('binary_sensor.vmc_freecooling_candidate','on') %}
-            candidato
-          {% else %}
-            inattivo
-          {% endif %}
+          {%- set tin = states('sensor.t_in_med')|float(default=0) -%}
+          {%- set dt = states('sensor.delta_t_in_out')|float(default=0) -%}
+          {%- set dah = states('sensor.delta_ah_in_out')|float(default=0) -%}
+          {%- set prev = (this.state | lower) if this.state is not none else 'off' -%}
+          {%- set strong = tin > 25 and dt >= 3 and dah >= 3 -%}
+          {%- set soft = tin > 24 and dt >= 2 and dah >= 2 -%}
+          {%- set off_now = tin <= 23 -%}
+          {%- if strong -%}
+            strong
+          {%- elif soft -%}
+            soft
+          {%- elif off_now -%}
+            off
+          {%- elif dt < 1 and dah < 1 -%}
+            {%- if trigger.id == 'low_margin_30m' -%}
+              off
+            {%- else -%}
+              {{ prev }}
+            {%- endif -%}
+          {%- else -%}
+            off
+          {%- endif -%}
 
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.t_in_med
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
+          - sensor.vmc_freecooling_status
+          - binary_sensor.vent_condizioni_meteo_ok
+        id: instant_update
+      - platform: time_pattern
+        minutes: "/5"
+        id: periodic_update
+    sensor:
       - name: "clima_open_windows_recommended"
         unique_id: clima_open_windows_recommended
         state: >-
-          {% set dt = states('sensor.delta_t_in_out')|float(default=0) %}
-          {% set dah = states('sensor.delta_ah_in_out')|float(default=0) %}
-          {% set dt_min = states('input_number.vent_deltat_min')|float(1.5) %}
-          {% set dah_min = states('input_number.vent_deltaah_min')|float(1.0) %}
-          {% set meteo_ok = true %}  # TODO: collegare a binary_sensor.vent_condizioni_meteo_ok
-          {{ dt >= dt_min and dah >= dah_min and meteo_ok }}
+          {%- set tin = states('sensor.t_in_med')|float(default=0) -%}
+          {%- set dt = states('sensor.delta_t_in_out')|float(default=0) -%}
+          {%- set dah = states('sensor.delta_ah_in_out')|float(default=0) -%}
+          {%- set meteo_ok = is_state('binary_sensor.vent_condizioni_meteo_ok','on') -%}
+          {%- set status = states('sensor.vmc_freecooling_status') -%}
+          {%- set fc_duration = now().timestamp() - as_timestamp(states.sensor.vmc_freecooling_status.last_changed, default=0) -%}
+          {%- set vmc_long = status in ['soft','strong'] and fc_duration >= 2700 -%}
+          {%- set extreme = dt >= 3 and dah >= 3 -%}
+          {%- set base_ok = tin > 25.5 and dt >= 3 and dah >= 3 and meteo_ok -%}
+          {%- set recommend_now = base_ok and (vmc_long or extreme) -%}
+          {%- set prev_on = this.state | lower == 'on' -%}
+          {%- set on_duration = now().timestamp() - as_timestamp(this.last_changed or 0) -%}
+          {%- if prev_on and on_duration < 600 -%}
+            on
+          {%- elif prev_on and not (dt < 1 and dah < 1) -%}
+            on
+          {%- elif recommend_now -%}
+            on
+          {%- else -%}
+            off
+          {%- endif -%}
 
 # =============================
 # AUTOMAZIONI CORE
