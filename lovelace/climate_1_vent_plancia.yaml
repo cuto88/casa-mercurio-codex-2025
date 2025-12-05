@@ -23,6 +23,15 @@ views:
           - sensor.delta_ah_in_out
 
       - type: entities
+        title: "Freecooling Passivhaus"
+        show_header_toggle: false
+        entities:
+          - sensor.vmc_freecooling_status
+          - sensor.delta_t_in_out
+          - sensor.delta_ah_in_out
+          - sensor.clima_open_windows_recommended
+
+      - type: entities
         title: "Controlli manuali"
         show_header_toggle: false
         entities:
