@@ -8,6 +8,12 @@
 # - Hook verso AC (block) e night-flush
 ###############################################################################
 
+# NOTE — Relè hardware VMC
+# Le entità switch.vmc_vel_0 / 1 / 2 / 3 sono fornite da integrazioni esterne
+# (es. ESPHome / Modbus). Non sono definite in questo package: 1_ventilation
+# le usa solo come attuatori. Requisito: questi switch devono esistere in HA
+# con esattamente questi entity_id.
+
 homeassistant:
   customize: {}
 
