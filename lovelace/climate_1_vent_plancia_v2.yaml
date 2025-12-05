@@ -58,7 +58,7 @@ views:
             entity: sensor.ur_in_giorno
             name: "UR zona giorno"
           - type: tile
-            entity: switch.ac_giorno
+            entity: climate.ac_giorno
             name: AC Giorno
             state_content:
             - preset_mode
@@ -77,32 +77,43 @@ views:
             icon: mdi:bed
             badges:
               - type: entity
-                entity: sensor.t_in_notte1
+                entity: sensor.t_notte_med
                 name: "T zona notte"
                 color: red
               - type: entity
-                entity: sensor.ur_in_notte1
+                entity: sensor.ur_notte_med
                 name: "UR notte 1"
-                color: indigo
-              - type: entity
-                entity: sensor.ur_in_notte2
-                name: "UR notte 2"
                 color: indigo
           - type: tile
             entity: sensor.t_in_notte1
-            name: "T zona notte"
+            name: "T zona notte1"
           - type: tile
             entity: sensor.ur_in_notte1
             name: "UR notte 1"
           - type: tile
+            entity: sensor.t_in_notte2
+            name: "T zona notte2"
+          - type: tile
             entity: sensor.ur_in_notte2
             name: "UR notte 2"
+          - type: tile
+            entity: sensor.t_in_notte3
+            name: "T zona notte2"
+          - type: tile
+            entity: sensor.ur_in_notte3
+            name: "UR notte 3"      
           - type: tile
             entity: switch.ac_notte
             name: "AC notte"
           - type: tile
-            entity: binary_sensor.windows_notte_any
-            name: "Finestre zona notte"
+            entity: binary_sensor.windows_notte1
+            name: "Finestre zona notte1"
+          - type: tile
+            entity: binary_sensor.windows_notte1
+            name: "Finestre zona notte2"
+          - type: tile
+            entity: binary_sensor.windows_notte1
+            name: "Finestre zona notte3"
       - type: grid
         cards:
           - type: heading
