@@ -106,16 +106,16 @@ views:
             entity: sensor.ur_in_notte3
             name: "UR notte 3"      
           - type: tile
-            entity: switch.ac_notte
+            entity: climate.ac_notte
             name: "AC notte"
           - type: tile
             entity: binary_sensor.windows_notte1
             name: "Finestre zona notte1"
           - type: tile
-            entity: binary_sensor.windows_notte1
+            entity: binary_sensor.windows_notte2
             name: "Finestre zona notte2"
           - type: tile
-            entity: binary_sensor.windows_notte1
+            entity: binary_sensor.windows_notte3
             name: "Finestre zona notte3"
       - type: grid
         cards:
