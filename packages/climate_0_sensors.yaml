@@ -29,6 +29,28 @@ template:
             {{ states('input_number.vent_backup_t_in') }}
           {% endif %}
 
+      - name: t_notte_med
+        unique_id: t_notte_med
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        attributes:
+          friendly_name: "T zona notte media"
+        state: >-
+          {% set values = [
+            states('sensor.t_in_bagno')|float(default=none),
+            states('sensor.t_in_notte1')|float(default=none),
+            states('sensor.t_in_notte2')|float(default=none),
+            states('sensor.t_in_notte3')|float(default=none),
+            states('sensor.t_in_lavanderia')|float(default=none)
+          ] | select('ne', none) | list %}
+          {% if values %}
+            {{ (values | sum / (values | length)) | round(2) }}
+          {% else %}
+            unknown
+          {% endif %}
+
       - name: ur_in_media
         unique_id: ur_in_media
         icon: mdi:water-percent
@@ -49,6 +71,28 @@ template:
             {{ (valid | sum / (valid | length)) | round(1) }}
           {% else %}
             {{ states('input_number.vent_backup_ur_in') }}
+          {% endif %}
+
+      - name: ur_notte_med
+        unique_id: ur_notte_med
+        icon: mdi:water-percent
+        unit_of_measurement: "%"
+        device_class: humidity
+        state_class: measurement
+        attributes:
+          friendly_name: "UR zona notte media"
+        state: >-
+          {% set values = [
+            states('sensor.ur_in_bagno')|float(default=none),
+            states('sensor.ur_in_notte1')|float(default=none),
+            states('sensor.ur_in_notte2')|float(default=none),
+            states('sensor.ur_in_notte3')|float(default=none),
+            states('sensor.ur_in_lavanderia')|float(default=none)
+          ] | select('ne', none) | list %}
+          {% if values %}
+            {{ (values | sum / (values | length)) | round(1) }}
+          {% else %}
+            unknown
           {% endif %}
 
       - name: ur_in_min
