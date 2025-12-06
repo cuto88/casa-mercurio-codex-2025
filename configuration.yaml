@@ -47,14 +47,14 @@ lovelace:
       title: "3 Clima"
       icon: mdi:snowflake
       show_in_sidebar: true
-      filename: lovelace/climate_3_ac_plancia.yaml
+      filename: lovelace/climate_ac_plancia.yaml
 
     3-ac-v2:
       mode: yaml
       title: "3 AC (v2)"
       icon: mdi:air-conditioner
       show_in_sidebar: false
-      filename: lovelace/climate_3_ac_plancia_v2.yaml
+      filename: lovelace/climate_ac_plancia_v2.yaml
 
     #6-energia:
      # mode: yaml
