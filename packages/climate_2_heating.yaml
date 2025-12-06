@@ -436,41 +436,37 @@ template:
             {% endif %}
           {% endif %}
 
-###############################################################################
-# 4) SWITCH TEMPLATE — alias relè invertito
-###############################################################################
-switch:
-  - platform: template
-    switches:
-      heating_master:
+  - switch:
+      - name: "Riscaldamento — comando"
         unique_id: heating_master
-        friendly_name: "Riscaldamento — comando"
-        value_template: "{{ is_state('switch.4_ch_interrutore_3','off') }}"
-        icon_template: mdi:radiator
+        default_entity_id: switch.heating_master
+        icon: mdi:radiator
         turn_on:
-          service: switch.turn_off
-          target:
-            entity_id: switch.4_ch_interrutore_3
+          - service: switch.turn_off
+            target:
+              entity_id: switch.4_ch_interrutore_3
         turn_off:
-          service: switch.turn_on
-          target:
-            entity_id: switch.4_ch_interrutore_3
-      heating_night_block:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.4_ch_interrutore_3
+        state: "{{ is_state('switch.4_ch_interrutore_3','off') }}"
+
+      - name: "Riscaldamento — blocco notturno"
         unique_id: heating_night_block
-        friendly_name: "Riscaldamento — blocco notturno"
-        value_template: "{{ is_state('switch.4_ch_interrutore_3','on') }}"
-        icon_template: mdi:power
+        default_entity_id: switch.heating_night_block
+        icon: mdi:power
         turn_on:
-          service: switch.turn_on
-          target:
-            entity_id: switch.4_ch_interrutore_3
+          - service: switch.turn_on
+            target:
+              entity_id: switch.4_ch_interrutore_3
         turn_off:
-          service: switch.turn_off
-          target:
-            entity_id: switch.4_ch_interrutore_3
+          - service: switch.turn_off
+            target:
+              entity_id: switch.4_ch_interrutore_3
+        state: "{{ is_state('switch.4_ch_interrutore_3','on') }}"
 
 ###############################################################################
-# 5) SENSORI STATISTICI — runtime storico
+# 4) SENSORI STATISTICI — runtime storico
 ###############################################################################
 sensor:
   - platform: history_stats
