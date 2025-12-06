@@ -108,21 +108,6 @@ timer:
     name: "AC — Timeout block VMC"
     duration: "00:30:00"
 
-sensor:
-  - platform: template
-    sensors:
-      t_in_notte_media:
-        friendly_name: "Temperatura Notte Media"
-        unit_of_measurement: "°C"
-        value_template: >-
-          {% set vals = [states('sensor.t_in_notte1')|float(none), states('sensor.t_in_notte2')|float(none)]
-            | select('!=', none) | list %}
-          {% if vals | length > 0 %}
-            {{ (vals | sum / (vals | length)) | round(1) }}
-          {% else %}
-            {{ 'unavailable' }}
-          {% endif %}
-
 # removed: template.climate is not supported by Home Assistant (see master)
 
 script:
