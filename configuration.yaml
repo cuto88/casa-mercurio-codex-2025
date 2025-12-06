@@ -49,6 +49,13 @@ lovelace:
       show_in_sidebar: true
       filename: lovelace/climate_3_ac_plancia.yaml
 
+    3-ac-v2:
+      mode: yaml
+      title: "3 Clima (v2)"
+      icon: mdi:snowflake
+      show_in_sidebar: true
+      filename: lovelace/climate_ac_plancia_v2.yaml
+
     #6-energia:
      # mode: yaml
      # title: "6 Energia"
