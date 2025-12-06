@@ -48,15 +48,15 @@ views:
             badges:
               - type: entity
                 entity: sensor.t_in_giorno
-                name: "T zona giorno"
+                name: "T giorno"
                 color: red
               - type: entity
                 entity: sensor.ur_in_giorno
-                name: "UR zona giorno"
+                name: "UR giorno"
                 color: indigo
           - type: tile
             entity: sensor.t_in_giorno
-            name: "T zona giorno"
+            name: "T giorno"
           - type: tile
             entity: sensor.ur_in_giorno
             name: "UR zona giorno"
@@ -81,42 +81,42 @@ views:
             badges:
               - type: entity
                 entity: sensor.t_notte_med
-                name: "T zona notte"
+                name: "T notte media"
                 color: red
               - type: entity
                 entity: sensor.ur_notte_med
-                name: "UR notte 1"
+                name: "UR notte media"
                 color: indigo
           - type: tile
             entity: sensor.t_in_notte1
-            name: "T zona notte1"
+            name: "T camera1"
           - type: tile
             entity: sensor.ur_in_notte1
-            name: "UR notte 1"
+            name: "UR camera1"
           - type: tile
             entity: sensor.t_in_notte2
-            name: "T zona notte2"
+            name: "T camera2"
           - type: tile
             entity: sensor.ur_in_notte2
-            name: "UR notte 2"
+            name: "UR camera2"
           - type: tile
             entity: sensor.t_in_notte3
-            name: "T zona notte2"
+            name: "T camera2"
           - type: tile
             entity: sensor.ur_in_notte3
-            name: "UR notte 3"      
+            name: "UR camera3"      
           - type: tile
             entity: climate.ac_notte
             name: "AC notte"
           - type: tile
             entity: binary_sensor.windows_notte1
-            name: "Finestre zona notte1"
+            name: "Finestre camera1"
           - type: tile
             entity: binary_sensor.windows_notte2
-            name: "Finestre zona notte2"
+            name: "Finestre camera2"
           - type: tile
             entity: binary_sensor.windows_notte3
-            name: "Finestre zona notte3"
+            name: "Finestre camera3"
       - type: grid
         cards:
           - type: heading
