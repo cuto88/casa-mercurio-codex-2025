@@ -36,6 +36,11 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | ΔT indoor–outdoor                        | `sensor.delta_t_in_out`  |
 | ΔAH indoor–outdoor                       | `sensor.delta_ah_in_out` |
 
+### 2.1 KPI zona notte
+
+- `sensor.t_notte_med` — temperatura media zona notte; **template sensor** che calcola la media delle temperature indoor di bagno, notte1, notte2, notte3 e lavanderia. Unità: °C.
+- `sensor.ur_notte_med` — umidità relativa media zona notte; **template sensor** che calcola la media delle UR indoor di bagno, notte1, notte2, notte3 e lavanderia. Unità: %.
+
 ---
 
 ## 3. Ventilazione / VMC
