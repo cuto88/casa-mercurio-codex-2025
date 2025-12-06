@@ -13,7 +13,7 @@ Questo documento descrive in modo chiaro e definitivo la *struttura, logica e in
 |------|----------|
 | **1_ventilation.yaml** | VMC + freecooling + anti-secco + boost + ventilazione naturale + meteo |
 | **2_heating.yaml** | Riscaldamento radiante + comfort + PV boost + antifreeze |
-| **3_ac.yaml** | AC Giorno/Notte + DRY/COOL + lock anti-ciclo + block da VMC |
+| **climate_ac_mapping.yaml + climate_ac_logic.yaml** | AC Giorno/Notte + DRY/COOL + lock anti-ciclo + block da VMC |
 | **1_ventilation_plancia.yaml** | UI: stato VMC + ΔT/ΔAH + meteo + consigli finestre |
 | **2_heating_plancia.yaml** | UI riscaldamento |
 | **3_ac_plancia.yaml** | UI climatizzazione |
@@ -121,7 +121,11 @@ Elementi chiave:
 
 ---
 
-# 4. Clima estivo AC (`3_ac.yaml`)
+# 4. Clima estivo AC (mapping + `climate_ac_logic.yaml`)
+
+Layer AC:
+- **Mapping/control:** helper, slider e script IR in `packages/climate_ac_mapping.yaml`.
+- **Logica:** priorità P0–P3 + manuale in `packages/climate_ac_logic.yaml`.
 
 Priorità:
 1. `P0_failsafe`

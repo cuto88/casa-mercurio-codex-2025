@@ -1,5 +1,5 @@
-# 3 — Climatizzazione AC (packages/3_ac.yaml)
-> ATTENZIONE: questo file descrive la logica di `packages/3_ac.yaml` e dovrebbe essere rinominato `3_ac_logic.md` per allinearsi alla struttura ufficiale.
+# 3 — Climatizzazione AC (packages/climate_ac_mapping.yaml + climate_ac_logic.yaml)
+> Logica AC suddivisa in **mapping/control** (`climate_ac_mapping.yaml`: helper, slider, script IR) e **logica** (`climate_ac_logic.yaml`: priorità, hook, automazioni).
 
 ## Obiettivo del modulo
 - Garantire comfort estivo privilegiando la deumidifica (DRY) prima del raffrescamento (COOL) e rispettando blocchi notturni 23–07.
@@ -31,5 +31,5 @@
 
 ## Note operative
 - Plancia `lovelace/3_ac_plancia.yaml` mostra motivi/priorità, stato lock e timer; usare `sensor.ac_priority` come riferimento.
-- Tutte le automazioni e helper sono in `packages/3_ac.yaml`; non esistono file 4_ac.yaml legacy.
+- Helper, slider e script IR stanno in `packages/climate_ac_mapping.yaml`; le automazioni restano in `packages/climate_ac_logic.yaml`.
 - Coordinamento con VMC avviene solo tramite gli hook indicati, evitando duplicazioni di logica ΔT/ΔAH.

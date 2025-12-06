@@ -11,10 +11,10 @@ i moduli clima della Casa Mercurio.
 
 Climate system is split into:
 
-- packages/climate_0_sensors.yaml  
-- packages/climate_1_ventilation.yaml  
-- packages/climate_2_heating.yaml  
-- packages/climate_3_ac.yaml
+- packages/climate_0_sensors.yaml
+- packages/climate_1_ventilation.yaml
+- packages/climate_2_heating.yaml
+- packages/climate_ac_logic.yaml
 
 Dashboards:
 

@@ -240,7 +240,7 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 - I relè VMC `switch.vmc_vel_0/1/2/3` possono essere definiti in ESPHome o in
   package hardware separati, non in `climate_1_ventilation`.
 - I relè AC `switch.ac_giorno` e `switch.ac_notte` possono essere definiti in
-  altri package (es. bridge IR, SwitchBot) e non in `climate_3_ac`.
+  altri package (es. bridge IR, SwitchBot) e non in `climate_ac_logic`.
 
 ---
 
