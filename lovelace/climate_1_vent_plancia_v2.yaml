@@ -4,6 +4,7 @@ views:
     title: "VMC"
     path: climate_vmc_v2
     icon: mdi:fan
+    # TODO: aggiungere badge stagione (caldo/freddo) quando esisterà un'entità canonica in MAP
     badges:
       - type: entity
         entity: sensor.t_out
@@ -15,12 +16,14 @@ views:
         color: indigo
       - type: entity
         entity: binary_sensor.clima_ac_from_vmc_request
-        name: "Richiesta AC"
-        color: mdi:air-conditioner
+        name: "AC"
+        icon: mdi:air-conditioner
+        color: blue
       - type: entity
         entity: binary_sensor.heating_should_run
-        name: "Richiesta AC"
-        color: heating-coil
+        name: "Riscaldamento"
+        icon: mdi:radiator
+        color: orange
     sections:
       - cards:
           - type: heading
