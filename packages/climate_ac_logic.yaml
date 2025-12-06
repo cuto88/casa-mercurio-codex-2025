@@ -1,14 +1,14 @@
 ---
 ###############################################################################
-# 3_ac.yaml — Controllo Aria Condizionata (Passivhaus-Oriented)
+# climate_ac_logic.yaml — Controllo Aria Condizionata (Passivhaus-Oriented)
 # Controller unico AC con priorità, hook VMC e telemetria
 ###############################################################################
 
 # NOTE — Attuatori hardware AC
 # Le entità switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
 # esterne (bridge IR, smart plug, ESPHome, ecc.). Non sono definite in questo
-# package: 3_ac le usa solo come attuatori. Devono esistere con esattamente
-# questi entity_id.
+# package: climate_ac_logic le usa solo come attuatori. Devono esistere con
+# esattamente questi entity_id.
 
 # -----------------------------------------------------------------------------
 # PRIORITÀ AC (P0–P4)
