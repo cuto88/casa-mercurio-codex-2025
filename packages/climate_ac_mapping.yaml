@@ -1,4 +1,4 @@
-# Mapping clima AC giorno e notte via SwitchBot (template climate)
+# Mapping clima AC giorno e notte via SwitchBot (mapping fisico, senza template.climate)
 
 input_number:
   ac_giorno_setpoint:
@@ -71,7 +71,7 @@ sensor:
             {{ 'unavailable' }}
           {% endif %}
 
-# rimosso: template.climate non supportato da Home Assistant; entità gestite in mapping fisico
+# removed: template.climate is not supported by Home Assistant (see master)
 
 script:
   ac_giorno_apply:
