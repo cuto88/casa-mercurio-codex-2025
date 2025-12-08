@@ -139,7 +139,7 @@ views:
             name: "UR bagno"
           - type: tile
             entity: input_boolean.vmc_boost_bagno
-            name: "Boost bagno"
+            name: "Boost MANUALE"
           - type: tile
             entity: input_number.vmc_bagno_on
             name: "Soglia boost ON"
