@@ -207,10 +207,19 @@ template:
           {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
           {% set delta_raw = states('sensor.delta_ur_bagno_out') %}
           {% set invalid = ['unknown','unavailable','','none','None'] %}
-          {% set delta_val = delta_raw|float(default=0) if delta_raw not in invalid else none %}
+          {% set delta = delta_raw|float(default=0) if delta_raw not in invalid else none %}
           {% set prev = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
-          {% set on_cond = ur >= ur_on or (delta_val is not none and delta_val >= 12 and ur >= ur_off) %}
-          {% set off_cond = ur <= ur_off or (delta_val is not none and delta_val < 6) %}
+          {% set delta_on = 12 %}
+          {% set delta_off = 6 %}
+          {% set has_delta = delta is not none %}
+          {#
+            Regole:
+            - ON solo con doppia condizione: UR bagno alta e ΔUR bagno-esterno marcata.
+            - OFF se UR bagno scende sotto soglia_off oppure ΔUR rientra (isteresi più bassa).
+            - Fail-safe: spegnimento dopo 45 minuti continuativi.
+          #}
+          {% set on_cond = has_delta and ur >= ur_on and delta >= delta_on %}
+          {% set off_cond = (has_delta and (ur <= ur_off or delta <= delta_off)) or (not has_delta and ur <= ur_off) %}
           {% set max_run = 45 * 60 %}
           {% set run_secs = (now().timestamp() - as_timestamp(this.last_changed, default=0)) if prev else 0 %}
           {% set timeout = prev and run_secs > max_run %}
