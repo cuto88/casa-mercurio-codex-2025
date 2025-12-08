@@ -234,7 +234,7 @@ views:
           - type: markdown
             content: |
               ### Regole principali
-              - **Boost bagno**: UR bagno > soglia ON per alcuni minuti, poi si spegne sotto soglia OFF.
+              - **Boost bagno**: UR bagno > soglia ON **e** ΔUR bagno-esterno elevata; si spegne quando UR < soglia OFF o ΔUR rientra.
               - **Freecooling**: T_in > 24°C **e** T_out < T_in **e** T_out > 20°C.
               - **Richiesta AC**: quando `binary_sensor.clima_ac_from_vmc_request` è ON, la logica VMC/AC richiede `AC giorno` o `AC notte`.
               - Riferimenti: logiche condivise in `logica/core/regole_core_logiche.md`, modulo in `logica/2_vmc/2_vmc.txt`, linee guida UI in `logica/core/regole_plancia.md`.
