@@ -85,6 +85,15 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Open windows recommended                  | `sensor.clima_open_windows_recommended`    |
 | Season flag for ventilation (optional)    | `sensor.vent_stagione`                     |
 
+Note operative VMC:
+
+- `binary_sensor.vmc_bagno_boost_auto` → ON se UR bagno ≥ `input_number.vmc_bagno_on`;
+  OFF con isteresi su `input_number.vmc_bagno_off`. Se disponibile `sensor.delta_ur_bagno_out`
+  richiede ΔUR ≥12% per l'innesco e ΔUR <6% per lo spegnimento. Fail-safe: auto-OFF dopo 45 minuti
+  continuativi di boost.
+- Priorità `P1_boost_bagno` imposta `sensor.vmc_vel_target`=3 e blocca le richieste automatiche AC
+  dal controller clima durante il boost bagno.
+
 ---
 
 ## 4. Heating

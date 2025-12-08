@@ -224,6 +224,7 @@ automation:
           Tout: "{{ states('sensor.t_out')|float(0) }}"
           URin: "{{ states('sensor.ur_in_media')|float(0) }}"
           URout: "{{ states('sensor.ur_out')|float(0) }}"
+          vent_priority: "{{ states('sensor.ventilation_priority') }}"
           set_cool: "{{ states('input_number.ac_cool_setpoint')|float(25) }}"
           ur_on: "{{ states('input_number.ac_dry_ur_on')|float(65) }}"
           ur_off: "{{ states('input_number.ac_dry_ur_off')|float(55) }}"
@@ -246,6 +247,26 @@ automation:
                     mode: "{{ manual_mode | lower }}"
                     target: "manual"
               - stop: "Manuale attivo"
+
+          # Block AC requests during bathroom boost priority
+          - conditions:
+              - condition: template
+                value_template: "{{ vent_priority == 'P1_boost_bagno' }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.ac_giorno
+                    - switch.ac_notte
+              - event: template_event
+                event_data:
+                  entity_id: sensor.ac_reason
+                  attributes:
+                    priority: "P1_block"
+                    reason: "AC bloccata durante boost bagno"
+                    mode: "off"
+                    target: "none"
+              - stop: "Boost bagno attivo: blocco AC"
 
           # P0 - Failsafe sensori
           - conditions:
