@@ -210,7 +210,7 @@ template:
             or (ur - (states('sensor.ur_out')|float(default=0))) %}
           {% set prev = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
           {% set on_cond = ur >= 70 or delta >= 12 %}
-          {% set off_cond = ur <= 63 and delta < 6 %}
+          {% set off_cond = ur <= 63 or delta < 6 %}
           {{ on_cond or (prev and not off_cond) }}
       - name: "VMC freecooling candidabile"
         unique_id: vmc_freecooling_candidate
