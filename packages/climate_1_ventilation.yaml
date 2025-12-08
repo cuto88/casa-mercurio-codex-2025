@@ -200,17 +200,18 @@ template:
           {{ night and winter and ur_min <= soglia }}
       - name: "VMC boost bagno automatico"
         unique_id: vmc_bagno_boost_auto
+        delay_off: "00:03:00"
         state: >-
           {% set ur = states('sensor.ur_in_bagno')|float(default=0) %}
-          {% set ur_on = states('input_number.vmc_bagno_on')|float(75) %}
-          {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
-          {% set delta = ur - (states('sensor.ur_out')|float(default=0)) %}
+          {% set delta_raw = states('sensor.delta_ur_bagno_out') %}
+          {% set invalid = ['unknown','unavailable','','none','None'] %}
+          {% set delta = delta_raw not in invalid
+            and (delta_raw|float(default=0))
+            or (ur - (states('sensor.ur_out')|float(default=0))) %}
           {% set prev = is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
-          {% if prev %}
-            {{ ur >= ur_off or delta >= 8 }}
-          {% else %}
-            {{ ur >= ur_on or delta >= 10 }}
-          {% endif %}
+          {% set on_cond = ur >= 70 or delta >= 12 %}
+          {% set off_cond = ur <= 63 and delta < 6 %}
+          {{ on_cond or (prev and not off_cond) }}
       - name: "VMC freecooling candidabile"
         unique_id: vmc_freecooling_candidate
         state: >-
