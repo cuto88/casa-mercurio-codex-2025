@@ -87,11 +87,10 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 
 Note operative VMC:
 
-- `binary_sensor.vmc_bagno_boost_auto` → ON se UR bagno ≥ `input_number.vmc_bagno_on`;
-  OFF con isteresi su `input_number.vmc_bagno_off`. Richiede sempre ΔUR bagno-esterno positiva per
-  l'innesco (`sensor.delta_ur_bagno_out` ≥12%) e si disattiva quando UR bagno scende sotto soglia_off
-  oppure ΔUR rientra (<6%). Fail-safe: auto-OFF dopo 45 minuti continuativi di boost, con `delay_off`
-  di 3 minuti per evitare oscillazioni.
+- `binary_sensor.vmc_bagno_boost_auto` → ON se UR bagno ≥ `input_number.vmc_bagno_on` **oppure**
+  ΔUR bagno–out ≥10%. Resta ON finché non si verificano le condizioni di spegnimento: UR bagno
+  ≤`input_number.vmc_bagno_off` **e** ΔUR bagno–out ≤6%. Fail-safe: auto-OFF dopo 45 minuti
+  continuativi di boost, con `delay_off` di 3 minuti per evitare oscillazioni.
 - Priorità `P1_boost_bagno` imposta `sensor.vmc_vel_target`=3 e blocca le richieste automatiche AC
   dal controller clima durante il boost bagno.
 
