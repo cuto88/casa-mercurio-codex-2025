@@ -138,15 +138,15 @@ views:
             entity: sensor.ur_in_bagno
             name: "UR bagno"
           - type: tile
-            entity: input_boolean.vmc_boost_bagno
-            name: "Boost MANUALE"
-          - type: tile
             entity: input_number.vmc_bagno_on
             name: "Soglia boost ON"
           - type: tile
             entity: input_number.vmc_bagno_off
             name: "Soglia boost OFF"
-          # TODO: creare input_number soglia UR bagno per boost se serve helper dedicato
+          - type: tile
+            entity: input_boolean.vmc_boost_bagno
+            name: "Boost MANUALE"
+          
       - type: grid
         cards:
           - type: heading
