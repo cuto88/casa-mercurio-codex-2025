@@ -71,8 +71,11 @@ views:
             - type: target-temperature
             features_position: bottom
           - type: tile
-            entity: binary_sensor.windows_giorno_any
-            name: "Finestre zona giorno"
+            entity: binary_sensor.windows_giorno1
+            name: "Finestra giorno1"
+          - type: tile
+            entity: binary_sensor.windows_giorno2
+            name: "Finestra giorno2"
       - type: grid
         cards:
           - type: heading
