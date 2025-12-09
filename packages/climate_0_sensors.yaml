@@ -1,3 +1,7 @@
+input_boolean:
+  climate_debug_telegram:
+    name: "Climate debug Telegram"
+
 template:
   - binary_sensor:
       - name: "clima_ac_from_vmc_request"
@@ -7,6 +11,70 @@ template:
         attributes:
           friendly_name: "AC richiesta dal clima"
   - sensor:
+      - name: ventilation_state_reason
+        unique_id: ventilation_state_reason
+        state: >-
+          {% set priority = states('sensor.ventilation_priority') %}
+          {% if priority == 'P1_boost_bagno' %}
+            Boost bagno attivo
+          {% elif priority == 'P2_freecooling' %}
+            Freecooling attivo (ΔT/ΔAH favorevoli)
+          {% elif states('sensor.clima_open_windows_recommended') not in ['off','unknown','unavailable',''] %}
+            Finestre aperte consigliate
+          {% elif priority == 'P_manual' %}
+            Modalità manuale selezionata
+          {% elif priority == 'P0_off' %}
+            VMC in modalità OFF
+          {% elif priority == 'P0_failsafe' %}
+            Failsafe sensori VMC
+          {% elif priority == 'P1_anti_secco' %}
+            Anti-secco notturno
+          {% elif priority == 'P1_delta_ur' %}
+            Aria esterna più secca (ΔUR)
+          {% else %}
+            Baseline ventilazione
+          {% endif %}
+
+      - name: heating_state_reason
+        unique_id: heating_state_reason
+        state: >-
+          {% set priority = states('sensor.heating_priority') %}
+          {% if priority == 'P0_failsafe' %}
+            Failsafe sensori riscaldamento
+          {% elif priority == 'P1_anti_frost' %}
+            Protezione antigelo
+          {% elif priority == 'P2_comfort' %}
+            Comfort: stanze sotto setpoint
+          {% elif priority == 'P3_pv_boost' %}
+            Boost con surplus fotovoltaico
+          {% elif priority == 'P4_night_setback' %}
+            Setback notturno
+          {% elif priority == 'manual' %}
+            Modalità manuale attiva
+          {% else %}
+            Riscaldamento idle
+          {% endif %}
+
+      - name: ac_state_reason
+        unique_id: ac_state_reason
+        state: >-
+          {% set priority = states('sensor.ac_priority') %}
+          {% if priority == 'P0_failsafe' %}
+            Failsafe sensori AC
+          {% elif priority == 'P1_blocked_vmc' %}
+            Bloccato da VMC
+          {% elif priority == 'P2_dry' %}
+            Modalità deumidifica per UR alta
+          {% elif priority == 'P3_cooling' %}
+            Raffrescamento per superamento setpoint
+          {% elif priority == 'P4_night' %}
+            Modalità notturna ridotta
+          {% elif priority == 'manual' %}
+            Modalità manuale AC
+          {% else %}
+            AC idle
+          {% endif %}
+
       - name: t_in_med
         unique_id: t_in_med
         icon: mdi:thermometer
