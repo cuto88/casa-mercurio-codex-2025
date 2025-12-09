@@ -153,7 +153,7 @@ views:
       - type: grid
         cards:
           - type: heading
-            heading: "VMC & Freecooling"
+            heading: "VMC Velocità"
             icon: mdi:fan-alert
           - type: tile
             entity: switch.vmc_vel_0
@@ -185,16 +185,7 @@ views:
             graph: line
             hours_to_show: 24
             detail: 1
-          - type: tile
-            entity: binary_sensor.vmc_freecooling_candidate
-            name: "Freecooling candidabile"
-          - type: tile
-            entity: binary_sensor.vmc_freecooling_active
-            name: "Freecooling attivo"
-          - type: tile
-            entity: sensor.vmc_freecooling_status
-            name: "Stato freecooling"
-
+          
 
       - type: grid
         columns: 1
@@ -209,11 +200,18 @@ views:
             entity: sensor.delta_ah_in_out
             name: "ΔAH in-out"
           - type: tile
+            entity: binary_sensor.vmc_freecooling_active
+            name: "Freecooling attivo"
+          - type: tile
+            entity: binary_sensor.vmc_freecooling_candidate
+            name: "Freecooling candidabile"
+          - type: tile
             entity: sensor.vmc_freecooling_status
             name: "Stato freecooling"
           - type: tile
             entity: sensor.clima_open_windows_recommended
             name: "Finestre consigliate"
+                    
       - type: grid
         cards:
           - type: heading
