@@ -63,6 +63,7 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Backup T indoor                           | `input_number.vent_backup_t_in`      |
 | Backup RH indoor                          | `input_number.vent_backup_ur_in`     |
 | Summer override flag                      | `input_boolean.vent_override_estate` |
+| Debug climate notifications flag          | `input_boolean.climate_debug_telegram` |
 | Night-flush start time                    | `input_datetime.vent_night_flush_start` |
 | Night-flush end time                      | `input_datetime.vent_night_flush_end`   |
 | VMC message text (dashboard)              | `input_text.vent_messaggio_consiglio`   |
@@ -81,6 +82,7 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | VMC speed index (debug)                   | `sensor.vmc_vel_index`                     |
 | Ventilation priority (P0–P4)              | `sensor.ventilation_priority`              |
 | Ventilation reason (human-readable)       | `sensor.ventilation_reason`                |
+| Ventilation state change reason           | `sensor.ventilation_state_reason`          |
 | Freecooling textual status                | `sensor.vmc_freecooling_status`            |
 | Open windows recommended                  | `sensor.clima_open_windows_recommended`    |
 | Season flag for ventilation (optional)    | `sensor.vent_stagione`                     |
@@ -128,6 +130,7 @@ Note operative VMC:
 |-------------------------------------------|--------------------------------------------|
 | Heating reason (text)                     | `sensor.heating_reason`                    |
 | Heating priority (P0–P4)                  | `sensor.heating_priority`                  |
+| Heating state change reason               | `sensor.heating_state_reason`              |
 | Min indoor T (all rooms)                  | `sensor.heating_t_in_min`                  |
 | Rooms below target                        | `sensor.heating_rooms_below_target`        |
 | Failsafe bad sensors                      | `binary_sensor.heating_failsafe_sensors_bad`|
@@ -180,6 +183,7 @@ Note operative VMC:
 | Min-ON lock ok                            | `binary_sensor.ac_lock_min_on_ok`         |
 | Min-OFF lock ok                           | `binary_sensor.ac_lock_min_off_ok`        |
 | AC priority (P0–P4)                       | `sensor.ac_priority`                      |
+| AC state change reason                    | `sensor.ac_state_reason`                  |
 | AC reason (text)                          | `sensor.ac_reason`                        |
 | Season hot/cold flag                      | `binary_sensor.stagione_calda`            |
 
