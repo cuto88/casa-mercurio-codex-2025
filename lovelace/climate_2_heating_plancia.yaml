@@ -142,7 +142,7 @@ views:
             show_header_toggle: false
             collapsible: true
             entities:
-              - entity: sensor.heating_t_in_min
+              - entity: sensor.t_in_min
                 name: T interna minima
               - entity: binary_sensor.surplus_ok
                 name: Surplus FV OK
