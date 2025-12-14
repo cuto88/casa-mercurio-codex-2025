@@ -1,0 +1,27 @@
+template:
+  - sensor:
+      - name: "MIRAI bitmask 4000 bits ON"
+        unique_id: mirai_bitmask_4000_bits_on
+        icon: mdi:checkbox-multiple-marked-outline
+        state: >-
+          {% set v = states('sensor.mirai_bitmask_4000_raw') | int(0) %}
+          {% set bits = namespace(list=[]) %}
+          {% for i in range(0,16) %}
+            {% if ((v // (2**i)) % 2) == 1 %}
+              {% set bits.list = bits.list + [i] %}
+            {% endif %}
+          {% endfor %}
+          {{ bits.list | join(',') }}
+
+      - name: "MIRAI bitmask 4001 bits ON"
+        unique_id: mirai_bitmask_4001_bits_on
+        icon: mdi:checkbox-multiple-marked-outline
+        state: >-
+          {% set v = states('sensor.mirai_bitmask_4001_raw') | int(0) %}
+          {% set bits = namespace(list=[]) %}
+          {% for i in range(0,16) %}
+            {% if ((v // (2**i)) % 2) == 1 %}
+              {% set bits.list = bits.list + [i] %}
+            {% endif %}
+          {% endfor %}
+          {{ bits.list | join(',') }}
