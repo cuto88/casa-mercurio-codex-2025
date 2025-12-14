@@ -1,0 +1,226 @@
+# Autodiscovery scoring and selection
+- sensor:
+    - name: "MIRAI autodiscovery valid count"
+      unique_id: mirai_autodiscovery_valid_count
+      state: >-
+        {% set candidates = [
+          {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+          {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+          {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+        ] %}
+        {% set sentinels = [0, 32767, 65535] %}
+        {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+        {% set valid = [] %}
+        {% if enabled %}
+          {% for candidate in candidates %}
+            {% set raw = states(candidate.entity_id) %}
+            {% set value = raw | float('nan') %}
+            {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+              {% set valid = valid + [candidate | merge({'value': value})] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {{ valid | length }}
+      attributes:
+        sentinels_filtered: "0, 32767, 65535"
+        candidates_considered: "sensor.mirai_candidate_temperature_a, sensor.mirai_candidate_temperature_b, sensor.mirai_candidate_temperature_c"
+
+    - name: "MIRAI autodiscovery best temperature"
+      unique_id: mirai_autodiscovery_best_temperature
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+      state: >-
+        {% set candidates = [
+          {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+          {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+          {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+        ] %}
+        {% set sentinels = [0, 32767, 65535] %}
+        {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+        {% set valid = [] %}
+        {% if enabled %}
+          {% for candidate in candidates %}
+            {% set raw = states(candidate.entity_id) %}
+            {% set value = raw | float('nan') %}
+            {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+              {% set valid = valid + [candidate | merge({'value': value})] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if enabled and (valid | length) > 0 %}
+          {% set sorted = valid | sort(attribute='score', reverse=True) %}
+          {% set best = sorted[0] %}
+          {{ best.value | round(1) }}
+        {% else %}
+          unavailable
+        {% endif %}
+      attributes:
+        source_entity: >-
+          {% set candidates = [
+            {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+            {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+            {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+          ] %}
+          {% set sentinels = [0, 32767, 65535] %}
+          {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+          {% set valid = [] %}
+          {% if enabled %}
+            {% for candidate in candidates %}
+              {% set raw = states(candidate.entity_id) %}
+              {% set value = raw | float('nan') %}
+              {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+                {% set valid = valid + [candidate | merge({'value': value})] %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {% if enabled and (valid | length) > 0 %}
+            {% set sorted = valid | sort(attribute='score', reverse=True) %}
+            {% set best = sorted[0] %}
+            {{ best.entity_id }}
+          {% else %}
+            none
+          {% endif %}
+        candidates_evaluated: >-
+          {% set candidates = [
+            {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+            {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+            {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+          ] %}
+          {% set sentinels = [0, 32767, 65535] %}
+          {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+          {% set valid = [] %}
+          {% if enabled %}
+            {% for candidate in candidates %}
+              {% set raw = states(candidate.entity_id) %}
+              {% set value = raw | float('nan') %}
+              {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+                {% set valid = valid + [candidate | merge({'value': value})] %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {{ valid | map(attribute='entity_id') | list | join(', ') }}
+
+- binary_sensor:
+    - name: "MIRAI autodiscovery ready"
+      unique_id: mirai_autodiscovery_ready
+      device_class: running
+      state: >-
+        {% set candidates = [
+          {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+          {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+          {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+        ] %}
+        {% set sentinels = [0, 32767, 65535] %}
+        {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+        {% set valid = [] %}
+        {% if enabled %}
+          {% for candidate in candidates %}
+            {% set raw = states(candidate.entity_id) %}
+            {% set value = raw | float('nan') %}
+            {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+              {% set valid = valid + [candidate | merge({'value': value})] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {{ enabled and (valid | length) > 0 }}
+      attributes:
+        valid_candidates: >-
+          {% set candidates = [
+            {'entity_id': 'sensor.mirai_candidate_temperature_a', 'min': -40, 'max': 80, 'score': 3},
+            {'entity_id': 'sensor.mirai_candidate_temperature_b', 'min': -40, 'max': 80, 'score': 2},
+            {'entity_id': 'sensor.mirai_candidate_temperature_c', 'min': -40, 'max': 80, 'score': 1},
+          ] %}
+          {% set sentinels = [0, 32767, 65535] %}
+          {% set enabled = is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') %}
+          {% set valid = [] %}
+          {% if enabled %}
+            {% for candidate in candidates %}
+              {% set raw = states(candidate.entity_id) %}
+              {% set value = raw | float('nan') %}
+              {% if value == value and value not in sentinels and value > candidate.min and value < candidate.max %}
+                {% set valid = valid + [candidate | merge({'value': value})] %}
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          {{ valid | map(attribute='entity_id') | list | join(', ') }}
+
+# Debug utilities for Modbus bit-level insight
+- trigger:
+    - platform: state
+      entity_id:
+        - sensor.mirai_status_word_raw
+  sensor:
+    - name: "MIRAI status word hex"
+      unique_id: mirai_status_word_hex
+      state: >-
+        {% set value = trigger.to_state.state | int(0) %}
+        0x{{ '%04x' | format(value) }}
+
+    - name: "MIRAI status word bits on"
+      unique_id: mirai_status_word_bits_on
+      state: >-
+        {% set value = trigger.to_state.state | int(0) %}
+        {% set bits = [] %}
+        {% for i in range(0, 16) %}
+          {% set bit_on = ((value // (2 ** i)) % 2) == 1 %}
+          {% if bit_on %}
+            {% set bits = bits + [i|string] %}
+          {% endif %}
+        {% endfor %}
+        {{ bits | join(',') }}
+
+    - name: "MIRAI status word bits changed"
+      unique_id: mirai_status_word_bits_changed
+      state: >-
+        {% set current = trigger.to_state.state | int(0) %}
+        {% set previous = (trigger.from_state.state if trigger.from_state is not none else current) | int(current) %}
+        {% set bits = [] %}
+        {% for i in range(0, 16) %}
+          {% set cur_bit = (current // (2 ** i)) % 2 %}
+          {% set prev_bit = (previous // (2 ** i)) % 2 %}
+          {% if cur_bit != prev_bit %}
+            {% set bits = bits + [i|string] %}
+          {% endif %}
+        {% endfor %}
+        {{ bits | join(',') }}
+
+- trigger:
+    - platform: state
+      entity_id:
+        - sensor.mirai_status_code_raw
+  sensor:
+    - name: "MIRAI status code hex"
+      unique_id: mirai_status_code_hex
+      state: >-
+        {% set value = trigger.to_state.state | int(0) %}
+        0x{{ '%04x' | format(value) }}
+
+    - name: "MIRAI status code bits on"
+      unique_id: mirai_status_code_bits_on
+      state: >-
+        {% set value = trigger.to_state.state | int(0) %}
+        {% set bits = [] %}
+        {% for i in range(0, 16) %}
+          {% set bit_on = ((value // (2 ** i)) % 2) == 1 %}
+          {% if bit_on %}
+            {% set bits = bits + [i|string] %}
+          {% endif %}
+        {% endfor %}
+        {{ bits | join(',') }}
+
+    - name: "MIRAI status code bits changed"
+      unique_id: mirai_status_code_bits_changed
+      state: >-
+        {% set current = trigger.to_state.state | int(0) %}
+        {% set previous = (trigger.from_state.state if trigger.from_state is not none else current) | int(current) %}
+        {% set bits = [] %}
+        {% for i in range(0, 16) %}
+          {% set cur_bit = (current // (2 ** i)) % 2 %}
+          {% set prev_bit = (previous // (2 ** i)) % 2 %}
+          {% if cur_bit != prev_bit %}
+            {% set bits = bits + [i|string] %}
+          {% endif %}
+        {% endfor %}
+        {{ bits | join(',') }}
+
