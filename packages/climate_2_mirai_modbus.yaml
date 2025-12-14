@@ -5,211 +5,181 @@ modbus:
     port: 502
     delay: 1
     timeout: 5
+    sensors:
+      # Stato principale ON/OFF (1=acceso, 0=spento)
+      - scan_interval: 15
+        slave: 1
+        input_type: holding
+        address: 3503
+        data_type: uint16
+        name: "MIRAI stato macchina"
+        unique_id: mirai_state_main
 
-sensor:
-  # Stato principale ON/OFF (1=acceso, 0=spento)
-  - platform: modbus
-    scan_interval: 15
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 3503
-    data_type: uint16
-    name: "MIRAI stato macchina"
-    unique_id: mirai_state_main
-    entity_category: diagnostic
+      # Stato backup ON/OFF su registro alternativo
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1002
+        data_type: uint16
+        name: "MIRAI stato macchina backup"
+        unique_id: mirai_state_backup
 
-  # Stato backup ON/OFF su registro alternativo
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1002
-    data_type: uint16
-    name: "MIRAI stato macchina backup"
-    unique_id: mirai_state_backup
-    entity_category: diagnostic
+      # Status word diagnostica
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1003
+        data_type: uint16
+        name: "MIRAI status word"
+        unique_id: mirai_status_word
 
-  # Status word diagnostica
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1003
-    data_type: uint16
-    name: "MIRAI status word"
-    unique_id: mirai_status_word
-    entity_category: diagnostic
+      # Temperatura esterna (scala 1:1)
+      - scan_interval: 15
+        slave: 1
+        input_type: holding
+        address: 4035
+        data_type: int16
+        name: "MIRAI temperatura esterna"
+        unique_id: mirai_temp_outdoor
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        precision: 0
 
-  # Temperatura esterna (scala 1:1)
-  - platform: modbus
-    scan_interval: 15
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 4035
-    data_type: int16
-    name: "MIRAI temperatura esterna"
-    unique_id: mirai_temp_outdoor
-    unit_of_measurement: "°C"
-    device_class: temperature
-    state_class: measurement
-    precision: 0
+      # Temperatura mandata/ritorno alta (scala 0.1)
+      - scan_interval: 15
+        slave: 1
+        input_type: holding
+        address: 3526
+        data_type: int16
+        name: "MIRAI temperatura circuito 1"
+        unique_id: mirai_temp_circuit_1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scale: 0.1
+        precision: 1
 
-  # Temperatura mandata/ritorno alta (scala 0.1)
-  - platform: modbus
-    scan_interval: 15
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 3526
-    data_type: int16
-    name: "MIRAI temperatura circuito 1"
-    unique_id: mirai_temp_circuit_1
-    unit_of_measurement: "°C"
-    device_class: temperature
-    state_class: measurement
-    scale: 0.1
-    precision: 1
+      # Temperatura aggiuntiva (scala 0.1)
+      - scan_interval: 15
+        slave: 1
+        input_type: holding
+        address: 3508
+        data_type: int16
+        name: "MIRAI temperatura circuito 2"
+        unique_id: mirai_temp_circuit_2
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scale: 0.1
+        precision: 1
 
-  # Temperatura aggiuntiva (scala 0.1)
-  - platform: modbus
-    scan_interval: 15
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 3508
-    data_type: int16
-    name: "MIRAI temperatura circuito 2"
-    unique_id: mirai_temp_circuit_2
-    unit_of_measurement: "°C"
-    device_class: temperature
-    state_class: measurement
-    scale: 0.1
-    precision: 1
+      # Temperatura compatta (scala 0.1)
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1015
+        data_type: int16
+        name: "MIRAI temperatura interna"
+        unique_id: mirai_temp_internal
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scale: 0.1
+        precision: 1
 
-  # Temperatura compatta (scala 0.1)
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1015
-    data_type: int16
-    name: "MIRAI temperatura interna"
-    unique_id: mirai_temp_internal
-    unit_of_measurement: "°C"
-    device_class: temperature
-    state_class: measurement
-    scale: 0.1
-    precision: 1
+      # Setpoint principale (probabile scala 0.1)
+      - scan_interval: 15
+        slave: 1
+        input_type: holding
+        address: 3522
+        data_type: int16
+        name: "MIRAI setpoint principale"
+        unique_id: mirai_setpoint_main
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        scale: 0.1
+        precision: 1
 
-  # Setpoint principale (probabile scala 0.1)
-  - platform: modbus
-    scan_interval: 15
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 3522
-    data_type: int16
-    name: "MIRAI setpoint principale"
-    unique_id: mirai_setpoint_main
-    unit_of_measurement: "°C"
-    device_class: temperature
-    state_class: measurement
-    scale: 0.1
-    precision: 1
+      # Setpoint secondario (scala da verificare)
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1013
+        data_type: int16
+        name: "MIRAI setpoint secondario"
+        unique_id: mirai_setpoint_secondary
+        unit_of_measurement: "°C"
+        precision: 1
+        # scala da verificare
 
-  # Setpoint secondario (scala da verificare)
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1013
-    data_type: int16
-    name: "MIRAI setpoint secondario"
-    unique_id: mirai_setpoint_secondary
-    unit_of_measurement: "°C"
-    entity_category: diagnostic
-    precision: 1
-    # scala da verificare
+      # Energia totale (uint32 con swap little-endian)
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4046
+        data_type: uint16
+        name: "MIRAI energia high"
+        unique_id: mirai_energy_high
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        # verifica scala reale kWh
 
-  # Energia totale (uint32 con swap little-endian)
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 4046
-    count: 2
-    data_type: uint32
-    swap: word
-    name: "MIRAI energia totale"
-    unique_id: mirai_energy_total
-    unit_of_measurement: "kWh"
-    device_class: energy
-    state_class: total_increasing
-    # verifica scala reale kWh
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4047
+        data_type: uint16
+        name: "MIRAI energia low"
+        unique_id: mirai_energy_low
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        # verifica scala reale kWh
 
-  # Stato diagnostico
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1208
-    data_type: uint16
-    name: "MIRAI stato"
-    unique_id: mirai_status_code
-    entity_category: diagnostic
+      # Stato diagnostico
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1208
+        data_type: uint16
+        name: "MIRAI stato"
+        unique_id: mirai_status_code
 
-  # Codice diagnostico
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 1209
-    data_type: uint16
-    name: "MIRAI codice"
-    unique_id: mirai_code
-    entity_category: diagnostic
+      # Codice diagnostico
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 1209
+        data_type: uint16
+        name: "MIRAI codice"
+        unique_id: mirai_code
 
-  # Potenza/tempo diagnostica
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 3022
-    data_type: uint16
-    name: "MIRAI parametro 3022"
-    unique_id: mirai_param_3022
-    entity_category: diagnostic
+      # Potenza/tempo diagnostica
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 3022
+        data_type: uint16
+        name: "MIRAI parametro 3022"
+        unique_id: mirai_param_3022
 
-  # Bitmask diagnostica 4000
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 4000
-    data_type: uint16
-    name: "MIRAI bitmask 4000"
-    unique_id: mirai_bitmask_4000
-    entity_category: diagnostic
+      # Bitmask diagnostica 4000
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4000
+        data_type: uint16
+        name: "MIRAI bitmask 4000"
+        unique_id: mirai_bitmask_4000
 
-  # Bitmask diagnostica 4001
-  - platform: modbus
-    scan_interval: 30
-    hub: mirai_modbus
-    slave: 1
-    input_type: holding
-    address: 4001
-    data_type: uint16
-    name: "MIRAI bitmask 4001"
-    unique_id: mirai_bitmask_4001
-    entity_category: diagnostic
+      # Bitmask diagnostica 4001
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4001
+        data_type: uint16
+        name: "MIRAI bitmask 4001"
+        unique_id: mirai_bitmask_4001
