@@ -1,0 +1,1 @@
+mirai_ensure_log_dir: "mkdir -p /config/www/mirai"

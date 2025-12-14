@@ -1,0 +1,4 @@
+- name: mirai_modbus_log
+  platform: file
+  filename: /config/www/mirai/mirai_modbus_log.csv
+  timestamp: false
