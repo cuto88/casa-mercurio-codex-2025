@@ -14,7 +14,7 @@ modbus:
         data_type: uint16
         name: "MIRAI stato macchina"
         unique_id: mirai_state_main
-        entity_category: diagnostic
+        
 
       # Stato backup ON/OFF su registro alternativo
       - scan_interval: 30
@@ -24,7 +24,6 @@ modbus:
         data_type: uint16
         name: "MIRAI stato macchina backup"
         unique_id: mirai_state_backup
-        entity_category: diagnostic
 
       # Status word diagnostica
       - scan_interval: 30
@@ -34,7 +33,6 @@ modbus:
         data_type: uint16
         name: "MIRAI status word"
         unique_id: mirai_status_word
-        entity_category: diagnostic
 
       # Temperatura esterna (scala 1:1)
       - scan_interval: 15
@@ -114,7 +112,6 @@ modbus:
         name: "MIRAI setpoint secondario"
         unique_id: mirai_setpoint_secondary
         unit_of_measurement: "°C"
-        entity_category: diagnostic
         precision: 1
         # scala da verificare
 
@@ -141,7 +138,6 @@ modbus:
         data_type: uint16
         name: "MIRAI stato"
         unique_id: mirai_status_code
-        entity_category: diagnostic
 
       # Codice diagnostico
       - scan_interval: 30
@@ -151,7 +147,6 @@ modbus:
         data_type: uint16
         name: "MIRAI codice"
         unique_id: mirai_code
-        entity_category: diagnostic
 
       # Potenza/tempo diagnostica
       - scan_interval: 30
@@ -161,7 +156,6 @@ modbus:
         data_type: uint16
         name: "MIRAI parametro 3022"
         unique_id: mirai_param_3022
-        entity_category: diagnostic
 
       # Bitmask diagnostica 4000
       - scan_interval: 30
@@ -171,7 +165,6 @@ modbus:
         data_type: uint16
         name: "MIRAI bitmask 4000"
         unique_id: mirai_bitmask_4000
-        entity_category: diagnostic
 
       # Bitmask diagnostica 4001
       - scan_interval: 30
@@ -181,4 +174,3 @@ modbus:
         data_type: uint16
         name: "MIRAI bitmask 4001"
         unique_id: mirai_bitmask_4001
-        entity_category: diagnostic
