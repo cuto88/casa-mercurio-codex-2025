@@ -1,5 +1,6 @@
-<<: !include mirai/00_globals.yaml
 
 modbus: !include mirai/10_modbus.yaml
-template: !include mirai/20_templates.yaml
+template: 
+    - !include mirai/20_templates.yaml
+    - !include mirai/00_globals.yaml
 automation: !include mirai/30_automations.yaml
