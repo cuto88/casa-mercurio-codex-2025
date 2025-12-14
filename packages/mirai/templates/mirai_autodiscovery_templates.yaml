@@ -233,9 +233,6 @@ notify:
     filename: /config/www/mirai/mirai_modbus_log.csv
     timestamp: false
 
-shell_command:
-  mirai_ensure_log_dir: "mkdir -p /config/www/mirai"
-
 automation:
   - alias: "MIRAI Modbus debug logger"
     id: mirai_modbus_debug_logger

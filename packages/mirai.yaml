@@ -1,4 +1,6 @@
 # AUTO-GENERATED — do not edit. Sources in packages/mirai/**
+<<: !include mirai/00_globals.yaml
+
 modbus:
   - name: mirai_modbus
     type: tcp
@@ -108,11 +110,6 @@ modbus:
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-
-input_boolean:
-  mirai_modbus_autodiscovery_enabled:
-    name: "MIRAI Modbus autodiscovery"
-    icon: mdi:radar
 
 template:
   # Autodiscovery scoring and selection
@@ -346,9 +343,6 @@ notify:
     platform: file
     filename: /config/www/mirai/mirai_modbus_log.csv
     timestamp: false
-
-shell_command:
-  mirai_ensure_log_dir: "mkdir -p /config/www/mirai"
 
 automation:
   - alias: "MIRAI Modbus debug logger"
