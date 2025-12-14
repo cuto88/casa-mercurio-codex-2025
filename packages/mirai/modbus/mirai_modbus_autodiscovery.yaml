@@ -1,9 +1,4 @@
 # MIRAI Modbus candidate registers for autodiscovery and quality scoring
-input_boolean:
-  mirai_modbus_autodiscovery_enabled:
-    name: "MIRAI Modbus autodiscovery"
-    icon: mdi:radar
-
 modbus:
   - name: mirai_modbus
     type: tcp
