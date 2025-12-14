@@ -13,7 +13,6 @@ modbus:
         input_type: holding
         address: 1003
         data_type: uint16
-        signed: false
         scale: 1
 
       - name: "MIRAI Bitmask 4000"
@@ -23,7 +22,6 @@ modbus:
         input_type: holding
         address: 4000
         data_type: uint16
-        signed: false
         scale: 1
 
       - name: "MIRAI Bitmask 4001"
@@ -33,7 +31,6 @@ modbus:
         input_type: holding
         address: 4001
         data_type: uint16
-        signed: false
         scale: 1
 
       - name: "MIRAI Status Code"
@@ -43,7 +40,6 @@ modbus:
         input_type: holding
         address: 1208
         data_type: uint16
-        signed: false
         scale: 1
 
       - name: "MIRAI Fault Code"
@@ -53,5 +49,4 @@ modbus:
         input_type: holding
         address: 1209
         data_type: uint16
-        signed: false
         scale: 1
