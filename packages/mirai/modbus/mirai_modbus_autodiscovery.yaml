@@ -1,0 +1,48 @@
+# MIRAI Modbus candidate registers for autodiscovery and quality scoring
+input_boolean:
+  mirai_modbus_autodiscovery_enabled:
+    name: "MIRAI Modbus autodiscovery"
+    icon: mdi:radar
+
+modbus:
+  - name: mirai_modbus
+    type: tcp
+    host: 192.168.178.33
+    port: 502
+    delay: 1
+    timeout: 5
+
+    sensors:
+      # Candidate temperatures observed during exploratory polling
+      - name: "MIRAI candidate temperature A"
+        unique_id: mirai_candidate_temperature_a
+        slave: 1
+        input_type: holding
+        address: 4036
+        data_type: int16
+        scan_interval: 30
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+
+      - name: "MIRAI candidate temperature B"
+        unique_id: mirai_candidate_temperature_b
+        slave: 1
+        input_type: holding
+        address: 4037
+        data_type: int16
+        scan_interval: 30
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+
+      - name: "MIRAI candidate temperature C"
+        unique_id: mirai_candidate_temperature_c
+        slave: 1
+        input_type: input
+        address: 3200
+        data_type: int16
+        scan_interval: 30
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
