@@ -7,3 +7,9 @@ input_boolean:
 
 shell_command:
   mirai_ensure_log_dir: "mkdir -p /config/www/mirai"
+
+notify:
+  - name: mirai_modbus_log
+    platform: file
+    filename: /config/www/mirai/mirai_modbus_log.csv
+    timestamp: false
