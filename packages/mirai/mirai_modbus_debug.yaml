@@ -19,7 +19,8 @@ template:
           {% set value = trigger.to_state.state | int(0) %}
           {% set bits = [] %}
           {% for i in range(0, 16) %}
-            {% if value & (1 << i) %}
+            {% set bit_on = ((value // (2 ** i)) % 2) == 1 %}
+            {% if bit_on %}
               {% set bits = bits + [i|string] %}
             {% endif %}
           {% endfor %}
@@ -29,11 +30,12 @@ template:
         unique_id: mirai_status_word_bits_changed
         state: >-
           {% set current = trigger.to_state.state | int(0) %}
-          {% set previous = this.state | int(0) %}
-          {% set diff = current ^ previous %}
+          {% set previous = (trigger.from_state.state if trigger.from_state is not none else current) | int(current) %}
           {% set bits = [] %}
           {% for i in range(0, 16) %}
-            {% if diff & (1 << i) %}
+            {% set cur_bit = (current // (2 ** i)) % 2 %}
+            {% set prev_bit = (previous // (2 ** i)) % 2 %}
+            {% if cur_bit != prev_bit %}
               {% set bits = bits + [i|string] %}
             {% endif %}
           {% endfor %}
@@ -57,7 +59,8 @@ template:
           {% set value = trigger.to_state.state | int(0) %}
           {% set bits = [] %}
           {% for i in range(0, 16) %}
-            {% if value & (1 << i) %}
+            {% set bit_on = ((value // (2 ** i)) % 2) == 1 %}
+            {% if bit_on %}
               {% set bits = bits + [i|string] %}
             {% endif %}
           {% endfor %}
@@ -67,11 +70,12 @@ template:
         unique_id: mirai_status_code_bits_changed
         state: >-
           {% set current = trigger.to_state.state | int(0) %}
-          {% set previous = this.state | int(0) %}
-          {% set diff = current ^ previous %}
+          {% set previous = (trigger.from_state.state if trigger.from_state is not none else current) | int(current) %}
           {% set bits = [] %}
           {% for i in range(0, 16) %}
-            {% if diff & (1 << i) %}
+            {% set cur_bit = (current // (2 ** i)) % 2 %}
+            {% set prev_bit = (previous // (2 ** i)) % 2 %}
+            {% if cur_bit != prev_bit %}
               {% set bits = bits + [i|string] %}
             {% endif %}
           {% endfor %}
