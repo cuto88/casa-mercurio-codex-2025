@@ -10,7 +10,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 3503
+        address: 3502
         data_type: uint16
         name: "MIRAI unit on/off (raw)"
         unique_id: mirai_unit_onoff_raw_main
@@ -19,7 +19,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1002
+        address: 1001
         data_type: uint16
         name: "MIRAI unit on/off backup (raw)"
         unique_id: mirai_unit_onoff_raw_backup
@@ -28,7 +28,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1003
+        address: 1002
         data_type: uint16
         name: "MIRAI status word (raw)"
         unique_id: mirai_status_word_raw
@@ -132,7 +132,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1208
+        address: 1207
         data_type: uint16
         name: "MIRAI status code (raw)"
         unique_id: mirai_status_code_raw
@@ -141,7 +141,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1209
+        address: 1208
         data_type: uint16
         name: "MIRAI fault code (raw)"
         unique_id: mirai_fault_code_raw
@@ -150,7 +150,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 3022
+        address: 3021
         data_type: uint16
         name: "MIRAI parameter 3022 (raw)"
         unique_id: mirai_parameter_3022_raw
@@ -159,7 +159,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4000
+        address: 3999
         data_type: uint16
         name: "MIRAI bitmask 4000 (raw)"
         unique_id: mirai_bitmask_4000_raw
@@ -168,7 +168,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4001
+        address: 4000
         data_type: uint16
         name: "MIRAI bitmask 4001 (raw)"
         unique_id: mirai_bitmask_4001_raw
