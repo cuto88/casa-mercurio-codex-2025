@@ -14,7 +14,6 @@ modbus:
         data_type: uint16
         name: "MIRAI stato macchina"
         unique_id: mirai_state_main
-        
 
       # Stato backup ON/OFF su registro alternativo
       - scan_interval: 30
@@ -120,11 +119,21 @@ modbus:
         slave: 1
         input_type: holding
         address: 4046
-        count: 2
-        data_type: uint32
-        swap: word
-        name: "MIRAI energia totale"
-        unique_id: mirai_energy_total
+        data_type: uint16
+        name: "MIRAI energia high"
+        unique_id: mirai_energy_high
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        # verifica scala reale kWh
+
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4047
+        data_type: uint16
+        name: "MIRAI energia low"
+        unique_id: mirai_energy_low
         unit_of_measurement: "kWh"
         device_class: energy
         state_class: total_increasing
