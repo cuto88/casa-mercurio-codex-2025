@@ -6,198 +6,22 @@ modbus:
     delay: 1
     timeout: 5
     sensors:
-      # Stato principale ON/OFF (1=acceso, 0=spento)
-      - scan_interval: 15
-        slave: 1
-        input_type: holding
-        address: 3502
-        data_type: uint16
-        name: "MIRAI unit on/off (raw)"
-        unique_id: mirai_unit_onoff_raw_main
-
-      # Stato backup ON/OFF su registro alternativo
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 1001
-        data_type: uint16
-        name: "MIRAI unit on/off backup (raw)"
-        unique_id: mirai_unit_onoff_raw_backup
-
-      # Status word diagnostica
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 1002
-        data_type: uint16
-        name: "MIRAI status word (raw)"
-        unique_id: mirai_status_word_raw
-
-      # Temperatura esterna (scala 1:1)
-      # - scan_interval: 15
-      #   slave: 1
-      #   input_type: input
-      #   address: 35
-      #   data_type: int16
-      #   name: "MIRAI outdoor temperature"
-      #   unique_id: mirai_outdoor_temperature
-      #   unit_of_measurement: "°C"
-      #   device_class: temperature
-      #   state_class: measurement
-      #   precision: 0
-
-      # Temperatura mandata/ritorno alta (scala 0.1)
-      # - scan_interval: 15
-      #   slave: 1
-      #   input_type: input
-      #   address: 526
-      #   data_type: int16
-      #   name: "MIRAI circuit 1 temperature"
-      #   unique_id: mirai_circuit_1_temperature
-      #   unit_of_measurement: "°C"
-      #   device_class: temperature
-      #   state_class: measurement
-      #   scale: 0.1
-      #   precision: 1
-
-      # Temperatura aggiuntiva (scala 0.1)
-      # - scan_interval: 15
-      #   slave: 1
-      #   input_type: input
-      #   address: 508
-      #   data_type: int16
-      #   name: "MIRAI circuit 2 temperature"
-      #   unique_id: mirai_circuit_2_temperature
-      #   unit_of_measurement: "°C"
-      #   device_class: temperature
-      #   state_class: measurement
-      #   scale: 0.1
-      #   precision: 1
-
-      # Temperatura compatta (scala 0.1)
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 1015
-      #   data_type: int16
-      #   name: "MIRAI internal temperature"
-      #   unique_id: mirai_internal_temperature
-      #   unit_of_measurement: "°C"
-      #   device_class: temperature
-      #   state_class: measurement
-      #   scale: 0.1
-      #   precision: 1
-
-      # Setpoint principale (probabile scala 0.1)
-      # - scan_interval: 15
-      #   slave: 1
-      #   input_type: input
-      #   address: 522
-      #   data_type: int16
-      #   name: "MIRAI main setpoint"
-      #   unique_id: mirai_main_setpoint
-      #   unit_of_measurement: "°C"
-      #   device_class: temperature
-      #   state_class: measurement
-      #   scale: 0.1
-      #   precision: 1
-
-      # Setpoint secondario (scala da verificare)
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 1013
-      #   data_type: int16
-      #   name: "MIRAI secondary setpoint"
-      #   unique_id: mirai_secondary_setpoint
-      #   unit_of_measurement: "°C"
-      #   precision: 1
-      #   # scala da verificare
-
-      # Energia totale (uint32 con swap little-endian)
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 46
-      #   data_type: uint32
-      #   swap: word
-      #   name: "MIRAI energy total"
-      #   unique_id: mirai_energy_total
-      #   unit_of_measurement: "kWh"
-      #   device_class: energy
-      #   state_class: total_increasing
-      #   # verifica scala reale kWh
-
-      # Stato diagnostico
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 1207
-        data_type: uint16
-        name: "MIRAI status code (raw)"
-        unique_id: mirai_status_code_raw
-
-      # Codice diagnostico
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 1208
-        data_type: uint16
-        name: "MIRAI fault code (raw)"
-        unique_id: mirai_fault_code_raw
-
-      # Potenza/tempo diagnostica
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 3021
-        data_type: uint16
-        name: "MIRAI parameter 3022 (raw)"
-        unique_id: mirai_parameter_3022_raw
-
-      # Bitmask diagnostica 4000
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 3999
-        data_type: uint16
-        name: "MIRAI bitmask 4000 (raw)"
-        unique_id: mirai_bitmask_4000_raw
-
-      # Bitmask diagnostica 4001
-      - scan_interval: 30
+      # Reliable status registers (holding)
+      - scan_interval: 10
         slave: 1
         input_type: holding
         address: 4000
         data_type: uint16
-        name: "MIRAI bitmask 4001 (raw)"
-        unique_id: mirai_bitmask_4001_raw
+        name: "MIRAI status word (raw)"
+        unique_id: mirai_status_word_raw
 
-      # === FINAL PROBES (offset test) ===
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 35
-      #   data_type: int16
-      #   name: "MIRAI PROBE outdoor_temp input @35"
-      #   unique_id: mirai_probe_outdoor_temp_input_35
-
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 34
-      #   data_type: int16
-      #   name: "MIRAI PROBE outdoor_temp input @34"
-      #   unique_id: mirai_probe_outdoor_temp_input_34
-
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 46
-      #   data_type: uint32
-      #   swap: word
-      #   name: "MIRAI PROBE energy_total_u32 input @46"
-      #   unique_id: mirai_probe_energy_u32_input_46
+      - scan_interval: 10
+        slave: 1
+        input_type: holding
+        address: 4001
+        data_type: uint16
+        name: "MIRAI status code (raw)"
+        unique_id: mirai_status_code_raw
 
       # - scan_interval: 30
       #   slave: 1
@@ -223,29 +47,4 @@ modbus:
       #   data_type: int16
       #   name: "MIRAI PROBE internal_temp input @15"
       #   unique_id: mirai_probe_internal_temp_input_15
-
-      # === TEST SENSORS ===
-      - scan_interval: 10
-        slave: 1
-        input_type: holding
-        address: 34
-        data_type: int16
-        name: "MIRAI TEST outdoor temp holding @34"
-        unique_id: mirai_test_outdoor_temp_holding_34
-
-      - scan_interval: 10
-        slave: 1
-        input_type: holding
-        address: 4034
-        data_type: int16
-        name: "MIRAI TEST outdoor temp holding @4034"
-        unique_id: mirai_test_outdoor_temp_holding_4034
-
-      - scan_interval: 10
-        slave: 1
-        input_type: holding
-        address: 1003
-        data_type: uint16
-        name: "MIRAI TEST status word holding @1003"
-        unique_id: mirai_test_status_word_1003
 
