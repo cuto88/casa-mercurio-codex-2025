@@ -1,0 +1,60 @@
+# Package: notify_google_speaker — Notifiche vocali su Google Home Mini (solo TTS)
+
+# Configurazione TTS locale (Google Translate, lingua italiana)
+tts:
+  - platform: google_translate
+    language: "it"
+    cache: true  # Mantiene in memoria gli ultimi messaggi per velocizzare
+    time_memory: 300  # Cache di 5 minuti
+
+script:
+  notify_voice_google:
+    alias: "Notifica vocale su Google Home Mini"
+    description: "Riproduce una notifica vocale TTS su Google Home Mini"
+    mode: queued
+    max: 10  # Evita accodamenti infiniti
+    fields:
+      message:
+        description: "Testo da pronunciare (obbligatorio)"
+        example: "Attenzione: umidità bagno elevata"
+        required: true
+      volume:
+        description: "Volume 0.0–1.0 (opzionale, default 0.5)"
+        example: 0.6
+        required: false
+        default: 0.5
+    variables:
+      target_speaker: media_player.google_home_mini_studio  # Sostituire con l'entity_id reale del Google Home Mini
+      target_volume: "{{ volume | default(0.5) | float(0.5) }}"
+      previous_volume: "{{ state_attr(target_speaker, 'volume_level') }}"
+    sequence:
+      # Imposta il volume richiesto (clamp 0.0–1.0)
+      - service: media_player.volume_set
+        data:
+          entity_id: "{{ target_speaker }}"
+          volume_level: "{{ [[target_volume, 1]|min, 0]|max }}"
+
+      # Riproduce la notifica vocale tramite TTS locale
+      - service: tts.google_translate_say
+        data:
+          entity_id: "{{ target_speaker }}"
+          message: "{{ message }}"
+          language: "it"
+          cache: true
+
+      # Ripristina il volume precedente se disponibile
+      - choose:
+          - conditions: "{{ previous_volume is number }}"
+            sequence:
+              - delay: "00:00:02"  # Attende breve tempo per non troncare il TTS
+              - service: media_player.volume_set
+                data:
+                  entity_id: "{{ target_speaker }}"
+                  volume_level: "{{ previous_volume }}"
+        default: []
+
+# Esempio di utilizzo (come commento, pronto per automazioni)
+# action:
+#   - service: script.notify_voice_google
+#     data:
+#       message: "Attenzione: umidità bagno elevata"
