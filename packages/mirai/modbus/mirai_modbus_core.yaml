@@ -1,0 +1,76 @@
+# MIRAI Modbus core registers validated in field
+modbus:
+  - name: mirai_modbus
+    type: tcp
+    host: 192.168.178.33
+    port: 502
+    delay: 1
+    timeout: 5
+
+    sensors:
+      # --- CORE STATUS / DIAGNOSTIC (confirmed working) ---
+      - name: "MIRAI status word (raw)"
+        unique_id: mirai_status_word_raw
+        slave: 1
+        input_type: holding
+        address: 1003
+        data_type: uint16
+        scan_interval: 15
+
+      - name: "MIRAI status code (raw)"
+        unique_id: mirai_status_code_raw
+        slave: 1
+        input_type: holding
+        address: 1208
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "MIRAI fault code (raw)"
+        unique_id: mirai_fault_code_raw
+        slave: 1
+        input_type: holding
+        address: 1209
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "MIRAI bitmask 4000 (raw)"
+        unique_id: mirai_bitmask_4000_raw
+        slave: 1
+        input_type: holding
+        address: 4000
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "MIRAI bitmask 4001 (raw)"
+        unique_id: mirai_bitmask_4001_raw
+        slave: 1
+        input_type: holding
+        address: 4001
+        data_type: uint16
+        scan_interval: 30
+
+      # --- CORE VALUES (based on on-site measurements) ---
+      - name: "MIRAI outdoor temperature"
+        unique_id: mirai_outdoor_temperature
+        slave: 1
+        input_type: holding
+        address: 4035
+        data_type: int16
+        scan_interval: 15
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        precision: 0
+
+      - name: "MIRAI energy total"
+        unique_id: mirai_energy_total
+        slave: 1
+        input_type: holding
+        address: 4046
+        data_type: uint32
+        swap: word
+        scan_interval: 30
+        scale: 0.001
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
