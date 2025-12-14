@@ -14,6 +14,7 @@ modbus:
         data_type: uint16
         name: "MIRAI stato macchina"
         unique_id: mirai_state_main
+        
 
       # Stato backup ON/OFF su registro alternativo
       - scan_interval: 30
