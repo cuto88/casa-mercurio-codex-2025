@@ -36,8 +36,8 @@ modbus:
       # Temperatura esterna (scala 1:1)
       - scan_interval: 15
         slave: 1
-        input_type: holding
-        address: 4034
+        input_type: input
+        address: 35
         data_type: int16
         name: "MIRAI outdoor temperature"
         unique_id: mirai_outdoor_temperature
@@ -49,8 +49,8 @@ modbus:
       # Temperatura mandata/ritorno alta (scala 0.1)
       - scan_interval: 15
         slave: 1
-        input_type: holding
-        address: 3525
+        input_type: input
+        address: 526
         data_type: int16
         name: "MIRAI circuit 1 temperature"
         unique_id: mirai_circuit_1_temperature
@@ -63,8 +63,8 @@ modbus:
       # Temperatura aggiuntiva (scala 0.1)
       - scan_interval: 15
         slave: 1
-        input_type: holding
-        address: 3507
+        input_type: input
+        address: 508
         data_type: int16
         name: "MIRAI circuit 2 temperature"
         unique_id: mirai_circuit_2_temperature
@@ -77,8 +77,8 @@ modbus:
       # Temperatura compatta (scala 0.1)
       - scan_interval: 30
         slave: 1
-        input_type: holding
-        address: 1014
+        input_type: input
+        address: 1015
         data_type: int16
         name: "MIRAI internal temperature"
         unique_id: mirai_internal_temperature
@@ -91,8 +91,8 @@ modbus:
       # Setpoint principale (probabile scala 0.1)
       - scan_interval: 15
         slave: 1
-        input_type: holding
-        address: 3521
+        input_type: input
+        address: 522
         data_type: int16
         name: "MIRAI main setpoint"
         unique_id: mirai_main_setpoint
@@ -105,8 +105,8 @@ modbus:
       # Setpoint secondario (scala da verificare)
       - scan_interval: 30
         slave: 1
-        input_type: holding
-        address: 1012
+        input_type: input
+        address: 1013
         data_type: int16
         name: "MIRAI secondary setpoint"
         unique_id: mirai_secondary_setpoint
@@ -117,24 +117,12 @@ modbus:
       # Energia totale (uint32 con swap little-endian)
       - scan_interval: 30
         slave: 1
-        input_type: holding
-        address: 4045
+        input_type: input
+        address: 46
         data_type: uint32
         swap: word
         name: "MIRAI energy total"
         unique_id: mirai_energy_total
-        unit_of_measurement: "kWh"
-        device_class: energy
-        state_class: total_increasing
-        # verifica scala reale kWh
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4046
-        data_type: uint16
-        name: "MIRAI energy low word (raw)"
-        unique_id: mirai_energy_low_word_raw
         unit_of_measurement: "kWh"
         device_class: energy
         state_class: total_increasing
@@ -185,102 +173,3 @@ modbus:
         name: "MIRAI bitmask 4001 (raw)"
         unique_id: mirai_bitmask_4001_raw
 
-      # === PROBES (diagnostic) ===
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4034
-        data_type: int16
-        name: "MIRAI PROBE outdoor_temp @4035"
-        unique_id: mirai_probe_outdoor_temp_4035
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4033
-        data_type: int16
-        name: "MIRAI PROBE outdoor_temp @4034"
-        unique_id: mirai_probe_outdoor_temp_4034
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 3521
-        data_type: int16
-        name: "MIRAI PROBE main_setpoint @3522"
-        unique_id: mirai_probe_main_setpoint_3522
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 3520
-        data_type: int16
-        name: "MIRAI PROBE main_setpoint @3521"
-        unique_id: mirai_probe_main_setpoint_3521
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4045
-        data_type: uint32
-        swap: word
-        name: "MIRAI PROBE energy_total_u32 @4046"
-        unique_id: mirai_probe_energy_total_u32_4046
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4044
-        data_type: uint32
-        swap: word
-        name: "MIRAI PROBE energy_total_u32 @4045"
-        unique_id: mirai_probe_energy_total_u32_4045
-
-      # === PROBES: holding vs input ===
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4035
-        data_type: int16
-        name: "MIRAI PROBE outdoor_temp holding @4035"
-        unique_id: mirai_probe_outdoor_temp_holding_4035
-
-      - scan_interval: 30
-        slave: 1
-        input_type: input
-        address: 4035
-        data_type: int16
-        name: "MIRAI PROBE outdoor_temp input @4035"
-        unique_id: mirai_probe_outdoor_temp_input_4035
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 3522
-        data_type: int16
-        name: "MIRAI PROBE main_setpoint holding @3522"
-        unique_id: mirai_probe_main_setpoint_holding_3522
-
-      - scan_interval: 30
-        slave: 1
-        input_type: input
-        address: 3522
-        data_type: int16
-        name: "MIRAI PROBE main_setpoint input @3522"
-        unique_id: mirai_probe_main_setpoint_input_3522
-
-      - scan_interval: 30
-        slave: 1
-        input_type: holding
-        address: 4046
-        data_type: uint16
-        name: "MIRAI PROBE energy_hi holding @4046"
-        unique_id: mirai_probe_energy_hi_holding_4046
-
-      - scan_interval: 30
-        slave: 1
-        input_type: input
-        address: 4046
-        data_type: uint16
-        name: "MIRAI PROBE energy_hi input @4046"
-        unique_id: mirai_probe_energy_hi_input_4046
