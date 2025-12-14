@@ -10,7 +10,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 3503
+        address: 3502
         data_type: uint16
         name: "MIRAI unit on/off (raw)"
         unique_id: mirai_unit_onoff_raw_main
@@ -19,7 +19,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1002
+        address: 1001
         data_type: uint16
         name: "MIRAI unit on/off backup (raw)"
         unique_id: mirai_unit_onoff_raw_backup
@@ -28,7 +28,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1003
+        address: 1002
         data_type: uint16
         name: "MIRAI status word (raw)"
         unique_id: mirai_status_word_raw
@@ -37,7 +37,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 4035
+        address: 4034
         data_type: int16
         name: "MIRAI outdoor temperature"
         unique_id: mirai_outdoor_temperature
@@ -50,7 +50,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 3526
+        address: 3525
         data_type: int16
         name: "MIRAI circuit 1 temperature"
         unique_id: mirai_circuit_1_temperature
@@ -64,7 +64,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 3508
+        address: 3507
         data_type: int16
         name: "MIRAI circuit 2 temperature"
         unique_id: mirai_circuit_2_temperature
@@ -78,7 +78,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1015
+        address: 1014
         data_type: int16
         name: "MIRAI internal temperature"
         unique_id: mirai_internal_temperature
@@ -92,7 +92,7 @@ modbus:
       - scan_interval: 15
         slave: 1
         input_type: holding
-        address: 3522
+        address: 3521
         data_type: int16
         name: "MIRAI main setpoint"
         unique_id: mirai_main_setpoint
@@ -106,7 +106,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1013
+        address: 1012
         data_type: int16
         name: "MIRAI secondary setpoint"
         unique_id: mirai_secondary_setpoint
@@ -118,7 +118,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4046
+        address: 4045
         data_type: uint32
         swap: word
         name: "MIRAI energy total"
@@ -131,7 +131,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4047
+        address: 4046
         data_type: uint16
         name: "MIRAI energy low word (raw)"
         unique_id: mirai_energy_low_word_raw
@@ -144,7 +144,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1208
+        address: 1207
         data_type: uint16
         name: "MIRAI status code (raw)"
         unique_id: mirai_status_code_raw
@@ -153,7 +153,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 1209
+        address: 1208
         data_type: uint16
         name: "MIRAI fault code (raw)"
         unique_id: mirai_fault_code_raw
@@ -162,7 +162,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 3022
+        address: 3021
         data_type: uint16
         name: "MIRAI parameter 3022 (raw)"
         unique_id: mirai_parameter_3022_raw
@@ -171,7 +171,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4000
+        address: 3999
         data_type: uint16
         name: "MIRAI bitmask 4000 (raw)"
         unique_id: mirai_bitmask_4000_raw
@@ -180,7 +180,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4001
+        address: 4000
         data_type: uint16
         name: "MIRAI bitmask 4001 (raw)"
         unique_id: mirai_bitmask_4001_raw
@@ -189,7 +189,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4035
+        address: 4034
         data_type: int16
         name: "MIRAI PROBE outdoor_temp @4035"
         unique_id: mirai_probe_outdoor_temp_4035
@@ -197,7 +197,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4034
+        address: 4033
         data_type: int16
         name: "MIRAI PROBE outdoor_temp @4034"
         unique_id: mirai_probe_outdoor_temp_4034
@@ -205,7 +205,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 3522
+        address: 3521
         data_type: int16
         name: "MIRAI PROBE main_setpoint @3522"
         unique_id: mirai_probe_main_setpoint_3522
@@ -213,7 +213,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 3521
+        address: 3520
         data_type: int16
         name: "MIRAI PROBE main_setpoint @3521"
         unique_id: mirai_probe_main_setpoint_3521
@@ -221,7 +221,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4046
+        address: 4045
         data_type: uint32
         swap: word
         name: "MIRAI PROBE energy_total_u32 @4046"
@@ -230,7 +230,7 @@ modbus:
       - scan_interval: 30
         slave: 1
         input_type: holding
-        address: 4045
+        address: 4044
         data_type: uint32
         swap: word
         name: "MIRAI PROBE energy_total_u32 @4045"
