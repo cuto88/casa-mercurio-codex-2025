@@ -173,3 +173,54 @@ modbus:
         name: "MIRAI bitmask 4001 (raw)"
         unique_id: mirai_bitmask_4001_raw
 
+      # === FINAL PROBES (offset test) ===
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 35
+        data_type: int16
+        name: "MIRAI PROBE outdoor_temp input @35"
+        unique_id: mirai_probe_outdoor_temp_input_35
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 34
+        data_type: int16
+        name: "MIRAI PROBE outdoor_temp input @34"
+        unique_id: mirai_probe_outdoor_temp_input_34
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 46
+        data_type: uint32
+        swap: word
+        name: "MIRAI PROBE energy_total_u32 input @46"
+        unique_id: mirai_probe_energy_u32_input_46
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 45
+        data_type: uint32
+        swap: word
+        name: "MIRAI PROBE energy_total_u32 input @45"
+        unique_id: mirai_probe_energy_u32_input_45
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 1015
+        data_type: int16
+        name: "MIRAI PROBE internal_temp input @1015"
+        unique_id: mirai_probe_internal_temp_input_1015
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 15
+        data_type: int16
+        name: "MIRAI PROBE internal_temp input @15"
+        unique_id: mirai_probe_internal_temp_input_15
+
