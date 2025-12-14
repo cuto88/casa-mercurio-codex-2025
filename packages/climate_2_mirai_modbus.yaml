@@ -235,3 +235,52 @@ modbus:
         swap: word
         name: "MIRAI PROBE energy_total_u32 @4045"
         unique_id: mirai_probe_energy_total_u32_4045
+
+      # === PROBES: holding vs input ===
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4035
+        data_type: int16
+        name: "MIRAI PROBE outdoor_temp holding @4035"
+        unique_id: mirai_probe_outdoor_temp_holding_4035
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 4035
+        data_type: int16
+        name: "MIRAI PROBE outdoor_temp input @4035"
+        unique_id: mirai_probe_outdoor_temp_input_4035
+
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 3522
+        data_type: int16
+        name: "MIRAI PROBE main_setpoint holding @3522"
+        unique_id: mirai_probe_main_setpoint_holding_3522
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 3522
+        data_type: int16
+        name: "MIRAI PROBE main_setpoint input @3522"
+        unique_id: mirai_probe_main_setpoint_input_3522
+
+      - scan_interval: 30
+        slave: 1
+        input_type: holding
+        address: 4046
+        data_type: uint16
+        name: "MIRAI PROBE energy_hi holding @4046"
+        unique_id: mirai_probe_energy_hi_holding_4046
+
+      - scan_interval: 30
+        slave: 1
+        input_type: input
+        address: 4046
+        data_type: uint16
+        name: "MIRAI PROBE energy_hi input @4046"
+        unique_id: mirai_probe_energy_hi_input_4046
