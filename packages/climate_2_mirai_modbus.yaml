@@ -6,45 +6,52 @@ modbus:
     delay: 1
     timeout: 5
     sensors:
-      # Reliable status registers (holding)
-      - scan_interval: 10
+      - name: "MIRAI Status Word"
+        unique_id: mirai_status_word
+        scan_interval: 20
+        slave: 1
+        input_type: holding
+        address: 1003
+        data_type: uint16
+        signed: false
+        scale: 1
+
+      - name: "MIRAI Bitmask 4000"
+        unique_id: mirai_bitmask_4000
+        scan_interval: 20
         slave: 1
         input_type: holding
         address: 4000
         data_type: uint16
-        name: "MIRAI status word (raw)"
-        unique_id: mirai_status_word_raw
+        signed: false
+        scale: 1
 
-      - scan_interval: 10
+      - name: "MIRAI Bitmask 4001"
+        unique_id: mirai_bitmask_4001
+        scan_interval: 20
         slave: 1
         input_type: holding
         address: 4001
         data_type: uint16
-        name: "MIRAI status code (raw)"
-        unique_id: mirai_status_code_raw
+        signed: false
+        scale: 1
 
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 45
-      #   data_type: uint32
-      #   swap: word
-      #   name: "MIRAI PROBE energy_total_u32 input @45"
-      #   unique_id: mirai_probe_energy_u32_input_45
+      - name: "MIRAI Status Code"
+        unique_id: mirai_status_code
+        scan_interval: 20
+        slave: 1
+        input_type: holding
+        address: 1208
+        data_type: uint16
+        signed: false
+        scale: 1
 
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 1015
-      #   data_type: int16
-      #   name: "MIRAI PROBE internal_temp input @1015"
-      #   unique_id: mirai_probe_internal_temp_input_1015
-
-      # - scan_interval: 30
-      #   slave: 1
-      #   input_type: input
-      #   address: 15
-      #   data_type: int16
-      #   name: "MIRAI PROBE internal_temp input @15"
-      #   unique_id: mirai_probe_internal_temp_input_15
-
+      - name: "MIRAI Fault Code"
+        unique_id: mirai_fault_code
+        scan_interval: 20
+        slave: 1
+        input_type: holding
+        address: 1209
+        data_type: uint16
+        signed: false
+        scale: 1
