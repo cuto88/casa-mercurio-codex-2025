@@ -1,2 +1,2 @@
-mirai_ensure_log_dir: "mkdir -p /config/www/mirai"
-mirai_modbus_append_log: "bash -c 'echo "\"{{ message }}\"" >> /config/www/mirai/mirai_modbus_log.csv'"
+mirai_ensure_log_dir: 'bash -lc "mkdir -p /config/logs/mirai || true"'
+mirai_noop: 'bash -lc "true"'
