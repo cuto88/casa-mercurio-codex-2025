@@ -16,7 +16,7 @@
         {{ last is none or (as_timestamp(now()) - as_timestamp(last)) > 2 }}
   action:
     - service: shell_command.mirai_ensure_log_dir
-    - service: notify.mirai_modbus_log
+    - service: shell_command.mirai_modbus_append_log
       data:
         message: >-
           {{ now().isoformat() }},{{ states('sensor.mirai_status_word_raw')|int(0) }},{{ states('sensor.mirai_status_word_hex') }},{{ states('sensor.mirai_status_word_bits_on') }},{{ states('sensor.mirai_status_word_bits_changed') }},{{ states('sensor.mirai_status_code_raw')|int(0) }},{{ states('sensor.mirai_status_code_hex') }},{{ states('sensor.mirai_status_code_bits_on') }},{{ states('sensor.mirai_status_code_bits_changed') }}

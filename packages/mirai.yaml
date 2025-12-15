@@ -1,6 +1,5 @@
-input_boolean: !include packages/mirai/00_globals_input_boolean.yaml
-input_number: !include packages/mirai/00_globals_input_number.yaml
-
-modbus: !include packages/mirai/10_modbus.yaml
-template: !include packages/mirai/20_templates.yaml
-automation: !include packages/mirai/30_automations.yaml
+input_boolean: !include mirai/00_input_boolean.yaml
+shell_command: !include mirai/01_shell_command.yaml
+modbus: !include mirai/10_modbus.yaml
+template: !include mirai/20_templates.yaml
+automation: !include mirai/30_automations.yaml

@@ -1,0 +1,2 @@
+mirai_ensure_log_dir: "mkdir -p /config/www/mirai"
+mirai_modbus_append_log: "bash -c 'echo "\"{{ message }}\"" >> /config/www/mirai/mirai_modbus_log.csv'"
