@@ -37,7 +37,7 @@ automation:
           {{ states(trigger.entity_id) }}
         {% endif %}
     action:
-      - service: notify.telegram_davide
+      - service: notify.telegram_bot_7779795757_193864452
         data:
           message: |
             [CLIMATE][{{ subsystem }}]
