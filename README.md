@@ -1,19 +1,10 @@
 # Casa Mercurio Codex 2025
-
-Configurazione Home Assistant organizzata per funzioni e componenti modulari.
-
-## Struttura cartelle
-- `packages/` – logica principale suddivisa per dominio.
-- `mirai/` – runtime e configurazione custom del progetto Mirai.
-- `logica/` – automazioni/script di alto livello (structured packages).
-- `lovelace/` – dashboard YAML.
-- `docs/modbus/` – documentazione tecnica Modbus (solo locale, non sincronizzata su HA).
-- `tools/` – utilità di sviluppo locali (non sincronizzate su HA).
-- `ops/` – script di sincronizzazione e manutenzione (non sincronizzati su HA).
-
-Ulteriori dettagli tecnici sono nel documento dedicato [README_ClimaSystem.md](README_ClimaSystem.md).
-
-## Sync verso Home Assistant
-Solo queste cartelle/file vengono replicate su Home Assistant (`Z:\\config`):
-`packages/`, `mirai/`, `logica/`, `lovelace/`, `www/`, `custom_components/`, `blueprints/`, insieme ai file di configurazione necessari (es. `configuration.yaml`).
-Le cartelle `tools/`, `ops/`, `docs/` e gli altri file di root non vengono sincronizzati.
+Configurazione Home Assistant modulare per la casa Mercurio.
+Struttura base: packages/, logica/, mirai/, lovelace/.
+packages/ contiene automazioni e logica per domini HA.
+logica/ raccoglie automazioni e script orchestrati ad alto livello.
+mirai/ ospita runtime e asset personalizzati del progetto Mirai.
+lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
+ops/ include gli script di manutenzione: usa ops/synch_ha.ps1 per sincronizzare verso Z:\config.
+Lo script copia solo packages, mirai, logica e lovelace in modalità mirror con esclusioni temporanee.
+Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
