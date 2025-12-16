@@ -4,9 +4,9 @@ Generate template binary_sensors that expose individual bits of the MIRAI
 Modbus status word (register 4000) and status code (register 4001).
 
 Usage:
-    python tools/mirai_generate_bit_sensors.py \
+    python mirai/dev/tools/mirai_generate_bit_sensors.py \
         --log-path /config/www/mirai/mirai_modbus_log.csv \
-        --output packages/mirai/mirai_bit_sensors.generated.yaml
+        --output mirai/runtime/20_templates.yaml
 
 The log file is only used to validate that data collection is running; the
 binary sensors reference the live raw sensors.
@@ -19,7 +19,7 @@ import sys
 from typing import List
 
 DEFAULT_LOG_PATH = "/config/www/mirai/mirai_modbus_log.csv"
-DEFAULT_OUTPUT = "packages/mirai/mirai_bit_sensors.generated.yaml"
+DEFAULT_OUTPUT = "mirai/runtime/20_templates.yaml"
 
 
 def parse_args() -> argparse.Namespace:

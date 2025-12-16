@@ -1,0 +1,2 @@
+mirai_ensure_log_dir: "bash -lc 'mkdir -p /config/logs/mirai || true'"
+mirai_noop: "bash -lc 'true'"

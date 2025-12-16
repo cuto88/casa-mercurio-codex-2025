@@ -3,26 +3,40 @@
 # Modalità MIRROR: le cartelle whitelist sono rese IDENTICHE alla sorgente
 # - Aggiunge/Aggiorna file nuovi o modificati
 # - Elimina file/cartelle presenti in HA ma non più nel repo
-# Cartelle: logica/, lovelace/, packages/ + configuration.yaml
+# Cartelle: packages/, mirai/runtime/, lovelace/, logica/ + configuration.yaml
 ###############################################################################
 
 $ErrorActionPreference = "Stop"
 
+function Write-Log {
+  param(
+    [string]$Message,
+    [System.ConsoleColor]$Color = [System.ConsoleColor]::White
+  )
+
+  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+  Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+}
+
 # === CONFIG ===
-$SRC = "C:\_Tools\casa-mercurio-codex-2025"   # repo locale
-$DST = "Z:\"                                  # root cartella config HA (es. \\homeassistant\config)
+$SRC = "C:\\_Tools\\casa-mercurio-codex-2025"   # repo locale
+$DST = "Z:\\"                                  # root cartella config HA (es. \\homeassistant\\config)
+
+$excludeDirs = @(".storage", "backups")
+$excludeFiles = @("secrets.yaml", "*.db", "*.log")
 
 # === FUNZIONI ===
 function Mirror-Folder {
   param(
-    [string]$Folder
+    [string]$Source,
+    [string]$Destination
   )
 
-  $src = Join-Path $SRC $Folder
-  $dst = Join-Path $DST $Folder
+  $src = Join-Path $SRC $Source
+  $dst = Join-Path $DST $Destination
 
   if (-not (Test-Path $src)) {
-    Write-Host "[SKIP] Sorgente non trovata: $src" -ForegroundColor Yellow
+    Write-Log "[SKIP] Sorgente non trovata: $src" Yellow
     return
   }
 
@@ -30,17 +44,16 @@ function Mirror-Folder {
     New-Item -ItemType Directory -Path $dst -Force | Out-Null
   }
 
-  Write-Host "[MIRROR] $src -> $dst"
+  Write-Log "[MIRROR] $src -> $dst" Cyan
 
-  # /MIR  = mirror completo (copy + delete)
-  # /Z    = copia riavviabile
-  # /R:1  = 1 solo tentativo di retry
-  # /W:1  = attesa 1s tra i retry
-  # /NFL /NDL /NJH /NJS /NP = output compatto
-  robocopy $src $dst /MIR /Z /R:1 /W:1 /NFL /NDL /NJH /NJS /NP | Out-Null
+  $args = @($src, $dst, "/MIR", "/Z", "/R:1", "/W:1", "/NFL", "/NDL", "/NJH", "/NJS", "/NP")
+  if ($excludeDirs.Count -gt 0) { $args += @("/XD") + $excludeDirs }
+  if ($excludeFiles.Count -gt 0) { $args += @("/XF") + $excludeFiles }
+
+  robocopy @args | Out-Null
 
   if ($LASTEXITCODE -ge 8) {
-    Write-Host "[ERRORE] Robocopy ha restituito codice $LASTEXITCODE su $Folder" -ForegroundColor Red
+    Write-Log "[ERRORE] Robocopy ha restituito codice $LASTEXITCODE su $Destination" Red
   }
 }
 
@@ -53,7 +66,7 @@ function Sync-File {
   $dstFile = Join-Path $DST $RelPath
 
   if (-not (Test-Path $srcFile)) {
-    Write-Host "[SKIP] File sorgente non trovato: $srcFile" -ForegroundColor Yellow
+    Write-Log "[SKIP] File sorgente non trovato: $srcFile" Yellow
     return
   }
 
@@ -63,19 +76,24 @@ function Sync-File {
   }
 
   Copy-Item -Path $srcFile -Destination $dstFile -Force
-  Write-Host "[FILE] $srcFile -> $dstFile"
+  Write-Log "[FILE] $srcFile -> $dstFile" Green
 }
 
 # === WHITELIST CARTELLE DA MIRRORARE 1:1 ===
-$foldersToMirror = @("logica", "lovelace", "packages")
+$foldersToMirror = @(
+  @{ Source = "packages"; Destination = "packages" },
+  @{ Source = "mirai\\runtime"; Destination = "mirai" },
+  @{ Source = "lovelace"; Destination = "lovelace" },
+  @{ Source = "logica"; Destination = "logica" }
+)
 
-foreach ($folder in $foldersToMirror) {
-  Mirror-Folder -Folder $folder
+foreach ($map in $foldersToMirror) {
+  Mirror-Folder -Source $map.Source -Destination $map.Destination
 }
 
 # === FILE SINGOLI ===
 Sync-File -RelPath "configuration.yaml"
 
 Write-Host ""
-Write-Host "✅ Sync completato (mirror cartelle + configuration.yaml)." -ForegroundColor Green
+Write-Log "✅ Sync completato (mirror cartelle + configuration.yaml)." Green
 Write-Host ""

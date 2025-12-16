@@ -4,13 +4,23 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "=== pull_repo.ps1 ==="
-Write-Host "IgnoreLocalChanges = $IgnoreLocalChanges"
+function Write-Log {
+    param(
+        [string]$Message,
+        [System.ConsoleColor]$Color = [System.ConsoleColor]::White
+    )
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+}
+
+Write-Log "=== pull_repo.ps1 ==="
+Write-Log "IgnoreLocalChanges = $IgnoreLocalChanges"
 Write-Host ""
 
 # Verifica presenza git
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Host "ERRORE: git non trovato nel PATH." -ForegroundColor Red
+    Write-Log "ERRORE: git non trovato nel PATH." Red
     exit 1
 }
 
@@ -18,55 +28,55 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 $branch = (git rev-parse --abbrev-ref HEAD).Trim()
 if (-not $branch) { $branch = "main" }
 
-Write-Host "Branch corrente: $branch"
+Write-Log "Branch corrente: $branch"
 Write-Host ""
 
 if ($IgnoreLocalChanges) {
-    Write-Host "Modalità FORZATA: ignoro modifiche locali." -ForegroundColor Yellow
+    Write-Log "Modalità FORZATA: ignoro modifiche locali." Yellow
 
     git fetch origin $branch
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "git fetch fallito." -ForegroundColor Red
+        Write-Log "git fetch fallito." Red
         exit $LASTEXITCODE
     }
 
-    Write-Host "Reset hard su origin/$branch ..."
+    Write-Log "Reset hard su origin/$branch ..." Cyan
     git reset --hard origin/$branch
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "git reset --hard fallito." -ForegroundColor Red
+        Write-Log "git reset --hard fallito." Red
         exit $LASTEXITCODE
     }
 
-    Write-Host "Pulizia file non tracciati (git clean -fd) ..."
+    Write-Log "Pulizia file non tracciati (git clean -fd) ..." Cyan
     git clean -fd
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "git clean fallito." -ForegroundColor Red
+        Write-Log "git clean fallito." Red
         exit $LASTEXITCODE
     }
 
 } else {
-    Write-Host "Modalità SAFE: verifico modifiche locali."
+    Write-Log "Modalità SAFE: verifico modifiche locali." Cyan
 
     $status = git status --porcelain
     if ($status) {
-        Write-Host "Ci sono modifiche locali non committate. Commit/stash prima del pull." -ForegroundColor Yellow
+        Write-Log "Ci sono modifiche locali non committate. Commit/stash prima del pull." Yellow
         exit 1
     }
 
     git fetch origin $branch
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "git fetch fallito." -ForegroundColor Red
+        Write-Log "git fetch fallito." Red
         exit $LASTEXITCODE
     }
 
-    Write-Host "Eseguo git pull --ff-only origin $branch ..."
+    Write-Log "Eseguo git pull --ff-only origin $branch ..." Cyan
     git pull --ff-only origin $branch
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "git pull fallito." -ForegroundColor Red
+        Write-Log "git pull fallito." Red
         exit $LASTEXITCODE
     }
 }
 
 Write-Host ""
-Write-Host "Pull completato con successo."
+Write-Log "Pull completato con successo." Green
 exit 0
