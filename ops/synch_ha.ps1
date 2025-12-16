@@ -3,7 +3,7 @@
 # Modalità MIRROR: le cartelle whitelist sono rese IDENTICHE alla sorgente
 # - Aggiunge/Aggiorna file nuovi o modificati
 # - Elimina file/cartelle presenti in HA ma non più nel repo
-# Cartelle: packages/, mirai/, lovelace/, logica/, www/, custom_components/, blueprints/ + configuration.yaml
+# Cartelle: packages/, mirai/, lovelace/, logica/
 ###############################################################################
 
 $ErrorActionPreference = "Stop"
@@ -21,11 +21,10 @@ function Write-Log {
 # === CONFIG ===
 $RepoRoot = Split-Path -Path $PSScriptRoot -Parent   # root della repo (cartella padre di ops/)
 $SRC = $RepoRoot                                     # repo locale
-$DST = "Z:\\config"                                  # root cartella config HA (es. \\homeassistant\\config)
+$HA_ROOT = "Z:\\config"                              # root cartella config HA (es. \\homeassistant\\config)
 
-$excludeDirs = @(".storage", "backups")
-$excludeFiles = @("secrets.yaml", "*.db", "*.log")
-$excludedRootContent = @("ops", "tools", "docs", "README.md", "README_ClimaSystem.md")
+$excludedRootContent = @("ops", "tools", "docs", "www", ".git", "backup", "export", "deps", "tts", "custom_components")
+$excludeFiles = @("*.tmp", "*.log", "home-assistant*.db*", ".DS_Store", "thumbs.db")
 
 # === FUNZIONI ===
 function Mirror-Folder {
@@ -35,11 +34,11 @@ function Mirror-Folder {
   )
 
   $src = Join-Path $SRC $Source
-  $dst = Join-Path $DST $Destination
+  $dst = Join-Path $HA_ROOT $Destination
 
   if (-not (Test-Path $src)) {
     Write-Log "[SKIP] Sorgente non trovata: $src" Yellow
-    return
+    return 0
   }
 
   if (-not (Test-Path $dst)) {
@@ -49,36 +48,16 @@ function Mirror-Folder {
   Write-Log "[MIRROR] $src -> $dst" Cyan
 
   $args = @($src, $dst, "/MIR", "/Z", "/R:1", "/W:1", "/NFL", "/NDL", "/NJH", "/NJS", "/NP")
-  if ($excludeDirs.Count -gt 0) { $args += @("/XD") + $excludeDirs }
   if ($excludeFiles.Count -gt 0) { $args += @("/XF") + $excludeFiles }
 
   robocopy @args | Out-Null
 
-  if ($LASTEXITCODE -ge 8) {
-    Write-Log "[ERRORE] Robocopy ha restituito codice $LASTEXITCODE su $Destination" Red
-  }
-}
-
-function Sync-File {
-  param(
-    [string]$RelPath
-  )
-
-  $srcFile = Join-Path $SRC $RelPath
-  $dstFile = Join-Path $DST $RelPath
-
-  if (-not (Test-Path $srcFile)) {
-    Write-Log "[SKIP] File sorgente non trovato: $srcFile" Yellow
-    return
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -ge 8) {
+    Write-Log "[ERRORE] Robocopy ha restituito codice $exitCode su $Destination" Red
   }
 
-  $dstDir = Split-Path -Path $dstFile -Parent
-  if (-not (Test-Path $dstDir)) {
-    New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
-  }
-
-  Copy-Item -Path $srcFile -Destination $dstFile -Force
-  Write-Log "[FILE] $srcFile -> $dstFile" Green
+  return $exitCode
 }
 
 # === WHITELIST CARTELLE DA MIRRORARE 1:1 ===
@@ -86,20 +65,27 @@ $foldersToMirror = @(
   @{ Source = "packages"; Destination = "packages" },
   @{ Source = "mirai"; Destination = "mirai" },
   @{ Source = "logica"; Destination = "logica" },
-  @{ Source = "lovelace"; Destination = "lovelace" },
-  @{ Source = "www"; Destination = "www" },
-  @{ Source = "custom_components"; Destination = "custom_components" },
-  @{ Source = "blueprints"; Destination = "blueprints" }
+  @{ Source = "lovelace"; Destination = "lovelace" }
 )
 
+$results = @()
 foreach ($map in $foldersToMirror) {
-  Mirror-Folder -Source $map.Source -Destination $map.Destination
+  $code = Mirror-Folder -Source $map.Source -Destination $map.Destination
+  $results += [PSCustomObject]@{
+    Target = $map.Destination
+    ExitCode = $code
+  }
 }
 
-# === FILE SINGOLI ===
-Sync-File -RelPath "configuration.yaml"
-
 Write-Host ""
-Write-Log "✅ Sync completato (mirror cartelle + configuration.yaml)." Green
-Write-Log ("ℹ️  Esclusi dalla sync: " + ($excludedRootContent -join ", ")) Yellow
+Write-Log "Riepilogo sync (Robocopy exit codes):" Cyan
+foreach ($result in $results) {
+  Write-Host ("- {0} -> {1}" -f $result.Target, $result.ExitCode)
+}
+
+$maxExit = ($results | Measure-Object ExitCode -Maximum).Maximum
+$excludedListText = ($excludedRootContent | ForEach-Object { "$_" }) -join ", "
+Write-Log "Robocopy exit code massimo: $maxExit" Green
+Write-Host "ℹ️  Esclusi dalla sync: $excludedListText"
+Write-Log "ℹ️  Esclusi dalla sync: $excludedListText" Yellow
 Write-Host ""
