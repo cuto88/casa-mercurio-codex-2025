@@ -5,6 +5,10 @@ setlocal enabledelayedexpansion
 REM WATCH_REMOTE.CMD — Controllo nuovi commit su GitHub + sync HA
 REM Versione semplificata: ignora SEMPRE modifiche locali lato repo
 
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..") do set "REPO_ROOT=%%~fI"
+pushd "%REPO_ROOT%"
+
 REM 1) Determina il branch corrente come default
 set "DEFAULT_BRANCH="
 for /f "delims=" %%B in ('git rev-parse --abbrev-ref HEAD 2^>nul') do set "DEFAULT_BRANCH=%%B"
@@ -39,8 +43,8 @@ goto PARSE_ARGS
 if "%BRANCH%"=="" set "BRANCH=%DEFAULT_BRANCH%"
 set "WATCH_BRANCH=%BRANCH%"
 
-set "PULL_SCRIPT=%~dp0pull_repo.ps1"
-set "SYNC_SCRIPT=%~dp0synch_ha.ps1"
+set "PULL_SCRIPT=%SCRIPT_DIR%pull_repo.ps1"
+set "SYNC_SCRIPT=%SCRIPT_DIR%synch_ha.ps1"
 
 echo 🔁 Watcher remoto avviato \(branch: %BRANCH%\)
 echo Repo: %cd%
