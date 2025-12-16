@@ -3,7 +3,7 @@
 # Modalità MIRROR: le cartelle whitelist sono rese IDENTICHE alla sorgente
 # - Aggiunge/Aggiorna file nuovi o modificati
 # - Elimina file/cartelle presenti in HA ma non più nel repo
-# Cartelle: packages/, mirai/runtime/, lovelace/, logica/ + configuration.yaml
+# Cartelle: packages/, mirai/, lovelace/, logica/, www/, custom_components/, blueprints/ + configuration.yaml
 ###############################################################################
 
 $ErrorActionPreference = "Stop"
@@ -19,11 +19,13 @@ function Write-Log {
 }
 
 # === CONFIG ===
-$SRC = "C:\\_Tools\\casa-mercurio-codex-2025"   # repo locale
-$DST = "Z:\\"                                  # root cartella config HA (es. \\homeassistant\\config)
+$RepoRoot = Split-Path -Path $PSScriptRoot -Parent   # root della repo (cartella padre di ops/)
+$SRC = $RepoRoot                                     # repo locale
+$DST = "Z:\\config"                                  # root cartella config HA (es. \\homeassistant\\config)
 
 $excludeDirs = @(".storage", "backups")
 $excludeFiles = @("secrets.yaml", "*.db", "*.log")
+$excludedRootContent = @("ops", "tools", "docs", "README.md", "README_ClimaSystem.md")
 
 # === FUNZIONI ===
 function Mirror-Folder {
@@ -82,9 +84,12 @@ function Sync-File {
 # === WHITELIST CARTELLE DA MIRRORARE 1:1 ===
 $foldersToMirror = @(
   @{ Source = "packages"; Destination = "packages" },
-  @{ Source = "mirai\\runtime"; Destination = "mirai" },
+  @{ Source = "mirai"; Destination = "mirai" },
+  @{ Source = "logica"; Destination = "logica" },
   @{ Source = "lovelace"; Destination = "lovelace" },
-  @{ Source = "logica"; Destination = "logica" }
+  @{ Source = "www"; Destination = "www" },
+  @{ Source = "custom_components"; Destination = "custom_components" },
+  @{ Source = "blueprints"; Destination = "blueprints" }
 )
 
 foreach ($map in $foldersToMirror) {
@@ -96,4 +101,5 @@ Sync-File -RelPath "configuration.yaml"
 
 Write-Host ""
 Write-Log "✅ Sync completato (mirror cartelle + configuration.yaml)." Green
+Write-Log ("ℹ️  Esclusi dalla sync: " + ($excludedRootContent -join ", ")) Yellow
 Write-Host ""
