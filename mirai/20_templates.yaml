@@ -79,3 +79,5 @@
     state: >
       {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
       {{ (v | bitwise_and(2**15)) != 0 }}
+- !include 22_state.yaml
+- !include 23_fault.yaml
