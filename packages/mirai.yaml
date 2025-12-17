@@ -1,5 +1,5 @@
-input_boolean: !include ../mirai/runtime/00_input_boolean.yaml
-shell_command: !include ../mirai/runtime/01_shell_command.yaml
-modbus: !include ../mirai/runtime/10_modbus.yaml
-template: !include ../mirai/runtime/20_templates.yaml
-automation: !include ../mirai/runtime/30_automations.yaml
+input_boolean: !include ../mirai/00_input_boolean.yaml
+shell_command: !include ../mirai/01_shell_command.yaml
+modbus: !include ../mirai/10_modbus.yaml
+template: !include ../mirai/20_templates.yaml
+automation: !include ../mirai/30_automations.yaml

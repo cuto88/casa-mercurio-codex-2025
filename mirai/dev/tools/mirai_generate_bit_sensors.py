@@ -6,7 +6,7 @@ Modbus status word (register 4000) and status code (register 4001).
 Usage:
     python mirai/dev/tools/mirai_generate_bit_sensors.py \
         --log-path /config/www/mirai/mirai_modbus_log.csv \
-        --output mirai/runtime/20_templates.yaml
+        --output mirai/20_templates.yaml
 
 The log file is only used to validate that data collection is running; the
 binary sensors reference the live raw sensors.
@@ -19,7 +19,7 @@ import sys
 from typing import List
 
 DEFAULT_LOG_PATH = "/config/www/mirai/mirai_modbus_log.csv"
-DEFAULT_OUTPUT = "mirai/runtime/20_templates.yaml"
+DEFAULT_OUTPUT = "mirai/20_templates.yaml"
 
 
 def parse_args() -> argparse.Namespace:
@@ -36,17 +36,20 @@ def build_sensor_lines() -> List[str]:
         ("code", "status code", "sensor.mirai_status_code_raw"),
     ]
 
-    lines.append("template:")
-    lines.append("  - binary_sensor:")
+    availability_guard = (
+        "{{ is_state('input_boolean.mirai_modbus_autodiscovery_enabled', 'on') }}"
+    )
+    lines.append("- binary_sensor:")
 
     for slug, label, entity in source_definitions:
-        lines.append(f"      # Bits extracted from {entity}")
+        lines.append(f"    # Bits extracted from {entity}")
         for bit in range(16):
-            lines.append(f"      - name: \"MIRAI {label} bit {bit:02d}\"")
-            lines.append(f"        unique_id: mirai_status_{slug}_bit_{bit:02d}")
-            lines.append("        state: >-")
+            lines.append(f"    - name: \"MIRAI {label} bit {bit:02d}\"")
+            lines.append(f"      unique_id: mirai_status_{slug}_bit_{bit:02d}")
+            lines.append(f"      availability: \"{availability_guard}\"")
+            lines.append("      state: >-")
             lines.append(
-                f"          {{{{ ((states('{entity}') | int(0)) >> {bit}) & 1 == 1 }}}}"
+                f"        {{{{ (states('{entity}') | int(0) | bitwise_and({1 << bit})) != 0 }}}}"
             )
     return lines
 
