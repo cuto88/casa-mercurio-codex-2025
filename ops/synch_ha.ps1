@@ -4,7 +4,7 @@
 
 [CmdletBinding()]
 param(
-  [string]$HaRoot = "Z:\config",
+  [string]$HaRoot = "Z:\",
   [switch]$DryRun,
   [switch]$IncludeWWW
 )
