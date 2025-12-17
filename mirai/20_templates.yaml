@@ -1,96 +1,81 @@
-  - binary_sensor:
-      - name: "MIRAI status word bit 00"
-        unique_id: mirai_status_word_bit_00
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 0)) != 0 }}
-
-      - name: "MIRAI status word bit 01"
-        unique_id: mirai_status_word_bit_01
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 1)) != 0 }}
-
-      - name: "MIRAI status word bit 02"
-        unique_id: mirai_status_word_bit_02
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 2)) != 0 }}
-
-      - name: "MIRAI status word bit 03"
-        unique_id: mirai_status_word_bit_03
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 3)) != 0 }}
-
-      - name: "MIRAI status word bit 04"
-        unique_id: mirai_status_word_bit_04
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 4)) != 0 }}
-
-      - name: "MIRAI status word bit 05"
-        unique_id: mirai_status_word_bit_05
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 5)) != 0 }}
-
-      - name: "MIRAI status word bit 06"
-        unique_id: mirai_status_word_bit_06
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 6)) != 0 }}
-
-      - name: "MIRAI status word bit 07"
-        unique_id: mirai_status_word_bit_07
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 7)) != 0 }}
-
-      - name: "MIRAI status word bit 08"
-        unique_id: mirai_status_word_bit_08
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 8)) != 0 }}
-
-      - name: "MIRAI status word bit 09"
-        unique_id: mirai_status_word_bit_09
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 9)) != 0 }}
-
-      - name: "MIRAI status word bit 10"
-        unique_id: mirai_status_word_bit_10
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 10)) != 0 }}
-
-      - name: "MIRAI status word bit 11"
-        unique_id: mirai_status_word_bit_11
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 11)) != 0 }}
-
-      - name: "MIRAI status word bit 12"
-        unique_id: mirai_status_word_bit_12
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 12)) != 0 }}
-
-      - name: "MIRAI status word bit 13"
-        unique_id: mirai_status_word_bit_13
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 13)) != 0 }}
-
-      - name: "MIRAI status word bit 14"
-        unique_id: mirai_status_word_bit_14
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 14)) != 0 }}
-
-      - name: "MIRAI status word bit 15"
-        unique_id: mirai_status_word_bit_15
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {{ (v & (1 << 15)) != 0 }}
+- binary_sensor:
+  - name: "MIRAI status word bit 00"
+    unique_id: mirai_status_word_bit_00
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**0)) != 0 }}
+  - name: "MIRAI status word bit 01"
+    unique_id: mirai_status_word_bit_01
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**1)) != 0 }}
+  - name: "MIRAI status word bit 02"
+    unique_id: mirai_status_word_bit_02
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**2)) != 0 }}
+  - name: "MIRAI status word bit 03"
+    unique_id: mirai_status_word_bit_03
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**3)) != 0 }}
+  - name: "MIRAI status word bit 04"
+    unique_id: mirai_status_word_bit_04
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**4)) != 0 }}
+  - name: "MIRAI status word bit 05"
+    unique_id: mirai_status_word_bit_05
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**5)) != 0 }}
+  - name: "MIRAI status word bit 06"
+    unique_id: mirai_status_word_bit_06
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**6)) != 0 }}
+  - name: "MIRAI status word bit 07"
+    unique_id: mirai_status_word_bit_07
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**7)) != 0 }}
+  - name: "MIRAI status word bit 08"
+    unique_id: mirai_status_word_bit_08
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**8)) != 0 }}
+  - name: "MIRAI status word bit 09"
+    unique_id: mirai_status_word_bit_09
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**9)) != 0 }}
+  - name: "MIRAI status word bit 10"
+    unique_id: mirai_status_word_bit_10
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**10)) != 0 }}
+  - name: "MIRAI status word bit 11"
+    unique_id: mirai_status_word_bit_11
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**11)) != 0 }}
+  - name: "MIRAI status word bit 12"
+    unique_id: mirai_status_word_bit_12
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**12)) != 0 }}
+  - name: "MIRAI status word bit 13"
+    unique_id: mirai_status_word_bit_13
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**13)) != 0 }}
+  - name: "MIRAI status word bit 14"
+    unique_id: mirai_status_word_bit_14
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**14)) != 0 }}
+  - name: "MIRAI status word bit 15"
+    unique_id: mirai_status_word_bit_15
+    state: >
+      {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+      {{ (v | bitwise_and(2**15)) != 0 }}
