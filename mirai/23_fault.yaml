@@ -1,0 +1,7 @@
+- binary_sensor:
+    - name: "MIRAI fault"
+      unique_id: mirai_fault
+      state: >
+        {{ false }}
+      attributes:
+        note: "TODO: map real fault bit from status_word_raw or fault_code_raw"
