@@ -1,89 +1,116 @@
-###############################################################################
-# synch_ha.ps1 — Sincronizza repo locale → Home Assistant
-# Modalità MIRROR: le cartelle whitelist sono rese IDENTICHE alla sorgente
-# - Aggiunge/Aggiorna file nuovi o modificati
-# - Elimina file/cartelle presenti in HA ma non più nel repo
-# Cartelle: packages/, mirai/, lovelace/, logica/
-###############################################################################
+# ops\synch_ha.ps1
+# Sync repo -> Home Assistant config (Z:\config)
+# Robust, no placeholders, no YAML-related stuff here.
+
+[CmdletBinding()]
+param(
+  [string]$HaRoot = "Z:\config",
+  [switch]$DryRun,
+  [switch]$IncludeWWW
+)
 
 $ErrorActionPreference = "Stop"
 
-function Write-Log {
-  param(
-    [string]$Message,
-    [System.ConsoleColor]$Color = [System.ConsoleColor]::White
-  )
+function TS { (Get-Date).ToString("yyyy-MM-dd HH:mm:ss") }
+function Log([string]$msg, [string]$color = "Gray") { Write-Host "[$(TS)] $msg" -ForegroundColor $color }
 
-  $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-  Write-Host "[$timestamp] $Message" -ForegroundColor $Color
+# Repo root = parent of ops\
+$RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..") | Select-Object -ExpandProperty Path
+
+if (-not (Test-Path $HaRoot)) {
+  Log "ERRORE: HA root non trovato: $HaRoot" "Red"
+  exit 2
 }
 
-# === CONFIG ===
-$RepoRoot = Split-Path -Path $PSScriptRoot -Parent   # root della repo (cartella padre di ops/)
-$SRC = $RepoRoot                                     # repo locale
-$HA_ROOT = "Z:\\config"                              # root cartella config HA (es. \\homeassistant\\config)
+Log "RepoRoot: $RepoRoot" "Cyan"
+Log "HaRoot  : $HaRoot" "Cyan"
+Log ("Modalità: " + ($(if ($DryRun) { "DRY-RUN" } else { "LIVE" }))) "Yellow"
 
-$excludedRootContent = @("ops", "tools", "docs", "www", ".git", "backup", "export", "deps", "tts", "custom_components")
-$excludeFiles = @("*.tmp", "*.log", "home-assistant*.db*", ".DS_Store", "thumbs.db")
-
-# === FUNZIONI ===
-function Mirror-Folder {
-  param(
-    [string]$Source,
-    [string]$Destination
-  )
-
-  $src = Join-Path $SRC $Source
-  $dst = Join-Path $HA_ROOT $Destination
-
-  if (-not (Test-Path $src)) {
-    Write-Log "[SKIP] Sorgente non trovata: $src" Yellow
-    return 0
-  }
-
-  if (-not (Test-Path $dst)) {
-    New-Item -ItemType Directory -Path $dst -Force | Out-Null
-  }
-
-  Write-Log "[MIRROR] $src -> $dst" Cyan
-
-  $args = @($src, $dst, "/MIR", "/Z", "/R:1", "/W:1", "/NFL", "/NDL", "/NJH", "/NJS", "/NP")
-  if ($excludeFiles.Count -gt 0) { $args += @("/XF") + $excludeFiles }
-
-  robocopy @args | Out-Null
-
-  $exitCode = $LASTEXITCODE
-  if ($exitCode -ge 8) {
-    Write-Log "[ERRORE] Robocopy ha restituito codice $exitCode su $Destination" Red
-  }
-
-  return $exitCode
-}
-
-# === WHITELIST CARTELLE DA MIRRORARE 1:1 ===
-$foldersToMirror = @(
-  @{ Source = "packages"; Destination = "packages" },
-  @{ Source = "mirai"; Destination = "mirai" },
-  @{ Source = "logica"; Destination = "logica" },
-  @{ Source = "lovelace"; Destination = "lovelace" }
+# Cosa syncare verso HA
+$FoldersToSync = @(
+  "packages",
+  "mirai",
+  "logica",
+  "lovelace",
+  "custom_components",
+  "blueprints",
+  "deps",
+  "export",
+  "tts"
 )
 
-$results = @()
-foreach ($map in $foldersToMirror) {
-  $code = Mirror-Folder -Source $map.Source -Destination $map.Destination
-  $results += [PSCustomObject]@{
-    Target = $map.Destination
-    ExitCode = $code
+if ($IncludeWWW) { $FoldersToSync += "www" }
+
+# File root da syncare (tieni minimale)
+$FilesToSync = @(
+  "configuration.yaml"
+)
+
+# Cosa NON syncare mai
+$ExcludeDirs = @(".git", ".github", "tools", "docs", "ops", "__pycache__")
+$ExcludeFiles = @("*.disabled", "*.bak", "*.tmp", "*.log", "*.old", "home-assistant*.db*", "*.db-wal", "*.db-shm")
+
+# Robocopy options
+$common = @(
+  "/MIR",              # mirror
+  "/Z",                # restartable
+  "/FFT",              # FAT time tolerance (NAS/SMB)
+  "/R:2", "/W:2",      # retry
+  "/XJ",               # exclude junctions
+  "/XO",               # exclude older
+  "/XA:SH"             # skip system/hidden
+)
+
+if ($DryRun) { $common += "/L" }
+
+foreach ($d in $ExcludeDirs)  { $common += "/XD"; $common += $d }
+foreach ($f in $ExcludeFiles) { $common += "/XF"; $common += $f }
+
+$exitCodes = @()
+
+function Run-Robo([string]$src, [string]$dst) {
+  if (-not (Test-Path $src)) {
+    Log "SKIP (missing): $src" "DarkYellow"
+    return 0
+  }
+  New-Item -ItemType Directory -Force -Path $dst | Out-Null
+
+  Log "SYNC: $src  ->  $dst" "Green"
+  $cmd = @("robocopy", $src, $dst) + $common + @("/NFL","/NDL","/NP","/NJH","/NJS")
+  & $cmd[0] $cmd[1..($cmd.Count-1)]
+  return $LASTEXITCODE
+}
+
+# Sync folders
+foreach ($folder in $FoldersToSync) {
+  $src = Join-Path $RepoRoot $folder
+  $dst = Join-Path $HaRoot  $folder
+  $code = Run-Robo $src $dst
+  $exitCodes += $code
+}
+
+# Sync root files
+foreach ($file in $FilesToSync) {
+  $src = Join-Path $RepoRoot $file
+  $dst = Join-Path $HaRoot  $file
+  if (Test-Path $src) {
+    Log "COPY: $src  ->  $dst" "Green"
+    if (-not $DryRun) { Copy-Item -Force $src $dst }
+    $exitCodes += 1
+  } else {
+    Log "SKIP (missing): $src" "DarkYellow"
   }
 }
 
-Write-Host ""
-Write-Log "Riepilogo sync (Robocopy exit codes):" Cyan
-foreach ($result in $results) {
-  Write-Host ("- {0} -> {1}" -f $result.Target, $result.ExitCode)
+$max = ($exitCodes | Measure-Object -Maximum).Maximum
+Log "Robocopy exit codes: $($exitCodes -join ', ')" "Cyan"
+Log "Max exit code: $max" "Cyan"
+
+# Robocopy: 0-3 = OK (con differenze/copie), >=8 = errori seri
+if ($max -ge 8) {
+  Log "SYNC FALLITA (robocopy >= 8). Guarda permessi/lock/path." "Red"
+  exit $max
 }
 
-$maxExit = ($results | Measure-Object ExitCode -Maximum).Maximum
-Write-Log ("Robocopy exit code massimo: {0}" -f $maxExit) Green
-Write-Log ("ℹ️  Esclusi dalla sync: " + ($excludedRootContent -join ", ")) Yellow
-Write-Host ""
+Log "SYNC OK." "Green"
+exit 0
