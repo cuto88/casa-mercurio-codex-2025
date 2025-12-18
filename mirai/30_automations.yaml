@@ -1,8 +1,7 @@
-- id: mirai_modbus_ensure_log_dir_on_start
-  alias: MIRAI | ensure log dir on HA start
+- id: mirai_ensure_log_dir_on_ha_start
+  alias: "MIRAI | ensure log dir on HA start"
   trigger:
     - platform: homeassistant
       event: start
   action:
     - service: shell_command.mirai_ensure_log_dir
-  mode: single

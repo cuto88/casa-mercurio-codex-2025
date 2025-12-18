@@ -4,5 +4,4 @@ mirai_debug_enable:
 
 mirai_modbus_autodiscovery_enabled:
   name: "MIRAI Modbus autodiscovery"
-  icon: mdi:toggle-switch
-  initial: false
+  icon: mdi:auto-fix
