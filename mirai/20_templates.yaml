@@ -1,3 +1,4 @@
+template:
 - binary_sensor:
   - name: "MIRAI status word bit 00"
     unique_id: mirai_status_word_bit_00
