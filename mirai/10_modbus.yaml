@@ -14,7 +14,6 @@
       address: 4000
       input_type: holding
       data_type: uint16
-      unit_of_measurement: 1
       scan_interval: 15
 
     - name: "MIRAI status code raw"
@@ -22,7 +21,6 @@
       address: 4001
       input_type: holding
       data_type: uint16
-      unit_of_measurement: 1
       scan_interval: 15
 
     - name: "MIRAI status word legacy"
@@ -30,7 +28,6 @@
       address: 1003
       input_type: holding
       data_type: uint16
-      unit_of_measurement: 1
       scan_interval: 30
 
     - name: "MIRAI status detail raw"
@@ -38,7 +35,6 @@
       address: 1208
       input_type: holding
       data_type: uint16
-      unit_of_measurement: 1
       scan_interval: 30
 
     - name: "MIRAI fault code raw"
@@ -46,5 +42,4 @@
       address: 1209
       input_type: holding
       data_type: uint16
-      unit_of_measurement: 1
       scan_interval: 30
