@@ -1,0 +1,44 @@
+name: Home Assistant Config Check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ha-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Prepare Home Assistant configuration
+        run: |
+          set -euo pipefail
+          mkdir -p _ha_config
+          cp configuration.yaml _ha_config/
+
+          for file in secrets.yaml automations.yaml scripts.yaml scenes.yaml; do
+            if [ -f "$file" ]; then
+              cp "$file" "_ha_config/$file"
+            else
+              : > "_ha_config/$file"
+            fi
+          done
+
+          for dir in packages mirai logica lovelace custom_components www tts; do
+            if [ -d "$dir" ]; then
+              cp -R "$dir" "_ha_config/"
+            fi
+          done
+
+      - name: Pull Home Assistant image
+        uses: docker://homeassistant/home-assistant:stable
+        with:
+          args: "--version"
+
+      - name: Run Home Assistant config check
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/_ha_config:/config" \
+            homeassistant/home-assistant:stable \
+            python -m homeassistant --script check_config -c /config
