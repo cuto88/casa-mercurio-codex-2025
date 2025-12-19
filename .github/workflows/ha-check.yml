@@ -11,9 +11,46 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate Home Assistant configuration
-        uses: home-assistant/actions/validate@master
+      - name: Prepare minimal HA config folder
+        run: |
+          set -e
+          rm -rf _ha_config
+          mkdir -p _ha_config
+
+          # required root files
+          cp -f configuration.yaml _ha_config/
+
+          # optional but common root files (create placeholder if missing)
+          if [ -f secrets.yaml ]; then
+            cp -f secrets.yaml _ha_config/
+          else
+            echo "# placeholder secrets" > _ha_config/secrets.yaml
+          fi
+
+          # optional: empty stubs to avoid missing-file issues if referenced
+          [ -f automations.yaml ] || echo "[]" > _ha_config/automations.yaml
+          [ -f scripts.yaml ]     || echo "[]" > _ha_config/scripts.yaml
+          [ -f scenes.yaml ]      || echo "[]" > _ha_config/scenes.yaml
+
+          # copy folders only if present
+          for d in packages mirai logica lovelace custom_components www tts; do
+            if [ -d "$d" ]; then
+              cp -R "$d" "_ha_config/$d"
+            fi
+          done
+
+      - name: Home Assistant check_config (docker://)
+        uses: docker://homeassistant/home-assistant:stable
         with:
-          path: ./
+          args: >
+            python -m homeassistant --script check_config -c /config
         env:
           TZ: Europe/Rome
+
+      - name: Run check_config with mounted /config
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/_ha_config:/config" \
+            -e TZ=Europe/Rome \
+            homeassistant/home-assistant:stable \
+            python -m homeassistant --script check_config -c /config
