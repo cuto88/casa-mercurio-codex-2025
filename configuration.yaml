@@ -7,7 +7,7 @@ frontend:
 homeassistant:
   packages: !include_dir_named packages
 
-template: !include mirai/20_templates.yaml
+template: !include mirai/20_templates_bits.yaml
 
 
 lovelace:
