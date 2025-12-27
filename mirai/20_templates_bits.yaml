@@ -140,5 +140,3 @@
           {% endif %}
         {% endfor %}
         {{ bits | join(',') }}
-- !include 22_state.yaml
-- !include 23_fault.yaml
