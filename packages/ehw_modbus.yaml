@@ -78,11 +78,11 @@ template:
           {% else %}
             {% set value = raw | float %}
             {% if value > 2000 %}
-              {{ (value / 100) | round(2) }}
+              {{ ((value / 100) * 0.5) | round(2) }}
             {% elif value >= 200 %}
-              {{ (value / 10) | round(1) }}
+              {{ ((value / 10) * 0.5) | round(1) }}
             {% else %}
-              {{ value | round(1) }}
+              {{ (value * 0.5) | round(1) }}
             {% endif %}
           {% endif %}
 
@@ -99,11 +99,11 @@ template:
           {% else %}
             {% set value = raw | float %}
             {% if value > 2000 %}
-              {{ (value / 100) | round(2) }}
+              {{ ((value / 100) * 0.5) | round(2) }}
             {% elif value >= 200 %}
-              {{ (value / 10) | round(1) }}
+              {{ ((value / 10) * 0.5) | round(1) }}
             {% else %}
-              {{ value | round(1) }}
+              {{ (value * 0.5) | round(1) }}
             {% endif %}
           {% endif %}
 
@@ -120,11 +120,11 @@ template:
           {% else %}
             {% set value = raw | float %}
             {% if value > 2000 %}
-              {{ (value / 100) | round(2) }}
+              {{ ((value / 100) * 0.5) | round(2) }}
             {% elif value >= 200 %}
-              {{ (value / 10) | round(1) }}
+              {{ ((value / 10) * 0.5) | round(1) }}
             {% else %}
-              {{ value | round(1) }}
+              {{ (value * 0.5) | round(1) }}
             {% endif %}
           {% endif %}
 
