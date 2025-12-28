@@ -1,0 +1,21 @@
+input_boolean:
+  mirai_debug_enable:
+    name: "MIRAI debug"
+    icon: mdi:bug
+
+  mirai_modbus_autodiscovery_enabled:
+    name: "MIRAI Modbus autodiscovery"
+    icon: mdi:auto-fix
+
+shell_command:
+  mirai_ensure_dir: >-
+    bash -c "mkdir -p /config/mirai"
+
+automation:
+  - id: mirai_ensure_dir_on_ha_start
+    alias: "MIRAI | ensure dir on HA start"
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: shell_command.mirai_ensure_dir
