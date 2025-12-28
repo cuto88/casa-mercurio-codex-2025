@@ -1,0 +1,150 @@
+input_number:
+  ehw_slave_id:
+    name: "EHW Modbus slave ID"
+    min: 1
+    max: 10
+    step: 1
+    mode: box
+    initial: 3
+
+modbus:
+  - name: ehw
+    type: tcp
+    host: 192.168.178.190
+    port: 502
+    delay: 1
+    message_wait_milliseconds: 200
+    timeout: 5
+    retries: 3
+    sensors:
+      # Indirizzi manuale (non shiftati QModMaster).
+      - name: "EHW tank top raw"
+        unique_id: ehw_tank_top_raw
+        address: 2020
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
+      - name: "EHW tank bottom raw"
+        unique_id: ehw_tank_bottom_raw
+        address: 2021
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
+      - name: "EHW setpoint raw"
+        unique_id: ehw_setpoint_raw
+        address: 1104
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
+      - name: "EHW status word 1102 raw"
+        unique_id: ehw_status_word_1102_raw
+        address: 1102
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
+      - name: "EHW status word 1101 raw"
+        unique_id: ehw_status_word_1101_raw
+        address: 1101
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
+template:
+  - sensor:
+      - name: "EHW tank top"
+        unique_id: ehw_tank_top
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set raw = states('sensor.ehw_tank_top_raw') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}
+            unknown
+          {% else %}
+            {{ (raw | float * 0.5) | round(1) }}
+          {% endif %}
+
+      - name: "EHW tank bottom"
+        unique_id: ehw_tank_bottom
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set raw = states('sensor.ehw_tank_bottom_raw') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}
+            unknown
+          {% else %}
+            {{ (raw | float * 0.5) | round(1) }}
+          {% endif %}
+
+      - name: "EHW setpoint"
+        unique_id: ehw_setpoint
+        icon: mdi:thermometer-auto
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set raw = states('sensor.ehw_setpoint_raw') %}
+          {% if raw in ['unknown', 'unavailable', ''] %}
+            unknown
+          {% else %}
+            {{ (raw | float * 0.5) | round(1) }}
+          {% endif %}
+
+      - name: "EHW tank delta"
+        unique_id: ehw_tank_delta
+        icon: mdi:thermometer-chevron-up
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set top = states('sensor.ehw_tank_top') | float(default=none) %}
+          {% set bottom = states('sensor.ehw_tank_bottom') | float(default=none) %}
+          {% if top is none or bottom is none %}
+            unknown
+          {% else %}
+            {{ (top - bottom) | round(2) }}
+          {% endif %}
+
+      - name: "EHW status word"
+        unique_id: ehw_status_word
+        unit_of_measurement: "raw"
+        state: >-
+          {% set primary = states('sensor.ehw_status_word_1102_raw') %}
+          {% set fallback = states('sensor.ehw_status_word_1101_raw') %}
+          {% if primary not in ['unknown', 'unavailable', ''] %}
+            {{ primary }}
+          {% elif fallback not in ['unknown', 'unavailable', ''] %}
+            {{ fallback }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      - name: "EHW last update"
+        unique_id: ehw_last_update
+        device_class: timestamp
+        state: >-
+          {{ states.sensor.ehw_tank_top.last_updated }}
+
+  - binary_sensor:
+      - name: "EHW running"
+        unique_id: ehw_running
+        state: >-
+          {% set word = states('sensor.ehw_status_word') %}
+          {{ word not in ['unknown', 'unavailable', ''] and (word | int) != 0 }}
