@@ -1,10 +1,15 @@
+# Base0; se con QModMaster serve shift, +1 a tutti gli address Lxxx
 modbus:
   - name: mirai
-    type: tcp
-    host: 127.0.0.1
-    port: 5020
+    type: serial
+    method: rtu
+    port: /dev/ttyUSB0
+    baudrate: 9600
+    bytesize: 8
+    parity: E
+    stopbits: 1
+    timeout: 1
     delay: 2
-    timeout: 3
     retry_on_empty: true
     close_comm_on_error: true
     sensors:
@@ -52,7 +57,7 @@ modbus:
       - name: "MIRAI L243 internal circulator"
         unique_id: mirai_l243_internal_circulator
         address: 9068
-        slave: 59
+        slave: 1
         input_type: holding
         data_type: uint16
         scan_interval: 15
@@ -60,7 +65,7 @@ modbus:
       - name: "MIRAI L244 relaunch pump output"
         unique_id: mirai_l244_relaunch_pump
         address: 9069
-        slave: 59
+        slave: 1
         input_type: holding
         data_type: uint16
         scan_interval: 15
@@ -68,23 +73,23 @@ modbus:
       - name: "MIRAI L241 antifreeze lvl1"
         unique_id: mirai_l241_antifreeze_lvl1
         address: 9078
-        slave: 59
+        slave: 1
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 15
 
       - name: "MIRAI L242 antifreeze lvl2"
         unique_id: mirai_l242_antifreeze_lvl2
         address: 9079
-        slave: 59
+        slave: 1
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 15
 
       - name: "MIRAI L261 compressor step"
         unique_id: mirai_l261_compressor_step
         address: 9058
-        slave: 59
+        slave: 1
         input_type: holding
         data_type: uint16
         scan_interval: 15
@@ -92,7 +97,9 @@ modbus:
       - name: "MIRAI L162 outlet water temp"
         unique_id: mirai_l162_outlet_water_temp
         address: 8987
-        slave: 59
+        slave: 1
         input_type: holding
-        data_type: uint16
-        scan_interval: 30
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        scan_interval: 15
