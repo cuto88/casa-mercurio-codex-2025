@@ -112,26 +112,26 @@ template:
         state: >
           {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
           {{ (v | bitwise_and(2**15)) != 0 }}
-      - name: "MIRAI L243 internal circulator on"
-        unique_id: mirai_l243_internal_circulator_on
+      - name: "MIRAI internal circulator on"
+        unique_id: mirai_internal_circulator_on
         availability: >
           {{ states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] }}
         state: >
           {{ states('sensor.mirai_l243_internal_circulator') | int(0) != 0 }}
-      - name: "MIRAI L244 relaunch pump output on"
-        unique_id: mirai_l244_relaunch_pump_on
+      - name: "MIRAI relaunch pump on"
+        unique_id: mirai_relaunch_pump_on
         availability: >
           {{ states('sensor.mirai_l244_relaunch_pump') not in ['unknown','unavailable','none','None',''] }}
         state: >
           {{ states('sensor.mirai_l244_relaunch_pump') | int(0) != 0 }}
-      - name: "MIRAI L241 antifreeze lvl1 on"
-        unique_id: mirai_l241_antifreeze_lvl1_on
+      - name: "MIRAI antifreeze lvl1 on"
+        unique_id: mirai_antifreeze_lvl1_on
         availability: >
           {{ states('sensor.mirai_l241_antifreeze_lvl1') not in ['unknown','unavailable','none','None',''] }}
         state: >
           {{ states('sensor.mirai_l241_antifreeze_lvl1') | int(0) != 0 }}
-      - name: "MIRAI L242 antifreeze lvl2 on"
-        unique_id: mirai_l242_antifreeze_lvl2_on
+      - name: "MIRAI antifreeze lvl2 on"
+        unique_id: mirai_antifreeze_lvl2_on
         availability: >
           {{ states('sensor.mirai_l242_antifreeze_lvl2') not in ['unknown','unavailable','none','None',''] }}
         state: >
@@ -152,12 +152,18 @@ template:
             {% endif %}
           {% endfor %}
           {{ bits | join(',') }}
-      - name: "MIRAI L162 outlet water temp °C"
-        unique_id: mirai_l162_outlet_water_temp_c
+      - name: "MIRAI compressor step"
+        unique_id: mirai_compressor_step
+        availability: >
+          {{ states('sensor.mirai_l261_compressor_step') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ states('sensor.mirai_l261_compressor_step') | int(0) }}
+      - name: "MIRAI outlet water temp °C"
+        unique_id: mirai_outlet_water_temp_c
         availability: >
           {{ states('sensor.mirai_l162_outlet_water_temp') not in ['unknown','unavailable','none','None',''] }}
         device_class: temperature
         unit_of_measurement: "°C"
         state_class: measurement
         state: >
-          {{ (states('sensor.mirai_l162_outlet_water_temp') | float(0) / 10) | round(1) }}
+          {{ states('sensor.mirai_l162_outlet_water_temp') | float(0) | round(1) }}
