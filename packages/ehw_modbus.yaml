@@ -18,9 +18,18 @@ modbus:
     retries: 3
     sensors:
       # Indirizzi manuale (non shiftati QModMaster).
+      - name: "EHW inlet temp raw"
+        unique_id: ehw_inlet_temp_raw
+        address: 2019
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "raw"
+        scan_interval: 10
+        slave: 3
+
       - name: "EHW tank top raw"
         unique_id: ehw_tank_top_raw
-        address: 2019
+        address: 2020
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -29,7 +38,7 @@ modbus:
 
       - name: "EHW tank bottom raw"
         unique_id: ehw_tank_bottom_raw
-        address: 2020
+        address: 2021
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -38,7 +47,7 @@ modbus:
 
       - name: "EHW setpoint raw"
         unique_id: ehw_setpoint_raw
-        address: 1103
+        address: 1104
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -65,6 +74,15 @@ modbus:
 
 template:
   - sensor:
+      - name: "EHW inlet temp"
+        unique_id: ehw_inlet_temp
+        icon: mdi:thermometer
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {{ (states('sensor.ehw_inlet_temp_raw') | float(0) / 10) | round(1) }}
+
       - name: "EHW tank top"
         unique_id: ehw_tank_top
         icon: mdi:thermometer
@@ -72,14 +90,7 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set value = states('sensor.ehw_tank_top_raw') | float(0) %}
-          {% if value > 2000 %}
-            {{ ((value / 100) * 0.5) | round(2) }}
-          {% elif value >= 200 %}
-            {{ ((value / 10) * 0.5) | round(1) }}
-          {% else %}
-            {{ (value * 0.5) | round(1) }}
-          {% endif %}
+          {{ (states('sensor.ehw_tank_top_raw') | float(0) / 10) | round(1) }}
 
       - name: "EHW tank bottom"
         unique_id: ehw_tank_bottom
@@ -88,14 +99,7 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set value = states('sensor.ehw_tank_bottom_raw') | float(0) %}
-          {% if value > 2000 %}
-            {{ ((value / 100) * 0.5) | round(2) }}
-          {% elif value >= 200 %}
-            {{ ((value / 10) * 0.5) | round(1) }}
-          {% else %}
-            {{ (value * 0.5) | round(1) }}
-          {% endif %}
+          {{ (states('sensor.ehw_tank_bottom_raw') | float(0) / 10) | round(1) }}
 
       - name: "EHW setpoint"
         unique_id: ehw_setpoint
@@ -104,14 +108,7 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set value = states('sensor.ehw_setpoint_raw') | float(0) %}
-          {% if value > 2000 %}
-            {{ ((value / 100) * 0.5) | round(2) }}
-          {% elif value >= 200 %}
-            {{ ((value / 10) * 0.5) | round(1) }}
-          {% else %}
-            {{ (value * 0.5) | round(1) }}
-          {% endif %}
+          {{ (states('sensor.ehw_setpoint_raw') | float(0) / 10) | round(1) }}
 
       - name: "EHW tank delta"
         unique_id: ehw_tank_delta
