@@ -20,7 +20,7 @@ modbus:
       # Indirizzi manuale (non shiftati QModMaster).
       - name: "EHW tank top raw"
         unique_id: ehw_tank_top_raw
-        address: 2020
+        address: 2019
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -29,7 +29,7 @@ modbus:
 
       - name: "EHW tank bottom raw"
         unique_id: ehw_tank_bottom_raw
-        address: 2021
+        address: 2020
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -38,7 +38,7 @@ modbus:
 
       - name: "EHW setpoint raw"
         unique_id: ehw_setpoint_raw
-        address: 1104
+        address: 1103
         input_type: holding
         data_type: uint16
         unit_of_measurement: "raw"
@@ -72,18 +72,13 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_tank_top_raw') %}
-          {% if raw in ['unknown', 'unavailable', ''] %}
-            unknown
+          {% set value = states('sensor.ehw_tank_top_raw') | float(0) %}
+          {% if value > 2000 %}
+            {{ ((value / 100) * 0.5) | round(2) }}
+          {% elif value >= 200 %}
+            {{ ((value / 10) * 0.5) | round(1) }}
           {% else %}
-            {% set value = raw | float %}
-            {% if value > 2000 %}
-              {{ ((value / 100) * 0.5) | round(2) }}
-            {% elif value >= 200 %}
-              {{ ((value / 10) * 0.5) | round(1) }}
-            {% else %}
-              {{ (value * 0.5) | round(1) }}
-            {% endif %}
+            {{ (value * 0.5) | round(1) }}
           {% endif %}
 
       - name: "EHW tank bottom"
@@ -93,18 +88,13 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_tank_bottom_raw') %}
-          {% if raw in ['unknown', 'unavailable', ''] %}
-            unknown
+          {% set value = states('sensor.ehw_tank_bottom_raw') | float(0) %}
+          {% if value > 2000 %}
+            {{ ((value / 100) * 0.5) | round(2) }}
+          {% elif value >= 200 %}
+            {{ ((value / 10) * 0.5) | round(1) }}
           {% else %}
-            {% set value = raw | float %}
-            {% if value > 2000 %}
-              {{ ((value / 100) * 0.5) | round(2) }}
-            {% elif value >= 200 %}
-              {{ ((value / 10) * 0.5) | round(1) }}
-            {% else %}
-              {{ (value * 0.5) | round(1) }}
-            {% endif %}
+            {{ (value * 0.5) | round(1) }}
           {% endif %}
 
       - name: "EHW setpoint"
@@ -114,18 +104,13 @@ template:
         device_class: temperature
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_setpoint_raw') %}
-          {% if raw in ['unknown', 'unavailable', ''] %}
-            unknown
+          {% set value = states('sensor.ehw_setpoint_raw') | float(0) %}
+          {% if value > 2000 %}
+            {{ ((value / 100) * 0.5) | round(2) }}
+          {% elif value >= 200 %}
+            {{ ((value / 10) * 0.5) | round(1) }}
           {% else %}
-            {% set value = raw | float %}
-            {% if value > 2000 %}
-              {{ ((value / 100) * 0.5) | round(2) }}
-            {% elif value >= 200 %}
-              {{ ((value / 10) * 0.5) | round(1) }}
-            {% else %}
-              {{ (value * 0.5) | round(1) }}
-            {% endif %}
+            {{ (value * 0.5) | round(1) }}
           {% endif %}
 
       - name: "EHW tank delta"
