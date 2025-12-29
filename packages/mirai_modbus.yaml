@@ -47,3 +47,46 @@ modbus:
         data_type: uint16
         unit_of_measurement: 1
         scan_interval: 30
+
+      # ---- GOLD sensors from SMART-MT (Register base 0) ----
+      - name: "MIRAI L243 internal circulator"
+        unique_id: mirai_l243_internal_circulator
+        address: 9068
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+
+      - name: "MIRAI L244 relaunch pump output"
+        unique_id: mirai_l244_relaunch_pump
+        address: 9069
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+
+      - name: "MIRAI L241 antifreeze lvl1"
+        unique_id: mirai_l241_antifreeze_lvl1
+        address: 9078
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "MIRAI L242 antifreeze lvl2"
+        unique_id: mirai_l242_antifreeze_lvl2
+        address: 9079
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "MIRAI L261 compressor step"
+        unique_id: mirai_l261_compressor_step
+        address: 9058
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+
+      - name: "MIRAI L162 outlet water temp"
+        unique_id: mirai_l162_outlet_water_temp
+        address: 8987
+        input_type: holding
+        data_type: int16
+        scan_interval: 15
