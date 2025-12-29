@@ -112,6 +112,30 @@ template:
         state: >
           {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
           {{ (v | bitwise_and(2**15)) != 0 }}
+      - name: "MIRAI L243 internal circulator on"
+        unique_id: mirai_l243_internal_circulator_on
+        availability: >
+          {{ states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ states('sensor.mirai_l243_internal_circulator') | int(0) != 0 }}
+      - name: "MIRAI L244 relaunch pump output on"
+        unique_id: mirai_l244_relaunch_pump_on
+        availability: >
+          {{ states('sensor.mirai_l244_relaunch_pump') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ states('sensor.mirai_l244_relaunch_pump') | int(0) != 0 }}
+      - name: "MIRAI L241 antifreeze lvl1 on"
+        unique_id: mirai_l241_antifreeze_lvl1_on
+        availability: >
+          {{ states('sensor.mirai_l241_antifreeze_lvl1') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ states('sensor.mirai_l241_antifreeze_lvl1') | int(0) != 0 }}
+      - name: "MIRAI L242 antifreeze lvl2 on"
+        unique_id: mirai_l242_antifreeze_lvl2_on
+        availability: >
+          {{ states('sensor.mirai_l242_antifreeze_lvl2') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ states('sensor.mirai_l242_antifreeze_lvl2') | int(0) != 0 }}
 
   - sensor:
       - name: "MIRAI status bits ON"
@@ -128,3 +152,12 @@ template:
             {% endif %}
           {% endfor %}
           {{ bits | join(',') }}
+      - name: "MIRAI L162 outlet water temp °C"
+        unique_id: mirai_l162_outlet_water_temp_c
+        availability: >
+          {{ states('sensor.mirai_l162_outlet_water_temp') not in ['unknown','unavailable','none','None',''] }}
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state_class: measurement
+        state: >
+          {{ (states('sensor.mirai_l162_outlet_water_temp') | float(0) / 10) | round(1) }}
