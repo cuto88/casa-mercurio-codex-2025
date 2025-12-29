@@ -8,7 +8,7 @@ entities:
     name: Tank top
   - entity: sensor.ehw_tank_bottom
     name: Tank bottom
-  - entity: sensor.ehw_tank_delta
+  - entity: sensor.ehw_delta_stratificazione
     name: Delta stratificazione
   - entity: sensor.ehw_setpoint
     name: Setpoint
