@@ -9,31 +9,31 @@ modbus:
     close_comm_on_error: true
 
     sensors:
-      - name: "MIRAI status word raw"
+      - name: "mirai_status_word_raw"
         unique_id: mirai_status_word_raw
-        address: 9058
-        input_type: holding
-        data_type: uint16
-        scan_interval: 5
-        slave: 1
-
-      - name: "MIRAI status code raw"
-        unique_id: mirai_status_code_raw
-        address: 9068
-        input_type: holding
-        data_type: uint16
-        scan_interval: 5
-        slave: 1
-
-      - name: "MIRAI fault code raw"
-        unique_id: mirai_fault_code_raw
-        address: 9078
+        address: 9050
         input_type: holding
         data_type: uint16
         scan_interval: 10
         slave: 1
 
-      - name: "MIRAI L261 compressor step"
+      - name: "mirai_fault_code_raw"
+        unique_id: mirai_fault_code_raw
+        address: 9086
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: 1
+
+      - name: "mirai_status_code_raw"
+        unique_id: mirai_status_code_raw
+        address: 9087
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: 1
+
+      - name: "mirai_l261_compressor_step"
         unique_id: mirai_l261_compressor_step
         address: 9058
         input_type: holding
@@ -41,7 +41,7 @@ modbus:
         scan_interval: 10
         slave: 1
 
-      - name: "MIRAI L243 internal circulator"
+      - name: "mirai_l243_internal_circulator"
         unique_id: mirai_l243_internal_circulator
         address: 9068
         input_type: holding
@@ -49,7 +49,7 @@ modbus:
         scan_interval: 10
         slave: 1
 
-      - name: "MIRAI L241 antifreeze lvl1"
+      - name: "mirai_l241_antifreeze_lvl1"
         unique_id: mirai_l241_antifreeze_lvl1
         address: 9078
         input_type: holding
@@ -57,7 +57,7 @@ modbus:
         scan_interval: 30
         slave: 1
 
-      - name: "MIRAI L242 antifreeze lvl2"
+      - name: "mirai_l242_antifreeze_lvl2"
         unique_id: mirai_l242_antifreeze_lvl2
         address: 9079
         input_type: holding
@@ -65,29 +65,7 @@ modbus:
         scan_interval: 30
         slave: 1
 
-      - name: "MIRAI L162 outlet water temp"
-        unique_id: mirai_l162_outlet_water_temp
-        address: 8987
-        input_type: holding
-        data_type: int16
-        scale: 0.1
-        precision: 1
-        unit_of_measurement: "°C"
-        scan_interval: 15
-        slave: 1
-
-      - name: "MIRAI L161 inlet water temp"
-        unique_id: mirai_l161_inlet_water_temp
-        address: 8988
-        input_type: holding
-        data_type: int16
-        scale: 0.1
-        precision: 1
-        unit_of_measurement: "°C"
-        scan_interval: 15
-        slave: 1
-
-      - name: "MIRAI L163 outdoor air temp"
+      - name: "mirai_l163_outdoor_air_temp"
         unique_id: mirai_l163_outdoor_air_temp
         address: 8986
         input_type: holding
@@ -98,108 +76,24 @@ modbus:
         scan_interval: 30
         slave: 1
 
-template:
-  - sensor:
-      - name: "MIRAI temperature inlet water"
-        unique_id: mirai_temperature_inlet_water
-        device_class: temperature
+      - name: "mirai_l162_outlet_water_temp"
+        unique_id: mirai_l162_outlet_water_temp
+        address: 8987
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
         unit_of_measurement: "°C"
-        availability: >
-          {{ states('sensor.mirai_l161_inlet_water_temp') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set v = states('sensor.mirai_l161_inlet_water_temp') | float(0) %}
-          {% set scaled = (v * 10) | round(0) | int %}
-          {% if scaled in [-32768, 32767] %}
-            unknown
-          {% else %}
-            {{ v }}
-          {% endif %}
+        scan_interval: 15
+        slave: 1
 
-      - name: "MIRAI temperature outlet water"
-        unique_id: mirai_temperature_outlet_water
-        device_class: temperature
+      - name: "mirai_l161_inlet_water_temp"
+        unique_id: mirai_l161_inlet_water_temp
+        address: 8988
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
         unit_of_measurement: "°C"
-        availability: >
-          {{ states('sensor.mirai_l162_outlet_water_temp') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set v = states('sensor.mirai_l162_outlet_water_temp') | float(0) %}
-          {% set scaled = (v * 10) | round(0) | int %}
-          {% if scaled in [-32768, 32767] %}
-            unknown
-          {% else %}
-            {{ v }}
-          {% endif %}
-
-      - name: "MIRAI temperature outdoor air"
-        unique_id: mirai_temperature_outdoor_air
-        device_class: temperature
-        unit_of_measurement: "°C"
-        availability: >
-          {{ states('sensor.mirai_l163_outdoor_air_temp') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set v = states('sensor.mirai_l163_outdoor_air_temp') | float(0) %}
-          {% set scaled = (v * 10) | round(0) | int %}
-          {% if scaled in [-32768, 32767] %}
-            unknown
-          {% else %}
-            {{ v }}
-          {% endif %}
-
-      - name: "MIRAI status bits ON"
-        unique_id: mirai_status_bits_on
-        icon: mdi:checkbox-multiple-marked
-        availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {% set ns = namespace(bits=[]) %}
-          {% for i in range(0,16) %}
-            {% if (v | bitwise_and(2**i)) != 0 %}
-              {% set ns.bits = ns.bits + ['bit %02d' % i] %}
-            {% endif %}
-          {% endfor %}
-          {{ ns.bits | join(', ') if ns.bits else 'nessun bit ON' }}
-
-      - name: "MIRAI status mode (bits)"
-        unique_id: mirai_status_mode_bits
-        icon: mdi:power-settings
-        availability: >
-          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
-          {% set bit01 = (v | bitwise_and(2**1)) != 0 %}
-          {% set bit07 = (v | bitwise_and(2**7)) != 0 %}
-          {% set bit08 = (v | bitwise_and(2**8)) != 0 %}
-          {% if bit08 and (not bit01) and (not bit07) %}
-            OFF
-          {% elif bit01 or bit07 %}
-            ON
-          {% else %}
-            UNKNOWN
-          {% endif %}
-
-      - name: "MIRAI status mode (robusto)"
-        unique_id: mirai_status_mode_robusto
-        icon: mdi:power
-        availability: >
-          {{ states('sensor.mirai_l261_compressor_step') not in ['unknown','unavailable','none','None',''] and
-             states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {% set l261 = states('sensor.mirai_l261_compressor_step') | int(0) %}
-          {% set l243 = states('sensor.mirai_l243_internal_circulator') | int(0) %}
-          {% if l261 > 0 %}
-            COMPRESSORE
-          {% elif l243 > 0 %}
-            POMPA
-          {% else %}
-            OFF
-          {% endif %}
-
-  - binary_sensor:
-      - name: "MIRAI compressore attivo"
-        unique_id: mirai_compressore_attivo
-        icon: mdi:engine
-        availability: >
-          {{ states('sensor.mirai_l261_compressor_step') not in ['unknown','unavailable','none','None',''] }}
-        state: >
-          {{ (states('sensor.mirai_l261_compressor_step') | int(0)) > 0 }}
+        scan_interval: 15
+        slave: 1

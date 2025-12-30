@@ -1,0 +1,171 @@
+template:
+  - binary_sensor:
+      - name: "mirai_status_word_bit_00"
+        unique_id: mirai_status_word_bit_00
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**0) != 0 }}
+
+      - name: "mirai_status_word_bit_01"
+        unique_id: mirai_status_word_bit_01
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**1) != 0 }}
+
+      - name: "mirai_status_word_bit_02"
+        unique_id: mirai_status_word_bit_02
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**2) != 0 }}
+
+      - name: "mirai_status_word_bit_03"
+        unique_id: mirai_status_word_bit_03
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**3) != 0 }}
+
+      - name: "mirai_status_word_bit_04"
+        unique_id: mirai_status_word_bit_04
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**4) != 0 }}
+
+      - name: "mirai_status_word_bit_05"
+        unique_id: mirai_status_word_bit_05
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**5) != 0 }}
+
+      - name: "mirai_status_word_bit_06"
+        unique_id: mirai_status_word_bit_06
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**6) != 0 }}
+
+      - name: "mirai_status_word_bit_07"
+        unique_id: mirai_status_word_bit_07
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**7) != 0 }}
+
+      - name: "mirai_status_word_bit_08"
+        unique_id: mirai_status_word_bit_08
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**8) != 0 }}
+
+      - name: "mirai_status_word_bit_09"
+        unique_id: mirai_status_word_bit_09
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**9) != 0 }}
+
+      - name: "mirai_status_word_bit_10"
+        unique_id: mirai_status_word_bit_10
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**10) != 0 }}
+
+      - name: "mirai_status_word_bit_11"
+        unique_id: mirai_status_word_bit_11
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**11) != 0 }}
+
+      - name: "mirai_status_word_bit_12"
+        unique_id: mirai_status_word_bit_12
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**12) != 0 }}
+
+      - name: "mirai_status_word_bit_13"
+        unique_id: mirai_status_word_bit_13
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**13) != 0 }}
+
+      - name: "mirai_status_word_bit_14"
+        unique_id: mirai_status_word_bit_14
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**14) != 0 }}
+
+      - name: "mirai_status_word_bit_15"
+        unique_id: mirai_status_word_bit_15
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {{ (states('sensor.mirai_status_word_raw') | int(0)) | bitwise_and(2**15) != 0 }}
+
+      - name: "mirai_machine_running"
+        unique_id: mirai_machine_running
+        availability: >
+          {{ states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] or
+             states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set l243_state = states('sensor.mirai_l243_internal_circulator') %}
+          {% set status_state = states('sensor.mirai_status_word_raw') %}
+          {% set l243_valid = l243_state not in ['unknown','unavailable','none','None',''] %}
+          {% set status_valid = status_state not in ['unknown','unavailable','none','None',''] %}
+          {% set l243 = l243_state | int(0) %}
+          {% set bit01 = (status_state | int(0)) | bitwise_and(2**1) != 0 %}
+          {{ (l243_valid and l243 == 1) or (status_valid and bit01) }}
+
+  - sensor:
+      - name: "mirai_status_bits_on"
+        unique_id: mirai_status_bits_on
+        icon: mdi:checkbox-multiple-marked
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+          {% set ns = namespace(bits=[]) %}
+          {% for i in range(0, 16) %}
+            {% if (v | bitwise_and(2**i)) != 0 %}
+              {% set ns.bits = ns.bits + ['bit %02d' % i] %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.bits | join(', ') if ns.bits else 'nessun bit ON' }}
+
+      - name: "mirai_machine_state"
+        unique_id: mirai_machine_state
+        icon: mdi:power
+        availability: >
+          {{ states('binary_sensor.mirai_machine_running') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% if is_state('binary_sensor.mirai_machine_running', 'on') %}
+            RUN
+          {% else %}
+            OFF
+          {% endif %}
+
+      - name: "mirai_snapshot"
+        unique_id: mirai_snapshot
+        icon: mdi:clipboard-text
+        state: |
+          TIME: {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+          STATUS_WORD_RAW: {{ states('sensor.mirai_status_word_raw') }}
+          STATUS_BITS_ON: {{ states('sensor.mirai_status_bits_on') }}
+          STATUS_CODE_RAW: {{ states('sensor.mirai_status_code_raw') }}
+          FAULT_CODE_RAW: {{ states('sensor.mirai_fault_code_raw') }}
+          L261_COMPRESSOR_STEP: {{ states('sensor.mirai_l261_compressor_step') }}
+          L243_INTERNAL_CIRCULATOR: {{ states('sensor.mirai_l243_internal_circulator') }}
+          L161_INLET_WATER_TEMP: {{ states('sensor.mirai_l161_inlet_water_temp') }}
+          L162_OUTLET_WATER_TEMP: {{ states('sensor.mirai_l162_outlet_water_temp') }}
+          L163_OUTDOOR_AIR_TEMP: {{ states('sensor.mirai_l163_outdoor_air_temp') }}
+          MACHINE_STATE: {{ states('sensor.mirai_machine_state') }}
