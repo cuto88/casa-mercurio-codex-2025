@@ -1,4 +1,0 @@
-input_boolean:
-  mirai_debug_enable:
-    name: "MIRAI debug"
-    icon: mdi:bug
