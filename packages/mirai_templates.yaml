@@ -158,18 +158,22 @@ template:
         unique_id: mirai_l161_inlet_water_temp_clean
         device_class: temperature
         unit_of_measurement: "°C"
+        icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
-          {% if raw in ['unknown', 'unavailable'] %}
+          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
             unknown
           {% else %}
             {% set value = raw | float(none) %}
             {% if value is none %}
               unknown
-            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
-              unknown
             {% else %}
-              {{ value }}
+              {% set scaled = (value * 10) | round(0) | int %}
+              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
+                unknown
+              {% else %}
+                {{ value }}
+              {% endif %}
             {% endif %}
           {% endif %}
 
@@ -177,18 +181,22 @@ template:
         unique_id: mirai_l162_outlet_water_temp_clean
         device_class: temperature
         unit_of_measurement: "°C"
+        icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
-          {% if raw in ['unknown', 'unavailable'] %}
+          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
             unknown
           {% else %}
             {% set value = raw | float(none) %}
             {% if value is none %}
               unknown
-            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
-              unknown
             {% else %}
-              {{ value }}
+              {% set scaled = (value * 10) | round(0) | int %}
+              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
+                unknown
+              {% else %}
+                {{ value }}
+              {% endif %}
             {% endif %}
           {% endif %}
 
@@ -196,18 +204,22 @@ template:
         unique_id: mirai_l163_outdoor_air_temp_clean
         device_class: temperature
         unit_of_measurement: "°C"
+        icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l163_outdoor_air_temp') %}
-          {% if raw in ['unknown', 'unavailable'] %}
+          {% if raw in ['unknown', 'unavailable', 'none', 'None', ''] %}
             unknown
           {% else %}
             {% set value = raw | float(none) %}
             {% if value is none %}
               unknown
-            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
-              unknown
             {% else %}
-              {{ value }}
+              {% set scaled = (value * 10) | round(0) | int %}
+              {% if scaled in [-32768, 32767] or value < -100 or value > 150 %}
+                unknown
+              {% else %}
+                {{ value }}
+              {% endif %}
             {% endif %}
           {% endif %}
 
