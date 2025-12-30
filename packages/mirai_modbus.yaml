@@ -160,6 +160,41 @@ template:
           {% endfor %}
           {{ ns.bits | join(', ') if ns.bits else 'nessun bit ON' }}
 
+      - name: "MIRAI status mode (bits)"
+        unique_id: mirai_status_mode_bits
+        icon: mdi:power-settings
+        availability: >
+          {{ states('sensor.mirai_status_word_raw') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set v = states('sensor.mirai_status_word_raw') | int(0) %}
+          {% set bit01 = (v | bitwise_and(2**1)) != 0 %}
+          {% set bit07 = (v | bitwise_and(2**7)) != 0 %}
+          {% set bit08 = (v | bitwise_and(2**8)) != 0 %}
+          {% if bit08 and (not bit01) and (not bit07) %}
+            OFF
+          {% elif bit01 or bit07 %}
+            ON
+          {% else %}
+            UNKNOWN
+          {% endif %}
+
+      - name: "MIRAI status mode (robusto)"
+        unique_id: mirai_status_mode_robusto
+        icon: mdi:power
+        availability: >
+          {{ states('sensor.mirai_l261_compressor_step') not in ['unknown','unavailable','none','None',''] and
+             states('sensor.mirai_l243_internal_circulator') not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set l261 = states('sensor.mirai_l261_compressor_step') | int(0) %}
+          {% set l243 = states('sensor.mirai_l243_internal_circulator') | int(0) %}
+          {% if l261 > 0 %}
+            COMPRESSORE
+          {% elif l243 > 0 %}
+            POMPA
+          {% else %}
+            OFF
+          {% endif %}
+
   - binary_sensor:
       - name: "MIRAI compressore attivo"
         unique_id: mirai_compressore_attivo
