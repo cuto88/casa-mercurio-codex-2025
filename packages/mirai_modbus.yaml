@@ -46,7 +46,7 @@ modbus:
       # --- TEMPERATURES (scale 0.1) ---
       - name: "MIRAI L161 inlet water temp"
         unique_id: mirai_l161_inlet_water_temp
-        address: 8989
+        address: 8988
         input_type: holding
         data_type: int16
         scale: 0.1
@@ -57,7 +57,7 @@ modbus:
 
       - name: "MIRAI L162 outlet water temp"
         unique_id: mirai_l162_outlet_water_temp
-        address: 8988
+        address: 8987
         input_type: holding
         data_type: int16
         scale: 0.1
@@ -68,7 +68,7 @@ modbus:
 
       - name: "MIRAI L163 outdoor temp"
         unique_id: mirai_l163_outdoor_temp
-        address: 8987
+        address: 8986
         input_type: holding
         data_type: int16
         scale: 0.1
@@ -80,7 +80,7 @@ modbus:
       # --- OUTPUTS / OPERATING ---
       - name: "MIRAI L243 internal circulator"
         unique_id: mirai_l243_internal_circulator
-        address: 9069
+        address: 9068
         input_type: holding
         data_type: uint16
         scan_interval: 5
@@ -88,7 +88,7 @@ modbus:
 
       - name: "MIRAI L244 relaunch pump"
         unique_id: mirai_l244_relaunch_pump
-        address: 9070
+        address: 9069
         input_type: holding
         data_type: uint16
         scan_interval: 5
@@ -96,7 +96,7 @@ modbus:
 
       - name: "MIRAI L241 antifreeze lvl1"
         unique_id: mirai_l241_antifreeze_lvl1
-        address: 9079
+        address: 9078
         input_type: holding
         data_type: uint16
         scan_interval: 30
@@ -104,7 +104,7 @@ modbus:
 
       - name: "MIRAI L242 antifreeze lvl2"
         unique_id: mirai_l242_antifreeze_lvl2
-        address: 9080
+        address: 9079
         input_type: holding
         data_type: uint16
         scan_interval: 30
@@ -112,8 +112,76 @@ modbus:
 
       - name: "MIRAI L261 compressor step"
         unique_id: mirai_l261_compressor_step
+        address: 9058
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      # --- SHIFT TEST (temporary) ---
+      - name: "MIRAI L261 compressor step_a"
+        unique_id: mirai_l261_compressor_step_a
+        address: 9058
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L261 compressor step_b"
+        unique_id: mirai_l261_compressor_step_b
         address: 9059
         input_type: holding
         data_type: uint16
         scan_interval: 5
         slave: 1
+
+      - name: "MIRAI L243 internal circulator_a"
+        unique_id: mirai_l243_internal_circulator_a
+        address: 9068
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L243 internal circulator_b"
+        unique_id: mirai_l243_internal_circulator_b
+        address: 9069
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L241 antifreeze lvl1_a"
+        unique_id: mirai_l241_antifreeze_lvl1_a
+        address: 9078
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "MIRAI L241 antifreeze lvl1_b"
+        unique_id: mirai_l241_antifreeze_lvl1_b
+        address: 9079
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+template:
+  - sensor:
+      - name: "MIRAI shift verdict"
+        unique_id: mirai_shift_verdict
+        state: >
+          {% set a_on = (states('sensor.mirai_l261_compressor_step_a') | int(0) > 0)
+            or (states('sensor.mirai_l243_internal_circulator_a') | int(0) > 0)
+            or (states('sensor.mirai_l241_antifreeze_lvl1_a') | int(0) > 0) %}
+          {% set b_on = (states('sensor.mirai_l261_compressor_step_b') | int(0) > 0)
+            or (states('sensor.mirai_l243_internal_circulator_b') | int(0) > 0)
+            or (states('sensor.mirai_l241_antifreeze_lvl1_b') | int(0) > 0) %}
+          {% if a_on and not b_on %}
+            BASE0_OK
+          {% elif b_on and not a_on %}
+            BASE1_OK
+          {% else %}
+            INDETERMINATE
+          {% endif %}
