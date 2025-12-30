@@ -1,0 +1,96 @@
+modbus:
+  - name: mirai
+    type: tcp
+    host: 192.168.178.33
+    port: 502
+    delay: 2
+    timeout: 5
+    retry_on_empty: true
+    retries: 3
+    close_comm_on_error: true
+
+    sensors:
+      - name: "L261 compressor step"
+        unique_id: mirai_l261_compressor_step
+        address: 9058
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "L243 internal circulator"
+        unique_id: mirai_l243_internal_circulator
+        address: 9068
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "L241 antifreeze lvl1"
+        unique_id: mirai_l241_antifreeze_lvl1
+        address: 9078
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "L242 antifreeze lvl2"
+        unique_id: mirai_l242_antifreeze_lvl2
+        address: 9079
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "L162 outlet water temp"
+        unique_id: mirai_l162_outlet_water_temp
+        address: 8987
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 10
+        slave: 1
+
+      - name: "L161 inlet water temp"
+        unique_id: mirai_l161_inlet_water_temp
+        address: 8988
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 10
+        slave: 1
+
+      - name: "STATUS word raw"
+        unique_id: mirai_status_word_raw
+        address: 9050
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: 1
+
+      - name: "STATUS code raw"
+        unique_id: mirai_status_code_raw
+        address: 9051
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: 1
+
+      - name: "FAULT code raw"
+        unique_id: mirai_fault_code_raw
+        address: 9052
+        input_type: holding
+        data_type: uint16
+        scan_interval: 15
+        slave: 1
+
+template:
+  - binary_sensor:
+      - name: "compressore_attivo"
+        unique_id: mirai_compressore_attivo
+        state: >
+          {{ states('sensor.l261_compressor_step') | int(0) > 0 }}
