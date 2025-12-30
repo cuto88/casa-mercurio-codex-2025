@@ -1,18 +1,21 @@
-# Base0; se con QModMaster serve shift, +1 a tutti gli address Lxxx
 modbus:
   - name: mirai
     type: tcp
     host: 192.168.178.33
     port: 502
-    timeout: 1
+    delay: 2
+    timeout: 5
+    retry_on_empty: true
+    retries: 3
+    close_comm_on_error: true
+
     sensors:
       - name: "MIRAI status word raw"
         unique_id: mirai_status_word_raw
         address: 4001
         input_type: holding
         data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 15
+        scan_interval: 10
         slave: 1
 
       - name: "MIRAI status code raw"
@@ -20,62 +23,7 @@ modbus:
         address: 4002
         input_type: holding
         data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 15
-        slave: 1
-
-      - name: "MIRAI status word raw A"
-        unique_id: mirai_status_word_raw_a
-        address: 4000
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
         scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI status word raw B"
-        unique_id: mirai_status_word_raw_b
-        address: 3999
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI status code raw A"
-        unique_id: mirai_status_code_raw_a
-        address: 4001
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI status code raw B"
-        unique_id: mirai_status_code_raw_b
-        address: 4000
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI status word legacy"
-        unique_id: mirai_status_word_legacy_raw
-        address: 1003
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 30
-        slave: 1
-
-      - name: "MIRAI status detail raw"
-        unique_id: mirai_status_detail_raw
-        address: 1209
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 30
         slave: 1
 
       - name: "MIRAI fault code raw"
@@ -83,173 +31,89 @@ modbus:
         address: 1210
         input_type: holding
         data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 30
-        slave: 1
-
-      - name: "MIRAI status detail raw A"
-        unique_id: mirai_status_detail_raw_a
-        address: 1208
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI status detail raw B"
-        unique_id: mirai_status_detail_raw_b
-        address: 1207
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI fault code raw A"
-        unique_id: mirai_fault_code_raw_a
-        address: 1209
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI fault code raw B"
-        unique_id: mirai_fault_code_raw_b
-        address: 1208
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: 1
-        scan_interval: 10
-        slave: 1
-
-      # ---- GOLD sensors from SMART-MT (Register base 0) ----
-      - name: "MIRAI L243 internal circulator"
-        unique_id: mirai_l243_internal_circulator
-        address: 9068
-        slave: 1
-        input_type: holding
-        data_type: uint16
         scan_interval: 15
-
-      - name: "MIRAI L244 relaunch pump output"
-        unique_id: mirai_l244_relaunch_pump
-        address: 9069
         slave: 1
-        input_type: holding
-        data_type: uint16
-        scan_interval: 15
 
-      - name: "MIRAI L241 antifreeze lvl1"
-        unique_id: mirai_l241_antifreeze_lvl1
-        address: 9078
-        slave: 1
-        input_type: holding
-        data_type: uint16
-        scan_interval: 15
-
-      - name: "MIRAI L242 antifreeze lvl2"
-        unique_id: mirai_l242_antifreeze_lvl2
-        address: 9079
-        slave: 1
-        input_type: holding
-        data_type: uint16
-        scan_interval: 15
-
-      - name: "MIRAI L261 compressor step"
-        unique_id: mirai_l261_compressor_step
-        address: 9058
-        slave: 1
-        input_type: holding
-        data_type: uint16
-        scan_interval: 15
-
-      - name: "MIRAI L243 internal circulator A"
-        unique_id: mirai_l243_internal_circulator_a
-        address: 9068
+      # --- REMOTE CONSENTS / STATUS ---
+      - name: "MIRAI L141 remote onoff"
+        unique_id: mirai_l141_remote_onoff
+        address: 9032
         input_type: holding
         data_type: uint16
         scan_interval: 10
         slave: 1
 
-      - name: "MIRAI L243 internal circulator B"
-        unique_id: mirai_l243_internal_circulator_b
-        address: 9067
+      # --- TEMPERATURES (scale 0.1) ---
+      - name: "MIRAI L161 inlet water temp"
+        unique_id: mirai_l161_inlet_water_temp
+        address: 8989
         input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L244 relaunch pump output A"
-        unique_id: mirai_l244_relaunch_pump_a
-        address: 9069
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L244 relaunch pump output B"
-        unique_id: mirai_l244_relaunch_pump_b
-        address: 9068
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L241 antifreeze lvl1 A"
-        unique_id: mirai_l241_antifreeze_lvl1_a
-        address: 9078
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L241 antifreeze lvl1 B"
-        unique_id: mirai_l241_antifreeze_lvl1_b
-        address: 9077
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L242 antifreeze lvl2 A"
-        unique_id: mirai_l242_antifreeze_lvl2_a
-        address: 9079
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L242 antifreeze lvl2 B"
-        unique_id: mirai_l242_antifreeze_lvl2_b
-        address: 9078
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L261 compressor step A"
-        unique_id: mirai_l261_compressor_step_a
-        address: 9058
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      - name: "MIRAI L261 compressor step B"
-        unique_id: mirai_l261_compressor_step_b
-        address: 9057
-        input_type: holding
-        data_type: uint16
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
         scan_interval: 10
         slave: 1
 
       - name: "MIRAI L162 outlet water temp"
         unique_id: mirai_l162_outlet_water_temp
-        address: 8987
-        slave: 1
+        address: 8988
         input_type: holding
         data_type: int16
         scale: 0.1
         precision: 1
-        scan_interval: 15
+        unit_of_measurement: "°C"
+        scan_interval: 10
+        slave: 1
+
+      - name: "MIRAI L163 outdoor temp"
+        unique_id: mirai_l163_outdoor_temp
+        address: 8987
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 30
+        slave: 1
+
+      # --- OUTPUTS / OPERATING ---
+      - name: "MIRAI L243 internal circulator"
+        unique_id: mirai_l243_internal_circulator
+        address: 9069
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L244 relaunch pump"
+        unique_id: mirai_l244_relaunch_pump
+        address: 9070
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L241 antifreeze lvl1"
+        unique_id: mirai_l241_antifreeze_lvl1
+        address: 9079
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "MIRAI L242 antifreeze lvl2"
+        unique_id: mirai_l242_antifreeze_lvl2
+        address: 9080
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+        slave: 1
+
+      - name: "MIRAI L261 compressor step"
+        unique_id: mirai_l261_compressor_step
+        address: 9059
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1

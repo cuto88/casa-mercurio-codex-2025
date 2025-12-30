@@ -6,3 +6,15 @@ input_boolean:
   mirai_modbus_autodiscovery_enabled:
     name: "MIRAI Modbus autodiscovery"
     icon: mdi:auto-fix
+
+shell_command:
+  mirai_ensure_folder: "mkdir -p /config/mirai"
+
+automation:
+  - id: mirai_ensure_folder_on_start
+    alias: "MIRAI ensure folder on start"
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: shell_command.mirai_ensure_folder
