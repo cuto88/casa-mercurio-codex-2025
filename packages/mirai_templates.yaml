@@ -167,3 +167,177 @@ template:
         state_class: measurement
         state: >
           {{ states('sensor.mirai_l162_outlet_water_temp') | float(0) | round(1) }}
+      - name: "MIRAI L261 compressor step final"
+        unique_id: mirai_l261_compressor_step_final
+        availability: >
+          {% set a = states('sensor.mirai_l261_compressor_step_a') %}
+          {% set b = states('sensor.mirai_l261_compressor_step_b') %}
+          {{ a not in ['unknown','unavailable','none','None',''] or b not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set a = states('sensor.mirai_l261_compressor_step_a') %}
+          {% set b = states('sensor.mirai_l261_compressor_step_b') %}
+          {% if a not in ['unknown','unavailable','none','None',''] %}
+            {{ a | int(0) }}
+          {% elif b not in ['unknown','unavailable','none','None',''] %}
+            {{ b | int(0) }}
+          {% else %}
+            {{ 'unknown' }}
+          {% endif %}
+        attributes:
+          source: >
+            {% set a = states('sensor.mirai_l261_compressor_step_a') %}
+            {% set b = states('sensor.mirai_l261_compressor_step_b') %}
+            {% if a not in ['unknown','unavailable','none','None',''] %}
+              A
+            {% elif b not in ['unknown','unavailable','none','None',''] %}
+              B
+            {% else %}
+              none
+            {% endif %}
+      - name: "MIRAI L243 internal circulator final"
+        unique_id: mirai_l243_internal_circulator_final
+        availability: >
+          {% set a = states('sensor.mirai_l243_internal_circulator_a') %}
+          {% set b = states('sensor.mirai_l243_internal_circulator_b') %}
+          {{ a not in ['unknown','unavailable','none','None',''] or b not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set a = states('sensor.mirai_l243_internal_circulator_a') %}
+          {% set b = states('sensor.mirai_l243_internal_circulator_b') %}
+          {% if a not in ['unknown','unavailable','none','None',''] %}
+            {{ a | int(0) }}
+          {% elif b not in ['unknown','unavailable','none','None',''] %}
+            {{ b | int(0) }}
+          {% else %}
+            {{ 'unknown' }}
+          {% endif %}
+        attributes:
+          source: >
+            {% set a = states('sensor.mirai_l243_internal_circulator_a') %}
+            {% set b = states('sensor.mirai_l243_internal_circulator_b') %}
+            {% if a not in ['unknown','unavailable','none','None',''] %}
+              A
+            {% elif b not in ['unknown','unavailable','none','None',''] %}
+              B
+            {% else %}
+              none
+            {% endif %}
+      - name: "MIRAI L244 relaunch pump final"
+        unique_id: mirai_l244_relaunch_pump_final
+        availability: >
+          {% set a = states('sensor.mirai_l244_relaunch_pump_a') %}
+          {% set b = states('sensor.mirai_l244_relaunch_pump_b') %}
+          {{ a not in ['unknown','unavailable','none','None',''] or b not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set a = states('sensor.mirai_l244_relaunch_pump_a') %}
+          {% set b = states('sensor.mirai_l244_relaunch_pump_b') %}
+          {% if a not in ['unknown','unavailable','none','None',''] %}
+            {{ a | int(0) }}
+          {% elif b not in ['unknown','unavailable','none','None',''] %}
+            {{ b | int(0) }}
+          {% else %}
+            {{ 'unknown' }}
+          {% endif %}
+        attributes:
+          source: >
+            {% set a = states('sensor.mirai_l244_relaunch_pump_a') %}
+            {% set b = states('sensor.mirai_l244_relaunch_pump_b') %}
+            {% if a not in ['unknown','unavailable','none','None',''] %}
+              A
+            {% elif b not in ['unknown','unavailable','none','None',''] %}
+              B
+            {% else %}
+              none
+            {% endif %}
+      - name: "MIRAI L241 antifreeze lvl1 final"
+        unique_id: mirai_l241_antifreeze_lvl1_final
+        availability: >
+          {% set a = states('sensor.mirai_l241_antifreeze_lvl1_a') %}
+          {% set b = states('sensor.mirai_l241_antifreeze_lvl1_b') %}
+          {{ a not in ['unknown','unavailable','none','None',''] or b not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set a = states('sensor.mirai_l241_antifreeze_lvl1_a') %}
+          {% set b = states('sensor.mirai_l241_antifreeze_lvl1_b') %}
+          {% if a not in ['unknown','unavailable','none','None',''] %}
+            {{ a | int(0) }}
+          {% elif b not in ['unknown','unavailable','none','None',''] %}
+            {{ b | int(0) }}
+          {% else %}
+            {{ 'unknown' }}
+          {% endif %}
+        attributes:
+          source: >
+            {% set a = states('sensor.mirai_l241_antifreeze_lvl1_a') %}
+            {% set b = states('sensor.mirai_l241_antifreeze_lvl1_b') %}
+            {% if a not in ['unknown','unavailable','none','None',''] %}
+              A
+            {% elif b not in ['unknown','unavailable','none','None',''] %}
+              B
+            {% else %}
+              none
+            {% endif %}
+      - name: "MIRAI L242 antifreeze lvl2 final"
+        unique_id: mirai_l242_antifreeze_lvl2_final
+        availability: >
+          {% set a = states('sensor.mirai_l242_antifreeze_lvl2_a') %}
+          {% set b = states('sensor.mirai_l242_antifreeze_lvl2_b') %}
+          {{ a not in ['unknown','unavailable','none','None',''] or b not in ['unknown','unavailable','none','None',''] }}
+        state: >
+          {% set a = states('sensor.mirai_l242_antifreeze_lvl2_a') %}
+          {% set b = states('sensor.mirai_l242_antifreeze_lvl2_b') %}
+          {% if a not in ['unknown','unavailable','none','None',''] %}
+            {{ a | int(0) }}
+          {% elif b not in ['unknown','unavailable','none','None',''] %}
+            {{ b | int(0) }}
+          {% else %}
+            {{ 'unknown' }}
+          {% endif %}
+        attributes:
+          source: >
+            {% set a = states('sensor.mirai_l242_antifreeze_lvl2_a') %}
+            {% set b = states('sensor.mirai_l242_antifreeze_lvl2_b') %}
+            {% if a not in ['unknown','unavailable','none','None',''] %}
+              A
+            {% elif b not in ['unknown','unavailable','none','None',''] %}
+              B
+            {% else %}
+              none
+            {% endif %}
+      - name: "MIRAI debug snapshot"
+        unique_id: mirai_debug_snapshot
+        icon: mdi:bug-outline
+        state: >
+          {% set ts = now().strftime('%Y-%m-%d %H:%M:%S') %}
+          {% set status_word = states('sensor.mirai_status_word_raw') %}
+          {% set status_code = states('sensor.mirai_status_code_raw') %}
+          {% set fault_code = states('sensor.mirai_fault_code_raw') %}
+          {% set bits_on = states('sensor.mirai_status_bits_on') %}
+          {% set l261_a = states('sensor.mirai_l261_compressor_step_a') %}
+          {% set l261_b = states('sensor.mirai_l261_compressor_step_b') %}
+          {% set l261_final = states('sensor.mirai_l261_compressor_step_final') %}
+          {% set l261_source = state_attr('sensor.mirai_l261_compressor_step_final', 'source') %}
+          {% set l243_a = states('sensor.mirai_l243_internal_circulator_a') %}
+          {% set l243_b = states('sensor.mirai_l243_internal_circulator_b') %}
+          {% set l243_final = states('sensor.mirai_l243_internal_circulator_final') %}
+          {% set l243_source = state_attr('sensor.mirai_l243_internal_circulator_final', 'source') %}
+          {% set l244_a = states('sensor.mirai_l244_relaunch_pump_a') %}
+          {% set l244_b = states('sensor.mirai_l244_relaunch_pump_b') %}
+          {% set l244_final = states('sensor.mirai_l244_relaunch_pump_final') %}
+          {% set l244_source = state_attr('sensor.mirai_l244_relaunch_pump_final', 'source') %}
+          {% set l241_a = states('sensor.mirai_l241_antifreeze_lvl1_a') %}
+          {% set l241_b = states('sensor.mirai_l241_antifreeze_lvl1_b') %}
+          {% set l241_final = states('sensor.mirai_l241_antifreeze_lvl1_final') %}
+          {% set l241_source = state_attr('sensor.mirai_l241_antifreeze_lvl1_final', 'source') %}
+          {% set l242_a = states('sensor.mirai_l242_antifreeze_lvl2_a') %}
+          {% set l242_b = states('sensor.mirai_l242_antifreeze_lvl2_b') %}
+          {% set l242_final = states('sensor.mirai_l242_antifreeze_lvl2_final') %}
+          {% set l242_source = state_attr('sensor.mirai_l242_antifreeze_lvl2_final', 'source') %}
+          time: {{ ts }}
+          status_word_raw: {{ status_word }}
+          bits_on: {{ bits_on }}
+          status_code_raw: {{ status_code }}
+          fault_code_raw: {{ fault_code }}
+          L261_COMPRESSOR_STEP: {{ l261_final }} (A={{ l261_a }}, B={{ l261_b }}, source={{ l261_source }})
+          L243_INTERNAL_CIRCULATOR: {{ l243_final }} (A={{ l243_a }}, B={{ l243_b }}, source={{ l243_source }})
+          L244_RELAUNCH_PUMP: {{ l244_final }} (A={{ l244_a }}, B={{ l244_b }}, source={{ l244_source }})
+          L241_ANTIFREEZE_LVL1: {{ l241_final }} (A={{ l241_a }}, B={{ l241_b }}, source={{ l241_source }})
+          L242_ANTIFREEZE_LVL2: {{ l242_final }} (A={{ l242_a }}, B={{ l242_b }}, source={{ l242_source }})
