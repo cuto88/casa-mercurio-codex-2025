@@ -449,7 +449,7 @@ template:
           - service: switch.turn_on
             target:
               entity_id: switch.4_ch_interrutore_3
-        state: "{{ is_state('switch.4_ch_interrutore_3','off') }}"
+        state: "{{ not is_state('switch.4_ch_interrutore_3','on') }}" # MODIFICATA
 
       - name: "Riscaldamento — blocco notturno"
         unique_id: heating_night_block
@@ -560,4 +560,3 @@ automation:
 # - All entity_id aligned with logica/core/README_sensori_clima.md
 # - No unused helpers except optional diagnostics listed in README
 # - External dependencies: binary_sensor.surplus_ok (PV surplus)
-
