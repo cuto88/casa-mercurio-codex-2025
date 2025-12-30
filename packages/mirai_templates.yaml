@@ -154,6 +154,63 @@ template:
             OFF
           {% endif %}
 
+      - name: "mirai_l161_inlet_water_temp_clean"
+        unique_id: mirai_l161_inlet_water_temp_clean
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
+          {% if raw in ['unknown', 'unavailable'] %}
+            unknown
+          {% else %}
+            {% set value = raw | float(none) %}
+            {% if value is none %}
+              unknown
+            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
+              unknown
+            {% else %}
+              {{ value }}
+            {% endif %}
+          {% endif %}
+
+      - name: "mirai_l162_outlet_water_temp_clean"
+        unique_id: mirai_l162_outlet_water_temp_clean
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
+          {% if raw in ['unknown', 'unavailable'] %}
+            unknown
+          {% else %}
+            {% set value = raw | float(none) %}
+            {% if value is none %}
+              unknown
+            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
+              unknown
+            {% else %}
+              {{ value }}
+            {% endif %}
+          {% endif %}
+
+      - name: "mirai_l163_outdoor_air_temp_clean"
+        unique_id: mirai_l163_outdoor_air_temp_clean
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l163_outdoor_air_temp') %}
+          {% if raw in ['unknown', 'unavailable'] %}
+            unknown
+          {% else %}
+            {% set value = raw | float(none) %}
+            {% if value is none %}
+              unknown
+            {% elif ((value * 10) | round(0)) in [-32768, 32767] or value < -100 or value > 150 %}
+              unknown
+            {% else %}
+              {{ value }}
+            {% endif %}
+          {% endif %}
+
       - name: "mirai_snapshot"
         unique_id: mirai_snapshot
         icon: mdi:clipboard-text
@@ -165,7 +222,7 @@ template:
           FAULT_CODE_RAW: {{ states('sensor.mirai_fault_code_raw') }}
           L261_COMPRESSOR_STEP: {{ states('sensor.mirai_l261_compressor_step') }}
           L243_INTERNAL_CIRCULATOR: {{ states('sensor.mirai_l243_internal_circulator') }}
-          L161_INLET_WATER_TEMP: {{ states('sensor.mirai_l161_inlet_water_temp') }}
-          L162_OUTLET_WATER_TEMP: {{ states('sensor.mirai_l162_outlet_water_temp') }}
-          L163_OUTDOOR_AIR_TEMP: {{ states('sensor.mirai_l163_outdoor_air_temp') }}
+          L161_INLET_WATER_TEMP: {{ states('sensor.mirai_l161_inlet_water_temp_clean') }}
+          L162_OUTLET_WATER_TEMP: {{ states('sensor.mirai_l162_outlet_water_temp_clean') }}
+          L163_OUTDOOR_AIR_TEMP: {{ states('sensor.mirai_l163_outdoor_air_temp_clean') }}
           MACHINE_STATE: {{ states('sensor.mirai_machine_state') }}
