@@ -4,46 +4,39 @@ modbus:
     host: 192.168.178.33
     port: 502
     delay: 2
-    timeout: 5
+    timeout: 3
     retry_on_empty: true
-    retries: 3
     close_comm_on_error: true
 
     sensors:
       - name: "MIRAI status word raw"
         unique_id: mirai_status_word_raw
+        # TODO: confirm from manual screenshot (Register Base 0).
         address: 4001
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 5
         slave: 1
 
       - name: "MIRAI status code raw"
         unique_id: mirai_status_code_raw
+        # TODO: confirm from manual screenshot (Register Base 0).
         address: 4002
         input_type: holding
         data_type: uint16
-        scan_interval: 10
+        scan_interval: 5
         slave: 1
 
       - name: "MIRAI fault code raw"
         unique_id: mirai_fault_code_raw
+        # TODO: confirm from manual screenshot (Register Base 0).
         address: 1210
         input_type: holding
         data_type: uint16
-        scan_interval: 15
+        scan_interval: 5
         slave: 1
 
-      # --- REMOTE CONSENTS / STATUS ---
-      - name: "MIRAI L141 remote onoff"
-        unique_id: mirai_l141_remote_onoff
-        address: 9032
-        input_type: holding
-        data_type: uint16
-        scan_interval: 10
-        slave: 1
-
-      # --- TEMPERATURES (scale 0.1) ---
+      # Register Base 0.
       - name: "MIRAI L161 inlet water temp"
         unique_id: mirai_l161_inlet_water_temp
         address: 8988
@@ -52,7 +45,7 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 10
+        scan_interval: 15
         slave: 1
 
       - name: "MIRAI L162 outlet water temp"
@@ -63,7 +56,7 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 10
+        scan_interval: 15
         slave: 1
 
       - name: "MIRAI L163 outdoor temp"
@@ -74,10 +67,9 @@ modbus:
         scale: 0.1
         precision: 1
         unit_of_measurement: "°C"
-        scan_interval: 30
+        scan_interval: 15
         slave: 1
 
-      # --- OUTPUTS / OPERATING ---
       - name: "MIRAI L243 internal circulator"
         unique_id: mirai_l243_internal_circulator
         address: 9068
@@ -94,12 +86,28 @@ modbus:
         scan_interval: 5
         slave: 1
 
+      - name: "MIRAI L244 relaunch pump_a"
+        unique_id: mirai_l244_relaunch_pump_a
+        address: 9069
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
+      - name: "MIRAI L244 relaunch pump_b"
+        unique_id: mirai_l244_relaunch_pump_b
+        address: 9070
+        input_type: holding
+        data_type: uint16
+        scan_interval: 5
+        slave: 1
+
       - name: "MIRAI L241 antifreeze lvl1"
         unique_id: mirai_l241_antifreeze_lvl1
         address: 9078
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 5
         slave: 1
 
       - name: "MIRAI L242 antifreeze lvl2"
@@ -107,7 +115,7 @@ modbus:
         address: 9079
         input_type: holding
         data_type: uint16
-        scan_interval: 30
+        scan_interval: 5
         slave: 1
 
       - name: "MIRAI L261 compressor step"
@@ -118,70 +126,24 @@ modbus:
         scan_interval: 5
         slave: 1
 
-      # --- SHIFT TEST (temporary) ---
-      - name: "MIRAI L261 compressor step_a"
-        unique_id: mirai_l261_compressor_step_a
-        address: 9058
+      - name: "MIRAI L163 outdoor temp_a"
+        unique_id: mirai_l163_outdoor_temp_a
+        address: 8986
         input_type: holding
-        data_type: uint16
-        scan_interval: 5
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 15
         slave: 1
 
-      - name: "MIRAI L261 compressor step_b"
-        unique_id: mirai_l261_compressor_step_b
-        address: 9059
+      - name: "MIRAI L163 outdoor temp_b"
+        unique_id: mirai_l163_outdoor_temp_b
+        address: 8987
         input_type: holding
-        data_type: uint16
-        scan_interval: 5
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 15
         slave: 1
-
-      - name: "MIRAI L243 internal circulator_a"
-        unique_id: mirai_l243_internal_circulator_a
-        address: 9068
-        input_type: holding
-        data_type: uint16
-        scan_interval: 5
-        slave: 1
-
-      - name: "MIRAI L243 internal circulator_b"
-        unique_id: mirai_l243_internal_circulator_b
-        address: 9069
-        input_type: holding
-        data_type: uint16
-        scan_interval: 5
-        slave: 1
-
-      - name: "MIRAI L241 antifreeze lvl1_a"
-        unique_id: mirai_l241_antifreeze_lvl1_a
-        address: 9078
-        input_type: holding
-        data_type: uint16
-        scan_interval: 30
-        slave: 1
-
-      - name: "MIRAI L241 antifreeze lvl1_b"
-        unique_id: mirai_l241_antifreeze_lvl1_b
-        address: 9079
-        input_type: holding
-        data_type: uint16
-        scan_interval: 30
-        slave: 1
-
-template:
-  - sensor:
-      - name: "MIRAI shift verdict"
-        unique_id: mirai_shift_verdict
-        state: >
-          {% set a_on = (states('sensor.mirai_l261_compressor_step_a') | int(0) > 0)
-            or (states('sensor.mirai_l243_internal_circulator_a') | int(0) > 0)
-            or (states('sensor.mirai_l241_antifreeze_lvl1_a') | int(0) > 0) %}
-          {% set b_on = (states('sensor.mirai_l261_compressor_step_b') | int(0) > 0)
-            or (states('sensor.mirai_l243_internal_circulator_b') | int(0) > 0)
-            or (states('sensor.mirai_l241_antifreeze_lvl1_b') | int(0) > 0) %}
-          {% if a_on and not b_on %}
-            BASE0_OK
-          {% elif b_on and not a_on %}
-            BASE1_OK
-          {% else %}
-            INDETERMINATE
-          {% endif %}

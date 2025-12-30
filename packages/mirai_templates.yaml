@@ -1,5 +1,59 @@
 template:
   - sensor:
+      - name: "MIRAI temperature inlet water"
+        unique_id: mirai_temperature_inlet_water
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
+          {% if raw in ['unknown','unavailable','none','None',''] %}
+            unknown
+          {% else %}
+            {% set v = raw | float %}
+            {% set scaled = (v * 10) | round(0) | int %}
+            {% if scaled in [-32768, 32767] %}
+              unknown
+            {% else %}
+              {{ v }}
+            {% endif %}
+          {% endif %}
+
+      - name: "MIRAI temperature outlet water"
+        unique_id: mirai_temperature_outlet_water
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
+          {% if raw in ['unknown','unavailable','none','None',''] %}
+            unknown
+          {% else %}
+            {% set v = raw | float %}
+            {% set scaled = (v * 10) | round(0) | int %}
+            {% if scaled in [-32768, 32767] %}
+              unknown
+            {% else %}
+              {{ v }}
+            {% endif %}
+          {% endif %}
+
+      - name: "MIRAI temperature outdoor air"
+        unique_id: mirai_temperature_outdoor_air
+        device_class: temperature
+        unit_of_measurement: "°C"
+        state: >
+          {% set raw = states('sensor.mirai_l163_outdoor_temp') %}
+          {% if raw in ['unknown','unavailable','none','None',''] %}
+            unknown
+          {% else %}
+            {% set v = raw | float %}
+            {% set scaled = (v * 10) | round(0) | int %}
+            {% if scaled in [-32768, 32767] %}
+              unknown
+            {% else %}
+              {{ v }}
+            {% endif %}
+          {% endif %}
+
       - name: "MIRAI status bits ON"
         unique_id: mirai_status_bits_on
         icon: mdi:format-list-bulleted
@@ -37,7 +91,29 @@ template:
           L162_OUTLET_WATER_TEMP: {{ a('sensor.mirai_l162_outlet_water_temp') }}
           L163_OUTDOOR_TEMP: {{ a('sensor.mirai_l163_outdoor_temp') }}
 
+      - name: "MIRAI snapshot compact"
+        unique_id: mirai_snapshot_compact
+        icon: mdi:clipboard-text-outline
+        state: >
+          step={{ states('sensor.mirai_l261_compressor_step') }}
+          circ={{ states('sensor.mirai_l243_internal_circulator') }}
+          tin={{ states('sensor.mirai_temperature_inlet_water') }}
+          tout={{ states('sensor.mirai_temperature_outlet_water') }}
+          tOut={{ states('sensor.mirai_temperature_outdoor_air') }}
+          af1={{ states('sensor.mirai_l241_antifreeze_lvl1') }}
+          af2={{ states('sensor.mirai_l242_antifreeze_lvl2') }}
+
   - binary_sensor:
+      - name: "MIRAI compressore attivo"
+        unique_id: mirai_compressore_attivo
+        state: >
+          {{ states('sensor.mirai_l261_compressor_step') | int(0) > 0 }}
+
+      - name: "MIRAI circolatore attivo"
+        unique_id: mirai_circolatore_attivo
+        state: >
+          {{ states('sensor.mirai_l243_internal_circulator') | int(0) == 1 }}
+
       - name: "MIRAI status word bit 00"
         unique_id: mirai_status_word_bit_00
         availability: >
