@@ -10,33 +10,47 @@ views:
       - type: grid
         title: "Temperature"
         cards:
+          - type: custom:config-template-card
+            variables:
+              - states['sensor.ehw_setpoint'].state
+            entities:
+              - sensor.ehw_setpoint
+            card:
+              type: gauge
+              entity: sensor.ehw_tank_top
+              name: Tank top
+              unit: "°C"
+              min: 20
+              max: 70
+              severity:
+                green: 20
+                yellow: ${vars[0]}
+                red: 70
           - type: horizontal-stack
             cards:
               - type: entities
-                title: "Scaled (°C)"
+                title: "Sonde e delta"
                 entities:
                   - entity: sensor.ehw_tank_top
                     name: Tank top
                   - entity: sensor.ehw_tank_bottom
                     name: Tank bottom
+                  - type: custom:template-entity-row
+                    name: Delta
+                    state: >-
+                      {{ (states('sensor.ehw_tank_top') | float -
+                      states('sensor.ehw_tank_bottom') | float) | round(1) }}
+                    unit: "°C"
+              - type: entities
+                title: "Setpoint"
+                entities:
                   - entity: sensor.ehw_setpoint
                     name: Setpoint
-                  - entity: sensor.ehw_delta_stratificazione
-                    name: Delta stratificazione
-
-              - type: entities
-                title: "RAW"
-                entities:
-                  - entity: sensor.ehw_t02_raw
-                    name: T02 raw
-                  - entity: sensor.ehw_t03_raw
-                    name: T03 raw
-                  - entity: sensor.ehw_setpoint_raw
-                    name: Setpoint raw
-
           - type: history-graph
             title: "Temperature (24h)"
             hours_to_show: 24
+            min_y: 20
+            max_y: 80
             entities:
               - entity: sensor.ehw_tank_top
                 name: Tank top
