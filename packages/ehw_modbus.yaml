@@ -8,264 +8,36 @@ modbus:
     timeout: 5
     retries: 3
     sensors:
-      # NOTE: Home Assistant Modbus addresses are 0-based while manuals are often 1-based.
-      # Using manual_reg - 1 below. If values look shifted, swap to the alternate block.
-      - name: "EHW T01 raw"
-        unique_id: ehw_t01_raw
-        address: 2018
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW T02 raw"
-        unique_id: ehw_t02_raw
+      - name: "EHW tank top"
+        unique_id: ehw_tank_top
         address: 2019
         input_type: holding
         data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW T03 raw"
-        unique_id: ehw_t03_raw
-        address: 2020
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW T04 raw"
-        unique_id: ehw_t04_raw
-        address: 2021
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW T05 raw"
-        unique_id: ehw_t05_raw
-        address: 2022
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW T06 raw"
-        unique_id: ehw_t06_raw
-        address: 2023
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      - name: "EHW setpoint raw"
-        unique_id: ehw_setpoint_raw
-        address: 1103
-        input_type: holding
-        data_type: uint16
-        unit_of_measurement: "raw"
-        state_class: measurement
-        scan_interval: 10
-        slave: 3
-
-      # Alternate manual_reg (1-based) block: enable if your gateway expects manual addresses.
-      # - name: "EHW T01 raw"
-      #   unique_id: ehw_t01_raw
-      #   address: 2019
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW T02 raw"
-      #   unique_id: ehw_t02_raw
-      #   address: 2020
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW T03 raw"
-      #   unique_id: ehw_t03_raw
-      #   address: 2021
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW T04 raw"
-      #   unique_id: ehw_t04_raw
-      #   address: 2022
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW T05 raw"
-      #   unique_id: ehw_t05_raw
-      #   address: 2023
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW T06 raw"
-      #   unique_id: ehw_t06_raw
-      #   address: 2024
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-      #
-      # - name: "EHW setpoint raw"
-      #   unique_id: ehw_setpoint_raw
-      #   address: 1104
-      #   input_type: holding
-      #   data_type: uint16
-      #   unit_of_measurement: "raw"
-      #   state_class: measurement
-      #   scan_interval: 10
-      #   slave: 3
-
-input_number:
-  ehw_temp_scale:
-    name: "EHW temp scale"
-    min: 0.01
-    max: 10
-    step: 0.01
-    mode: box
-    initial: 0.5
-  ehw_temp_offset:
-    name: "EHW temp offset"
-    min: -50
-    max: 50
-    step: 0.1
-    mode: box
-    initial: 0
-  ehw_setpoint_scale:
-    name: "EHW setpoint scale"
-    min: 0.01
-    max: 10
-    step: 0.01
-    mode: box
-    initial: 1
-  ehw_setpoint_offset:
-    name: "EHW setpoint offset"
-    min: -50
-    max: 50
-    step: 0.1
-    mode: box
-    initial: 0
-
-template:
-  - sensor:
-      - name: "EHW tank top"
-        unique_id: ehw_tank_top
+        scale: 0.5
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t02_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
+        scan_interval: 10
+        slave: 3
 
       - name: "EHW tank bottom"
         unique_id: ehw_tank_bottom
+        address: 2020
+        input_type: holding
+        data_type: uint16
+        scale: 0.5
         unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t03_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
-
-      - name: "EHW T01 inlet"
-        unique_id: ehw_t_inlet
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t01_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
-
-      - name: "EHW T04 finned coil"
-        unique_id: ehw_t_finned_coil
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t04_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
-
-      - name: "EHW T05 suction"
-        unique_id: ehw_t_suction
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t05_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
-
-      - name: "EHW T06 outlet solar"
-        unique_id: ehw_t_outlet_solar
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_t06_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
+        scan_interval: 10
+        slave: 3
 
       - name: "EHW setpoint"
         unique_id: ehw_setpoint
+        address: 1103
+        input_type: holding
+        data_type: uint16
+        scale: 0.5
         unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set raw = states('sensor.ehw_setpoint_raw') | float(0) %}
-          {% set scale = states('input_number.ehw_setpoint_scale') | float(0) %}
-          {% set offset = states('input_number.ehw_setpoint_offset') | float(0) %}
-          {{ (raw * scale + offset) }}
-
-      - name: "EHW delta stratificazione"
-        unique_id: ehw_delta_stratificazione
-        unit_of_measurement: "°C"
-        device_class: temperature
-        state_class: measurement
-        state: >-
-          {% set top = states('sensor.ehw_tank_top') | float(0) %}
-          {% set bottom = states('sensor.ehw_tank_bottom') | float(0) %}
-          {{ (top - bottom) }}
+        scan_interval: 10
+        slave: 3
