@@ -2,8 +2,8 @@ type: entities
 title: "EHW"
 show_header_toggle: false
 entities:
-  - entity: binary_sensor.ehw_running
-    name: In funzione
+  - entity: sensor.ehw_status
+    name: Stato
   - entity: sensor.ehw_tank_top
     name: Tank top
   - entity: sensor.ehw_tank_bottom
