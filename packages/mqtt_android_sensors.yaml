@@ -26,5 +26,5 @@ mqtt:
     - name: "android_phone1_battery_plugged"
       unique_id: android_phone1_battery_plugged
       state_topic: "android/phone1/battery"
-      value_template: >
-        {{ value_json.plugged is defined and value_json.plugged != 'UNPLUGGED' }}
+      # ON se collegato alla rete, OFF quando "UNPLUGGED"
+      value_template: "{{ 'ON' if value_json.plugged != 'UNPLUGGED' else 'OFF' }}"
