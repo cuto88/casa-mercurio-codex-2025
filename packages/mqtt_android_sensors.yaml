@@ -1,0 +1,30 @@
+mqtt:
+  sensor:
+    - name: "android_<stanza>_<phone>_battery_level"
+      unique_id: android_<stanza>_<phone>_battery_level
+      state_topic: "android/<stanza>/<phone>/battery"
+      value_template: "{{ value_json.level }}"
+      unit_of_measurement: "%"
+      device_class: battery
+      state_class: measurement
+
+    - name: "android_<stanza>_<phone>_battery_temperature"
+      unique_id: android_<stanza>_<phone>_battery_temperature
+      state_topic: "android/<stanza>/<phone>/battery"
+      value_template: "{{ value_json.temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+      state_class: measurement
+
+    - name: "android_<stanza>_<phone>_battery_status"
+      unique_id: android_<stanza>_<phone>_battery_status
+      state_topic: "android/<stanza>/<phone>/battery"
+      value_template: "{{ value_json.status }}"
+
+  binary_sensor:
+    - name: "android_<stanza>_<phone>_battery_plugged"
+      unique_id: android_<stanza>_<phone>_battery_plugged
+      state_topic: "android/<stanza>/<phone>/battery"
+      value_template: "{{ value_json.plugged }}"
+      payload_on: "true"
+      payload_off: "false"
