@@ -1,3 +1,7 @@
+param(
+  [switch]$CheckEntityMap
+)
+
 $ErrorActionPreference = 'Stop'
 
 function Get-FirstNonEmptyLine([string] $path) {
@@ -28,6 +32,14 @@ $automationRoot = Get-FirstNonEmptyLine 'mirai/30_automations.yaml'
 if ($automationRoot -and ($automationRoot -notmatch '^-')) {
   Write-Error "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
   $fail = $true
+}
+
+if ($CheckEntityMap) {
+  $scriptRoot = Split-Path -Parent $PSCommandPath
+  & (Join-Path $scriptRoot 'check_entity_map.ps1') -Mode strict_clima
+  if ($LASTEXITCODE -ne 0) {
+    $fail = $true
+  }
 }
 
 if ($fail) {
