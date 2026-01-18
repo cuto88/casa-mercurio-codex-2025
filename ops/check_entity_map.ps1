@@ -63,8 +63,13 @@ if (-not (Test-Path -Path $EntityMapPath)) {
   exit 1
 }
 
-$mapText = Get-Content -Path $EntityMapPath -Raw
-$mapEntities = Get-EntityIdsFromText -Text $mapText | Sort-Object -Unique
+$mapContent = Get-Content -Raw -Encoding UTF8 $EntityMapPath
+$regex = '(?i)\b(sensor|binary_sensor|switch|climate|input_boolean|input_number|number|select|button|fan|cover|light)\.[a-z0-9_]+\b'
+$mapEntities = [regex]::Matches($mapContent, $regex) | ForEach-Object { $_.Value.ToLowerInvariant() } | Sort-Object -Unique
+if (-not $mapEntities -or $mapEntities.Count -eq 0) {
+  Write-Error "ENTITY MAP VUOTA: 0 entity_id trovate in $EntityMapPath"
+  exit 2
+}
 $mapSet = New-HashSet
 $mapEntities | ForEach-Object { [void]$mapSet.Add($_) }
 
@@ -104,6 +109,7 @@ $missingInMap = $usedClima | Where-Object { -not $mapSet.Contains($_) }
 $inMapNotUsed = $mapEntities | Where-Object { -not $usedEntities.Contains($_) }
 
 Write-Host "Entity map count: $($mapEntities.Count)"
+Write-Host "Map entities extracted: $($mapEntities.Count)"
 Write-Host "Used entity count: $($usedEntities.Count)"
 Write-Host "Used clima candidates: $($usedClima.Count)"
 Write-Host "Used non-clima entities: $($usedNonClima.Count)"
