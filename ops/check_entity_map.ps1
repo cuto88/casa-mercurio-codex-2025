@@ -70,7 +70,7 @@ if (-not $mapEntities -or $mapEntities.Count -eq 0) {
   Write-Error "ENTITY MAP VUOTA: 0 entity_id trovate in $EntityMapPath"
   exit 2
 }
-$mapSet = New-HashSet
+$mapSet = New-Object System.Collections.Generic.HashSet[string]
 $mapEntities | ForEach-Object { [void]$mapSet.Add($_) }
 
 $files = @()
