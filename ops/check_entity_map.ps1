@@ -86,16 +86,19 @@ if (Test-Path -Path $LovelacePath) {
   Write-Warning "Lovelace path not found: $LovelacePath"
 }
 
-$usedEntities = New-HashSet
+$usedEntities = New-Object System.Collections.Generic.HashSet[string]
 $entityUsage = @{}
 
 foreach ($file in $files) {
   $content = Get-Content -Path $file.FullName -Raw
   $found = Get-EntityIdsFromText -Text $content
   foreach ($entityId in $found) {
+    if ([string]::IsNullOrWhiteSpace($entityId)) {
+      continue
+    }
     [void]$usedEntities.Add($entityId)
     if (-not $entityUsage.ContainsKey($entityId)) {
-      $entityUsage[$entityId] = [System.Collections.Generic.HashSet[string]]::new()
+      $entityUsage[$entityId] = New-Object System.Collections.Generic.HashSet[string]
     }
     [void]$entityUsage[$entityId].Add($file.FullName)
   }
