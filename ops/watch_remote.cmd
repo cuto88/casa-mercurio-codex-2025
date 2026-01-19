@@ -82,29 +82,31 @@ if "%BRANCH%"=="" set "BRANCH=%DEFAULT_BRANCH%"
 echo.
 echo ===========================================
 echo  🔁 Watcher avviato
-echo  Repo   : %cd%
-echo  Branch : %BRANCH%
+echo  Repo      : %cd%
+echo  Branch    : %BRANCH%
 echo  PS     : %PSRUN%
 if "%FORCE_RESET%"=="1" (
-  echo  Mode  : FORCE_RESET (distrugge modifiche locali)
+  echo  Modalita : FORCE (distrugge modifiche locali)
 ) else (
-  echo  Mode  : SAFE (non distrugge modifiche locali)
+  echo  Modalita : SAFE (non distrugge modifiche locali)
 )
 if "%DO_SYNC%"=="1" (
-  echo  Sync  : ON  (synch_ha.ps1 dopo pull)
+  echo  Sync     : ON  (synch_ha.ps1 dopo pull)
 ) else (
-  echo  Sync  : OFF (solo pull)
+  echo  Sync     : OFF (solo pull)
 )
 echo  Every : %CHECK_INTERVAL%s
 echo ===========================================
 echo.
 
 :LOOP
+set "LOCAL="
+set "REMOTE="
 echo [%time%] Fetch origin/%BRANCH% ...
 
 git fetch origin %BRANCH% >nul 2>&1
 if errorlevel 1 (
-  echo [%time%] ❌ git fetch fallito. Riprovo tra %CHECK_INTERVAL%s...
+  echo [%time%] ❌ ERRORE: git fetch fallito. Attendo %CHECK_INTERVAL%s e riprovo.
   timeout /t %CHECK_INTERVAL% /nobreak >nul
   goto LOOP
 )
@@ -171,7 +173,7 @@ if not "%LOCAL%"=="%REMOTE%" (
   )
 
 ) else (
-  echo [%time%] Nessun nuovo commit su origin/%BRANCH%. Nessuna azione.
+  echo [%time%] OK: nessun nuovo commit su origin/%BRANCH%. Nessuna azione.
 )
 
 echo.
