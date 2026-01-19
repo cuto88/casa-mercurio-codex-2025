@@ -4,6 +4,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+param(
+  [switch]$IncludeTree
+)
+
 function Get-FirstNonEmptyLine([string] $path) {
   foreach ($line in Get-Content -Path $path) {
     $trimmed = $line.Trim()
@@ -73,6 +77,19 @@ if (-not $CheckEntityMap) {
 
 if ($fail) {
   exit 1
+}
+
+if ($IncludeTree) {
+  $includeTreeScript = Join-Path $PSScriptRoot 'check_include_tree.ps1'
+  if (-not (Test-Path -Path $includeTreeScript)) {
+    Write-Error "Include tree check script not found at $includeTreeScript"
+    exit 1
+  }
+
+  & $includeTreeScript
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
 }
 
 Write-Host 'MIRAI package structure check passed.'

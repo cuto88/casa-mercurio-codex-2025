@@ -1,0 +1,28 @@
+name: ha-checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-and-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: YAML lint (non-invasive)
+        run: yamllint -c .yamllint .
+
+      - name: HA structure + include tree checks
+        shell: pwsh
+        run: |
+          ./ops/ha_structure_check.ps1 -IncludeTree
