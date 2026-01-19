@@ -197,15 +197,12 @@ if ($renamedCandidates.Count -gt 0) {
   }
 }
 
-$hasBlockingErrors = $missingInMapCount -gt 0
-$hasWarnings = ($duplicateCandidates.Count -gt 0) -or ($renamedCandidates.Count -gt 0)
-
-if ($Mode -eq 'strict_clima' -and $hasBlockingErrors) {
-  exit 1
+if ($Mode -eq 'strict_clima') {
+  if ($missingInMapCount -gt 0) {
+    exit 1
+  }
+  Write-Host 'Entity map check completed.'
+  exit 0
 }
 
 Write-Host 'Entity map check completed.'
-
-if ($Mode -eq 'strict_clima') {
-  exit 0
-}
