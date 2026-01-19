@@ -2,7 +2,7 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM WATCH_REMOTE.CMD — Watch origin/<branch> and (optionally) sync HA
+REM WATCH_REMOTE.CMD — Watch origin/BRANCH and (optionally) sync HA
 REM SAFE by default: never destroys local changes unless --force-reset is provided.
 
 set "SCRIPT_DIR=%~dp0"
@@ -29,8 +29,8 @@ set "PULL_SCRIPT=%SCRIPT_DIR%pull_repo.ps1"
 set "SYNC_SCRIPT=%SCRIPT_DIR%synch_ha.ps1"
 
 REM Args:
-REM   --branch <name>
-REM   --interval <seconds>
+REM   --branch NAME
+REM   --interval SECONDS
 REM   --no-sync
 REM   --sync
 REM   --force-reset
