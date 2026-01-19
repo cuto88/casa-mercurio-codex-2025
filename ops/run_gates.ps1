@@ -5,22 +5,45 @@ Write-Host ' Running Manual Quality Gates'
 Write-Host '========================================='
 
 $gates = @(
-    @{ Name = 'yamllint .'; Command = 'yamllint'; Args = @('.') },
-    @{ Name = 'ops/check_include_tree.ps1'; Command = 'ops/check_include_tree.ps1'; Args = @() },
-    @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Command = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap') },
-    @{ Name = 'VMC dashboards gate'; Command = 'powershell'; Args = @('-ExecutionPolicy', 'Bypass', '-File', 'ops\check_vmc_dashboards.ps1') }
+    @{ Name = 'yamllint .'; Command = 'yamllint'; Args = @('.'); UsePowerShell = $false },
+    @{ Name = 'ops/check_include_tree.ps1'; Script = 'ops/check_include_tree.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Script = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
+    @{ Name = 'VMC dashboards gate'; Script = 'ops/check_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
-    if (Get-Command $gate.Command -ErrorAction SilentlyContinue) {
-        Write-Host ("\n==> {0}" -f $gate.Name)
-        & $gate.Command @($gate.Args)
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host ("Gate failed with exit code {0}" -f $LASTEXITCODE)
-            exit $LASTEXITCODE
+    if ($gate.UsePowerShell) {
+        if (Test-Path -Path $gate.Script) {
+            Write-Host ("\n==> {0}" -f $gate.Name)
+            powershell -NoProfile -ExecutionPolicy Bypass -File $gate.Script @($gate.Args)
+            $code = $LASTEXITCODE
+        } else {
+            Write-Host ("\n==> Skipping {0} (not found)" -f $gate.Name)
+            continue
         }
     } else {
-        Write-Host ("\n==> Skipping {0} (not found)" -f $gate.Name)
+        if (Get-Command $gate.Command -ErrorAction SilentlyContinue) {
+            Write-Host ("\n==> {0}" -f $gate.Name)
+            & $gate.Command @($gate.Args)
+            $code = $LASTEXITCODE
+        } else {
+            Write-Host ("\n==> Skipping {0} (not found)" -f $gate.Name)
+            continue
+        }
+    }
+
+    if ($code -ne 0) {
+        if ($null -eq $code) {
+            Write-Host 'Gate failed (no exit code)'
+            exit 1
+        }
+        $parsedCode = 0
+        if (-not [int]::TryParse($code.ToString(), [ref]$parsedCode)) {
+            Write-Host 'Gate failed (no exit code)'
+            exit 1
+        }
+        Write-Host ("Gate failed with exit code {0}" -f $parsedCode)
+        exit $parsedCode
     }
 }
 
