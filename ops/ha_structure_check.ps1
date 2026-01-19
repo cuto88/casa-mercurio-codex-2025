@@ -62,8 +62,10 @@ $fail = $false
 if ($CheckEntityMap) {
   $scriptRoot = Split-Path -Parent $PSCommandPath
   & (Join-Path $scriptRoot 'check_entity_map.ps1') -Mode strict_clima
-  if ($LASTEXITCODE -ne 0) {
+  $entityExit = $LASTEXITCODE
+  if ($entityExit -ne 0) {
     $fail = $true
+    Write-Error ("Entity map gate failed with exit code {0}" -f $entityExit)
   }
 }
 # Ensure legacy/optional checks do not fail the gate
@@ -73,6 +75,7 @@ if (-not $CheckEntityMap) {
 
 if ($fail) {
   exit 1
+} else {
+  Write-Host 'MIRAI package structure check passed.'
+  exit 0
 }
-
-Write-Host 'MIRAI package structure check passed.'
