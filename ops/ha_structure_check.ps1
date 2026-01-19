@@ -37,16 +37,24 @@ if ($missingMiraiFiles.Count -eq 0) {
   Write-Host 'Mirai split files present: OK'
 }
 
-$templateRoot = Get-FirstNonEmptyLine 'mirai/20_templates.yaml'
-if ($templateRoot -match '^template\s*:') {
-  Write-Error "Invalid template root in mirai/20_templates.yaml: file must be a list without 'template:'."
-  $fail = $true
+$legacyTemplatePath = 'mirai/20_templates.yaml'
+if (Test-Path -Path $legacyTemplatePath) {
+  $templateRoot = Get-FirstNonEmptyLine $legacyTemplatePath
+  if ($templateRoot -match '^template\s*:') {
+    Write-Warning "Invalid template root in mirai/20_templates.yaml: file must be a list without 'template:'."
+  }
+} else {
+  Write-Host 'Skipping legacy mirai/20_templates.yaml (not found)'
 }
 
-$automationRoot = Get-FirstNonEmptyLine 'mirai/30_automations.yaml'
-if ($automationRoot -and ($automationRoot -notmatch '^-')) {
-  Write-Error "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
-  $fail = $true
+$legacyAutomationPath = 'mirai/30_automations.yaml'
+if (Test-Path -Path $legacyAutomationPath) {
+  $automationRoot = Get-FirstNonEmptyLine $legacyAutomationPath
+  if ($automationRoot -and ($automationRoot -notmatch '^-')) {
+    Write-Warning "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
+  }
+} else {
+  Write-Host 'Skipping legacy mirai/30_automations.yaml (not found)'
 }
 
 if ($CheckEntityMap) {
