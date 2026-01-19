@@ -86,3 +86,7 @@ echo.
 echo [%time%] Prossimo controllo tra %CHECK_INTERVAL% secondi...
 timeout /t %CHECK_INTERVAL% /nobreak >nul
 goto LOOP
+
+
+
+
