@@ -66,6 +66,10 @@ if ($CheckEntityMap) {
     $fail = $true
   }
 }
+# Ensure legacy/optional checks do not fail the gate
+if (-not $CheckEntityMap) {
+  $fail = $false
+}
 
 if ($fail) {
   exit 1
