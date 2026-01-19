@@ -75,9 +75,14 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 |-------------------------------------------|--------------------------------------------|
 | Critical sensors availability OK          | `binary_sensor.vmc_sensors_ok`             |
 | Anti-dry active                           | `binary_sensor.vmc_anti_secco`             |
+| VMC dry mode active                       | `binary_sensor.vmc_dry_active`             |
 | Bathroom boost auto active                | `binary_sensor.vmc_bagno_boost_auto`       |
 | Freecooling candidate                     | `binary_sensor.vmc_freecooling_candidate`  |
 | Freecooling active                        | `binary_sensor.vmc_freecooling_active`     |
+| AC night block (logic flag)               | `binary_sensor.ac_blocco_notte`            |
+| AC need cool (logic flag)                 | `binary_sensor.ac_need_cool`               |
+| AC need dry (logic flag)                  | `binary_sensor.ac_need_dry`                |
+| AC should run (final decision)            | `binary_sensor.ac_should_run`              |
 | VMC target speed (0–3)                    | `sensor.vmc_vel_target`                    |
 | VMC speed index (debug)                   | `sensor.vmc_vel_index`                     |
 | Ventilation priority (P0–P4)              | `sensor.ventilation_priority`              |
@@ -158,6 +163,17 @@ Note operative VMC:
 
 ## 5. Air Conditioning (AC)
 
+Nota AC:
+switch.ac_* = attuatore/abilitazione (domain switch); climate.ac_* = interfaccia logica/termostato (domain climate).
+Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `climate.ac_giorno` ↔ `switch.ac_giorno`, `climate.ac_notte` ↔ `switch.ac_notte`.
+
+### 5.0 AC / Climatizzazione (entity climate)
+
+| Ruolo                                      | Entity ID canonico                         |
+|-------------------------------------------|--------------------------------------------|
+| AC day split (thermostat interface)       | `climate.ac_giorno`                        |
+| AC night split (thermostat interface)     | `climate.ac_notte`                         |
+
 ### 5.1 Helpers
 
 | Ruolo                                      | Entity ID canonico                         |
@@ -168,6 +184,8 @@ Note operative VMC:
 | AC block-by-VMC flag                      | `input_boolean.ac_block_vmc`               |
 | AC block-by-VMC timeout                   | `timer.ac_block_vmc_timeout`               |
 | Cooling setpoint                          | `input_number.ac_cool_setpoint`            |
+| AC day setpoint                           | `input_number.ac_giorno_setpoint`          |
+| AC night setpoint                         | `input_number.ac_notte_setpoint`           |
 | Dry mode RH ON threshold                  | `input_number.ac_dry_ur_on`                |
 | Dry mode RH OFF threshold                 | `input_number.ac_dry_ur_off`               |
 | Min ON time (minutes)                     | `input_number.ac_min_on_minutes`           |
@@ -268,3 +286,9 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 2. Se trovi un nome diverso (italiano, legacy, typo), **rimpiazzalo** con quello canonico riportato qui.
 3. Non creare nuove entità clima senza aggiungerle prima in questa tabella.
 4. Qualsiasi failsafe basato su “sensors OK” deve usare `binary_sensor.vmc_sensors_ok` e i sensori fisici/KPI sopra elencati.
+
+### Checklist verifica (strict_clima)
+
+- Esegui `ops/check_entity_map.ps1 -Mode strict_clima` e verifica “Missing in map (clima only): 0”.
+- Controlla che resti solo il warning di alias `climate.ac_*` vs `switch.ac_*`, senza nuove discrepanze.
+- Conferma che nessun altro file oltre a questo README è stato modificato.
