@@ -7,7 +7,8 @@ Write-Host '========================================='
 $gates = @(
     @{ Name = 'yamllint .'; Command = 'yamllint'; Args = @('.') },
     @{ Name = 'ops/check_include_tree.ps1'; Command = 'ops/check_include_tree.ps1'; Args = @() },
-    @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Command = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap') }
+    @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Command = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap') },
+    @{ Name = 'VMC dashboards gate'; Command = 'powershell'; Args = @('-ExecutionPolicy', 'Bypass', '-File', 'ops\check_vmc_dashboards.ps1') }
 )
 
 foreach ($gate in $gates) {
