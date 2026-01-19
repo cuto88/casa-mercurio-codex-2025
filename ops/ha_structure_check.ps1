@@ -57,6 +57,8 @@ if (Test-Path -Path $legacyAutomationPath) {
   Write-Host 'Skipping legacy mirai/30_automations.yaml (not found)'
 }
 
+$fail = $false
+
 if ($CheckEntityMap) {
   $scriptRoot = Split-Path -Parent $PSCommandPath
   & (Join-Path $scriptRoot 'check_entity_map.ps1') -Mode strict_clima
