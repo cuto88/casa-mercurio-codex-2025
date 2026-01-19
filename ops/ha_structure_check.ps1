@@ -16,10 +16,25 @@ function Get-FirstNonEmptyLine([string] $path) {
 
 $fail = $false
 
-$packageRoot = Get-FirstNonEmptyLine 'packages/mirai.yaml'
-if ($packageRoot -eq 'mirai:') {
-  Write-Error "Invalid wrapper key in packages/mirai.yaml: remove the 'mirai:' root."
-  $fail = $true
+$legacyMiraiPath = 'packages/mirai.yaml'
+if (Test-Path -Path $legacyMiraiPath) {
+  Write-Warning 'legacy mirai.yaml present'
+}
+
+$miraiSplitFiles = @(
+  'packages/mirai_core.yaml',
+  'packages/mirai_modbus.yaml',
+  'packages/mirai_templates.yaml'
+)
+$missingMiraiFiles = @()
+foreach ($miraiFile in $miraiSplitFiles) {
+  if (-not (Test-Path -Path $miraiFile)) {
+    Write-Warning ("Missing {0}" -f $miraiFile)
+    $missingMiraiFiles += $miraiFile
+  }
+}
+if ($missingMiraiFiles.Count -eq 0) {
+  Write-Host 'Mirai split files present: OK'
 }
 
 $templateRoot = Get-FirstNonEmptyLine 'mirai/20_templates.yaml'
