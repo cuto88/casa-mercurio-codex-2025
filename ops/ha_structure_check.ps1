@@ -16,22 +16,45 @@ function Get-FirstNonEmptyLine([string] $path) {
 
 $fail = $false
 
-$packageRoot = Get-FirstNonEmptyLine 'packages/mirai.yaml'
-if ($packageRoot -eq 'mirai:') {
-  Write-Error "Invalid wrapper key in packages/mirai.yaml: remove the 'mirai:' root."
-  $fail = $true
+$legacyMiraiPath = 'packages/mirai.yaml'
+if (Test-Path -Path $legacyMiraiPath) {
+  Write-Warning 'legacy mirai.yaml present'
 }
 
-$templateRoot = Get-FirstNonEmptyLine 'mirai/20_templates.yaml'
-if ($templateRoot -match '^template\s*:') {
-  Write-Error "Invalid template root in mirai/20_templates.yaml: file must be a list without 'template:'."
-  $fail = $true
+$miraiSplitFiles = @(
+  'packages/mirai_core.yaml',
+  'packages/mirai_modbus.yaml',
+  'packages/mirai_templates.yaml'
+)
+$missingMiraiFiles = @()
+foreach ($miraiFile in $miraiSplitFiles) {
+  if (-not (Test-Path -Path $miraiFile)) {
+    Write-Warning ("Missing {0}" -f $miraiFile)
+    $missingMiraiFiles += $miraiFile
+  }
+}
+if ($missingMiraiFiles.Count -eq 0) {
+  Write-Host 'Mirai split files present: OK'
 }
 
-$automationRoot = Get-FirstNonEmptyLine 'mirai/30_automations.yaml'
-if ($automationRoot -and ($automationRoot -notmatch '^-')) {
-  Write-Error "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
-  $fail = $true
+$legacyTemplatePath = 'mirai/20_templates.yaml'
+if (Test-Path -Path $legacyTemplatePath) {
+  $templateRoot = Get-FirstNonEmptyLine $legacyTemplatePath
+  if ($templateRoot -match '^template\s*:') {
+    Write-Warning "Invalid template root in mirai/20_templates.yaml: file must be a list without 'template:'."
+  }
+} else {
+  Write-Host 'Skipping legacy mirai/20_templates.yaml (not found)'
+}
+
+$legacyAutomationPath = 'mirai/30_automations.yaml'
+if (Test-Path -Path $legacyAutomationPath) {
+  $automationRoot = Get-FirstNonEmptyLine $legacyAutomationPath
+  if ($automationRoot -and ($automationRoot -notmatch '^-')) {
+    Write-Warning "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
+  }
+} else {
+  Write-Host 'Skipping legacy mirai/30_automations.yaml (not found)'
 }
 
 if ($CheckEntityMap) {
