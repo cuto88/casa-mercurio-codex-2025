@@ -110,16 +110,17 @@ $usedNonClima = $usedList | Where-Object { -not (Is-ClimaCandidate -EntityId $_ 
 
 $missingInMap = $usedClima | Where-Object { -not $mapSet.Contains($_) }
 $inMapNotUsed = $mapEntities | Where-Object { -not $usedEntities.Contains($_) }
+$missingInMapCount = $missingInMap.Count
 
 Write-Host "Entity map count: $($mapEntities.Count)"
 Write-Host "Map entities extracted: $($mapEntities.Count)"
 Write-Host "Used entity count: $($usedEntities.Count)"
 Write-Host "Used clima candidates: $($usedClima.Count)"
 Write-Host "Used non-clima entities: $($usedNonClima.Count)"
-Write-Host "Missing in map (clima only): $($missingInMap.Count)"
+Write-Host "Missing in map (clima only): $missingInMapCount"
 Write-Host "In map but not used: $($inMapNotUsed.Count)"
 
-if ($missingInMap.Count -gt 0) {
+if ($missingInMapCount -gt 0) {
   Write-Host '--- Missing in map (showing up to 50) ---'
   $missingInMap | Sort-Object | Select-Object -First 50 | ForEach-Object {
     $entityId = $_
@@ -196,8 +197,15 @@ if ($renamedCandidates.Count -gt 0) {
   }
 }
 
-if ($Mode -eq 'strict_clima' -and $missingInMap.Count -gt 0) {
+$hasBlockingErrors = $missingInMapCount -gt 0
+$hasWarnings = ($duplicateCandidates.Count -gt 0) -or ($renamedCandidates.Count -gt 0)
+
+if ($Mode -eq 'strict_clima' -and $hasBlockingErrors) {
   exit 1
 }
 
 Write-Host 'Entity map check completed.'
+
+if ($Mode -eq 'strict_clima') {
+  exit 0
+}
