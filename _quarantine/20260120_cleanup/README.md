@@ -57,3 +57,25 @@ Rollback (comandi):
 - lovelace_orphans (PowerShell): Move-Item /_quarantine/20260120_cleanup/lovelace_orphans/5_pm_plancia.yaml lovelace/5_pm_plancia.yaml
 - lovelace_orphans (PowerShell): Move-Item /_quarantine/20260120_cleanup/lovelace_orphans/6_surplus_plancia.yaml lovelace/6_surplus_plancia.yaml
 - lovelace_orphans (PowerShell): Move-Item /_quarantine/20260120_cleanup/lovelace_orphans/ehw_mini_card.yaml lovelace/cards/ehw_mini_card.yaml
+
+---
+
+## Step 3 — Consolidamento MIRAI (2026-01-20)
+
+Stato: Mirai consolidato in packages/* (mirai_core.yaml, mirai_modbus.yaml, mirai_templates.yaml).
+Nota: mirai/*.yaml deprecato e messo in quarantine (sorgenti legacy non più incluse).
+
+Spostato:
+- mirai/00_input_boolean.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/00_input_boolean.yaml
+- mirai/01_shell_command.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/01_shell_command.yaml
+- mirai/10_modbus.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/10_modbus.yaml
+- mirai/20_templates_bits.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/20_templates_bits.yaml
+- mirai/21_main_signals.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/21_main_signals.yaml
+- mirai/21_state.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/21_state.yaml
+- mirai/22_state.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/22_state.yaml
+- mirai/23_fault.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/23_fault.yaml
+- mirai/30_automations.yaml → /_quarantine/20260120_cleanup/legacy_mirai_sources/30_automations.yaml
+
+Rollback (comandi):
+- legacy_mirai_sources (Bash): mv /_quarantine/20260120_cleanup/legacy_mirai_sources/*.yaml mirai/
+- legacy_mirai_sources (PowerShell): Move-Item /_quarantine/20260120_cleanup/legacy_mirai_sources/*.yaml mirai/
