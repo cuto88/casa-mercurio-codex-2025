@@ -1,0 +1,17 @@
+# --- Home Assistant runtime ---
+.storage/
+home-assistant.log*
+home-assistant_v2.db*
+backup/
+.tts/
+.cloud/
+deps/
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Editors / OS ---
+.vscode/
+.DS_Store
+Thumbs.db
