@@ -18,3 +18,17 @@ Thumbs.db
 
 .HA_VERSION
 ha_run.lock
+
+# --- Home Assistant runtime ---
+*.db
+*.db-shm
+*.db-wal
+*.log
+*.log.*
+*.fault
+.ha_run.lock
+
+# --- HA runtime dirs ---
+deps/
+__pycache__/
+
