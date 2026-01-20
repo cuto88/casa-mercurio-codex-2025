@@ -1,4 +1,6 @@
-# --- Home Assistant runtime ---
+# ==================================================
+# Home Assistant runtime (LIVE)
+# ==================================================
 .storage/
 home-assistant.log*
 home-assistant_v2.db*
@@ -6,29 +8,36 @@ backup/
 .tts/
 .cloud/
 deps/
-
-# --- Python ---
 __pycache__/
-*.pyc
 
-# --- Editors / OS ---
-.vscode/
-.DS_Store
-Thumbs.db
-
-.HA_VERSION
-ha_run.lock
-
-# --- Home Assistant runtime ---
 *.db
 *.db-shm
 *.db-wal
 *.log
 *.log.*
 *.fault
+
+.HA_VERSION
+ha_run.lock
 .ha_run.lock
 
-# --- HA runtime dirs ---
-deps/
+# ==================================================
+# Python
+# ==================================================
+*.pyc
 __pycache__/
 
+# ==================================================
+# Editors / OS
+# ==================================================
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ==================================================
+# Local runtime / backup (DEV ONLY)
+# ==================================================
+_backup_pre_git/
+_ha_runtime_backups/
+_backup/
+ops/_logs/
