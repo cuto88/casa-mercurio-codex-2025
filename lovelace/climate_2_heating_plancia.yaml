@@ -7,7 +7,7 @@ views:
 
     sections:
       - type: grid
-        title: "Heating Ã¢â‚¬â€ Stato generale"
+        title: "Heating – Stato generale"
         cards:
           - type: glance
             columns: 4
@@ -15,7 +15,7 @@ views:
               - entity: binary_sensor.heating_should_run
                 name: Should run
               - entity: sensor.heating_priority
-                name: PrioritÃƒÂ 
+                name: Priorità
               - entity: sensor.heating_reason
                 name: Reason
               - entity: binary_sensor.heating_failsafe_sensors_bad
@@ -33,7 +33,7 @@ views:
               - entity: input_boolean.heating_manual_active
                 name: Manuale attivo
               - entity: input_select.heating_manual_mode
-                name: ModalitÃƒÂ  manuale
+                name: Modalità manuale
               - entity: timer.heating_manual_timeout
                 name: Timeout manuale
 
@@ -121,7 +121,7 @@ views:
                 name: Errore notte
 
       - type: grid
-        title: "Heating Ã¢â‚¬â€ Runtime e cicli"
+        title: "Heating – Runtime e cicli"
         cards:
           - type: entities
             show_header_toggle: false
@@ -136,7 +136,7 @@ views:
                 name: Minuti da ultimo cambio
 
       - type: grid
-        title: "Heating Ã¢â‚¬â€ Debug"
+        title: "Heating – Debug"
         cards:
           - type: entities
             show_header_toggle: false
@@ -160,12 +160,12 @@ views:
       - type: grid
         cards:
           - type: history-graph
-            title: "Timeline decisioni Ã¢â‚¬â€ Heating (24h)"
+            title: "Timeline decisioni – Heating (24h)"
             hours_to_show: 24
             refresh_interval: 60
             entities:
               - entity: sensor.heating_priority
-                name: PrioritÃƒÂ  heating
+                name: Priorità heating
               - entity: sensor.heating_reason
                 name: Motivo/azione
               - entity: switch.4_ch_interrutore_3

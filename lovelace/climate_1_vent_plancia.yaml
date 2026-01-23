@@ -41,7 +41,7 @@ views:
           - input_boolean.vmc_boost_bagno
 
       - type: entities
-        title: "VelocitÃƒÂ  reali"
+        title: "Velocità reali"
         show_header_toggle: false
         entities:
           - sensor.vmc_vel_target

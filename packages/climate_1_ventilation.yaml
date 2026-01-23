@@ -1,15 +1,15 @@
 ---
 ###############################################################################
-# 1_ventilation.yaml Ã¢â‚¬â€ Modulo VMC e ventilazione naturale
+# 1_ventilation.yaml – Modulo VMC e ventilazione naturale
 # Ricostruito da zero secondo logica/1_vent e core/regole_core_logiche:
-# - PrioritÃƒÂ  P0 failsafe, P1 boost bagno / anti-secco, P2 free-cooling, P4 baseline
-# - Gestione manuale (manual/off/auto) con velocitÃƒÂ  dedicate
-# - Diagnostica reason/priority e indice velocitÃƒÂ 
+# - Priorità P0 failsafe, P1 boost bagno / anti-secco, P2 free-cooling, P4 baseline
+# - Gestione manuale (manual/off/auto) con velocità dedicate
+# - Diagnostica reason/priority e indice velocità
 # - Hook verso AC (block) e night-flush
 ###############################################################################
 
-# NOTE Ã¢â‚¬â€ RelÃƒÂ¨ hardware VMC
-# Le entitÃƒÂ  switch.vmc_vel_0 / 1 / 2 / 3 sono fornite da integrazioni esterne
+# NOTE – Relè hardware VMC
+# Le entità switch.vmc_vel_0 / 1 / 2 / 3 sono fornite da integrazioni esterne
 # (es. ESPHome / Modbus). Non sono definite in questo package: 1_ventilation
 # le usa solo come attuatori. Requisito: questi switch devono esistere in HA
 # con esattamente questi entity_id.
@@ -18,18 +18,18 @@ homeassistant:
   customize: {}
 
 # ======================
-# HELPERS Ã¢â‚¬â€ MODALITÃƒâ‚¬ E SOGLIE
+# HELPERS – MODALITà E SOGLIE
 # ======================
 input_select:
   vmc_mode:
-    name: "VMC Ã¢â‚¬â€ ModalitÃƒÂ "
+    name: "VMC – Modalità"
     options:
       - auto
       - manual
       - off
     icon: mdi:fan-auto
   vmc_manual_speed:
-    name: "VMC Ã¢â‚¬â€ VelocitÃƒÂ  manuale"
+    name: "VMC – Velocità manuale"
     options:
       - off
       - vel_0
@@ -40,18 +40,18 @@ input_select:
 
 input_boolean:
   vmc_manual:
-    name: "VMC Ã¢â‚¬â€ Abilita manuale"
+    name: "VMC – Abilita manuale"
     icon: mdi:hand
   vmc_boost_bagno:
-    name: "VMC Ã¢â‚¬â€ Boost bagno"
+    name: "VMC – Boost bagno"
     icon: mdi:fan-speed-3
   vent_override_estate:
-    name: "Ventilazione Ã¢â‚¬â€ Forza stagione estiva"
+    name: "Ventilazione – Forza stagione estiva"
     icon: mdi:weather-sunny
 
 input_number:
   vmc_bagno_on:
-    name: "Bagno Ã¢â‚¬â€ UR ON"
+    name: "Bagno – UR ON"
     min: 40
     max: 90
     step: 1
@@ -60,7 +60,7 @@ input_number:
     icon: mdi:water-percent
     initial: 75
   vmc_bagno_off:
-    name: "Bagno Ã¢â‚¬â€ UR OFF"
+    name: "Bagno – UR OFF"
     min: 40
     max: 90
     step: 1
@@ -69,25 +69,25 @@ input_number:
     icon: mdi:water-percent
     initial: 65
   vmc_freecooling_delta:
-    name: "FC Ã¢â‚¬â€ ÃŽâ€T minimo"
+    name: "FC – ΔT minimo"
     min: 0.5
     max: 5
     step: 0.1
-    unit_of_measurement: "Ã‚Â°C"
+    unit_of_measurement: "°C"
     mode: slider
     icon: mdi:thermometer-chevron-down
     initial: 2
   vmc_freecooling_delta_ah:
-    name: "FC Ã¢â‚¬â€ ÃŽâ€AH minimo"
+    name: "FC – ΔAH minimo"
     min: 0.1
     max: 5
     step: 0.1
-    unit_of_measurement: "g/mÃ‚Â³"
+    unit_of_measurement: "g/m³"
     mode: slider
     icon: mdi:water-percent
     initial: 2
   vmc_anti_secco_ur_min:
-    name: "Anti-secco Ã¢â‚¬â€ UR_min"
+    name: "Anti-secco – UR_min"
     min: 20
     max: 60
     step: 1
@@ -96,34 +96,34 @@ input_number:
     icon: mdi:water-percent-alert
     initial: 40
   vent_deltat_min:
-    name: "Ventilazione Ã¢â‚¬â€ ÃŽâ€T minimo"
+    name: "Ventilazione – ΔT minimo"
     min: 0.5
     max: 5
     step: 0.1
-    unit_of_measurement: "Ã‚Â°C"
+    unit_of_measurement: "°C"
     mode: slider
     icon: mdi:thermometer-chevron-down
     initial: 1.5
   vent_deltaah_min:
-    name: "Ventilazione Ã¢â‚¬â€ ÃŽâ€AH minimo"
+    name: "Ventilazione – ΔAH minimo"
     min: 0.1
     max: 5
     step: 0.1
-    unit_of_measurement: "g/mÃ‚Â³"
+    unit_of_measurement: "g/m³"
     mode: slider
     icon: mdi:water-percent
     initial: 1.0
   vent_backup_t_in:
-    name: "Ventilazione Ã¢â‚¬â€ Backup T interna"
+    name: "Ventilazione – Backup T interna"
     min: 10
     max: 35
     step: 0.5
-    unit_of_measurement: "Ã‚Â°C"
+    unit_of_measurement: "°C"
     mode: slider
     icon: mdi:thermometer
     initial: 26
   vent_backup_ur_in:
-    name: "Ventilazione Ã¢â‚¬â€ Backup UR interna"
+    name: "Ventilazione – Backup UR interna"
     min: 20
     max: 90
     step: 1
@@ -134,19 +134,19 @@ input_number:
 
 input_text:
   vent_messaggio_consiglio:
-    name: "Ventilazione Ã¢â‚¬â€ Messaggio di consiglio"
+    name: "Ventilazione – Messaggio di consiglio"
     max: 255
     initial: "Sistema inizializzato: in attesa dati sensori."
 
 input_datetime:
   vent_night_flush_start:
-    name: "Ventilazione Ã¢â‚¬â€ Night flush start"
+    name: "Ventilazione – Night flush start"
     has_date: false
     has_time: true
     icon: mdi:weather-night
     initial: "21:00"
   vent_night_flush_end:
-    name: "Ventilazione Ã¢â‚¬â€ Night flush end"
+    name: "Ventilazione – Night flush end"
     has_date: false
     has_time: true
     icon: mdi:weather-sunset-up
@@ -155,7 +155,7 @@ input_datetime:
 # Timers / lock
 timer:
   vmc_manual_timeout:
-    name: Timeout modalitÃƒÂ  manuale
+    name: Timeout modalità manuale
     duration: "01:00:00"
 
 # =============================
@@ -163,7 +163,7 @@ timer:
 # =============================
 template:
   - binary_sensor:
-      # DisponibilitÃƒÂ  sensori base (P0 Ã¢â‚¬â€ failsafe)
+      # Disponibilità sensori base (P0 – failsafe)
       - name: "VMC sensors ok"
         unique_id: vmc_sensors_ok
         device_class: connectivity
@@ -249,7 +249,7 @@ template:
             estate
           {% endif %}
 
-      - name: "VMC velocitÃƒÂ  target"
+      - name: "VMC velocità target"
         unique_id: vmc_vel_target
         state: >-
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
@@ -288,7 +288,7 @@ template:
             {% endif %}
           {% endif %}
 
-      - name: "VMC velocitÃƒÂ  indice"
+      - name: "VMC velocità indice"
         unique_id: vmc_vel_index
         state: >-
           {% if is_state('switch.vmc_vel_3','on') %}
@@ -334,21 +334,21 @@ template:
         state: >-
           {% set priority = states('sensor.ventilation_priority') %}
           {% if priority == 'P_manual' %}
-            Manuale: velocitÃƒÂ  selezionata
+            Manuale: velocità selezionata
           {% elif priority == 'P0_off' %}
-            ModalitÃƒÂ  OFF
+            Modalità OFF
           {% elif priority == 'P0_failsafe' %}
-            P0 Ã¢â‚¬â€ failsafe sensori
+            P0 – failsafe sensori
           {% elif priority == 'P1_boost_bagno' %}
-            P1 Ã¢â‚¬â€ UR bagno alta / boost
+            P1 – UR bagno alta / boost
           {% elif priority == 'P1_anti_secco' %}
-            P1 Ã¢â‚¬â€ anti-secco notturno
+            P1 – anti-secco notturno
           {% elif priority == 'P1_delta_ur' %}
-            P1 Ã¢â‚¬â€ aria esterna piÃƒÂ¹ secca (ÃŽâ€UR)
+            P1 – aria esterna più secca (ΔUR)
           {% elif priority == 'P2_freecooling' %}
-            P2 Ã¢â‚¬â€ free-cooling ÃŽâ€T/ÃŽâ€AH favorevole
+            P2 – free-cooling ΔT/ΔAH favorevole
           {% else %}
-            P4 Ã¢â‚¬â€ baseline vel_1
+            P4 – baseline vel_1
           {% endif %}
 
   - trigger:
@@ -435,10 +435,10 @@ template:
 # AUTOMAZIONI CORE
 # =============================
 automation:
-  # Aggiorna velocitÃƒÂ  VMC con esclusione reciproca dei relÃƒÂ¨
+  # Aggiorna velocità VMC con esclusione reciproca dei relè
   - id: vmc_apply_speed
-    alias: "VMC Ã¢â‚¬â€ Applica velocitÃƒÂ  target"
-    description: "Setta i relÃƒÂ¨ vel_0-vel_3 in modo mutuamente esclusivo"
+    alias: "VMC – Applica velocità target"
+    description: "Setta i relè vel_0-vel_3 in modo mutuamente esclusivo"
     mode: restart
     trigger:
       - platform: state
@@ -487,7 +487,7 @@ automation:
 
   # Gestione messaggio plancia / debug
   - id: vmc_update_message
-    alias: "VMC Ã¢â‚¬â€ Aggiorna messaggio plancia"
+    alias: "VMC – Aggiorna messaggio plancia"
     mode: queued
     trigger:
       - platform: state
@@ -501,4 +501,4 @@ automation:
           entity_id: input_text.vent_messaggio_consiglio
         data:
           value: >-
-            {{ states('sensor.ventilation_reason') }} Ã¢â‚¬â€ Freecooling: {{ states('sensor.vmc_freecooling_status') }}
+            {{ states('sensor.ventilation_reason') }} – Freecooling: {{ states('sensor.vmc_freecooling_status') }}

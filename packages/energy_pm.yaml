@@ -1,28 +1,28 @@
 ---
 # =========================
-# 5_powermeter.yaml ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CLEAN
-# Helpers + Utility Meter + Statistics per plancia "5 consumi ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Core"
+# 5_powermeter.yaml – CLEAN
+# Helpers + Utility Meter + Statistics per plancia "5 consumi – Core"
 # Nessun wrapper top-level, nessuna lista con "- name:". Solo mapping con entity_id univoci.
 # =========================
 
 # --- HELPERS -------------------------------------------------
 input_number:
   pm2_on_w:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
+    name: Lavatrice – soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm2_off_w:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
+    name: Lavatrice – soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm2_min_run_min:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
+    name: Lavatrice – durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -30,21 +30,21 @@ input_number:
     mode: slider
 
   pm3_on_w:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
+    name: Asciugatrice – soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm3_off_w:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
+    name: Asciugatrice – soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm3_min_run_min:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
+    name: Asciugatrice – durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -52,21 +52,21 @@ input_number:
     mode: slider
 
   pm1_on_w:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
+    name: Romeo – soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm1_off_w:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
+    name: Romeo – soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm1_min_run_min:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
+    name: Romeo – durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -75,21 +75,21 @@ input_number:
 
   # KPI ultimo ciclo (scritti da automazioni)
   pm2_last_cycle_kwh:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
+    name: Lavatrice – kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
     unit_of_measurement: kWh
     mode: box
   pm3_last_cycle_kwh:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
+    name: Asciugatrice – kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
     unit_of_measurement: kWh
     mode: box
   pm1_last_cycle_kwh:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
+    name: Romeo – kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
@@ -98,42 +98,42 @@ input_number:
 
 input_datetime:
   pm2_last_start:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
+    name: Lavatrice – ultimo start
     has_date: true
     has_time: true
   pm2_last_stop:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
+    name: Lavatrice – ultimo stop
     has_date: true
     has_time: true
   pm3_last_start:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
+    name: Asciugatrice – ultimo start
     has_date: true
     has_time: true
   pm3_last_stop:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
+    name: Asciugatrice – ultimo stop
     has_date: true
     has_time: true
   pm1_last_start:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
+    name: Romeo – ultimo start
     has_date: true
     has_time: true
   pm1_last_stop:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
+    name: Romeo – ultimo stop
     has_date: true
     has_time: true
 
 # (opzionale) contatori eventi ciclo
 counter:
   pm2_cycles:
-    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
+    name: Lavatrice – conteggio cicli
     step: 1
     restore: true
   pm3_cycles:
-    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
+    name: Asciugatrice – conteggio cicli
     step: 1
     restore: true
   pm1_cycles:
-    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
+    name: Romeo – conteggio cicli
     step: 1
     restore: true
 
@@ -221,21 +221,21 @@ homeassistant:
 # --- TEMPLATE: ore ON oggi (per KPI plancia) -----------------
 template:
   - sensor:
-      - name: "Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
+      - name: "Lavatrice – h ON oggi"
         unique_id: pm2_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline
         state: >
           {{ (states('sensor.pm2_in_ciclo_today') | float(0)) | round(2) }}
 
-      - name: "Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
+      - name: "Asciugatrice – h ON oggi"
         unique_id: pm3_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline
         state: >
           {{ (states('sensor.pm3_in_ciclo_today') | float(0)) | round(2) }}
 
-      - name: "Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
+      - name: "Romeo – h ON oggi"
         unique_id: pm1_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline
