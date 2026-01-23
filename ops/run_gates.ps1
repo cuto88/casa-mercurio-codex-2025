@@ -24,6 +24,20 @@ foreach ($gate in $gates) {
     } else {
         if (Get-Command $gate.Command -ErrorAction SilentlyContinue) {
             Write-Host ("\n==> {0}" -f $gate.Name)
+            if ($gate.Command -eq 'yamllint') {
+                $fixScript = 'ops/fix_yaml_encoding.ps1'
+                if (Test-Path -Path $fixScript) {
+                    Write-Host ("\n==> {0}" -f $fixScript)
+                    powershell -NoProfile -ExecutionPolicy Bypass -File $fixScript
+                    $code = $LASTEXITCODE
+                    if ($code -ne 0) {
+                        Write-Host ("Gate failed with exit code {0}" -f $code)
+                        exit $code
+                    }
+                } else {
+                    Write-Host ("\n==> Skipping {0} (not found)" -f $fixScript)
+                }
+            }
             & $gate.Command @($gate.Args)
             $code = $LASTEXITCODE
         } else {
