@@ -1,3 +1,4 @@
+[CmdletBinding()]
 param(
   [switch]$CheckEntityMap
 )
@@ -39,22 +40,24 @@ if ($missingMiraiFiles.Count -eq 0) {
 
 $legacyTemplatePath = 'mirai/20_templates.yaml'
 if (Test-Path -Path $legacyTemplatePath) {
+  Write-Host "Legacy found: $legacyTemplatePath (checking)"
   $templateRoot = Get-FirstNonEmptyLine $legacyTemplatePath
   if ($templateRoot -match '^template\s*:') {
     Write-Warning "Invalid template root in mirai/20_templates.yaml: file must be a list without 'template:'."
   }
 } else {
-  Write-Host 'Skipping legacy mirai/20_templates.yaml (not found)'
+  Write-Verbose "Skipping legacy $legacyTemplatePath (not found)"
 }
 
 $legacyAutomationPath = 'mirai/30_automations.yaml'
 if (Test-Path -Path $legacyAutomationPath) {
+  Write-Host "Legacy found: $legacyAutomationPath (checking)"
   $automationRoot = Get-FirstNonEmptyLine $legacyAutomationPath
   if ($automationRoot -and ($automationRoot -notmatch '^-')) {
     Write-Warning "Invalid automation root in mirai/30_automations.yaml: file must start with a list item '-'."
   }
 } else {
-  Write-Host 'Skipping legacy mirai/30_automations.yaml (not found)'
+  Write-Verbose "Skipping legacy $legacyAutomationPath (not found)"
 }
 
 $fail = $false
