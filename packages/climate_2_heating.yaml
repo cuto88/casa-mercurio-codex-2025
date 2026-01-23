@@ -131,10 +131,6 @@ input_datetime:
     name: "Heating Ã¢â‚¬â€ Fascia end"
     has_time: true
     has_date: false
-  heating_window_end:
-    name: "Heating ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Fascia end"
-    has_time: true
-    has_date: false
 
 ###############################################################################
 # 2) TIMER
@@ -147,7 +143,8 @@ timer:
 ###############################################################################
 # 3) TEMPLATE SENSOR  KPI logici
 ###############################################################################
-template: - sensor: # Elenco stanze attive
+template:
+  - sensor: # Elenco stanze attive
       - name: "Heating  stanze attive"
         unique_id: heating_rooms_active
         state: >-
@@ -164,7 +161,8 @@ template: - sensor: # Elenco stanze attive
             {% endif %}
           {% endfor %}
           {{ labels | length }}
-        attributes: rooms: >-
+        attributes:
+          rooms: >-
             {% set rooms = [
               ('Zona Giorno', 'sensor.t_in_giorno', 'input_boolean.heating_use_giorno'),
               ('Notte1', 'sensor.t_in_notte1', 'input_boolean.heating_use_notte1'),
