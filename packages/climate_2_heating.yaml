@@ -520,15 +520,15 @@ script:  # #####################################################################
 automation:  # Gestione timeout manuale
   - id: heating_manual_timeout
     alias: "HEATING  timeout manuale"
-    triggers:
-      - trigger: state
+    trigger:
+      - platform: state
         entity_id: input_boolean.heating_manual_active
         to: "on"
-      - trigger: event
+      - platform: event
         event_type: timer.finished
         event_data:
           entity_id: timer.heating_manual_timeout
-    actions:
+    action:
       - choose:
           - conditions:
               - condition: state
@@ -550,16 +550,16 @@ automation:  # Gestione timeout manuale
   - id: heating_drive_master
     alias: "HEATING  attua should_run"
     mode: restart
-    triggers:
-      - trigger: state
+    trigger:
+      - platform: state
         entity_id:
           - binary_sensor.heating_should_run
           - switch.heating_master
-      - trigger: state
+      - platform: state
         entity_id:
           - input_boolean.heating_manual_active
           - input_select.heating_manual_mode
-    actions:
+    action:
       - choose:
           - conditions:
               - condition: state
