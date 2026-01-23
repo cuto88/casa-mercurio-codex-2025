@@ -482,7 +482,8 @@ template:
 ###############################################################################
 # 4) SENSORI STATISTICI  runtime storico
 ###############################################################################
-sensor: - platform: history_stats
+sensor:
+  - platform: history_stats
     name: "Riscaldamento  Ore ON oggi"
     unique_id: heating_hours_on_today
     entity_id: switch.4_ch_interrutore_3
@@ -509,45 +510,66 @@ script: ########################################################################
 automation: # Gestione timeout manuale
   - id: heating_manual_timeout
     alias: "HEATING  timeout manuale"
-    triggers: - trigger: state
+    triggers:
+      - trigger: state
         entity_id: input_boolean.heating_manual_active
         to: "on"
       - trigger: event
         event_type: timer.finished
-        event_data: entity_id: timer.heating_manual_timeout
-    actions: - choose: - conditions: - condition: state
+        event_data:
+          entity_id: timer.heating_manual_timeout
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
                 entity_id: input_boolean.heating_manual_active
                 state: "on"
-            sequence: - service: timer.start
-                target: { entity_id: timer.heating_manual_timeout }
-          - conditions: - condition: event
+            sequence:
+              - service: timer.start
+                target:
+                  entity_id: timer.heating_manual_timeout
+          - conditions:
+              - condition: event
                 event_type: timer.finished
-            sequence: - service: input_boolean.turn_off
-                target: { entity_id: input_boolean.heating_manual_active }
+            sequence:
+              - service: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.heating_manual_active
 
   # Attuazione comando logico
   - id: heating_drive_master
     alias: "HEATING  attua should_run"
     mode: restart
-    triggers: - trigger: state
-        entity_id: - binary_sensor.heating_should_run
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.heating_should_run
           - switch.heating_master
       - trigger: state
-        entity_id: - input_boolean.heating_manual_active
+        entity_id:
+          - input_boolean.heating_manual_active
           - input_select.heating_manual_mode
-    actions: - choose: - conditions: - condition: state
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
                 entity_id: binary_sensor.heating_should_run
                 state: "on"
-            sequence: - service: switch.turn_on
-                target: { entity_id: switch.heating_master }
-          - conditions: - condition: state
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.heating_master
+          - conditions:
+              - condition: state
                 entity_id: binary_sensor.heating_should_run
                 state: "off"
-            sequence: - condition: state
+            sequence:
+              - condition: state
                 entity_id: binary_sensor.heating_lock_min_on_ok
                 state: "on"
               - service: switch.turn_off
-                target: { entity_id: switch.heating_master }
+                target:
+                  entity_id: switch.heating_master
 
 # ENTITY MAP STATUS (heating)
 # - All entity_id aligned with logica/core/README_sensori_clima.md
