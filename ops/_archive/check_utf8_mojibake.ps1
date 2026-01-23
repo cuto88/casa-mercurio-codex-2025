@@ -55,5 +55,5 @@ if ($matches.Count -gt 0) {
     exit 1
 }
 
-Write-Host 'OK: no mojibake patterns'
+Write-Host "OK: no mojibake patterns"
 exit 0

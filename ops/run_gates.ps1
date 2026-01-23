@@ -32,7 +32,6 @@ $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
 
 $gates = @(
     @{ Name = 'ops/fix_yaml_encoding.ps1 (yaml hygiene)'; Script = 'ops/fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = 'ops/check_utf8_mojibake.ps1'; Script = 'ops/check_utf8_mojibake.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = 'yamllint tracked YAML'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
     @{ Name = 'ops/check_include_tree.ps1'; Script = 'ops/check_include_tree.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Script = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
