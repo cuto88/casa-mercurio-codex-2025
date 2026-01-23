@@ -450,24 +450,33 @@ template:
             {% endif %}
           {% endif %}
 
-  - switch: - name: "Riscaldamento  comando"
+  - switch:
+      - name: "Riscaldamento  comando"
         unique_id: heating_master
         default_entity_id: switch.heating_master
         icon: mdi:radiator
-        turn_on: - service: switch.turn_off
-            target: entity_id: switch.4_ch_interrutore_3
-        turn_off: - service: switch.turn_on
-            target: entity_id: switch.4_ch_interrutore_3
+        turn_on:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.4_ch_interrutore_3
+        turn_off:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.4_ch_interrutore_3
         state: "{{ not is_state('switch.4_ch_interrutore_3','on') }}" # MODIFICATA
 
       - name: "Riscaldamento  blocco notturno"
         unique_id: heating_night_block
         default_entity_id: switch.heating_night_block
         icon: mdi:power
-        turn_on: - service: switch.turn_on
-            target: entity_id: switch.4_ch_interrutore_3
-        turn_off: - service: switch.turn_off
-            target: entity_id: switch.4_ch_interrutore_3
+        turn_on:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.4_ch_interrutore_3
+        turn_off:
+          - service: switch.turn_off
+            target:
+              entity_id: switch.4_ch_interrutore_3
         state: "{{ is_state('switch.4_ch_interrutore_3','on') }}"
 
 ###############################################################################
