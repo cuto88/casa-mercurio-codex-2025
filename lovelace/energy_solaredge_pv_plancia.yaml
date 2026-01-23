@@ -17,7 +17,7 @@ views:
             name: Potenza FV istantanea
             entity: sensor.pv_power_now
             min: 0
-            max: 7000       # Impianto 6,7 kW â€“ leggero margine
+            max: 7000       # Impianto 6,7 kW – leggero margine
             needle: true
 
       #######################################################################
