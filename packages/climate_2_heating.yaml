@@ -9,7 +9,7 @@
 # - binary_sensor.heating_finestra_oraria / binary_sensor.heating_esterna_fredda
 ###############################################################################
 # NOTE ANALISI
-# ENTITÃ€
+# ENTITÃƒâ‚¬
 # (normalizzazione 2025-02)
 # - Canonical OK: tutti gli helpers e sensori definiti coincidono con README_sensori_clima.md.
 # - Normalizzati: nessuno (nessun alias legacy presente).
@@ -24,7 +24,7 @@ homeassistant:
       # NOTA: rele hardware invertito (state ON = circuito disattivo, OFF = attivo)
 
 ###############################################################################
-# 1) HELPERS  abilitazioni, modalitÃ , setpoint
+# 1) HELPERS  abilitazioni, modalitÃƒÂ , setpoint
 ###############################################################################
 input_boolean:  # Inclusione delle stanze nel controllo
   heating_use_giorno:
@@ -46,12 +46,12 @@ input_boolean:  # Inclusione delle stanze nel controllo
     name: "Heating  Abilita logica"
     icon: mdi:radiator
   heating_manual_active:
-    name: "Heating  ModalitÃ  manuale attiva"
+    name: "Heating  ModalitÃƒÂ  manuale attiva"
     icon: mdi:hand-back-right
 
 input_select:
   heating_manual_mode:
-    name: "Heating â€“ ModalitÃ  manuale"
+    name: "Heating Ã¢â‚¬â€œ ModalitÃƒÂ  manuale"
     options:
       - off
       - eco
@@ -65,42 +65,42 @@ input_number:
     min: 18
     max: 23
     step: 0.1
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:home-thermometer
   heating_setpoint_night:
     name: "Heating  Setpoint night setback"
     min: 15
     max: 21
     step: 0.1
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:weather-night
   heating_hysteresis:
     name: "Heating  Isteresi"
     min: 0.2
     max: 1.5
     step: 0.1
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:axis-x-arrow
   heating_antifreeze_threshold:
     name: "Heating  Soglia antigelo"
     min: 5
     max: 15
     step: 0.5
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:snowflake-alert
   heating_ext_cold_threshold:
     name: "Heating  Esterna fredda"
     min: -10
     max: 10
     step: 0.5
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:thermometer-minus
   heating_boost_delta:
     name: "Heating  Delta boost FV"
     min: 0
     max: 1.0
     step: 0.1
-    unit_of_measurement: "Â°C"
+    unit_of_measurement: "Ã‚°C"
     icon: mdi:flash
   heating_min_on_minutes:
     name: "Heating  Min ON"
@@ -126,11 +126,11 @@ input_number:
 
 input_datetime:
   heating_window_start:
-    name: "Heating â€“ Fascia start"
+    name: "Heating Ã¢â‚¬â€œ Fascia start"
     has_time: true
     has_date: false
   heating_window_end:
-    name: "Heating â€“ Fascia end"
+    name: "Heating Ã¢â‚¬â€œ Fascia end"
     has_time: true
     has_date: false
 
@@ -182,7 +182,7 @@ template:
       # Temperatura minima delle stanze abilitate
       - name: "Heating  T interna minima"
         unique_id: heating_t_in_min
-        unit_of_measurement: "Â°C"
+        unit_of_measurement: "Ã‚°C"
         device_class: temperature
         state_class: measurement
         icon: mdi:thermometer-low
@@ -264,7 +264,7 @@ template:
             ok
           {% endif %}
 
-      # Minuti da ultimo cambio stato del relÃ¨ (fisico, considerando inversione)
+      # Minuti da ultimo cambio stato del relÃƒÂ¨ (fisico, considerando inversione)
       - name: "Heating  minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
         unit_of_measurement: "min"
@@ -376,7 +376,7 @@ template:
             {% endif %}
           {% endif %}
 
-      # Finestra di funzionamento comfort (default 10:00â€“16:00)
+      # Finestra di funzionamento comfort (default 10:00Ã¢â‚¬â€œ16:00)
       - name: "Heating  finestra oraria"
         unique_id: heating_finestra_oraria
         state: >-

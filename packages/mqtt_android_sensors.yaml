@@ -13,7 +13,7 @@ mqtt:
       unique_id: android_phone1_battery_temperature
       state_topic: "android/phone1/battery"
       value_template: "{{ value_json.temperature }}"
-      unit_of_measurement: "Â°C"
+      unit_of_measurement: "Ã‚°C"
       device_class: temperature
       state_class: measurement
 

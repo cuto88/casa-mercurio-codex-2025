@@ -72,7 +72,7 @@ modbus:
         data_type: int16
         scale: 0.1
         precision: 1
-        unit_of_measurement: "Â°C"
+        unit_of_measurement: "Ã‚°C"
         scan_interval: 30
         slave: 1
 
@@ -83,7 +83,7 @@ modbus:
         data_type: int16
         scale: 0.1
         precision: 1
-        unit_of_measurement: "Â°C"
+        unit_of_measurement: "Ã‚°C"
         scan_interval: 15
         slave: 1
 
@@ -94,6 +94,6 @@ modbus:
         data_type: int16
         scale: 0.1
         precision: 1
-        unit_of_measurement: "Â°C"
+        unit_of_measurement: "Ã‚°C"
         scan_interval: 15
         slave: 1
