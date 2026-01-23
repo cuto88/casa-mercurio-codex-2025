@@ -11,7 +11,7 @@
 modbus:
   - name: mirai_ehw
     type: tcp
-    host: 192.168.178.190
+    host: !secret ehw_modbus_host
     port: 502
     delay: 1
     message_wait_milliseconds: 200

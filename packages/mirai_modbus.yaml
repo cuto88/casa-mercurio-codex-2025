@@ -1,7 +1,7 @@
 modbus:
   - name: mirai
     type: tcp
-    host: 192.168.178.33
+    host: !secret mirai_modbus_host
     port: 502
     delay: 2
     timeout: 3
