@@ -115,15 +115,44 @@ template:
           mode: "{{ state_attr('sensor.ac_reason','mode') }}"
           target: "{{ state_attr('sensor.ac_reason','target') }}"
 
+  - trigger:
+      - platform: event
+        event_type: template_event
+    sensor:
       - name: "AC Reason"
         unique_id: ac_reason
         icon: mdi:text
-        state: "{{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
+        state: >-
+          {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+            {{ trigger.event.data.attributes.priority | default('idle') }}
+          {% else %}
+            {{ this.state if this.state is not none else 'idle' }}
+          {% endif %}
         attributes:
-          priority: "{{ state_attr('sensor.ac_reason','priority') or 'idle' }}"
-          reason: "{{ state_attr('sensor.ac_reason','reason') or '–' }}"
-          mode: "{{ state_attr('sensor.ac_reason','mode') or 'off' }}"
-          target: "{{ state_attr('sensor.ac_reason','target') or 'none' }}"
+          priority: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.priority | default('idle') }}
+            {% else %}
+              {{ this.attributes.priority if this.attributes.priority is not none else 'idle' }}
+            {% endif %}
+          reason: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.reason | default('–') }}
+            {% else %}
+              {{ this.attributes.reason if this.attributes.reason is not none else '–' }}
+            {% endif %}
+          mode: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.mode | default('off') }}
+            {% else %}
+              {{ this.attributes.mode if this.attributes.mode is not none else 'off' }}
+            {% endif %}
+          target: >-
+            {% if trigger.event.data.entity_id == 'sensor.ac_reason' %}
+              {{ trigger.event.data.attributes.target | default('none') }}
+            {% else %}
+              {{ this.attributes.target if this.attributes.target is not none else 'none' }}
+            {% endif %}
 
   # Ultimi ON/OFF (trigger-based) Giorno/Notte
   - trigger:
