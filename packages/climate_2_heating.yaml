@@ -8,7 +8,9 @@
 # - binary_sensor.heating_lock_min_on_ok / binary_sensor.heating_lock_min_off_ok
 # - binary_sensor.heating_finestra_oraria / binary_sensor.heating_esterna_fredda
 ###############################################################################
-# NOTE ANALISI ENTITÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ (normalizzazione 2025-02)
+# NOTE ANALISI
+# ENTITÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬
+# (normalizzazione 2025-02)
 # - Canonical OK: tutti gli helpers e sensori definiti coincidono con README_sensori_clima.md.
 # - Normalizzati: nessuno (nessun alias legacy presente).
 # - Rimossi: nessuno (nessun helper inutilizzato individuato in questa revisione).
@@ -144,7 +146,7 @@ timer:
 # 3) TEMPLATE SENSOR  KPI logici
 ###############################################################################
 template:
-  - sensor: # Elenco stanze attive
+  - sensor:  # Elenco stanze attive
       - name: "Heating  stanze attive"
         unique_id: heating_rooms_active
         state: >-
@@ -262,7 +264,9 @@ template:
             ok
           {% endif %}
 
-      # Minuti da ultimo cambio stato del relÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨ fisico (considerando inversione)
+      # Minuti da ultimo cambio stato del relÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢
+      # ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¨
+      # fisico (considerando inversione)
       - name: "Heating  minuti da ultimo cambio"
         unique_id: heating_minutes_since_change
         unit_of_measurement: "min"
@@ -331,7 +335,15 @@ template:
 
           action: >-
             {% set r = this.state %}
-            {% if r == 'P0_failsafe' or r == 'sensors_unavailable' %}off{% elif r.startswith('manual_off') %}off{% elif r == 'idle' %}off{% else %}on{% endif %}
+            {% if r == 'P0_failsafe' or r == 'sensors_unavailable' %}
+              off
+            {% elif r.startswith('manual_off') %}
+              off
+            {% elif r == 'idle' %}
+              off
+            {% else %}
+              on
+            {% endif %}
           reason: "{{ this.state }}"
 
       - name: "Heating  priority"
@@ -340,7 +352,7 @@ template:
           {% set pr = state_attr('sensor.heating_reason','priority') %}
           {{ pr if pr is not none else 'idle' }}
 
-  - binary_sensor: # Failsafe: sensori mancanti o fuori range
+  - binary_sensor:  # Failsafe: sensori mancanti o fuori range
       - name: "Heating  failsafe sensori"
         unique_id: heating_failsafe_sensors_bad
         device_class: problem
@@ -366,7 +378,11 @@ template:
             {% endif %}
           {% endif %}
 
-      # Finestra di funzionamento comfort (default 10:00ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦16:00)
+      # Finestra di funzionamento comfort (default
+      # 10:00ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢
+      # ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬
+      # ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢
+      # ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦16:00)
       - name: "Heating  finestra oraria"
         unique_id: heating_finestra_oraria
         state: >-
@@ -463,7 +479,7 @@ template:
           - service: switch.turn_on
             target:
               entity_id: switch.4_ch_interrutore_3
-        state: "{{ not is_state('switch.4_ch_interrutore_3','on') }}" # MODIFICATA
+        state: "{{ not is_state('switch.4_ch_interrutore_3','on') }}"  # MODIFICATA
 
       - name: "Riscaldamento  blocco notturno"
         unique_id: heating_night_block
@@ -504,10 +520,10 @@ sensor:
 ###############################################################################
 # 6) SCRIPT DI SUPPORTO
 ###############################################################################
-script: ###############################################################################
+script:  # ###############################################################################
 # 7) AUTOMAZIONI
 ###############################################################################
-automation: # Gestione timeout manuale
+automation:  # Gestione timeout manuale
   - id: heating_manual_timeout
     alias: "HEATING  timeout manuale"
     triggers:
