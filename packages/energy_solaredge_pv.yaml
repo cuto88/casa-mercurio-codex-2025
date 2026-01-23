@@ -1,11 +1,11 @@
 ###############################################################################
 # PACKAGE: energy_solaredge_pv.yaml
-# Modulo Energia â€“ Produzione Fotovoltaico SolarEdge
+# Modulo Energia – Produzione Fotovoltaico SolarEdge
 # Sensori canonici per pannello Energia + plance Casa Mercurio
 ###############################################################################
 
 ####################################
-# 1) TEMPLATE SENSOR â€“ POTENZA PV
+# 1) TEMPLATE SENSOR – POTENZA PV
 ####################################
 template:
   - sensor:
@@ -18,7 +18,7 @@ template:
           {{ states('sensor.solaredge_potenza_attuale') }}
 
 ####################################
-# 2) TEMPLATE SENSOR â€“ ENERGIA TOTALE PV (kWh)
+# 2) TEMPLATE SENSOR – ENERGIA TOTALE PV (kWh)
 ####################################
   - sensor:
       - name: "PV Energia Totale"
@@ -30,7 +30,7 @@ template:
           {{ (states('sensor.solaredge_energia_dall_installazione') | float(0) / 1000) | round(3) }}
 
 ####################################
-# 3) UTILITY METER â€“ PRODUZIONE PV
+# 3) UTILITY METER – PRODUZIONE PV
 ####################################
 utility_meter:
   pv_energy_daily:

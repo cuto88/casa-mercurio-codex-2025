@@ -18,19 +18,19 @@ template:
           {% if priority == 'P1_boost_bagno' %}
             Boost bagno attivo
           {% elif priority == 'P2_freecooling' %}
-            Freecooling attivo (ÃŽâ€T/ÃŽâ€AH favorevoli)
+            Freecooling attivo (ΔT/ΔAH favorevoli)
           {% elif states('sensor.clima_open_windows_recommended') not in ['off','unknown','unavailable',''] %}
             Finestre aperte consigliate
           {% elif priority == 'P_manual' %}
-            ModalitÃƒÂ  manuale selezionata
+            Modalità manuale selezionata
           {% elif priority == 'P0_off' %}
-            VMC in modalitÃƒÂ  OFF
+            VMC in modalità OFF
           {% elif priority == 'P0_failsafe' %}
             Failsafe sensori VMC
           {% elif priority == 'P1_anti_secco' %}
             Anti-secco notturno
           {% elif priority == 'P1_delta_ur' %}
-            Aria esterna piÃƒÂ¹ secca (ÃŽâ€UR)
+            Aria esterna più secca (ΔUR)
           {% else %}
             Baseline ventilazione
           {% endif %}
@@ -50,7 +50,7 @@ template:
           {% elif priority == 'P4_night_setback' %}
             Setback notturno
           {% elif priority == 'manual' %}
-            ModalitÃƒÂ  manuale attiva
+            Modalità manuale attiva
           {% else %}
             Riscaldamento idle
           {% endif %}
@@ -64,13 +64,13 @@ template:
           {% elif priority == 'P1_blocked_vmc' %}
             Bloccato da VMC
           {% elif priority == 'P2_dry' %}
-            ModalitÃƒÂ  deumidifica per UR alta
+            Modalità deumidifica per UR alta
           {% elif priority == 'P3_cooling' %}
             Raffrescamento per superamento setpoint
           {% elif priority == 'P4_night' %}
-            ModalitÃƒÂ  notturna ridotta
+            Modalità notturna ridotta
           {% elif priority == 'manual' %}
-            ModalitÃƒÂ  manuale AC
+            Modalità manuale AC
           {% else %}
             AC idle
           {% endif %}
@@ -78,7 +78,7 @@ template:
       - name: t_in_med
         unique_id: t_in_med
         icon: mdi:thermometer
-        unit_of_measurement: "Ã‚°C"
+        unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
         attributes:
@@ -100,7 +100,7 @@ template:
       - name: t_notte_med
         unique_id: t_notte_med
         icon: mdi:thermometer
-        unit_of_measurement: "Ã‚°C"
+        unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
         attributes:
@@ -187,7 +187,7 @@ template:
       - name: ah_in
         unique_id: ah_in
         icon: mdi:water
-        unit_of_measurement: "g/mÃ‚Â³"
+        unit_of_measurement: "g/m³"
         state_class: measurement
         attributes:
           friendly_name: "AH interna"
@@ -206,7 +206,7 @@ template:
       - name: ah_out
         unique_id: ah_out
         icon: mdi:water-outline
-        unit_of_measurement: "g/mÃ‚Â³"
+        unit_of_measurement: "g/m³"
         state_class: measurement
         attributes:
           friendly_name: "AH esterna"
@@ -229,7 +229,7 @@ template:
       - name: delta_t_in_out
         unique_id: delta_t_in_out
         icon: mdi:thermometer-chevron-down
-        unit_of_measurement: "Ã‚°C"
+        unit_of_measurement: "°C"
         device_class: temperature
         state_class: measurement
         attributes:
@@ -246,7 +246,7 @@ template:
       - name: delta_ah_in_out
         unique_id: delta_ah_in_out
         icon: mdi:water-percent
-        unit_of_measurement: "g/mÃ‚Â³"
+        unit_of_measurement: "g/m³"
         state_class: measurement
         attributes:
           friendly_name: "Delta AH in-out"

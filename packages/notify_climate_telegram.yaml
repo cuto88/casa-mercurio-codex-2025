@@ -1,5 +1,5 @@
 automation:
-  - alias: "Climate debug â€“ Telegram notifications"
+  - alias: "Climate debug – Telegram notifications"
     id: climate_debug_telegram_notifications
     mode: queued
     trigger:
@@ -41,7 +41,7 @@ automation:
         data:
           message: |
             [CLIMATE][{{ subsystem }}]
-            {{ old }} â€“ {{ new }}
+            {{ old }} – {{ new }}
             Reason: {{ reason }}
             Entity: {{ entity }}
             Time: {{ now() }}

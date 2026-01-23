@@ -4,7 +4,7 @@ views:
     title: "VMC"
     path: climate_vmc_v2
     icon: mdi:fan
-    # TODO: aggiungere badge stagione (caldo/freddo) quando esisterÃƒÂ  un'entitÃƒÂ  canonica in MAP
+    # TODO: aggiungere badge stagione (caldo/freddo) quando esisterà un'entità canonica in MAP
     badges:
       - type: entity
         entity: sensor.t_out
@@ -33,7 +33,7 @@ views:
             show_header_toggle: false
             entities:
               - entity: sensor.ventilation_priority
-                name: "PrioritÃƒÂ  ventilazione"
+                name: "Priorità ventilazione"
               - entity: sensor.ventilation_reason
                 name: "Motivo ventilazione"
               - entity: binary_sensor.vmc_sensors_ok
@@ -154,7 +154,7 @@ views:
       - type: grid
         cards:
           - type: heading
-            heading: "VMC VelocitÃƒÂ "
+            heading: "VMC Velocità"
             icon: mdi:fan-alert
           - type: tile
             entity: switch.vmc_vel_0
@@ -170,10 +170,10 @@ views:
             name: "Vel 3"
           - type: tile
             entity: sensor.vmc_vel_target
-            name: "VelocitÃƒÂ  target"
+            name: "Velocità target"
           - type: tile
             entity: sensor.vmc_vel_index
-            name: "Indice velocitÃƒÂ "
+            name: "Indice velocità"
           - type: tile
             entity: sensor.t_in_med
             name: "T interna media"
@@ -182,7 +182,7 @@ views:
             name: "T esterna"
           - type: sensor
             entity: sensor.vmc_vel_target
-            name: "VelocitÃƒÂ  target (24h)"
+            name: "Velocità target (24h)"
             graph: line
             hours_to_show: 24
             detail: 1
@@ -196,10 +196,10 @@ views:
             icon: mdi:home-thermometer
           - type: tile
             entity: sensor.delta_t_in_out
-            name: "ÃŽâ€T in-out"
+            name: "ΔT in-out"
           - type: tile
             entity: sensor.delta_ah_in_out
-            name: "ÃŽâ€AH in-out"
+            name: "ΔAH in-out"
           - type: tile
             entity: binary_sensor.vmc_freecooling_active
             name: "Freecooling attivo"
@@ -222,11 +222,11 @@ views:
             show_header_toggle: false
             entities:
               - entity: input_select.vmc_mode
-                name: "ModalitÃƒÂ  VMC"
+                name: "Modalità VMC"
               - entity: input_boolean.vmc_manual
                 name: "Manuale abilitato"
               - entity: input_select.vmc_manual_speed
-                name: "VelocitÃƒÂ  manuale"
+                name: "Velocità manuale"
               - entity: timer.vmc_manual_timeout
                 name: "Timer manuale"
               - entity: binary_sensor.clima_ac_from_vmc_request
@@ -238,13 +238,13 @@ views:
             content: |
               ### Regole principali
               - **Boost bagno**: UR bagno > soglia ON **e**
-                ÃŽâ€UR bagno-esterno elevata; si spegne
-                quando UR < soglia OFF o ÃŽâ€UR rientra.
-              - **Freecooling**: T_in > 24Ã‚°C **e**
-                T_out < T_in **e** T_out > 20Ã‚°C.
+                ΔUR bagno-esterno elevata; si spegne
+                quando UR < soglia OFF o ΔUR rientra.
+              - **Freecooling**: T_in > 24°C **e**
+                T_out < T_in **e** T_out > 20°C.
               - **Richiesta AC**: quando
                 `binary_sensor.clima_ac_from_vmc_request`
-                ÃƒÂ¨ ON, la logica VMC/AC richiede `AC giorno`
+                è ON, la logica VMC/AC richiede `AC giorno`
                 o `AC notte`.
               - Riferimenti: logiche condivise in
                 `logica/core/regole_core_logiche.md`, modulo in
