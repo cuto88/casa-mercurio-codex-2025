@@ -1,34 +1,34 @@
 ---
 ###############################################################################
-# climate_ac_logic.yaml – Controllo Aria Condizionata (Passivhaus-Oriented)
-# Controller unico AC con priorità, hook VMC e telemetria
+# climate_ac_logic.yaml â€“ Controllo Aria Condizionata (Passivhaus-Oriented)
+# Controller unico AC con prioritÃ , hook VMC e telemetria
 ###############################################################################
 
-# NOTE – Attuatori hardware AC
-# Le entità switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
+# NOTE â€“ Attuatori hardware AC
+# Le entitÃ  switch.ac_giorno e switch.ac_notte sono fornite da integrazioni
 # esterne (bridge IR, smart plug, ESPHome, ecc.). Non sono definite in questo
 # package: climate_ac_logic le usa solo come attuatori. Devono esistere con
 # esattamente questi entity_id.
 
 # -----------------------------------------------------------------------------
-# PRIORITÀ AC (P0–P4)
+# PRIORITÃ€ AC (P0â€“P4)
 # -----------------------------------------------------------------------------
-# P0) Failsafe sensori – spegni AC.
-# P1) Block da VMC / anti-secco – AC vietata.
-# P2) DRY (deumidifica) – UR alta, T_in non troppo bassa.
-# P3) COOL (raffrescamento comfort) – T_in > setpoint, solo in stagione calda.
-# P4) Idle – tutto OFF.
+# P0) Failsafe sensori â€“ spegni AC.
+# P1) Block da VMC / anti-secco â€“ AC vietata.
+# P2) DRY (deumidifica) â€“ UR alta, T_in non troppo bassa.
+# P3) COOL (raffrescamento comfort) â€“ T_in > setpoint, solo in stagione calda.
+# P4) Idle â€“ tutto OFF.
 
 # ============================================================================
-# 1) HELPER INPUTS – definiti nel mapping (control interface layer)
+# 1) HELPER INPUTS â€“ definiti nel mapping (control interface layer)
 # ============================================================================
 
 # ============================================================================
-# 2) TEMPLATE – failsafe, blocchi, telemetria e diagnostica
+# 2) TEMPLATE â€“ failsafe, blocchi, telemetria e diagnostica
 # ============================================================================
 template:
   - binary_sensor:
-      - name: "AC – Failsafe sensori"
+      - name: "AC â€“ Failsafe sensori"
         unique_id: ac_failsafe_sensors_bad
         device_class: problem
         state: >
@@ -71,11 +71,11 @@ template:
             {{ m in [5,6,7,8,9] }}
           {% endif %}
 
-      - name: "AC – Block by VMC"
+      - name: "AC â€“ Block by VMC"
         unique_id: ac_block_by_vmc
         state: "{{ is_state('input_boolean.ac_block_vmc','on') }}"
 
-      - name: "AC – Lock min ON OK"
+      - name: "AC â€“ Lock min ON OK"
         unique_id: ac_lock_min_on_ok
         state: >
           {% set mins = states('input_number.ac_min_on_minutes') | float(15) %}
@@ -90,7 +90,7 @@ template:
           {% endfor %}
           true
 
-      - name: "AC – Lock min OFF OK"
+      - name: "AC â€“ Lock min OFF OK"
         unique_id: ac_lock_min_off_ok
         state: >
           {% set mins = states('input_number.ac_min_off_minutes') | float(15) %}
@@ -121,7 +121,7 @@ template:
         state: "{{ state_attr('sensor.ac_reason','priority') if state_attr('sensor.ac_reason','priority') not in [none, ''] else 'idle' }}"
         attributes:
           priority: "{{ state_attr('sensor.ac_reason','priority') or 'idle' }}"
-          reason: "{{ state_attr('sensor.ac_reason','reason') or '–' }}"
+          reason: "{{ state_attr('sensor.ac_reason','reason') or 'â€“' }}"
           mode: "{{ state_attr('sensor.ac_reason','mode') or 'off' }}"
           target: "{{ state_attr('sensor.ac_reason','target') or 'none' }}"
 
@@ -131,7 +131,7 @@ template:
         entity_id: switch.ac_giorno
         to: "on"
     sensor:
-      - name: "AC Giorno – Ultimo ON"
+      - name: "AC Giorno â€“ Ultimo ON"
         unique_id: ac_giorno_ultimo_on
         device_class: timestamp
         state: "{{ now().isoformat() }}"
@@ -141,7 +141,7 @@ template:
         entity_id: switch.ac_giorno
         to: "off"
     sensor:
-      - name: "AC Giorno – Ultimo OFF"
+      - name: "AC Giorno â€“ Ultimo OFF"
         unique_id: ac_giorno_ultimo_off
         device_class: timestamp
         state: "{{ now().isoformat() }}"
@@ -151,7 +151,7 @@ template:
         entity_id: switch.ac_notte
         to: "on"
     sensor:
-      - name: "AC Notte – Ultimo ON"
+      - name: "AC Notte â€“ Ultimo ON"
         unique_id: ac_notte_ultimo_on
         device_class: timestamp
         state: "{{ now().isoformat() }}"
@@ -161,17 +161,17 @@ template:
         entity_id: switch.ac_notte
         to: "off"
     sensor:
-      - name: "AC Notte – Ultimo OFF"
+      - name: "AC Notte â€“ Ultimo OFF"
         unique_id: ac_notte_ultimo_off
         device_class: timestamp
         state: "{{ now().isoformat() }}"
 
 # ============================================================================
-# 3) AUTOMAZIONI – hook VMC + controller unico priorità
+# 3) AUTOMAZIONI â€“ hook VMC + controller unico prioritÃ 
 # ============================================================================
 automation:
   - id: ac_hook_block_from_vmc
-    alias: "AC – Hook: block da VMC"
+    alias: "AC â€“ Hook: block da VMC"
     mode: restart
     trigger:
       - platform: event
@@ -185,7 +185,7 @@ automation:
           entity_id: timer.ac_block_vmc_timeout
 
   - id: ac_hook_block_timeout_clear
-    alias: "AC – Hook: clear block VMC dopo timeout"
+    alias: "AC â€“ Hook: clear block VMC dopo timeout"
     mode: restart
     trigger:
       - platform: event
@@ -198,7 +198,7 @@ automation:
           entity_id: input_boolean.ac_block_vmc
 
   - id: ac_controller_priority
-    alias: "AC – Controllo priorità P0–P4"
+    alias: "AC â€“ Controllo prioritÃ  P0â€“P4"
     mode: restart
     trigger:
       - platform: time_pattern
@@ -310,7 +310,7 @@ automation:
                     target: "none"
               - stop: "Block VMC attivo"
 
-          # Lock min ON: lascia correre finché non scade il timer minimo
+          # Lock min ON: lascia correre finchÃ© non scade il timer minimo
           - conditions:
               - condition: template
                 value_template: >
@@ -327,7 +327,7 @@ automation:
                     target: "hold"
               - stop: "Min ON ancora attivo"
 
-          # P2 - DRY (umidità alta)
+          # P2 - DRY (umiditÃ  alta)
           - conditions:
               - condition: template
                 value_template: >
@@ -373,7 +373,7 @@ automation:
                   entity_id: sensor.ac_reason
                   attributes:
                     priority: "P3_cool"
-                    reason: "Tin {{ Tin }}°C > set_cool {{ set_cool }}°C"
+                    reason: "Tin {{ Tin }}Â°C > set_cool {{ set_cool }}Â°C"
                     mode: "cool"
                     target: "giorno"
               - event: hook_ac_request_vmc_low
@@ -397,7 +397,7 @@ automation:
             target: "none"
 
   - id: clima_vmc_ac_request_alert
-    alias: "Clima – Alert richiesta AC da VMC"
+    alias: "Clima â€“ Alert richiesta AC da VMC"
     description: "Mostra alert e registra log quando il clima/VMC richiede l'intervento dell'AC."
     mode: restart
     trigger:
@@ -409,7 +409,7 @@ automation:
     action:
       - service: logbook.log
         data:
-          name: "Clima – richiesta AC"
+          name: "Clima â€“ richiesta AC"
           message: >
             VMC ha richiesto l'intervento dell'AC.
             Priority: {{ states('sensor.ventilation_priority') }},
@@ -417,19 +417,19 @@ automation:
           entity_id: binary_sensor.clima_ac_from_vmc_request
       - service: persistent_notification.create
         data:
-          title: "VMC – richiesta AC"
+          title: "VMC â€“ richiesta AC"
           message: >
             La VMC / logica clima ha richiesto l'intervento dell'AC.
             Motivo: {{ states('sensor.ventilation_reason') }}
             (priority {{ states('sensor.ventilation_priority') }}).
 
 # ============================================================================
-# 4) CONTATORI RUN-TIME & CICLI (oggi) – separati per Giorno/Notte
+# 4) CONTATORI RUN-TIME & CICLI (oggi) â€“ separati per Giorno/Notte
 # ============================================================================
 sensor:
   # === AC GIORNO ===
   - platform: history_stats
-    name: "AC Giorno – Tempo ON oggi"
+    name: "AC Giorno â€“ Tempo ON oggi"
     unique_id: ac_giorno_tempo_on_oggi
     entity_id: switch.ac_giorno
     state: "on"
@@ -438,7 +438,7 @@ sensor:
     end: "{{ now() }}"
 
   - platform: history_stats
-    name: "AC Giorno – Cicli ON oggi"
+    name: "AC Giorno â€“ Cicli ON oggi"
     unique_id: ac_giorno_cicli_on_oggi
     entity_id: switch.ac_giorno
     state: "on"
@@ -448,7 +448,7 @@ sensor:
 
   # === AC NOTTE ===
   - platform: history_stats
-    name: "AC Notte – Tempo ON oggi"
+    name: "AC Notte â€“ Tempo ON oggi"
     unique_id: ac_notte_tempo_on_oggi
     entity_id: switch.ac_notte
     state: "on"
@@ -457,7 +457,7 @@ sensor:
     end: "{{ now() }}"
 
   - platform: history_stats
-    name: "AC Notte – Cicli ON oggi"
+    name: "AC Notte â€“ Cicli ON oggi"
     unique_id: ac_notte_cicli_on_oggi
     entity_id: switch.ac_notte
     state: "on"
@@ -466,7 +466,7 @@ sensor:
     end: "{{ now() }}"
 
 # ============================================================================
-# LEGACY AUTOMATIONS – disattivate a favore del controller unico
+# LEGACY AUTOMATIONS â€“ disattivate a favore del controller unico
 # ============================================================================
 #  - alias: "AC Giorno - controllo DRY/COOL"
 #    id: ac_giorno_control

@@ -6,7 +6,7 @@ input_number:
     min: 16
     max: 30
     step: 1
-    unit_of_measurement: "°C"
+    unit_of_measurement: "Â°C"
     mode: slider
     icon: mdi:air-conditioner
   ac_notte_setpoint:
@@ -14,35 +14,35 @@ input_number:
     min: 16
     max: 30
     step: 1
-    unit_of_measurement: "°C"
+    unit_of_measurement: "Â°C"
     mode: slider
     icon: mdi:air-conditioner
   ac_cool_setpoint:
-    name: "AC – setpoint COOL (°C)"
+    name: "AC â€“ setpoint COOL (Â°C)"
     min: 22
     max: 28
     step: 0.5
-    unit_of_measurement: "°C"
+    unit_of_measurement: "Â°C"
   ac_dry_ur_on:
-    name: "AC – UR ON (DRY) %"
+    name: "AC â€“ UR ON (DRY) %"
     min: 50
     max: 80
     step: 1
     unit_of_measurement: "%"
   ac_dry_ur_off:
-    name: "AC – UR OFF (DRY) %"
+    name: "AC â€“ UR OFF (DRY) %"
     min: 40
     max: 75
     step: 1
     unit_of_measurement: "%"
   ac_min_on_minutes:
-    name: "AC – Min ON (min)"
+    name: "AC â€“ Min ON (min)"
     min: 5
     max: 120
     step: 5
     unit_of_measurement: "min"
   ac_min_off_minutes:
-    name: "AC – Min OFF (min)"
+    name: "AC â€“ Min OFF (min)"
     min: 5
     max: 120
     step: 5
@@ -86,26 +86,26 @@ input_select:
       - high
     icon: mdi:fan
   ac_manual_mode:
-    name: "AC – Modalità manuale"
+    name: "AC â€“ ModalitÃ  manuale"
     options: ["OFF", "DRY", "COOL"]
     icon: mdi:tune-variant
 
 input_boolean:
   ac_manual:
-    name: "AC – Manuale attivo"
+    name: "AC â€“ Manuale attivo"
     icon: mdi:hand-back-right
 
   ac_block_vmc:
-    name: "AC – Block da VMC"
+    name: "AC â€“ Block da VMC"
     icon: mdi:fan-off
 
 timer:
   ac_manual_timeout:
-    name: "AC – Timeout manuale"
+    name: "AC â€“ Timeout manuale"
     duration: "01:00:00"
 
   ac_block_vmc_timeout:
-    name: "AC – Timeout block VMC"
+    name: "AC â€“ Timeout block VMC"
     duration: "00:30:00"
 
 # removed: template.climate is not supported by Home Assistant (see master)

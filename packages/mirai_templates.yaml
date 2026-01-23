@@ -157,7 +157,7 @@ template:
       - name: "mirai_l161_inlet_water_temp_clean"
         unique_id: mirai_l161_inlet_water_temp_clean
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Â°C"
         icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l161_inlet_water_temp') %}
@@ -180,7 +180,7 @@ template:
       - name: "mirai_l162_outlet_water_temp_clean"
         unique_id: mirai_l162_outlet_water_temp_clean
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Â°C"
         icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l162_outlet_water_temp') %}
@@ -203,7 +203,7 @@ template:
       - name: "mirai_l163_outdoor_air_temp_clean"
         unique_id: mirai_l163_outdoor_air_temp_clean
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Â°C"
         icon: mdi:thermometer
         state: >
           {% set raw = states('sensor.mirai_l163_outdoor_air_temp') %}

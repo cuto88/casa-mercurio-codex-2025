@@ -1,6 +1,6 @@
 ---
 ###############################################################################
-# 1_ventilation_windows.yaml – Aggregazione stato finestre per modulo VMC/Vent
+# 1_ventilation_windows.yaml â€“ Aggregazione stato finestre per modulo VMC/Vent
 # - alias (input_boolean) da sostituire con sensori reed reali
 # - gruppi zona giorno/notte/bagno
 # - binary_sensor aggregati e contatori
@@ -8,48 +8,48 @@
 
 input_boolean:
   vent_finestra_giorno1_aperta:
-    name: "Ventilazione – Finestra zona giorno 1"
+    name: "Ventilazione â€“ Finestra zona giorno 1"
     icon: mdi:window-open-variant
   vent_finestra_giorno2_aperta:
-    name: "Ventilazione – Finestra zona giorno 2"
+    name: "Ventilazione â€“ Finestra zona giorno 2"
     icon: mdi:window-open-variant
   vent_portoncino_ingresso_aperto:
-    name: "Ventilazione – Portoncino ingresso"
+    name: "Ventilazione â€“ Portoncino ingresso"
     icon: mdi:door-open
   vent_foro_cappa_aperto:
-    name: "Ventilazione – Foro cappa"
+    name: "Ventilazione â€“ Foro cappa"
     icon: mdi:tailwind
   vent_finestra_notte1_aperta:
-    name: "Ventilazione – Finestra zona notte 1"
+    name: "Ventilazione â€“ Finestra zona notte 1"
     icon: mdi:window-open-variant
   vent_finestra_notte2_aperta:
-    name: "Ventilazione – Finestra zona notte 2"
+    name: "Ventilazione â€“ Finestra zona notte 2"
     icon: mdi:window-open-variant
   vent_finestra_notte3_aperta:
-    name: "Ventilazione – Finestra zona notte 3"
+    name: "Ventilazione â€“ Finestra zona notte 3"
     icon: mdi:window-open-variant
   vent_finestra_bagno_aperta:
-    name: "Ventilazione – Finestra bagno"
+    name: "Ventilazione â€“ Finestra bagno"
     icon: mdi:window-open-variant
 
 # TODO: sostituire gli input_boolean con i sensori finestra reali (binary_sensor.*)
 
 group:
   windows_zona_giorno:
-    name: "Finestre – Zona giorno"
+    name: "Finestre â€“ Zona giorno"
     entities:
       - input_boolean.vent_finestra_giorno1_aperta
       - input_boolean.vent_finestra_giorno2_aperta
       - input_boolean.vent_portoncino_ingresso_aperto
       - input_boolean.vent_foro_cappa_aperto
   windows_zona_notte:
-    name: "Finestre – Zona notte"
+    name: "Finestre â€“ Zona notte"
     entities:
       - input_boolean.vent_finestra_notte1_aperta
       - input_boolean.vent_finestra_notte2_aperta
       - input_boolean.vent_finestra_notte3_aperta
   windows_bagni:
-    name: "Finestre – Bagni"
+    name: "Finestre â€“ Bagni"
     entities:
       - input_boolean.vent_finestra_bagno_aperta
 
@@ -100,8 +100,8 @@ template:
         icon: mdi:text
         state: >-
           {% set labels = {
-            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno – Finestra 1',
-            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno – Finestra 2',
+            'input_boolean.vent_finestra_giorno1_aperta': 'Giorno â€“ Finestra 1',
+            'input_boolean.vent_finestra_giorno2_aperta': 'Giorno â€“ Finestra 2',
             'input_boolean.vent_portoncino_ingresso_aperto': 'Portoncino ingresso',
             'input_boolean.vent_foro_cappa_aperto': 'Foro cappa',
             'input_boolean.vent_finestra_notte1_aperta': 'Zona notte 1',
