@@ -1,5 +1,5 @@
 views:
-  - title: "4 · Aria Condizionata"
+  - title: "4 Aria Condizionata"
     path: ac
     icon: mdi:air-conditioner
     type: sections
@@ -13,7 +13,7 @@ views:
             columns: 4
             entities:
               - entity: sensor.ac_priority
-                name: Priorità
+                name: PrioritÃƒÂ 
               - entity: sensor.ac_reason
                 name: Reason
               - entity: binary_sensor.stagione_calda
@@ -59,7 +59,7 @@ views:
               - entity: input_boolean.ac_manual
                 name: Manuale attivo
               - entity: input_select.ac_manual_mode
-                name: Modalità manuale
+                name: ModalitÃƒÂ  manuale
               - entity: timer.ac_manual_timeout
                 name: Timeout manuale
               - entity: input_boolean.ac_block_vmc
@@ -95,7 +95,7 @@ views:
                 name: T esterna
 
           - type: history-graph
-            title: "Umidità (24h)"
+            title: "UmiditÃƒÂ  (24h)"
             hours_to_show: 24
             refresh_interval: 60
             entities:
@@ -105,13 +105,13 @@ views:
                 name: UR esterna
 
           - type: statistics-graph
-            title: "Modalità e block (7 giorni)"
+            title: "ModalitÃƒÂ  e block (7 giorni)"
             days_to_show: 7
             stat_types:
               - mean
             entities:
               - entity: sensor.ac_priority
-                name: Priorità
+                name: PrioritÃƒÂ 
               - entity: sensor.ac_reason
                 name: Reason
 
@@ -122,21 +122,21 @@ views:
             show_header_toggle: false
             entities:
               - entity: sensor.ac_giorno_tempo_on_oggi
-                name: AC Giorno — tempo ON oggi
+                name: AC Giorno Ã¢â‚¬â€ tempo ON oggi
               - entity: sensor.ac_giorno_cicli_on_oggi
-                name: AC Giorno — cicli ON oggi
+                name: AC Giorno Ã¢â‚¬â€ cicli ON oggi
               - entity: sensor.ac_notte_tempo_on_oggi
-                name: AC Notte — tempo ON oggi
+                name: AC Notte Ã¢â‚¬â€ tempo ON oggi
               - entity: sensor.ac_notte_cicli_on_oggi
-                name: AC Notte — cicli ON oggi
+                name: AC Notte Ã¢â‚¬â€ cicli ON oggi
               - entity: sensor.ac_giorno_ultimo_on
-                name: AC Giorno — ultimo ON
+                name: AC Giorno Ã¢â‚¬â€ ultimo ON
               - entity: sensor.ac_giorno_ultimo_off
-                name: AC Giorno — ultimo OFF
+                name: AC Giorno Ã¢â‚¬â€ ultimo OFF
               - entity: sensor.ac_notte_ultimo_on
-                name: AC Notte — ultimo ON
+                name: AC Notte Ã¢â‚¬â€ ultimo ON
               - entity: sensor.ac_notte_ultimo_off
-                name: AC Notte — ultimo OFF
+                name: AC Notte Ã¢â‚¬â€ ultimo OFF
 
           - type: history-graph
             title: "Trend ON/OFF (24h)"
@@ -156,7 +156,7 @@ views:
             collapsible: true
             entities:
               - entity: sensor.ac_priority
-                name: Priorità
+                name: PrioritÃƒÂ 
               - entity: sensor.ac_reason
                 name: Reason
               - entity: input_boolean.ac_manual
@@ -173,12 +173,12 @@ views:
       - type: grid
         cards:
           - type: history-graph
-            title: "Timeline decisioni — AC (24h)"
+            title: "Timeline decisioni Ã¢â‚¬â€ AC (24h)"
             hours_to_show: 24
             refresh_interval: 60
             entities:
               - entity: sensor.ac_priority
-                name: Priorità AC
+                name: PrioritÃƒÂ  AC
               - entity: sensor.ac_reason
                 name: Motivo/azione
               - entity: switch.ac_giorno

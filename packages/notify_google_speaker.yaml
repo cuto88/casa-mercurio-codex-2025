@@ -1,4 +1,4 @@
-# Package: notify_google_speaker — Notifiche vocali su Google Home Mini (solo TTS)
+# Package: notify_google_speaker ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Notifiche vocali su Google Home Mini (solo TTS)
 
 # Configurazione TTS locale (Google Translate, lingua italiana)
 tts:
@@ -16,10 +16,10 @@ script:
     fields:
       message:
         description: "Testo da pronunciare (obbligatorio)"
-        example: "Attenzione: umidità bagno elevata"
+        example: "Attenzione: umiditÃƒÆ’Ã‚Â  bagno elevata"
         required: true
       volume:
-        description: "Volume 0.0–1.0 (opzionale, default 0.5)"
+        description: "Volume 0.0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“1.0 (opzionale, default 0.5)"
         example: 0.6
         required: false
         default: 0.5
@@ -28,7 +28,7 @@ script:
       target_volume: "{{ volume | default(0.5) | float(0.5) }}"
       previous_volume: "{{ state_attr(target_speaker, 'volume_level') }}"
     sequence:
-      # Imposta il volume richiesto (clamp 0.0–1.0)
+      # Imposta il volume richiesto (clamp 0.0ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“1.0)
       - service: media_player.volume_set
         data:
           entity_id: "{{ target_speaker }}"
@@ -57,4 +57,4 @@ script:
 # action:
 #   - service: script.notify_voice_google
 #     data:
-#       message: "Attenzione: umidità bagno elevata"
+#       message: "Attenzione: umiditÃƒÆ’Ã‚Â  bagno elevata"

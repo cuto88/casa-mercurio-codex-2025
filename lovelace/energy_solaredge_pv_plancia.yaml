@@ -1,5 +1,5 @@
 views:
-  - title: "PV · SolarEdge"
+  - title: "PV SolarEdge"
     path: pv_solaredge
     icon: mdi:solar-power
     type: sections
@@ -17,7 +17,7 @@ views:
             name: Potenza FV istantanea
             entity: sensor.pv_power_now
             min: 0
-            max: 7000       # Impianto 6,7 kW → leggero margine
+            max: 7000       # Impianto 6,7 kW Ã¢â€ â€™ leggero margine
             needle: true
 
       #######################################################################

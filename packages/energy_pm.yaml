@@ -1,28 +1,28 @@
 ---
 # =========================
-# 5_powermeter.yaml — CLEAN
-# Helpers + Utility Meter + Statistics per plancia "5 consumi — Core"
+# 5_powermeter.yaml ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â CLEAN
+# Helpers + Utility Meter + Statistics per plancia "5 consumi ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â Core"
 # Nessun wrapper top-level, nessuna lista con "- name:". Solo mapping con entity_id univoci.
 # =========================
 
 # --- HELPERS -------------------------------------------------
 input_number:
   pm2_on_w:
-    name: Lavatrice — soglia ON (W)
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm2_off_w:
-    name: Lavatrice — soglia OFF (W)
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm2_min_run_min:
-    name: Lavatrice — durata minima ciclo (min)
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -30,21 +30,21 @@ input_number:
     mode: slider
 
   pm3_on_w:
-    name: Asciugatrice — soglia ON (W)
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm3_off_w:
-    name: Asciugatrice — soglia OFF (W)
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm3_min_run_min:
-    name: Asciugatrice — durata minima ciclo (min)
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -52,21 +52,21 @@ input_number:
     mode: slider
 
   pm1_on_w:
-    name: Romeo — soglia ON (W)
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia ON (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm1_off_w:
-    name: Romeo — soglia OFF (W)
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â soglia OFF (W)
     min: 0
     max: 3000
     step: 5
     unit_of_measurement: W
     mode: slider
   pm1_min_run_min:
-    name: Romeo — durata minima ciclo (min)
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â durata minima ciclo (min)
     min: 0
     max: 180
     step: 1
@@ -75,21 +75,21 @@ input_number:
 
   # KPI ultimo ciclo (scritti da automazioni)
   pm2_last_cycle_kwh:
-    name: Lavatrice — kWh ultimo ciclo
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
     unit_of_measurement: kWh
     mode: box
   pm3_last_cycle_kwh:
-    name: Asciugatrice — kWh ultimo ciclo
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
     unit_of_measurement: kWh
     mode: box
   pm1_last_cycle_kwh:
-    name: Romeo — kWh ultimo ciclo
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â kWh ultimo ciclo
     min: 0
     max: 20
     step: 0.001
@@ -98,42 +98,42 @@ input_number:
 
 input_datetime:
   pm2_last_start:
-    name: Lavatrice — ultimo start
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
     has_date: true
     has_time: true
   pm2_last_stop:
-    name: Lavatrice — ultimo stop
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
     has_date: true
     has_time: true
   pm3_last_start:
-    name: Asciugatrice — ultimo start
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
     has_date: true
     has_time: true
   pm3_last_stop:
-    name: Asciugatrice — ultimo stop
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
     has_date: true
     has_time: true
   pm1_last_start:
-    name: Romeo — ultimo start
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo start
     has_date: true
     has_time: true
   pm1_last_stop:
-    name: Romeo — ultimo stop
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ultimo stop
     has_date: true
     has_time: true
 
 # (opzionale) contatori eventi ciclo
 counter:
   pm2_cycles:
-    name: Lavatrice — conteggio cicli
+    name: Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
     step: 1
     restore: true
   pm3_cycles:
-    name: Asciugatrice — conteggio cicli
+    name: Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
     step: 1
     restore: true
   pm1_cycles:
-    name: Romeo — conteggio cicli
+    name: Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â conteggio cicli
     step: 1
     restore: true
 
@@ -210,32 +210,32 @@ sensor:
 # --- FRIENDLY NAMES (coerenza UI) ----------------------------
 homeassistant:
   customize:
-    sensor.pm1_energy_daily:   { friendly_name: "Romeo — kWh / giorno" }
-    sensor.pm1_energy_monthly: { friendly_name: "Romeo — kWh / mese" }
-    sensor.pm2_energy_daily:   { friendly_name: "Lavatrice — kWh / giorno" }
-    sensor.pm2_energy_monthly: { friendly_name: "Lavatrice — kWh / mese" }
-    sensor.pm3_energy_daily:   { friendly_name: "Asciugatrice — kWh / giorno" }
-    sensor.pm3_energy_monthly: { friendly_name: "Asciugatrice — kWh / mese" }
+    sensor.pm1_energy_daily: {friendly_name: "Romeo - kWh / giorno"}
+    sensor.pm1_energy_monthly: {friendly_name: "Romeo - kWh / mese"}
+    sensor.pm2_energy_daily: {friendly_name: "Lavatrice - kWh / giorno"}
+    sensor.pm2_energy_monthly: {friendly_name: "Lavatrice - kWh / mese"}
+    sensor.pm3_energy_daily: {friendly_name: "Asciugatrice - kWh / giorno"}
+    sensor.pm3_energy_monthly: {friendly_name: "Asciugatrice - kWh / mese"}
 
 
 # --- TEMPLATE: ore ON oggi (per KPI plancia) -----------------
 template:
   - sensor:
-      - name: "Lavatrice — h ON oggi"
+      - name: "Lavatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
         unique_id: pm2_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline
         state: >
           {{ (states('sensor.pm2_in_ciclo_today') | float(0)) | round(2) }}
 
-      - name: "Asciugatrice — h ON oggi"
+      - name: "Asciugatrice ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
         unique_id: pm3_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline
         state: >
           {{ (states('sensor.pm3_in_ciclo_today') | float(0)) | round(2) }}
 
-      - name: "Romeo — h ON oggi"
+      - name: "Romeo ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â h ON oggi"
         unique_id: pm1_on_time_today
         unit_of_measurement: "h"
         icon: mdi:timer-outline

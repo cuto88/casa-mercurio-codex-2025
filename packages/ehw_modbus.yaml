@@ -1,11 +1,11 @@
 # EHW Modbus package
 #
 # CHECK RAPIDO (30 minuti)
-# 1) Imposta setpoint reale a 45°C e osserva quale raw cambia:
+# 1) Imposta setpoint reale a 45Ãƒâ€šÃ‚Â°C e osserva quale raw cambia:
 #    - sensor.ehw_setpoint_raw_a (doc_reg 1104)
 #    - sensor.ehw_setpoint_raw_b (doc_reg 1105)
 # 2) Seleziona il corretto addressing mode in input_select.ehw_address_mode.
-# 3) Regola ehw_setpoint_scale con formula: scale = Δ°C / Δraw.
+# 3) Regola ehw_setpoint_scale con formula: scale = ÃƒÅ½Ã¢â‚¬ÂÃƒâ€šÃ‚Â°C / ÃƒÅ½Ã¢â‚¬Âraw.
 # 4) Se top/bottom sono invertiti, attiva input_boolean.ehw_swap_top_bottom.
 
 modbus:
@@ -311,7 +311,7 @@ template:
       - name: "EHW tank top"
         unique_id: ehw_tank_top
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Ãƒâ€šÃ‚Â°C"
         state_class: measurement
         availability: >-
           {{ is_number(states('sensor.ehw_tank_top_raw')) }}
@@ -326,7 +326,7 @@ template:
       - name: "EHW tank bottom"
         unique_id: ehw_tank_bottom
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Ãƒâ€šÃ‚Â°C"
         state_class: measurement
         availability: >-
           {{ is_number(states('sensor.ehw_tank_bottom_raw')) }}
@@ -341,7 +341,7 @@ template:
       - name: "EHW setpoint"
         unique_id: ehw_setpoint
         device_class: temperature
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Ãƒâ€šÃ‚Â°C"
         state_class: measurement
         availability: >-
           {{ is_number(states('sensor.ehw_setpoint_raw')) }}
@@ -355,7 +355,7 @@ template:
           }}
       - name: "EHW delta stratificazione"
         unique_id: ehw_delta_stratificazione
-        unit_of_measurement: "°C"
+        unit_of_measurement: "Ãƒâ€šÃ‚Â°C"
         state_class: measurement
         availability: >-
           {{

@@ -1,0 +1,18 @@
+extends: default
+
+rules:
+  document-start: disable
+  line-length:
+    max: 160
+    level: warning
+  truthy:
+    level: warning
+
+ignore: |
+  .git/
+  _quarantine/
+  _backup_pre_git/
+  _ha_runtime_backups/
+  deps/
+  www/
+  tts/

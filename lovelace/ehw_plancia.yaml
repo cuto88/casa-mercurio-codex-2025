@@ -83,7 +83,7 @@ views:
             show_header_toggle: false
             entities:
               - entity: sensor.ehw_setpoint
-                name: Setpoint (°C)
+                name: Setpoint (Ã‚Â°C)
               - entity: sensor.ehw_setpoint_raw
                 name: Setpoint raw (selezionato)
               - entity: sensor.ehw_setpoint_raw_a
