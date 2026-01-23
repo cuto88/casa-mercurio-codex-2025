@@ -37,23 +37,23 @@ views:
                   - type: attribute
                     entity: climate.ac_giorno
                     attribute: hvac_mode
-                    name: "ModalitÃƒÂ  giorno"
+                    name: "Modalità giorno"
                   - type: attribute
                     entity: climate.ac_notte
                     attribute: hvac_mode
-                    name: "ModalitÃƒÂ  notte"
+                    name: "Modalità notte"
                   - type: attribute
                     entity: climate.ac_giorno
                     attribute: temperature
-                    name: "Target giorno (Ã‚Â°C)"
+                    name: "Target giorno (°C)"
                   - type: attribute
                     entity: climate.ac_notte
                     attribute: temperature
-                    name: "Target notte (Ã‚Â°C)"
+                    name: "Target notte (°C)"
                   - entity: sensor.ur_out
                     name: "UR esterna"
                   - entity: sensor.delta_ah_in_out
-                    name: "ÃŽâ€AH in-out"
+                    name: "ΔAH in-out"
 
       - cards:
           - type: heading
@@ -77,10 +77,10 @@ views:
                 name: "UR interna media"
               - type: tile
                 entity: sensor.delta_t_in_out
-                name: "ÃŽâ€T in-out"
+                name: "ΔT in-out"
               - type: tile
                 entity: sensor.delta_ah_in_out
-                name: "ÃŽâ€AH in-out"
+                name: "ΔAH in-out"
 
       - cards:
           - type: heading
@@ -92,7 +92,7 @@ views:
               - entity: sensor.t_in_giorno
                 name: "Temperatura"
               - entity: sensor.ur_in_giorno
-                name: "UmiditÃƒÂ "
+                name: "Umidità"
               - entity: input_boolean.vent_finestra_giorno1_aperta
                 name: "Finestra giorno 1"
               - entity: input_boolean.vent_finestra_giorno2_aperta
@@ -104,7 +104,7 @@ views:
               - type: attribute
                 entity: climate.ac_giorno
                 attribute: hvac_mode
-                name: "ModalitÃƒÂ  AC giorno"
+                name: "Modalità AC giorno"
               - entity: input_select.ac_giorno_fan
                 name: "Ventilatore AC giorno"
 
@@ -118,7 +118,7 @@ views:
               - entity: sensor.t_notte_med
                 name: "Temperatura media"
               - entity: sensor.ur_notte_med
-                name: "UmiditÃƒÂ  media"
+                name: "Umidità media"
               - type: attribute
                 entity: climate.ac_notte
                 attribute: temperature
@@ -126,7 +126,7 @@ views:
               - type: attribute
                 entity: climate.ac_notte
                 attribute: hvac_mode
-                name: "ModalitÃƒÂ  AC notte"
+                name: "Modalità AC notte"
               - entity: input_select.ac_notte_fan
                 name: "Ventilatore AC notte"
           - type: grid
