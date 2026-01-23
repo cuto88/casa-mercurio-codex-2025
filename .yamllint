@@ -5,14 +5,17 @@ rules:
   line-length:
     max: 160
     level: warning
+  new-line-at-end-of-file: enable
+  new-lines:
+    type: unix
   truthy:
     level: warning
 
 ignore: |
-  .git/
-  _quarantine/
-  _backup_pre_git/
-  _ha_runtime_backups/
-  deps/
-  www/
-  tts/
+  .git/**
+  _quarantine/**
+  _backup_pre_git/**
+  _ha_runtime_backups/**
+  deps/**
+  www/**
+  tts/**

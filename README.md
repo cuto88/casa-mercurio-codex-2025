@@ -9,6 +9,13 @@ ops/ include gli script di manutenzione: usa ops/synch_ha.ps1 per sincronizzare 
 Lo script copia solo packages, mirai, logica e lovelace in modalità mirror con esclusioni temporanee.
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
+## Quality gates (ops)
+Per eseguire i controlli locali:
+- `powershell -NoProfile -ExecutionPolicy Bypass -File ops\run_gates.ps1`
+- `powershell -NoProfile -ExecutionPolicy Bypass -File ops\deploy_safe.ps1`
+
+Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
+
 ## MIRAI package structure
 packages/mirai.yaml deve restare una mappa di integrazioni al root, senza wrapper `mirai:`.
 mirai/20_templates.yaml deve essere una lista (inizia con `- binary_sensor:`), non una mappa.
