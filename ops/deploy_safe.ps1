@@ -28,6 +28,38 @@ if (git status --porcelain) {
 }
 
 # --------------------------------------------------
+# 0b) Preflight target path (map Z: if needed)
+# --------------------------------------------------
+if (!(Test-Path $Target)) {
+  if ($Target -like "Z:\\*") {
+    $share = if ($env:HA_SMB_SHARE) { $env:HA_SMB_SHARE } else { "\\192.168.178.84\config" }
+    $user = $env:HA_SMB_USER
+    $pass = $env:HA_SMB_PASS
+    $drive = "Z:"
+
+    $netUseCommand = "net use $drive $share"
+    $netUseArgs = @($drive, $share)
+    if ($user) {
+      $netUseCommand += " /USER:$user"
+      $netUseArgs += "/USER:$user"
+      if ($pass) {
+        $netUseCommand += " $pass"
+        $netUseArgs += $pass
+      }
+    }
+
+    Say "`n==> map $drive to $share"
+    & net use @netUseArgs | Out-Null
+
+    if ($LASTEXITCODE -ne 0 -or !(Test-Path $Target)) {
+      throw "Target path '$Target' not available. Failed to map drive. Run: $netUseCommand"
+    }
+  } else {
+    throw "Target path '$Target' not available."
+  }
+}
+
+# --------------------------------------------------
 # 1) Update local branch (ff-only)
 # --------------------------------------------------
 Say "`n==> git fetch"
