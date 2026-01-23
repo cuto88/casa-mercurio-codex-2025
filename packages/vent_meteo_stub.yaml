@@ -1,0 +1,12 @@
+---
+# Stub temporaneo: meteo ok per ventilazione naturale.
+# Sostituire con sensori reali (pioggia/vento/PM2.5) quando disponibili.
+
+template:
+  - binary_sensor:
+      - name: "Ventilazione meteo ok"
+        unique_id: vent_condizioni_meteo_ok
+        state: >-
+          {{ true }}
+        availability: >-
+          {{ true }}
