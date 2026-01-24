@@ -22,3 +22,7 @@ mirai/20_templates.yaml deve essere una lista (inizia con `- binary_sensor:`), n
 mirai/30_automations.yaml deve essere una lista (inizia con `- id:` o `- alias:`).
 I file mirai/00_input_boolean.yaml e mirai/01_shell_command.yaml devono restare mappe.
 mirai/10_modbus.yaml deve essere una lista di hub Modbus, senza root `modbus:`.
+
+## Notifiche Telegram
+Nel package `packages/notify_telegram.yaml` è definito l'alias notify stabile `notify.telegram_general`
+per inviare messaggi alla chat principale senza hardcodare l'ID del bot nelle automazioni.
