@@ -1,12 +1,46 @@
 param(
   [string]$Branch = "main",
   [string]$Target = "Z:\",
-  [string]$BackupRoot = ".\_ha_runtime_backups"
+  [string]$BackupRoot = ".\_ha_runtime_backups",
+  [switch]$IncludeTts,
+  [switch]$IncludeWww,
+  [switch]$RunConfigCheck
 )
 
 $ErrorActionPreference = "Stop"
 
 function Say($m){ Write-Host $m }
+function Fail($m){ throw $m }
+
+function Assert-HaConfigTarget {
+  param([string]$Path)
+
+  if (-not (Test-Path $Path)) {
+    Fail "Target path '$Path' not available."
+  }
+
+  $configPath = Join-Path $Path "configuration.yaml"
+  if (-not (Test-Path $configPath)) {
+    Fail "Target path '$Path' does not look like a Home Assistant config (missing configuration.yaml)."
+  }
+
+  $secretsPath = Join-Path $Path "secrets.yaml"
+  if (-not (Test-Path $secretsPath)) {
+    Fail "Refusing deploy: missing secrets.yaml at target ($secretsPath)."
+  }
+
+  $secretsLines = Get-Content -Path $secretsPath -ErrorAction Stop
+  $hasKeyValue = $false
+  foreach ($line in $secretsLines) {
+    if ($line -match '^\s*[^#\s][^:]*\s*:\s*.+') {
+      $hasKeyValue = $true
+      break
+    }
+  }
+  if (-not $hasKeyValue) {
+    Fail "Refusing deploy: secrets.yaml sanity check failed (no key/value entries found)."
+  }
+}
 
 Say "== Deploy SAFE =="
 
@@ -19,6 +53,8 @@ Set-Location $repoRoot
 Say "Repo   : $repoRoot"
 Say "Target : $Target"
 Say "Branch : $Branch"
+Say "IncludeTts : $IncludeTts"
+Say "IncludeWww : $IncludeWww"
 
 # --------------------------------------------------
 # 0) Refuse dirty working tree
@@ -60,6 +96,11 @@ if (!(Test-Path $Target)) {
 }
 
 # --------------------------------------------------
+# 0c) Preflight target sanity (secrets/config present)
+# --------------------------------------------------
+Assert-HaConfigTarget -Path $Target
+
+# --------------------------------------------------
 # 1) Update local branch (ff-only)
 # --------------------------------------------------
 Say "`n==> git fetch"
@@ -86,12 +127,17 @@ Say "`n==> BACKUP target to $backupDir"
 $excludeFiles = @(
   "*.db","*.db-shm","*.db-wal",
   "*.log","*.log.*","*.fault",
-  "ha_run.lock",".ha_run.lock"
+  "ha_run.lock",".ha_run.lock",
+  "secrets.yaml"
 )
 
 $excludeDirs  = @(
   ".git",
   ".storage",              # <<< CRITICAL EXCLUDE
+  ".cloud",
+  "backup",
+  "backups",
+  "media",
   "deps",
   "__pycache__",
   "_backup",
@@ -99,8 +145,12 @@ $excludeDirs  = @(
   "ops\_logs"
 )
 
+$optionalExcludeDirs = @()
+if (-not $IncludeTts) { $optionalExcludeDirs += "tts" }
+if (-not $IncludeWww) { $optionalExcludeDirs += "www" }
+
 & robocopy $Target $backupDir /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS `
-  /XF $excludeFiles /XD $excludeDirs
+  /XF $excludeFiles /XD @($excludeDirs + $optionalExcludeDirs)
 
 if ($LASTEXITCODE -ge 8) {
   throw "Backup robocopy failed (RC=$LASTEXITCODE)"
@@ -116,16 +166,36 @@ Say "`n==> DEPLOY repo -> target"
   /XD @(
     ".git",
     ".storage",            # <<< CRITICAL EXCLUDE
+    ".cloud",
+    "backup",
+    "backups",
+    "media",
     "deps",
     "__pycache__",
     "_backup_pre_git",
     "_ha_runtime_backups",
     "_backup",
     "ops\_logs"
-  )
+  ) + $optionalExcludeDirs
 
 if ($LASTEXITCODE -ge 8) {
   throw "Deploy robocopy failed (RC=$LASTEXITCODE)"
+}
+
+# --------------------------------------------------
+# 5) Optional post-deploy config check (best effort)
+# --------------------------------------------------
+if ($RunConfigCheck) {
+  Say "`n==> POST-DEPLOY: Home Assistant config check"
+  if (Get-Command ha -ErrorAction SilentlyContinue) {
+    & ha core check
+    if ($LASTEXITCODE -ne 0) {
+      throw "ha core check failed (RC=$LASTEXITCODE)"
+    }
+    Say "[OK] ha core check passed."
+  } else {
+    Say "ha CLI not found. Run on HA host: 'ha core check' or use UI -> Server Controls -> Check Configuration."
+  }
 }
 
 Say "`n[OK] Deploy SAFE completed."
