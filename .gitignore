@@ -2,11 +2,14 @@
 # Home Assistant runtime (LIVE)
 # ==================================================
 .storage/
+secrets.yaml
 home-assistant.log*
 home-assistant_v2.db*
 backup/
 .tts/
 .cloud/
+tts/
+www/
 deps/
 __pycache__/
 

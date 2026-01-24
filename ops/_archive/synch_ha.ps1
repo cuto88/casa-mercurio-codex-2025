@@ -7,7 +7,9 @@
 param(
   [string]$HaRoot = "Z:\",
   [switch]$DryRun,
-  [switch]$IncludeOptionalFolders  # deps/export solo se davvero voluti
+  [switch]$IncludeOptionalFolders,  # deps/export solo se davvero voluti
+  [switch]$IncludeTts,
+  [switch]$IncludeWww
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,20 +27,53 @@ if (-not (Test-Path $HaRoot)) {
 
 Log "RepoRoot: $RepoRoot" "Cyan"
 Log "HaRoot  : $HaRoot" "Cyan"
-Log ("Modalità: " + ($(if ($DryRun) { "DRY-RUN" } else { "LIVE" }))) "Yellow"
+Log ("IncludeTts: " + $IncludeTts) "Cyan"
+Log ("IncludeWww: " + $IncludeWww) "Cyan"
+Log ("ModalitÃ : " + ($(if ($DryRun) { "DRY-RUN" } else { "LIVE" }))) "Yellow"
+
+# Preflight target sanity
+$configPath = Join-Path $HaRoot "configuration.yaml"
+if (-not (Test-Path $configPath)) {
+  Log "ERRORE: HA root non valido (configuration.yaml mancante): $HaRoot" "Red"
+  exit 3
+}
+
+$secretsPath = Join-Path $HaRoot "secrets.yaml"
+if (-not (Test-Path $secretsPath)) {
+  Log "ERRORE: secrets.yaml mancante su target ($secretsPath). Deploy interrotto." "Red"
+  exit 4
+}
+
+$secretsLines = Get-Content -Path $secretsPath -ErrorAction Stop
+$hasKeyValue = $false
+foreach ($line in $secretsLines) {
+  if ($line -match '^\s*[^#\s][^:]*\s*:\s*.+') {
+    $hasKeyValue = $true
+    break
+  }
+}
+if (-not $hasKeyValue) {
+  Log "ERRORE: secrets.yaml non valido (nessuna entry key:value trovata). Deploy interrotto." "Red"
+  exit 5
+}
 
 # === Managed folders (repo -> HA) ===
-# www sempre inclusa (HACS frontend + asset tuoi)
 $FoldersToSync = @(
   "packages",
   "mirai",
   "logica",
   "lovelace",
   "custom_components",
-  "blueprints",
-  "www",
-  "tts"
+  "blueprints"
 )
+
+if ($IncludeWww) {
+  $FoldersToSync += "www"
+}
+
+if ($IncludeTts) {
+  $FoldersToSync += "tts"
+}
 
 if ($IncludeOptionalFolders) {
   $FoldersToSync += @("deps", "export")
@@ -48,8 +83,8 @@ if ($IncludeOptionalFolders) {
 $FilesToSync = @("configuration.yaml")
 
 # Global exclusions (never sync from repo to HA)
-$ExcludeDirsGlobal  = @(".git", ".github", "ops", "__pycache__", ".vscode")
-$ExcludeFilesGlobal = @("*.bak", "*.tmp", "*.log", "*.old", "home-assistant*.db*", "*.db-wal", "*.db-shm")
+$ExcludeDirsGlobal  = @(".git", ".github", "ops", "__pycache__", ".vscode", ".storage", ".cloud", "backup", "backups", "media")
+$ExcludeFilesGlobal = @("*.bak", "*.tmp", "*.log", "*.old", "home-assistant*.db*", "*.db-wal", "*.db-shm", "secrets.yaml")
 
 # Robocopy options:
 # - NO /XO: repo deve sovrascrivere HA se differente (source of truth)
