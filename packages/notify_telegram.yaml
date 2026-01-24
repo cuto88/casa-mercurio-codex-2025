@@ -37,11 +37,13 @@ automation:
           {{ states(trigger.entity_id) }}
         {% endif %}
     action:
-      - service: notify.telegram_davide
+      - action: notify.send_message
+        target:
+          entity_id: notify.telegram_davide
         data:
           message: |
             [CLIMATE][{{ subsystem }}]
-            {{ old }} – {{ new }}
+            {{ old }} → {{ new }}
             Reason: {{ reason }}
             Entity: {{ entity }}
             Time: {{ now() }}
