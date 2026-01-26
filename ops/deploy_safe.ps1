@@ -4,7 +4,8 @@ param(
   [string]$BackupRoot = ".\_ha_runtime_backups",
   [switch]$IncludeTts,
   [switch]$IncludeWww,
-  [switch]$RunConfigCheck
+  [switch]$RunConfigCheck,
+  [switch]$RunGates
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,6 +56,7 @@ Say "Target : $Target"
 Say "Branch : $Branch"
 Say "IncludeTts : $IncludeTts"
 Say "IncludeWww : $IncludeWww"
+Say "RunGates   : $RunGates"
 
 # --------------------------------------------------
 # 0) Refuse dirty working tree
@@ -112,8 +114,11 @@ git merge --ff-only "origin/$Branch"
 # --------------------------------------------------
 # 2) Quality gates (must pass)
 # --------------------------------------------------
-Say "`n==> run_gates"
-powershell -NoProfile -ExecutionPolicy Bypass -File ".\ops\run_gates.ps1"
+Say "`n==> NOTA: eseguire run_gates prima del deploy (oppure usare -RunGates)"
+if ($RunGates) {
+  Say "`n==> run_gates (opzione esplicita -RunGates)"
+  powershell -NoProfile -ExecutionPolicy Bypass -File ".\ops\run_gates.ps1"
+}
 
 # --------------------------------------------------
 # 3) BACKUP target -> LOCAL backup (NO .storage)

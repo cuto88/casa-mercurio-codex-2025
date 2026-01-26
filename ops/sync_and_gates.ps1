@@ -6,10 +6,7 @@ Write-Host "==> SYNC + GATES"
 git fetch origin
 git reset --hard origin/main
 
-# 2. Fix encoding (no-op se già pulito)
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\fix_yaml_encoding.ps1
-
-# 3. Run gates
+# 2. Run gates
 powershell -NoProfile -ExecutionPolicy Bypass -File ops\run_gates.ps1
 
 Write-Host "==> OK: repo allineato e gates verdi"
