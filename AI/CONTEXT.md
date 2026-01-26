@@ -4,7 +4,7 @@
 - `configuration.yaml`: entrypoint Home Assistant.
 - `packages/`: logiche e integrazioni modulari HA.
 - `lovelace/`: dashboard YAML.
-- `logica/`: documentazione e regole (no YAML).
+- `docs/logic/`: documentazione e regole (no YAML).
 - `ops/`: script di manutenzione/check.
 - `mirai/`: runtime e asset Mirai (o backup).
 
@@ -14,9 +14,9 @@
 - Lovelace YAML: dashboard definite in `configuration.yaml` con file in `lovelace/`.
 
 ## Single sources of truth
-- Entity map clima: `logica/core/README_sensori_clima.md`.
-- Regole core clima: `logica/core/regole_core_logiche.md`.
-- Prompt Codex master: `logica/core/prompt_codex_master.md`.
+- Entity map clima: `docs/logic/core/README_sensori_clima.md`.
+- Regole core clima: `docs/logic/core/regole_core_logiche.md`.
+- Prompt Codex master: `docs/logic/core/prompt_codex_master.md`.
 - Architettura clima: `README_ClimaSystem.md`.
 - Check Mirai: `ops/ha_structure_check.ps1`.
 
