@@ -43,6 +43,38 @@ function Assert-HaConfigTarget {
   }
 }
 
+function Read-OpsStateFile {
+  param([string]$Path)
+
+  $data = @{}
+  if (-not (Test-Path $Path)) {
+    return $data
+  }
+  foreach ($line in (Get-Content -Path $Path -ErrorAction Stop)) {
+    if ($line -match '^\s*([^=]+)=(.*)$') {
+      $data[$matches[1].Trim()] = $matches[2].Trim()
+    }
+  }
+  return $data
+}
+
+function Write-OpsStateFile {
+  param(
+    [string]$Path,
+    [string]$Head,
+    [string]$Branch
+  )
+
+  $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssK"
+  $content = @(
+    "HEAD=$Head"
+    "BRANCH=$Branch"
+    "TIMESTAMP=$timestamp"
+  )
+  $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+  [System.IO.File]::WriteAllLines($Path, $content, $utf8NoBom)
+}
+
 Say "== Deploy SAFE =="
 
 # --------------------------------------------------
@@ -64,6 +96,12 @@ Say "RunGates   : $RunGates"
 if (git status --porcelain) {
   throw "Working tree NOT clean. Commit/stash first."
 }
+
+# --------------------------------------------------
+# 0a) Path stato operativo (repo)
+# --------------------------------------------------
+$opsStateDir = Join-Path $repoRoot ".ops_state"
+$gatesFile = Join-Path $opsStateDir "gates.ok"
 
 # --------------------------------------------------
 # 0b) Preflight target path (map Z: if needed)
@@ -110,6 +148,22 @@ git fetch origin
 
 Say "`n==> git ff-only to origin/$Branch"
 git merge --ff-only "origin/$Branch"
+
+# --------------------------------------------------
+# 1b) Verifica gates.ok quando -RunGates non è usato
+# --------------------------------------------------
+$currentHead = (git rev-parse HEAD).Trim()
+$currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
+
+if (-not $RunGates) {
+  $gatesData = Read-OpsStateFile -Path $gatesFile
+  if (-not $gatesData.ContainsKey("HEAD") -or -not $gatesData.ContainsKey("BRANCH")) {
+    Fail "Gates non eseguiti per questo HEAD. Esegui ops/run_gates.ps1 o usa -RunGates."
+  }
+  if ($gatesData["HEAD"] -ne $currentHead -or $gatesData["BRANCH"] -ne $currentBranch) {
+    Fail "Gates non eseguiti per questo HEAD. Esegui ops/run_gates.ps1 o usa -RunGates."
+  }
+}
 
 # --------------------------------------------------
 # 2) Quality gates (must pass)
@@ -202,5 +256,12 @@ if ($RunConfigCheck) {
     Say "ha CLI not found. Run on HA host: 'ha core check' or use UI -> Server Controls -> Check Configuration."
   }
 }
+
+# --------------------------------------------------
+# 6) Scrive last_deploy.ok e consuma gates.ok
+# --------------------------------------------------
+New-Item -ItemType Directory -Force -Path $opsStateDir | Out-Null
+Write-OpsStateFile -Path (Join-Path $opsStateDir "last_deploy.ok") -Head $currentHead -Branch $currentBranch
+Remove-Item -Force -ErrorAction SilentlyContinue $gatesFile
 
 Say "`n[OK] Deploy SAFE completed."

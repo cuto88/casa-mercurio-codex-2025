@@ -89,3 +89,20 @@ foreach ($gate in $gates) {
 }
 
 Write-Host "\nALL GATES PASSED"
+
+# Scrive il marker gates.ok solo in caso di successo completo
+$opsStateDir = Join-Path $repoRoot ".ops_state"
+New-Item -ItemType Directory -Force -Path $opsStateDir | Out-Null
+
+$head = (git rev-parse HEAD).Trim()
+$branch = (git rev-parse --abbrev-ref HEAD).Trim()
+$timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssK"
+
+$gatesContent = @(
+    "HEAD=$head"
+    "BRANCH=$branch"
+    "TIMESTAMP=$timestamp"
+)
+
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllLines((Join-Path $opsStateDir "gates.ok"), $gatesContent, $utf8NoBom)
