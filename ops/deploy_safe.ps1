@@ -93,8 +93,16 @@ Say "RunGates   : $RunGates"
 # --------------------------------------------------
 # 0) Refuse dirty working tree
 # --------------------------------------------------
-if (git status --porcelain) {
-  throw "Working tree NOT clean. Commit/stash first."
+$statusLines = git status --porcelain
+if ($statusLines) {
+  $ignoredStatus = $statusLines | Where-Object { $_ -match '^\?\?\s+(\.ops_state/|ops/_logs/)' }
+  if ($ignoredStatus) {
+    Say "Ignoring untracked operational paths: .ops_state/, ops/_logs/"
+  }
+  $remainingStatus = $statusLines | Where-Object { $_ -notmatch '^\?\?\s+(\.ops_state/|ops/_logs/)' }
+  if ($remainingStatus) {
+    throw "Working tree NOT clean. Commit/stash first."
+  }
 }
 
 # --------------------------------------------------
