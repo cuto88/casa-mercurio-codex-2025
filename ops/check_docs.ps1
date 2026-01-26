@@ -53,6 +53,12 @@ function Get-LinkTargets {
     return $targets
 }
 
+function Remove-CodeFences {
+    param([string]$Content)
+
+    return [regex]::Replace($Content, '(?s)```.*?```', '')
+}
+
 function Resolve-LinkPath {
     param(
         [string]$BaseDir,
@@ -94,15 +100,17 @@ $missingRiferimenti = New-Object System.Collections.Generic.List[string]
 
 foreach ($file in $markdownFiles) {
     $content = Get-Content -LiteralPath $file.FullName -Raw
+    $contentLower = $content.ToLowerInvariant()
+    $contentWithoutCode = Remove-CodeFences -Content $content
 
     foreach ($legacy in $legacyPaths) {
-        if ($content.Contains($legacy)) {
+        if ($contentLower.Contains($legacy.ToLowerInvariant())) {
             $relative = $file.FullName.Substring($repoRoot.Length + 1)
             $legacyMatches.Add("${relative}: ${legacy}")
         }
     }
 
-    $targets = Get-LinkTargets -Content $content
+    $targets = Get-LinkTargets -Content $contentWithoutCode
     foreach ($target in $targets) {
         if ($target -match '^(https?:|mailto:)') {
             continue
@@ -135,7 +143,8 @@ foreach ($file in $markdownFiles) {
 
 $logicRoot = Join-Path $repoRoot 'docs/logic'
 if (Test-Path -LiteralPath $logicRoot) {
-    $moduleDirs = Get-ChildItem -Path $logicRoot -Directory
+    $excludedModules = @('core', 'archive', '_backup', 'regole', 'howto')
+    $moduleDirs = Get-ChildItem -Path $logicRoot -Directory | Where-Object { $excludedModules -notcontains $_.Name }
     foreach ($module in $moduleDirs) {
         $readme = Join-Path $module.FullName 'README.md'
         if (-not (Test-Path -LiteralPath $readme)) {
