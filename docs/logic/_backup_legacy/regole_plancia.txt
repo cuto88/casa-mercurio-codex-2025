@@ -30,4 +30,4 @@ Documento storico delle convenzioni Lovelace. Usare solo come riferimento di con
 - Badge per lock/override manuali.
 
 ## Note sulle logiche
-Le descrizioni dettagliate di VMC, AC, heating e ventilazione sono state migrate in `core/regole_core_logiche.md` e nei rispettivi file logici (`1_vent.txt`, `2_vmc.txt`, `3_heating.txt`, `4_ac.txt`, `6_surplus.txt`). Qui restano solo indicazioni generiche di layout.
+Le descrizioni dettagliate di VMC, AC, heating e ventilazione sono state migrate in `core/regole_core_logiche.md` e nei rispettivi file logici (`docs/logic/ventilation/README.md`, `docs/logic/ventilation/vmc.md`, `docs/logic/heating/README.md`, `docs/logic/ac/README.md`, `docs/logic/surplus/README.md`). Qui restano solo indicazioni generiche di layout.

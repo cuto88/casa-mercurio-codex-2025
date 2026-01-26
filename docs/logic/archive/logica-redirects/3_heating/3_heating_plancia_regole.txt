@@ -1,1 +1,1 @@
-Documento spostato in docs/logic/3_heating/3_heating_plancia_regole.txt.
+Documento spostato in docs/logic/heating/plancia.md.

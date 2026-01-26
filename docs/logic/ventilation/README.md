@@ -45,6 +45,6 @@
 ## Riferimenti
 - Automazioni e sensori: `packages/1_ventilation.yaml` e `packages/1_ventilation_windows.yaml`.
 - Regole trasversali e hook: `docs/logic/core/regole_core_logiche.md`.
-- Plancia: `lovelace/1_ventilation_plancia.yaml` documentata in `docs/logic/1_vent/plancia.md`.
+- Plancia: `lovelace/1_ventilation_plancia.yaml` documentata in `docs/logic/ventilation/plancia.md`.
 
 > Revisione documentazione clima Vent – allineata a implementazione attuale.

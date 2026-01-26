@@ -20,7 +20,7 @@ NOTE
 - Layout mobile-first (sections) coerente con regole plancia core.
 
 RIFERIMENTI LOGICI
-- Logica ventilazione naturale, night-flush e VMC: `docs/logic/1_vent/README.md`.
+- Logica ventilazione naturale, night-flush e VMC: `docs/logic/ventilation/README.md`.
 - Linee guida UI generali: `docs/logic/core/regole_plancia.md`.
 
 > Revisione documentazione clima Vent – allineata a implementazione attuale.

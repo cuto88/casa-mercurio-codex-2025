@@ -1,6 +1,6 @@
 # Regole core logiche
 
-Documento di riferimento condiviso per tutti i moduli numerati (1_vent, 2_vmc, 3_heating, 4_ac, 5_energy_pm, 6_surplus, 9_debug/test). Qui si definiscono convenzioni, priorità trasversali, lock e hook incrociati: ogni modulo deve rimandare a queste sezioni evitando duplicazioni locali.
+Documento di riferimento condiviso per tutti i moduli logici (ventilation, heating, ac, energy_pm, surplus, debug/test). Qui si definiscono convenzioni, priorità trasversali, lock e hook incrociati: ogni modulo deve rimandare a queste sezioni evitando duplicazioni locali.
 
 ## Convenzioni di nomenclatura
 - **Prefissi di modulo**: `1_vent`, `2_vmc`, `3_heat`, `4_ac`, `5_pm`, `6_surplus`, `9_debug`. Usarli sia nei file logici sia nelle entità HA (sensor/switch/input_boolean/input_number).
@@ -48,7 +48,7 @@ Arbitraggio top-down: si valuta dal livello più alto al più basso; la prima co
 - **ΔT**: differenza T_in−T_out; **ΔAH**: differenza AH_in−AH_out.
 - **UR_max**: soglia igrometrica che separa anti-secco (bassa UR) da condensa (alta UR).
 - **T_target giorno/notte**: setpoint comfort; modulabile per heating/AC.
-- **Soglia surplus PV**: potenza minima disponibile per attivare carichi step (rif. 6_surplus.txt).
+- **Soglia surplus PV**: potenza minima disponibile per attivare carichi step (rif. docs/logic/surplus/README.md).
 
 ## Vent — Ventilazione naturale & night-flush
 | Aspetto | Regola core | Note/Hook |
