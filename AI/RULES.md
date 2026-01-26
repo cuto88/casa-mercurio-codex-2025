@@ -16,7 +16,7 @@
 
 ## Scope & Ownership
 - **Codice HA**: `configuration.yaml`, `packages/`, `lovelace/`, `automations/`, `scripts/`, `templates/`, `themes/`.
-- **Documentazione logica**: `logica/` (solo doc/testi).
+- **Documentazione logica**: `docs/logic/` (solo doc/testi).
 - **Ops/strumenti**: `ops/` (script di manutenzione e check).
 - **Altri asset**: `mirai/` e relativi backup.
 

@@ -1,5 +1,5 @@
 param(
-  [string]$EntityMapPath = 'logica/core/README_sensori_clima.md',
+  [string]$EntityMapPath = '',
   [string]$PackagesPath = 'packages',
   [string]$LovelacePath = 'lovelace',
   [ValidateSet('strict_clima', 'report_only')]
@@ -15,6 +15,17 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+if (-not $EntityMapPath) {
+  $docsRoot = if (Test-Path -Path 'docs/logic') {
+    'docs/logic'
+  } elseif (Test-Path -Path 'logica') {
+    'logica'
+  } else {
+    'docs/logic'
+  }
+  $EntityMapPath = Join-Path $docsRoot 'core/README_sensori_clima.md'
+}
 
 $pattern = '\b(sensor|binary_sensor|switch|climate|input_boolean|input_number|number|select|button|fan|cover|light)\.[a-z0-9_]+' + '\b'
 
