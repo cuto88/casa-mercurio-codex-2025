@@ -26,12 +26,12 @@ input_select:
     options:
       - auto
       - manual
-      - off
+      - "off"
     icon: mdi:fan-auto
   vmc_manual_speed:
     name: "VMC – Velocità manuale"
     options:
-      - off
+      - "off"
       - vel_0
       - vel_1
       - vel_2

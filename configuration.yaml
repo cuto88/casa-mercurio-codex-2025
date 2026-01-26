@@ -51,12 +51,12 @@ lovelace:
       show_in_sidebar: false
       filename: lovelace/climate_ac_plancia_v2.yaml
 
-    #6-energia:
-     # mode: yaml
-     # title: "6 Energia"
-     # icon: mdi:solar-power
-     # show_in_sidebar: true
-     # filename: lovelace/6_surplus_plancia.yaml
+    # 6-energia:
+    # mode: yaml
+    # title: "6 Energia"
+    # icon: mdi:solar-power
+    # show_in_sidebar: true
+    # filename: lovelace/6_surplus_plancia.yaml
 
     7-ehw:
       mode: yaml

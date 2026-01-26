@@ -52,7 +52,7 @@ input_select:
   ac_giorno_mode:
     name: AC Giorno Mode
     options:
-      - off
+      - "off"
       - cool
       - heat
       - dry
@@ -62,7 +62,7 @@ input_select:
   ac_notte_mode:
     name: AC Notte Mode
     options:
-      - off
+      - "off"
       - cool
       - heat
       - dry

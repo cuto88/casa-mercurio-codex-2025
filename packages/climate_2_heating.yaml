@@ -53,7 +53,7 @@ input_select:
   heating_manual_mode:
     name: "Heating – Modalità manuale"
     options:
-      - off
+      - "off"
       - eco
       - comfort
       - boost

@@ -3,11 +3,12 @@ Configurazione Home Assistant modulare per la casa Mercurio.
 Struttura base: packages/, docs/logic/, lovelace/.
 packages/ contiene automazioni e logica per domini HA.
 docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.
-Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
-MIRAI: runtime e integrazioni in `packages/`; governance in `docs/GOVERNANCE_MIRAI.md`; materiale legacy in `_quarantine/`.
 lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
 ops/ include gli script di manutenzione: usa ops/sync_and_gates.ps1 per sincronizzare verso Z:\config (con gates), ops/deploy_safe.ps1 per il deploy sicuro e ops/run_gates.ps1 per i soli controlli; gli script di hygiene/check sono di supporto.
 Lo script copia solo packages, docs/logic e lovelace in modalità mirror con esclusioni temporanee.
+
+Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
+
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
 ## Quality gates (ops)
