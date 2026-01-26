@@ -23,7 +23,7 @@ Energy PM — monitor consumi / power monitoring (dashboard-oriented).
 - Nessun hook esplicito: dashboard di monitoraggio senza comandi.
 
 ## Riferimenti
-- [`core/regole_core_logiche.md`](../core/regole_core_logiche.md)
-- [`core/README_sensori_clima.md`](../core/README_sensori_clima.md)
-- [`core/regole_plancia.md`](../core/regole_plancia.md)
-- [`README_ClimaSystem.md`](../../../README_ClimaSystem.md)
+- [docs/logic/core/regole_core_logiche.md](../core/regole_core_logiche.md)
+- [docs/logic/core/README_sensori_clima.md](../core/README_sensori_clima.md)
+- [docs/logic/core/regole_plancia.md](../core/regole_plancia.md)
+- [README_ClimaSystem.md](../../../README_ClimaSystem.md)

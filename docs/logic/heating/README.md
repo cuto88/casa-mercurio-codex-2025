@@ -46,7 +46,7 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 - Output verso plancia: esposizione delle entità di motivo/priorità/lock per diagnosi manuale.
 
 ## Riferimenti
-- [`core/regole_core_logiche.md`](../core/regole_core_logiche.md)
-- [`core/README_sensori_clima.md`](../core/README_sensori_clima.md)
-- [`core/regole_plancia.md`](../core/regole_plancia.md)
-- [`README_ClimaSystem.md`](../../../README_ClimaSystem.md)
+- [docs/logic/core/regole_core_logiche.md](../core/regole_core_logiche.md)
+- [docs/logic/core/README_sensori_clima.md](../core/README_sensori_clima.md)
+- [docs/logic/core/regole_plancia.md](../core/regole_plancia.md)
+- [README_ClimaSystem.md](../../../README_ClimaSystem.md)

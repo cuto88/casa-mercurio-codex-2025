@@ -43,7 +43,7 @@ AC — split (dry/cool) con lock anti-ciclo e coordinamento VMC.
 - `hook_ac_request_vmc_low`: inviato quando DRY è attivo per chiedere VMC a vel_1 e ridurre condensa.
 
 ## Riferimenti
-- [`core/regole_core_logiche.md`](../core/regole_core_logiche.md)
-- [`core/README_sensori_clima.md`](../core/README_sensori_clima.md)
-- [`core/regole_plancia.md`](../core/regole_plancia.md)
-- [`README_ClimaSystem.md`](../../../README_ClimaSystem.md)
+- [docs/logic/core/regole_core_logiche.md](../core/regole_core_logiche.md)
+- [docs/logic/core/README_sensori_clima.md](../core/README_sensori_clima.md)
+- [docs/logic/core/regole_plancia.md](../core/regole_plancia.md)
+- [README_ClimaSystem.md](../../../README_ClimaSystem.md)

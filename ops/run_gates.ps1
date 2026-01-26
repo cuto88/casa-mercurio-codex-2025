@@ -48,6 +48,13 @@ foreach ($gate in $gates) {
             Write-Host ("==> {0}" -f $gate.Name)
             powershell -NoProfile -ExecutionPolicy Bypass -File $gate.Script @($gate.Args)
             $code = $LASTEXITCODE
+            if ($gate.Script -eq 'ops/check_docs.ps1') {
+                if ($code -eq 0) {
+                    Write-Host 'DOCS_GATE: OK'
+                } else {
+                    Write-Host 'DOCS_GATE: FAIL'
+                }
+            }
         } else {
             Write-Host ''
             Write-Host ("==> Skipping {0} (not found)" -f $gate.Name)
