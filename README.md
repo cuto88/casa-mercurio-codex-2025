@@ -2,7 +2,8 @@
 Configurazione Home Assistant modulare per la casa Mercurio.
 Struttura base: packages/, docs/logic/, mirai/, lovelace/.
 packages/ contiene automazioni e logica per domini HA.
-docs/logic/ raccoglie automazioni e script orchestrati ad alto livello.
+docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.
+Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
 mirai/ ospita runtime e asset personalizzati del progetto Mirai.
 lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
 ops/ include gli script di manutenzione: usa ops/synch_ha.ps1 per sincronizzare verso Z:\config.
