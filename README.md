@@ -17,10 +17,6 @@ Per eseguire i controlli locali:
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
-## MIRAI package structure
-Entrypoint ufficiali: `packages/mirai_core.yaml`, `packages/mirai_modbus.yaml`, `packages/mirai_templates.yaml`.
-Niente include indiretti; le sorgenti legacy restano in `_quarantine/`.
-
 ## Notifiche Telegram
 Nel package `packages/notify_telegram.yaml` è definita la notifica `notify.telegram_davide`
 per inviare messaggi alla chat principale senza hardcodare l'ID del bot nelle automazioni.
