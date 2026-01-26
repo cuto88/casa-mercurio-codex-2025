@@ -1,13 +1,14 @@
 # Casa Mercurio Codex 2025
 Configurazione Home Assistant modulare per la casa Mercurio.
-Struttura base: packages/, docs/logic/, mirai/, lovelace/.
+Struttura base: packages/, docs/logic/, lovelace/.
 packages/ contiene automazioni e logica per domini HA.
 docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.
-Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
-mirai/ ospita runtime e asset personalizzati del progetto Mirai.
 lovelace/ conserva le dashboard YAML; docs/ e tools/ restano solo locali.
-ops/ include gli script di manutenzione: usa ops/synch_ha.ps1 per sincronizzare verso Z:\config.
-Lo script copia solo packages, mirai, docs/logic e lovelace in modalità mirror con esclusioni temporanee.
+ops/ include gli script di manutenzione: usa ops/sync_and_gates.ps1 per sincronizzare verso Z:\config (con gates), ops/deploy_safe.ps1 per il deploy sicuro e ops/run_gates.ps1 per i soli controlli; gli script di hygiene/check sono di supporto.
+Lo script copia solo packages, docs/logic e lovelace in modalità mirror con esclusioni temporanee.
+
+Fonti di verità rapide: `docs/logic/core/README_sensori_clima.md` (mappa entità), `docs/logic/core/regole_core_logiche.md` (regole core), `docs/logic/core/prompt_codex_master.md` (governance prompt).
+
 Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 
 ## Quality gates (ops)
@@ -16,13 +17,6 @@ Per eseguire i controlli locali:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File ops\deploy_safe.ps1`
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
-
-## MIRAI package structure
-packages/mirai.yaml deve restare una mappa di integrazioni al root, senza wrapper `mirai:`.
-mirai/20_templates.yaml deve essere una lista (inizia con `- binary_sensor:`), non una mappa.
-mirai/30_automations.yaml deve essere una lista (inizia con `- id:` o `- alias:`).
-I file mirai/00_input_boolean.yaml e mirai/01_shell_command.yaml devono restare mappe.
-mirai/10_modbus.yaml deve essere una lista di hub Modbus, senza root `modbus:`.
 
 ## Notifiche Telegram
 Nel package `packages/notify_telegram.yaml` è definita la notifica `notify.telegram_davide`
