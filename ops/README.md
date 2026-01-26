@@ -10,3 +10,14 @@
 - `deploy_safe.ps1` refuses to run if `configuration.yaml` or `secrets.yaml` is missing on the target.
 - `tts/` and `www/` are excluded by default; use `-IncludeTts` / `-IncludeWww` to deploy them intentionally.
 - Optional post-deploy check: `-RunConfigCheck` (runs `ha core check` when the HA CLI is available).
+
+## How to run
+Pipeline ufficiale:
+1) `sync_and_gates` (oppure `git pull` + `run_gates`)
+2) `deploy_safe`
+
+Esempi:
+- `.\ops\sync_and_gates.ps1`
+- `.\ops\run_gates.ps1`
+- `.\ops\deploy_safe.ps1`
+- `.\ops\deploy_safe.ps1 -RunGates` (solo per uso standalone)
