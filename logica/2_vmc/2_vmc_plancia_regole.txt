@@ -1,10 +1,1 @@
-###############################################################################
-# 2_vmc_plancia_regole.txt — Plancia VMC (consolidata in 1_vent)
-###############################################################################
-
-La plancia VMC è stata fusa con la plancia Vent unica. Usa la documentazione aggiornata in:
-- `logica/1_vent/1_vent_plancia_regole.txt` per il layout di `lovelace/1_ventilation_plancia.yaml`.
-- `logica/1_vent/1_vent.txt` per la logica e le priorità VMC integrate.
-- `logica/core/regole_plancia.md` per le linee guida UI comuni.
-
-> Revisione documentazione clima Vent – allineata a implementazione attuale.
+Documento spostato in docs/logic/2_vmc/2_vmc_plancia_regole.txt.
