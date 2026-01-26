@@ -103,6 +103,18 @@ foreach ($gate in $gates) {
 }
 
 Write-Host ''
+Write-Host '==> DOCS WARN'
+try {
+    if (Test-Path -Path 'ops/check_docs_warn.ps1') {
+        powershell -NoProfile -ExecutionPolicy Bypass -File 'ops/check_docs_warn.ps1'
+    } else {
+        Write-Host 'Skipping DOCS WARN (not found)'
+    }
+} catch {
+    Write-Host ("[WARN] DOCS WARN failed: {0}" -f $_.Exception.Message)
+}
+
+Write-Host ''
 Write-Host 'ALL GATES PASSED'
 
 # Scrive il marker gates.ok solo in caso di successo completo
