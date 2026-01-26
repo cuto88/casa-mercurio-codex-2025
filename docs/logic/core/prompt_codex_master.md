@@ -2,33 +2,7 @@ This is the ONLY canonical Codex prompt for this repository.
 Any other prompt files are deprecated or stubs.
 
 # PROMPT CODEX MASTER — CASA MERCURIO  
-Versione 2025.01 — Codex Environment + Auto-Canvas
-
----
-
-# 0. ATTIVAZIONE SPECIALE (AUTO-CANVAS) — OBBLIGATORIA
-
-Quando la richiesta dell'utente contiene una delle parole/frasi:
-
-- "prompt"
-- "prompt codex"
-- "genera il prompt"
-- "crea il prompt"
-- "prompt base"
-- "prompt completo"
-- "prompt per"
-- "dammi il prompt"
-- "scrivi il prompt"
-
-ALLORA devi SEMPRE:
-
-1. **NON** rispondere in chat.
-2. **Creare automaticamente un CANVAS**, nuovo file `.md`.
-3. Scrivere **solo ed esclusivamente il prompt richiesto**.
-4. Nessun commento, nessuna frase aggiuntiva, nessuna spiegazione.
-5. Il canvas deve contenere SOLO testo pronto-uso per Codex GPT.
-
-Se la richiesta NON contiene "prompt", rispondi normalmente.
+Versione 2025.01 — Codex Environment
 
 ---
 
@@ -39,14 +13,15 @@ Il sistema clima Casa Mercurio è suddiviso in:
 - `packages/climate_0_sensors.yaml`
 - `packages/climate_1_ventilation.yaml`
 - `packages/climate_2_heating.yaml`
-- `packages/climate_3_ac.yaml`
+- `packages/climate_ac_mapping.yaml`
+- `packages/climate_ac_logic.yaml`
 
 Plance Lovelace:
 
 - `lovelace/climate_1_vent_plancia.yaml`
 - `lovelace/climate_1_vent_plancia_v2.yaml`
 - `lovelace/climate_2_heating_plancia.yaml`
-- `lovelace/climate_3_ac_plancia.yaml`
+- `lovelace/climate_ac_plancia.yaml`
 
 Entity Map ufficiale:
 
@@ -58,6 +33,7 @@ Documenti canonici:
 - `docs/logic/core/README_sensori_clima.md`
 - `docs/logic/core/regole_core_logiche.md`
 - `docs/logic/core/regole_plancia.md`
+- `README_ClimaSystem.md`
 
 Le descrizioni possono essere in italiano.  
 Gli `entity_id` devono essere **in inglese** SEMPRE.
@@ -215,7 +191,5 @@ Nessun testo extra.
 
 # 7. ISTRUZIONE PERMANENTE
 Questo documento rappresenta la **single source of truth** per Codex GPT in tutto l'ambiente CASA MERCURIO.
-
-Tutte le richieste "prompt" devono sempre produrre canvas automatico.
 
 # FINE FILE
