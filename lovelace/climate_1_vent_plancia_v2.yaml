@@ -233,7 +233,7 @@ views:
                 name: "Richiesta AC dal clima"
               - entity: binary_sensor.vmc_bagno_boost_auto
                 name: "Boost bagno auto"
-              # TODO: aggiungere timer.vmc_boost_bagno se/ quando disponibile
+                # TODO: aggiungere timer.vmc_boost_bagno se/ quando disponibile
           - type: markdown
             content: |
               ### Regole principali
