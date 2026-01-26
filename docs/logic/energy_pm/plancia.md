@@ -1,0 +1,36 @@
+###############################################################################
+# Energy PM — Documentazione layout plancia consumi
+# Copre lovelace/5_pm_plancia.yaml per monitorare prese smart PM1/2/3.
+###############################################################################
+
+SEZIONE 0 — STATO & CHIP
+- Grid iniziale con glance su binary_sensor.lavatrice_in_ciclo,
+  asciugatrice_in_ciclo e pm1_in_ciclo.
+- Tile potenza istantanea (sensor.pm*_mss310_power_w_main_channel) per i tre
+  dispositivi monitorati.
+
+SEZIONE 1 — KPI OGGI
+- Tile kWh giornalieri (sensor.pm*_energy_daily) per lavatrice, asciugatrice e
+  presa "Romeo".
+
+SEZIONE 2 — CONSUMI OGGI PER ORA
+- Statistics-graph a barre (period=hour, change) sulle entità
+  sensor.pm*_mss310_energy_kwh_main_channel.
+
+SEZIONE 3 — POTENZA 24H
+- History-graph 24h delle potenze istantanee (W) per i tre canali.
+
+SEZIONE 4 — CONSUMI GIORNALIERI 30GG
+- Statistics-graph a barre 30gg (period=day, change) sugli stessi sensori kWh.
+
+SEZIONE 5 — MEDIE & PICCHI
+- Entities con sensori di media 15m e picco 24h (sensor.pm*_power_mean_15m,
+  sensor.pm*_power_max_24h).
+
+SEZIONE 6 — KPI ULTIMO CICLO
+- Entities che riportano kWh, start, stop degli ultimi cicli attraverso
+  input_number.pm*_last_cycle_kwh e input_datetime.pm*_last_*.
+
+NOTE
+- Tutte le entità fanno capo al pacchetto energia/power monitoring.
+- Nessun comando: dashboard puramente analitica su 3 colonne.

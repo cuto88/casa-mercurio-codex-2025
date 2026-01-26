@@ -1,1 +1,1 @@
-Documento spostato in docs/logic/6_surplus/6_surplus_plancia_regole.txt.
+Documento spostato in docs/logic/surplus/plancia.md.

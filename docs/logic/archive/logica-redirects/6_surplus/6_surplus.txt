@@ -1,1 +1,1 @@
-Documento spostato in docs/logic/6_surplus/6_surplus.txt.
+Documento spostato in docs/logic/surplus/README.md.

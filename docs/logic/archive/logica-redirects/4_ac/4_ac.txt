@@ -1,1 +1,1 @@
-Documento spostato in docs/logic/4_ac/4_ac.txt.
+Documento spostato in docs/logic/ac/README.md.

@@ -1,1 +1,1 @@
-Documento spostato in docs/logic/3_heating/3_heating.txt.
+Documento spostato in docs/logic/heating/README.md.
