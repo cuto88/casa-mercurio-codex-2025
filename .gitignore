@@ -43,4 +43,5 @@ Thumbs.db
 _backup_pre_git/
 _ha_runtime_backups/
 _backup/
+/.ops_state/
 ops/_logs/
