@@ -55,9 +55,9 @@ Ventilation — ventilazione naturale + VMC.
 - `hook_ac_request_vmc_low` coordinato con AC per mantenere VMC low durante DRY.
 
 ## Riferimenti
-- [`core/regole_core_logiche.md`](../core/regole_core_logiche.md)
-- [`core/README_sensori_clima.md`](../core/README_sensori_clima.md)
-- [`core/regole_plancia.md`](../core/regole_plancia.md)
-- [`README_ClimaSystem.md`](../../../README_ClimaSystem.md)
+- [docs/logic/core/regole_core_logiche.md](../core/regole_core_logiche.md)
+- [docs/logic/core/README_sensori_clima.md](../core/README_sensori_clima.md)
+- [docs/logic/core/regole_plancia.md](../core/regole_plancia.md)
+- [README_ClimaSystem.md](../../../README_ClimaSystem.md)
 
 > Revisione documentazione clima Vent – allineata a implementazione attuale.
