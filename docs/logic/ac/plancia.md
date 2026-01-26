@@ -29,7 +29,7 @@ NOTE
 - Plancia usa solo entity_id già definiti in `packages/climate_ac_mapping.yaml` e `packages/climate_ac_logic.yaml` più `packages/climate_0_sensors.yaml`.
 - Layout mobile-first (sections) coerente con regole plancia core.
 
-RIFERIMENTI LOGICI
-- Logiche condivise: vedi `docs/logic/core/regole_core_logiche.md`.
-- Linee guida UI generali: vedi `docs/logic/core/regole_plancia.md`.
-- Logica specifica modulo: vedi `docs/logic/ac/README.md` e `README_ClimaSystem.md` sezione AC.
+## Riferimenti logici
+- [Modulo AC](README.md)
+- [Regole plancia](../core/regole_plancia.md)
+- [Regole core logiche](../core/regole_core_logiche.md)

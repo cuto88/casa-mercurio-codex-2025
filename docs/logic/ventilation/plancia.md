@@ -19,8 +19,9 @@ NOTE
 - Nessuna definizione di entità nella plancia: tutti gli entity_id sono canonici (`packages/1_ventilation.yaml` + sensori base).
 - Layout mobile-first (sections) coerente con regole plancia core.
 
-RIFERIMENTI LOGICI
-- Logica ventilazione naturale, night-flush e VMC: `docs/logic/ventilation/README.md`.
-- Linee guida UI generali: `docs/logic/core/regole_plancia.md`.
+## Riferimenti logici
+- [Modulo Ventilation](README.md)
+- [Regole plancia](../core/regole_plancia.md)
+- [Regole core logiche](../core/regole_core_logiche.md)
 
 > Revisione documentazione clima Vent – allineata a implementazione attuale.

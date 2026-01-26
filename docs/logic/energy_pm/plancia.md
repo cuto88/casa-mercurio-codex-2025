@@ -34,3 +34,8 @@ SEZIONE 6 — KPI ULTIMO CICLO
 NOTE
 - Tutte le entità fanno capo al pacchetto energia/power monitoring.
 - Nessun comando: dashboard puramente analitica su 3 colonne.
+
+## Riferimenti logici
+- [Modulo Energy PM](README.md)
+- [Regole plancia](../core/regole_plancia.md)
+- [Regole core logiche](../core/regole_core_logiche.md)

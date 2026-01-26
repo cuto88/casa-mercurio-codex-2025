@@ -32,8 +32,7 @@ COME DECIDE (SINTESI)
 - Può anticipare la partenza se c’è surplus PV (pre-carica), altrimenti limita le accensioni.
 - Antifreeze e comfort critico possono derogare la finestra oraria.
 
-RIFERIMENTI LOGICI
-- Logiche condivise: vedi `docs/logic/core/regole_core_logiche.md`.
-- Linee guida UI generali: vedi `docs/logic/core/regole_plancia.md`.
-- Logica specifica modulo: vedi `docs/logic/heating/README.md`.
-- Priorità ufficiali: `README_ClimaSystem.md` sezione Heating.
+## Riferimenti logici
+- [Modulo Heating](README.md)
+- [Regole plancia](../core/regole_plancia.md)
+- [Regole core logiche](../core/regole_core_logiche.md)
