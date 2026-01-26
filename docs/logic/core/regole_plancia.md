@@ -17,7 +17,7 @@ Linee guida comuni per tutte le plance Lovelace. Nessuna soglia o logica numeric
 
 ## Sezione “Come decide”
 - Testo sintetico (bullet) che spiega perché il modulo è nello stato attuale.
-- Deve contenere rimandi a `core/regole_core_logiche.md` e al file logico del modulo (es. `2_vmc.txt`).
+- Deve contenere rimandi a `core/regole_core_logiche.md` e al file logico del modulo (es. `ventilation/README.md`).
 - Nessun decision tree dettagliato o soglia numerica: solo il flusso logico ad alto livello.
 
 ## Debug e diagnostica
@@ -28,4 +28,4 @@ Linee guida comuni per tutte le plance Lovelace. Nessuna soglia o logica numeric
 - Ogni plancia deve includere una sezione **RIFERIMENTI LOGICI** con:
   - Logiche condivise → `core/regole_core_logiche.md`
   - Linee guida UI → `core/regole_plancia.md`
-  - Logica specifica del modulo → `<nome_file_logico_modulo>.txt`
+  - Logica specifica del modulo → `../<modulo>/README.md`

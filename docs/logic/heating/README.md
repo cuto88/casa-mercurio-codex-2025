@@ -1,11 +1,19 @@
-# Heating — Pavimento (packages/2_heating.yaml)
+# Heating — Pavimento radiante
 > Questo file descrive la logica di `packages/climate_2_heating.yaml`.
 
-## Obiettivo del modulo
+## Titolo
+Heating — pavimento radiante (zone giorno/notte/bagno).
+
+## Obiettivo
 - Mantenere le zone al target comfort sfruttando l’inerzia del pavimento radiante con finestra 10:00–16:00 e surplus FV.
 - Applicare lock anti-ciclo, antifreeze e night_setback garantendo sicurezza sensori e override manuale controllato.
 
-## Mappa priorità
+## Entrypoints
+- YAML: `packages/climate_2_heating.yaml`.
+- Lovelace: `lovelace/2_heating_plancia.yaml`.
+
+## KPI / Entità principali
+### Mappa priorità
 | Priorità | KPI principali | Azione / logica |
 | --- | --- | --- |
 | **P0_failsafe** | Sensori temperatura zona/esterna invalidi o fuori range | Disabilita richiesta calore e segnala errore stanza (`sensor.heating_error_zona_*`). |
@@ -16,23 +24,29 @@
 | **manual** | `input_boolean.heating_manual_active` + `input_select.heating_manual_mode` | Forza ON/OFF rispettando lock min_on/min_off; scade col timer manuale se previsto. |
 | **idle** | Nessuna priorità attiva | Impianto spento, monitora sensori e lock in attesa di nuova richiesta. |
 
-## KPI e sensori chiave
+### KPI e sensori chiave
 - Temperature zona: `sensor.t_in_giorno`, `sensor.t_in_notte1`, `sensor.t_in_notte2`, `sensor.t_in_bagno`; esterna `sensor.t_out`.
 - Target e tolleranza: `input_number.temp_target_risc`, `input_number.temp_tolleranza_risc`, fasce orarie (10:00–16:00).
 - Lock: `binary_sensor.heating_lock_min_on_ok`, `binary_sensor.heating_lock_min_off_ok`, contatori runtime `sensor.heating_minuti_da_ultimo_cambio`.
 - Stato logico: `sensor.heating_reason`, `sensor.heating_priority`, `binary_sensor.heating_should_run`, `sensor.heating_stanze_attive`.
 
-## Hook / eventi verso altri moduli
-- Riceve `hook_surplus_heating_precharge` dal modulo surplus per P3_pv_boost; nessun blocco diretto da VMC/AC.
-- Output verso plancia: esposizione delle entità di motivo/priorità/lock per diagnosi manuale.
-
-## Casi particolari / failsafe / lock
+### Casi particolari / failsafe / lock
 - Ogni zona può essere esclusa con `input_boolean.heating_use_*`; errori sensori disabilitano solo la zona affetta.
 - Antifreeze bypassa finestra oraria e lock min_off; comfort critico (>1 °C sotto target) può derogare la finestra 10–16.
 - Lock min_on/min_off prevengono cicli brevi; max_run monitorato per audit ma non forza spegnimenti improvvisi.
 - Manual override usa gli stessi lock hardware e restituisce il controllo al termine del timer o su toggle utente.
 
-## Note operative
+### Note operative
 - Plancia `lovelace/2_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
 - Tutte le automazioni e helper risiedono in `packages/climate_2_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
 - `sensor.heating_priority` offre descrizione leggibile (P0–P4/manual/idle) coerente con `README_ClimaSystem.md`.
+
+## Hook / Dipendenze
+- Riceve `hook_surplus_heating_precharge` dal modulo surplus per P3_pv_boost; nessun blocco diretto da VMC/AC.
+- Output verso plancia: esposizione delle entità di motivo/priorità/lock per diagnosi manuale.
+
+## Riferimenti
+- [`core/regole_core_logiche.md`](../core/regole_core_logiche.md)
+- [`core/README_sensori_clima.md`](../core/README_sensori_clima.md)
+- [`core/regole_plancia.md`](../core/regole_plancia.md)
+- [`README_ClimaSystem.md`](../../../README_ClimaSystem.md)

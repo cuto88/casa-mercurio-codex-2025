@@ -34,7 +34,7 @@ NOTE
 - Nessun comando diretto: plancia focalizzata su monitoraggio/diagnostica.
 - Tutte le entità provengono dai pacchetti energia/surplus.
 
-RIFERIMENTI LOGICI
-- Logiche condivise: vedi core/regole_core_logiche.md
-- Linee guida UI generali: vedi core/regole_plancia.md
-- Logica specifica modulo: vedi docs/logic/surplus/README.md
+## Riferimenti logici
+- [Modulo Surplus](README.md)
+- [Regole plancia](../core/regole_plancia.md)
+- [Regole core logiche](../core/regole_core_logiche.md)
