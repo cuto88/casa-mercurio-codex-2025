@@ -31,11 +31,13 @@ $repoRoot = Get-RepoRoot
 $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
 
 $gates = @(
-    @{ Name = 'ops/fix_yaml_encoding.ps1 (yaml hygiene)'; Script = 'ops/fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = 'yamllint tracked YAML'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
-    @{ Name = 'ops/check_include_tree.ps1'; Script = 'ops/check_include_tree.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = 'ops/ha_structure_check.ps1 -CheckEntityMap'; Script = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
-    @{ Name = 'VMC dashboards gate'; Script = 'ops/check_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true }
+    # HYGIENE = formatter/mutating scripts (non-validation).
+    @{ Name = '[HYGIENE] ops/fix_yaml_encoding.ps1 (mutating formatter)'; Script = 'ops/fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
+    # GATE = validation/non-mutating checks.
+    @{ Name = '[GATE] yamllint tracked YAML (validation)'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
+    @{ Name = '[GATE] ops/check_include_tree.ps1'; Script = 'ops/check_include_tree.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE] ops/ha_structure_check.ps1 -CheckEntityMap'; Script = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
+    @{ Name = '[GATE] VMC dashboards gate'; Script = 'ops/check_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
