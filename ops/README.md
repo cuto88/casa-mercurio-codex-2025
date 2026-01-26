@@ -3,6 +3,7 @@
 ## UTF-8 hygiene
 - Keep YAML/MD/JSON/JS/TS/CSS files encoded as UTF-8 without BOM.
 - Run `ops/check_utf8_mojibake.ps1` (or `ops/run_gates.ps1`) to detect mojibake regressions.
+- `ops/run_gates.ps1` includes the DOCS gate for markdown link/reference validation.
 
 ## deploy_safe.ps1
 - The script preflights the target path before the backup. If `Z:\` is missing it attempts to map the drive.

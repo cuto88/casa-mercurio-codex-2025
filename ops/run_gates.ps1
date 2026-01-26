@@ -37,7 +37,8 @@ $gates = @(
     @{ Name = '[GATE 1] yamllint tracked YAML (validation)'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
     @{ Name = '[GATE 2] ops/check_include_tree.ps1'; Script = 'ops/check_include_tree.ps1'; Args = @(); UsePowerShell = $true },
     @{ Name = '[GATE 3] ops/ha_structure_check.ps1 -CheckEntityMap'; Script = 'ops/ha_structure_check.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
-    @{ Name = '[GATE 4] VMC dashboards gate'; Script = 'ops/check_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 4] VMC dashboards gate'; Script = 'ops/check_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 5] DOCS ops/check_docs.ps1'; Script = 'ops/check_docs.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
