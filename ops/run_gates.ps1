@@ -43,16 +43,19 @@ $gates = @(
 foreach ($gate in $gates) {
     if ($gate.UsePowerShell) {
         if (Test-Path -Path $gate.Script) {
-            Write-Host ("\n==> {0}" -f $gate.Name)
+            Write-Host ''
+            Write-Host ("==> {0}" -f $gate.Name)
             powershell -NoProfile -ExecutionPolicy Bypass -File $gate.Script @($gate.Args)
             $code = $LASTEXITCODE
         } else {
-            Write-Host ("\n==> Skipping {0} (not found)" -f $gate.Name)
+            Write-Host ''
+            Write-Host ("==> Skipping {0} (not found)" -f $gate.Name)
             continue
         }
     } else {
         if (Get-Command $gate.Command -ErrorAction SilentlyContinue) {
-            Write-Host ("\n==> {0}" -f $gate.Name)
+            Write-Host ''
+            Write-Host ("==> {0}" -f $gate.Name)
             if ($gate.Command -eq 'yamllint') {
                 if ($trackedYamlFiles.Count -eq 0) {
                     Write-Host "No tracked YAML files found. Skipping yamllint."
@@ -70,7 +73,8 @@ foreach ($gate in $gates) {
                 $code = $LASTEXITCODE
             }
         } else {
-            Write-Host ("\n==> Skipping {0} (not found)" -f $gate.Name)
+            Write-Host ''
+            Write-Host ("==> Skipping {0} (not found)" -f $gate.Name)
             continue
         }
     }
@@ -90,7 +94,8 @@ foreach ($gate in $gates) {
     }
 }
 
-Write-Host "\nALL GATES PASSED"
+Write-Host ''
+Write-Host 'ALL GATES PASSED'
 
 # Scrive il marker gates.ok solo in caso di successo completo
 $opsStateDir = Join-Path $repoRoot ".ops_state"
