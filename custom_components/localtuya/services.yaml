@@ -12,4 +12,4 @@ set_dp:
       example: 1
     value:
       description: New value to set
-      example: False
+      example: false
