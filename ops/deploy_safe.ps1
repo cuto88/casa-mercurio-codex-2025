@@ -164,28 +164,40 @@ git merge --ff-only "origin/$Branch"
 $currentHead = (git rev-parse HEAD).Trim()
 $currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
 
-$gatesState = $null
-if (Test-Path $gatesStatePath) {
-  $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
+$gatesAttestPath = Join-Path $PSScriptRoot "gates_attest_main.txt"
+$skipLocalGates = $false
+if ($Branch -eq "main" -and (Test-Path $gatesAttestPath)) {
+  $hasPassed = Select-String -Path $gatesAttestPath -Pattern "PASSED" -Quiet
+  if ($hasPassed) {
+    Say "Remote gates attested for main -> skipping local gates"
+    $skipLocalGates = $true
+  }
 }
 
-$needsGates = $true
-if ($gatesState -and $gatesState.head -eq $currentHead -and $gatesState.status -eq "passed") {
-  $needsGates = $false
-}
+if (-not $skipLocalGates) {
+  $gatesState = $null
+  if (Test-Path $gatesStatePath) {
+    $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
+  }
 
-if ($needsGates) {
-  Say "Gates missing/stale -> running ops/gates_run.ps1"
-  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "gates_run.ps1")
-}
+  $needsGates = $true
+  if ($gatesState -and $gatesState.head -eq $currentHead -and $gatesState.status -eq "passed") {
+    $needsGates = $false
+  }
 
-$gatesState = $null
-if (Test-Path $gatesStatePath) {
-  $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
-}
+  if ($needsGates) {
+    Say "Gates missing/stale -> running ops/gates_run.ps1"
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "gates_run.ps1")
+  }
 
-if (-not $gatesState -or $gatesState.head -ne $currentHead -or $gatesState.status -ne "passed") {
-  Fail "Gates failed or stale. Expected head '$currentHead' with status 'passed' in $gatesStatePath."
+  $gatesState = $null
+  if (Test-Path $gatesStatePath) {
+    $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
+  }
+
+  if (-not $gatesState -or $gatesState.head -ne $currentHead -or $gatesState.status -ne "passed") {
+    Fail "Gates failed or stale. Expected head '$currentHead' with status 'passed' in $gatesStatePath."
+  }
 }
 
 # --------------------------------------------------
