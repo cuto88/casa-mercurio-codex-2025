@@ -110,6 +110,7 @@ if ($statusLines) {
 # --------------------------------------------------
 $opsStateDir = Join-Path $repoRoot ".ops_state"
 $gatesFile = Join-Path $opsStateDir "gates.ok"
+$gatesStatePath = Join-Path $repoRoot "ops/.gates_state.json"
 
 # --------------------------------------------------
 # 0b) Preflight target path (map Z: if needed)
@@ -158,28 +159,33 @@ Say "`n==> git ff-only to origin/$Branch"
 git merge --ff-only "origin/$Branch"
 
 # --------------------------------------------------
-# 1b) Verifica gates.ok quando -RunGates non è usato
+# 1b) Quality gates (must pass for current HEAD)
 # --------------------------------------------------
 $currentHead = (git rev-parse HEAD).Trim()
 $currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
 
-if (-not $RunGates) {
-  $gatesData = Read-OpsStateFile -Path $gatesFile
-  if (-not $gatesData.ContainsKey("HEAD") -or -not $gatesData.ContainsKey("BRANCH")) {
-    Fail "Gates non eseguiti per questo HEAD. Esegui ops/gates_run.ps1 o usa -RunGates."
-  }
-  if ($gatesData["HEAD"] -ne $currentHead -or $gatesData["BRANCH"] -ne $currentBranch) {
-    Fail "Gates non eseguiti per questo HEAD. Esegui ops/gates_run.ps1 o usa -RunGates."
-  }
+$gatesState = $null
+if (Test-Path $gatesStatePath) {
+  $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
 }
 
-# --------------------------------------------------
-# 2) Quality gates (must pass)
-# --------------------------------------------------
-Say "`n==> NOTA: eseguire gates_run prima del deploy (oppure usare -RunGates)"
-if ($RunGates) {
-  Say "`n==> gates_run (opzione esplicita -RunGates)"
-  powershell -NoProfile -ExecutionPolicy Bypass -File ".\ops\gates_run.ps1"
+$needsGates = $true
+if ($gatesState -and $gatesState.head -eq $currentHead -and $gatesState.status -eq "passed") {
+  $needsGates = $false
+}
+
+if ($needsGates) {
+  Say "Gates missing/stale -> running ops/run_gates.ps1"
+  & "$PSScriptRoot\run_gates.ps1"
+}
+
+$gatesState = $null
+if (Test-Path $gatesStatePath) {
+  $gatesState = Get-Content -Path $gatesStatePath -Raw -ErrorAction Stop | ConvertFrom-Json
+}
+
+if (-not $gatesState -or $gatesState.head -ne $currentHead -or $gatesState.status -ne "passed") {
+  Fail "Gates failed or stale. Expected head '$currentHead' with status 'passed' in $gatesStatePath."
 }
 
 # --------------------------------------------------
