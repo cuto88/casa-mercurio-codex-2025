@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$gatesScript = Join-Path $PSScriptRoot "gates_ci.ps1"
+$gatesScript = Join-Path $PSScriptRoot "gates_run_ci.ps1"
 $statePath = Join-Path $PSScriptRoot ".gates_state.json"
 $head = (& git rev-parse HEAD).Trim()
 
