@@ -20,6 +20,10 @@ Pipeline ufficiale:
 
 Nota: `repo_sync_and_gates` resta disponibile per compatibilità.
 
+## PowerShell shortcuts
+- The PowerShell shortcut functions live in `ops/profile.ps1`.
+- `$PROFILE` only dot-sources that file for auto-updated ops naming.
+
 Esempi:
 - `.\ops\repo_sync_and_gates.ps1`
 - `.\ops\repo_sync.ps1`
