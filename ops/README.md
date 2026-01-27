@@ -14,11 +14,15 @@
 
 ## How to run
 Pipeline ufficiale:
-1) `sync_and_gates` (oppure `git pull` + `run_gates`)
-2) `deploy_safe`
+1) `sync`
+2) `run_gates`
+3) `deploy_safe`
+
+Nota: `sync_and_gates` resta disponibile per compatibilità.
 
 Esempi:
 - `.\ops\sync_and_gates.ps1`
+- `.\ops\sync.ps1`
 - `.\ops\run_gates.ps1`
 - `.\ops\deploy_safe.ps1`
 - `.\ops\deploy_safe.ps1 -RunGates` (solo per uso standalone)

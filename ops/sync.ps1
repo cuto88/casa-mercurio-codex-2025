@@ -14,8 +14,6 @@ function Invoke-Git {
     return $output
 }
 
-Write-Host "==> SYNC + GATES"
-
 try {
     $repoRoot = (Invoke-Git rev-parse --show-toplevel).Trim()
 } catch {
@@ -25,17 +23,18 @@ try {
 
 Set-Location $repoRoot
 
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\sync.ps1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "STOP: sync failed."
+try {
+    Invoke-Git fetch origin | Out-Null
+    $behindCount = (Invoke-Git rev-list --count HEAD..origin/main).Trim()
+} catch {
+    Write-Host "STOP: git command failed. $_"
     exit 1
 }
 
-# 2. Run gates
-powershell -NoProfile -ExecutionPolicy Bypass -File ops\run_gates.ps1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "STOP: gates failed."
+if ([int]$behindCount -gt 0) {
+    Write-Host "STOP: branch is behind origin/main by $behindCount commits. Pull/rebase first."
     exit 1
 }
 
-Write-Host "==> OK: repo allineato e gates verdi"
+Write-Host "OK: repo allineato con origin/main"
+exit 0
