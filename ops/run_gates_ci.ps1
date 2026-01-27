@@ -29,11 +29,8 @@ function Invoke-GateScript {
     [string[]]$Args = @()
   )
 
-  & $Path @Args
-  $code = $LASTEXITCODE
-  if ($code -ne 0) {
-    exit $code
-  }
+  & pwsh -NoProfile -ExecutionPolicy Bypass -File $Path @Args
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
 $repoRoot = Get-RepoRoot
