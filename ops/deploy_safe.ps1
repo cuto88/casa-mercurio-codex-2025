@@ -242,7 +242,7 @@ Say "`n==> DEPLOY repo -> target"
     "_backup_pre_git",
     "_ha_runtime_backups",
     "_backup",
-    "ops\_logs"
+    "ops"
   ) + $optionalExcludeDirs
 
 if ($LASTEXITCODE -ge 8) {
