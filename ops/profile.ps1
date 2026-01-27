@@ -15,55 +15,80 @@ function Invoke-HaOpsScript {
   )
 
   $scriptPath = Join-Path $HA_REPO "ops\$ScriptName"
-  if (Test-Path $scriptPath) {
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @Args
-    return
+  if (-not (Test-Path $scriptPath)) {
+    Write-Warning "HA ops script not found: $scriptPath"
+    return 2
   }
 
-  Write-Warning "HA ops script not found: $scriptPath"
+  $ps = if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+    "pwsh"
+  } elseif (Get-Command powershell -ErrorAction SilentlyContinue) {
+    "powershell"
+  } else {
+    Write-Warning "No PowerShell host found (pwsh/powershell)."
+    return 3
+  }
+
+  & $ps -NoProfile -ExecutionPolicy Bypass -File $scriptPath @Args
+  return $LASTEXITCODE
 }
 
 function ha-sync {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "repo_sync.ps1" -Args $Args
+  return Invoke-HaOpsScript -ScriptName "repo_sync.ps1" -Args $Args
 }
 
 function ha-gates {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+  return Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
 }
 
 function ha-gates-ci {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "gates_run_ci.ps1" -Args $Args
+  return Invoke-HaOpsScript -ScriptName "gates_run_ci.ps1" -Args $Args
 }
 
 function ha-deploy {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
+  return Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
 }
 
 function ha-flow {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "repo_sync.ps1" -Args $Args
-  if ($LASTEXITCODE -eq 0) {
-    Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+  $rc = Invoke-HaOpsScript -ScriptName "repo_sync.ps1" -Args $Args
+  if ($rc -eq 0) {
+    $rc = Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
   }
+  if ($rc -eq 0) {
+    $rc = Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
+  }
+
+  return $rc
 }
 
 function dep! {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
+  $rc = Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+  if ($rc -eq 0) {
+    $rc = Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
+  }
+
+  return $rc
 }
+
+Set-Alias sync ha-sync
+Set-Alias gates ha-gates
+Set-Alias dep ha-deploy
+Set-Alias flow ha-flow
