@@ -15,6 +15,7 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 Per eseguire i controlli locali:
 - `powershell -NoProfile -ExecutionPolicy Bypass -File ops\run_gates.ps1`
 - `powershell -NoProfile -ExecutionPolicy Bypass -File ops\deploy_safe.ps1`
+CI uses ops/run_gates_ci.ps1 (read-only). Local development uses ops/run_gates.ps1 (mutating).
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
