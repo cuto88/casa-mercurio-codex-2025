@@ -1,6 +1,6 @@
 param(
-    [string]$Dashboard1 = 'lovelace\climate_1_vent_plancia.yaml',
-    [string]$Dashboard2 = 'lovelace\climate_1_vent_plancia_v2.yaml'
+    [string]$Dashboard1 = 'lovelace\climate_ventilation_plancia.yaml',
+    [string]$Dashboard2 = 'lovelace\climate_ventilation_plancia_v2.yaml'
 )
 
 $indicators = @(
