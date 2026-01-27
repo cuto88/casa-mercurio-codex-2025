@@ -18,7 +18,7 @@
 - Regole core clima: `docs/logic/core/regole_core_logiche.md`.
 - Prompt Codex master: `docs/logic/core/prompt_codex_master.md`.
 - Architettura clima: `README_ClimaSystem.md`.
-- Check Mirai: `ops/ha_structure_check.ps1`.
+- Check Mirai: `ops/gate_ha_structure.ps1`.
 
 ## Come lavoriamo
 - Leggere prima `AI/RULES.md` e questo contesto.

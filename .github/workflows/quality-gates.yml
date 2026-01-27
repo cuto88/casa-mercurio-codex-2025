@@ -19,4 +19,4 @@ jobs:
         run: pip install yamllint
 
       - name: Run quality gates
-        run: pwsh -NoProfile -ExecutionPolicy Bypass -File ops/run_gates_ci.ps1
+        run: pwsh -NoProfile -ExecutionPolicy Bypass -File ops/gates_run_ci.ps1

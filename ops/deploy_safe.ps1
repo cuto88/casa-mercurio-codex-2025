@@ -166,20 +166,20 @@ $currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
 if (-not $RunGates) {
   $gatesData = Read-OpsStateFile -Path $gatesFile
   if (-not $gatesData.ContainsKey("HEAD") -or -not $gatesData.ContainsKey("BRANCH")) {
-    Fail "Gates non eseguiti per questo HEAD. Esegui ops/run_gates.ps1 o usa -RunGates."
+    Fail "Gates non eseguiti per questo HEAD. Esegui ops/gates_run.ps1 o usa -RunGates."
   }
   if ($gatesData["HEAD"] -ne $currentHead -or $gatesData["BRANCH"] -ne $currentBranch) {
-    Fail "Gates non eseguiti per questo HEAD. Esegui ops/run_gates.ps1 o usa -RunGates."
+    Fail "Gates non eseguiti per questo HEAD. Esegui ops/gates_run.ps1 o usa -RunGates."
   }
 }
 
 # --------------------------------------------------
 # 2) Quality gates (must pass)
 # --------------------------------------------------
-Say "`n==> NOTA: eseguire run_gates prima del deploy (oppure usare -RunGates)"
+Say "`n==> NOTA: eseguire gates_run prima del deploy (oppure usare -RunGates)"
 if ($RunGates) {
-  Say "`n==> run_gates (opzione esplicita -RunGates)"
-  powershell -NoProfile -ExecutionPolicy Bypass -File ".\ops\run_gates.ps1"
+  Say "`n==> gates_run (opzione esplicita -RunGates)"
+  powershell -NoProfile -ExecutionPolicy Bypass -File ".\ops\gates_run.ps1"
 }
 
 # --------------------------------------------------

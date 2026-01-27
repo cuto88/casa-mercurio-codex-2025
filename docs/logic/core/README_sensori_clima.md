@@ -289,6 +289,6 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
 
 ### Checklist verifica (strict_clima)
 
-- Esegui `ops/check_entity_map.ps1 -Mode strict_clima` e verifica “Missing in map (clima only): 0”.
+- Esegui `ops/gate_entity_map.ps1 -Mode strict_clima` e verifica “Missing in map (clima only): 0”.
 - Controlla che resti solo il warning di alias `climate.ac_*` vs `switch.ac_*`, senza nuove discrepanze.
 - Conferma che nessun altro file oltre a questo README è stato modificato.
