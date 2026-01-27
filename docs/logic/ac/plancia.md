@@ -26,7 +26,7 @@ COME DECIDE (SINTESI)
 - Manuale può scavalcare il blocco fascia ma non il failsafe sensori.
 
 NOTE
-- Plancia usa solo entity_id già definiti in `packages/climate_ac_mapping.yaml` e `packages/climate_ac_logic.yaml` più `packages/climate_0_sensors.yaml`.
+- Plancia usa solo entity_id già definiti in `packages/climate_ac_mapping.yaml` e `packages/climate_ac_logic.yaml` più `packages/climate_sensors.yaml`.
 - Layout mobile-first (sections) coerente con regole plancia core.
 
 ## Riferimenti logici
