@@ -12,7 +12,7 @@ Il sistema clima Casa Mercurio è suddiviso in:
 
 - `packages/climate_sensors.yaml`
 - `packages/climate_ventilation.yaml`
-- `packages/climate_2_heating.yaml`
+- `packages/climate_heating.yaml`
 - `packages/climate_ac_mapping.yaml`
 - `packages/climate_ac_logic.yaml`
 

@@ -1,5 +1,5 @@
 # Heating — Pavimento radiante
-> Questo file descrive la logica di `packages/climate_2_heating.yaml`.
+> Questo file descrive la logica di `packages/climate_heating.yaml`.
 
 ## Titolo
 Heating — pavimento radiante (zone giorno/notte/bagno).
@@ -9,7 +9,7 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 - Applicare lock anti-ciclo, antifreeze e night_setback garantendo sicurezza sensori e override manuale controllato.
 
 ## Entrypoints
-- YAML: `packages/climate_2_heating.yaml`.
+- YAML: `packages/climate_heating.yaml`.
 - Lovelace: `lovelace/2_heating_plancia.yaml`.
 
 ## KPI / Entità principali
@@ -38,7 +38,7 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 
 ### Note operative
 - Plancia `lovelace/2_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
-- Tutte le automazioni e helper risiedono in `packages/climate_2_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
+- Tutte le automazioni e helper risiedono in `packages/climate_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
 - `sensor.heating_priority` offre descrizione leggibile (P0–P4/manual/idle) coerente con `README_ClimaSystem.md`.
 
 ## Hook / Dipendenze
