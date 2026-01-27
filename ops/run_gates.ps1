@@ -1,5 +1,21 @@
 $ErrorActionPreference = 'Stop'
 
+function Invoke-PSFile {
+  param(
+    [Parameter(Mandatory=$true)][string]$Path,
+    [string[]]$Args = @()
+  )
+  if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File $Path @Args
+    return $LASTEXITCODE
+  }
+  if (Get-Command powershell -ErrorAction SilentlyContinue) {
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $Path @Args
+    return $LASTEXITCODE
+  }
+  throw "No PowerShell host found (pwsh/powershell)."
+}
+
 Write-Host '========================================='
 Write-Host ' Running Manual Quality Gates'
 Write-Host '========================================='
@@ -46,8 +62,7 @@ foreach ($gate in $gates) {
         if (Test-Path -Path $gate.Script) {
             Write-Host ''
             Write-Host ("==> {0}" -f $gate.Name)
-            powershell -NoProfile -ExecutionPolicy Bypass -File $gate.Script @($gate.Args)
-            $code = $LASTEXITCODE
+            $code = Invoke-PSFile $gate.Script @($gate.Args)
             if ($gate.Script -eq 'ops/check_docs.ps1') {
                 if ($code -eq 0) {
                     Write-Host 'DOCS_GATE: OK'
@@ -106,7 +121,7 @@ Write-Host ''
 Write-Host '==> DOCS WARN'
 try {
     if (Test-Path -Path 'ops/check_docs_warn.ps1') {
-        powershell -NoProfile -ExecutionPolicy Bypass -File 'ops/check_docs_warn.ps1'
+        $code = Invoke-PSFile 'ops/check_docs_warn.ps1'
     } else {
         Write-Host 'Skipping DOCS WARN (not found)'
     }
