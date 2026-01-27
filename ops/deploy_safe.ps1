@@ -175,8 +175,8 @@ if ($gatesState -and $gatesState.head -eq $currentHead -and $gatesState.status -
 }
 
 if ($needsGates) {
-  Say "Gates missing/stale -> running ops/run_gates.ps1"
-  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "run_gates.ps1")
+  Say "Gates missing/stale -> running ops/gates_run.ps1"
+  & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "gates_run.ps1")
 }
 
 $gatesState = $null
