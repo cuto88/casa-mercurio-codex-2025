@@ -1,15 +1,40 @@
 $ErrorActionPreference = 'Stop'
 
+function Get-PowerShellHost {
+    if (Get-Command pwsh -ErrorAction SilentlyContinue) {
+        return 'pwsh'
+    }
+    if (Get-Command powershell -ErrorAction SilentlyContinue) {
+        return 'powershell'
+    }
+    throw "No PowerShell host found (pwsh/powershell)."
+}
+
 function Invoke-PSFile {
-  param(
-    [Parameter(Mandatory=$true)][string]$Path,
-    [string[]]$Args = @()
-  )
-  if (Get-Command pwsh -ErrorAction SilentlyContinue) {
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File $Path @Args
-    return $LASTEXITCODE
-  }
-  throw "No PowerShell host found (pwsh/powershell)."
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [string[]]$Args = @()
+    )
+    $ps = Get-PowerShellHost
+    & $ps -NoProfile -ExecutionPolicy Bypass -File $Path @Args
+    $code = $LASTEXITCODE
+    return $code
+}
+
+function Invoke-Gate {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$ScriptPath,
+        [string[]]$Args = @()
+    )
+    Write-Host ''
+    $argsDisplay = if ($Args.Count -gt 0) { " $($Args -join ' ')" } else { '' }
+    Write-Host ("==> [{0}] {1}{2}" -f $Name, $ScriptPath, $argsDisplay)
+    $ps = Get-PowerShellHost
+    & $ps -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Args
+    $code = $LASTEXITCODE
+    Write-Host ("[{0}] exit={1}" -f $Name, $code)
+    return $code
 }
 
 Write-Host '========================================='
@@ -44,21 +69,19 @@ $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
 
 $gates = @(
     # HYGIENE = formatter/mutating scripts (non-validation).
-    @{ Name = '[HYGIENE] ops/hygiene_fix_yaml_encoding.ps1 (mutating formatter)'; Script = 'ops/hygiene_fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[HYGIENE] ops/hygiene_fix_yaml_encoding.ps1 (mutating formatter)'; Gate = 'HYGIENE'; Script = 'ops/hygiene_fix_yaml_encoding.ps1'; Args = @(); UsePowerShell = $true },
     # GATE = validation/non-mutating checks.
     @{ Name = '[GATE 1] yamllint tracked YAML (validation)'; Command = 'yamllint'; Args = @(); UsePowerShell = $false },
-    @{ Name = '[GATE 2] ops/gate_include_tree.ps1'; Script = 'ops/gate_include_tree.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 3] ops/gate_ha_structure.ps1 -CheckEntityMap'; Script = 'ops/gate_ha_structure.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
-    @{ Name = '[GATE 4] VMC dashboards gate'; Script = 'ops/gate_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true },
-    @{ Name = '[GATE 5] DOCS ops/gate_docs_links.ps1'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
+    @{ Name = '[GATE 2] ops/gate_include_tree.ps1'; Gate = 'GATE 2'; Script = 'ops/gate_include_tree.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 3] ops/gate_ha_structure.ps1 -CheckEntityMap'; Gate = 'GATE 3'; Script = 'ops/gate_ha_structure.ps1'; Args = @('-CheckEntityMap'); UsePowerShell = $true },
+    @{ Name = '[GATE 4] VMC dashboards gate'; Gate = 'GATE 4'; Script = 'ops/gate_vmc_dashboards.ps1'; Args = @(); UsePowerShell = $true },
+    @{ Name = '[GATE 5] DOCS ops/gate_docs_links.ps1'; Gate = 'GATE 5'; Script = 'ops/gate_docs_links.ps1'; Args = @(); UsePowerShell = $true }
 )
 
 foreach ($gate in $gates) {
     if ($gate.UsePowerShell) {
         if (Test-Path -Path $gate.Script) {
-            Write-Host ''
-            Write-Host ("==> {0}" -f $gate.Name)
-            $code = Invoke-PSFile $gate.Script @($gate.Args)
+            $code = Invoke-Gate -Name $gate.Gate -ScriptPath $gate.Script -Args @($gate.Args)
             if ($gate.Script -eq 'ops/gate_docs_links.ps1') {
                 if ($code -eq 0) {
                     Write-Host 'DOCS_GATE: OK'
@@ -98,17 +121,17 @@ foreach ($gate in $gates) {
         }
     }
 
+    if ($null -eq $code) {
+        Write-Host ("Gate failed: {0} (no exit code)" -f $gate.Name)
+        exit 1
+    }
     if ($code -ne 0) {
-        if ($null -eq $code) {
-            Write-Host 'Gate failed (no exit code)'
-            exit 1
-        }
         $parsedCode = 0
         if (-not [int]::TryParse($code.ToString(), [ref]$parsedCode)) {
-            Write-Host 'Gate failed (no exit code)'
+            Write-Host ("Gate failed: {0} (no exit code)" -f $gate.Name)
             exit 1
         }
-        Write-Host ("Gate failed with exit code {0}" -f $parsedCode)
+        Write-Host ("Gate failed with exit code {0}: {1}" -f $parsedCode, $gate.Name)
         exit $parsedCode
     }
 }
@@ -144,3 +167,5 @@ $gatesContent = @(
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllLines((Join-Path $opsStateDir "gates.ok"), $gatesContent, $utf8NoBom)
+
+exit 0
