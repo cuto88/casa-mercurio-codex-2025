@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: ["-c", ".yamllint"]
+  - repo: local
+    hooks:
+      - id: ha-quality-gates
+        name: HA quality gates (ops/run_gates.ps1)
+        entry: powershell -NoProfile -ExecutionPolicy Bypass -File ops\run_gates.ps1
+        language: system
+        pass_filenames: false
