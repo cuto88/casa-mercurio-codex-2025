@@ -9,10 +9,6 @@ function Invoke-PSFile {
     & pwsh -NoProfile -ExecutionPolicy Bypass -File $Path @Args
     return $LASTEXITCODE
   }
-  if (Get-Command powershell -ErrorAction SilentlyContinue) {
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $Path @Args
-    return $LASTEXITCODE
-  }
   throw "No PowerShell host found (pwsh/powershell)."
 }
 
