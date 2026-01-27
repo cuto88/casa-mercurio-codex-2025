@@ -18,9 +18,9 @@ Il sistema clima Casa Mercurio è suddiviso in:
 
 Plance Lovelace:
 
-- `lovelace/climate_1_vent_plancia.yaml`
-- `lovelace/climate_1_vent_plancia_v2.yaml`
-- `lovelace/climate_2_heating_plancia.yaml`
+- `lovelace/climate_ventilation_plancia.yaml`
+- `lovelace/climate_ventilation_plancia_v2.yaml`
+- `lovelace/climate_heating_plancia.yaml`
 - `lovelace/climate_ac_plancia.yaml`
 
 Entity Map ufficiale:
@@ -167,10 +167,10 @@ FILE: docs/logic/core/README_sensori_clima.md
 FILE: packages/climate_ventilation.yaml
 <contenuto aggiornato>
 
-FILE: lovelace/climate_1_vent_plancia.yaml
+FILE: lovelace/climate_ventilation_plancia.yaml
 <contenuto aggiornato>
 
-FILE: lovelace/climate_1_vent_plancia_v2.yaml
+FILE: lovelace/climate_ventilation_plancia_v2.yaml
 <contenuto aggiornato>
 
 yaml
