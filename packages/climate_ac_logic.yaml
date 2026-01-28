@@ -274,14 +274,16 @@ automation:
               - condition: template
                 value_template: "{{ manual_on and manual_mode != 'OFF' }}"
             sequence:
-              - event: template_event
-                event_data:
-                  entity_id: sensor.ac_reason
-                  attributes:
-                    priority: "manual"
-                    reason: "Controllo manuale attivo ({{ manual_mode }})"
-                    mode: "{{ manual_mode | lower }}"
-                    target: "manual"
+              - service: event.fire
+                data:
+                  event_type: template_event
+                  event_data:
+                    entity_id: sensor.ac_reason
+                    attributes:
+                      priority: "manual"
+                      reason: "Controllo manuale attivo ({{ manual_mode }})"
+                      mode: "{{ manual_mode | lower }}"
+                      target: "manual"
               - stop: "Manuale attivo"
 
           # Block AC requests during bathroom boost priority
