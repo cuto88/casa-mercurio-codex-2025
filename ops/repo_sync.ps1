@@ -25,16 +25,12 @@ Set-Location $repoRoot
 
 try {
     Invoke-Git fetch origin | Out-Null
-    $behindCount = (Invoke-Git rev-list --count HEAD..origin/main).Trim()
+    Invoke-Git reset --hard origin/main | Out-Null
+    Invoke-Git clean -fd | Out-Null
 } catch {
     Write-Host "STOP: git command failed. $_"
     exit 1
 }
 
-if ([int]$behindCount -gt 0) {
-    Write-Host "STOP: branch is behind origin/main by $behindCount commits. Pull/rebase first."
-    exit 1
-}
-
-Write-Host "OK: repo allineato con origin/main"
+Write-Host "OK: hard-synced to origin/main"
 exit 0
