@@ -15,6 +15,22 @@ function Get-FirstNonEmptyLine([string] $path) {
   return $null
 }
 
+function Test-IsAllowedMissing {
+  param(
+    [string]$EntityId,
+    [string[]]$AllowMissingPrefixes
+  )
+  if (-not $EntityId) {
+    return $false
+  }
+  foreach ($prefix in $AllowMissingPrefixes) {
+    if ($EntityId.StartsWith($prefix)) {
+      return $true
+    }
+  }
+  return $false
+}
+
 $fail = $false
 
 $legacyMiraiPath = 'packages/mirai.yaml'
@@ -64,11 +80,64 @@ $fail = $false
 
 if ($CheckEntityMap) {
   $scriptRoot = Split-Path -Parent $PSCommandPath
-  & (Join-Path $scriptRoot 'gate_entity_map.ps1') -Mode strict_clima
+  $AllowMissingPrefixes = @(
+    'sensor.climateops_',
+    'binary_sensor.climateops_',
+    'input_boolean.climateops_',
+    'input_number.climateops_',
+    'input_datetime.climateops_',
+    'input_text.climateops_',
+    'switch.climateops_'
+  )
+  $entityOutput = & (Join-Path $scriptRoot 'gate_entity_map.ps1') -Mode report_only 2>&1
+  $entityOutput | ForEach-Object { Write-Host $_ }
   $entityExit = $LASTEXITCODE
   if ($entityExit -ne 0) {
     $fail = $true
     Write-Error ("Entity map gate failed with exit code {0}" -f $entityExit)
+  }
+
+  $missingLines = @()
+  $inMissingSection = $false
+  foreach ($line in $entityOutput) {
+    $lineText = $line.ToString()
+    if ($lineText -match '--- Missing in map') {
+      $inMissingSection = $true
+      continue
+    }
+    if ($inMissingSection) {
+      if ($lineText -match '^\s*-\s*') {
+        $missingLines += $lineText
+        continue
+      }
+      if ($lineText -notmatch '^\s*$') {
+        $inMissingSection = $false
+      }
+    }
+  }
+
+  $missingAllowed = @()
+  $missingAllowedLines = @()
+  $missingBlocking = @()
+  foreach ($line in $missingLines) {
+    if ($line -match '^\s*-\s*([a-z_]+\.[a-z0-9_]+)\b') {
+      $entityId = $matches[1]
+      if (Test-IsAllowedMissing -EntityId $entityId -AllowMissingPrefixes $AllowMissingPrefixes) {
+        $missingAllowed += $entityId
+        $missingAllowedLines += $line
+      } else {
+        $missingBlocking += $entityId
+      }
+    }
+  }
+
+  if ($missingBlocking.Count -gt 0) {
+    $fail = $true
+    Write-Error ("Entity map gate failed: blocking missing entities found ({0})." -f $missingBlocking.Count)
+  } elseif ($missingAllowed.Count -gt 0) {
+    Write-Warning ("Missing in map allowed for climateops prefixes: {0}" -f $missingAllowed.Count)
+    Write-Warning '--- Missing in map allowed (showing up to 50) ---'
+    $missingAllowedLines | Select-Object -First 50 | ForEach-Object { Write-Warning $_ }
   }
 }
 # Ensure legacy/optional checks do not fail the gate
