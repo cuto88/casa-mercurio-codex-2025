@@ -4,6 +4,7 @@ param(
   [string]$BackupRoot = ".\_ha_runtime_backups",
   [switch]$IncludeTts,
   [switch]$IncludeWww,
+  [switch]$IncludeBlueprints,
   [switch]$RunConfigCheck,
   [switch]$RunGates
 )
@@ -75,6 +76,36 @@ function Write-OpsStateFile {
   [System.IO.File]::WriteAllLines($Path, $content, $utf8NoBom)
 }
 
+function Copy-Allowed {
+  param(
+    [string]$SourceRoot,
+    [string]$TargetRoot,
+    [string[]]$AllowedDirs,
+    [string[]]$AllowedFiles
+  )
+
+  foreach ($dir in $AllowedDirs) {
+    $srcDir = Join-Path $SourceRoot $dir
+    if (Test-Path $srcDir) {
+      $dstDir = Join-Path $TargetRoot $dir
+      Say "-> dir  $dir"
+      & robocopy $srcDir $dstDir /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS
+      if ($LASTEXITCODE -ge 8) {
+        throw "Deploy robocopy failed for '$dir' (RC=$LASTEXITCODE)"
+      }
+    }
+  }
+
+  foreach ($file in $AllowedFiles) {
+    $srcFile = Join-Path $SourceRoot $file
+    if (Test-Path $srcFile) {
+      $dstFile = Join-Path $TargetRoot $file
+      Say "-> file $file"
+      Copy-Item -Path $srcFile -Destination $dstFile -Force
+    }
+  }
+}
+
 Say "== Deploy SAFE =="
 
 # --------------------------------------------------
@@ -88,6 +119,7 @@ Say "Target : $Target"
 Say "Branch : $Branch"
 Say "IncludeTts : $IncludeTts"
 Say "IncludeWww : $IncludeWww"
+Say "IncludeBlueprints : $IncludeBlueprints"
 Say "RunGates   : $RunGates"
 
 # --------------------------------------------------
@@ -246,26 +278,27 @@ if ($LASTEXITCODE -ge 8) {
 # --------------------------------------------------
 Say "`n==> DEPLOY repo -> target"
 
-& robocopy $repoRoot $Target /MIR /R:1 /W:1 /NFL /NDL /NP /NJH /NJS `
-  /XF $excludeFiles `
-  /XD @(
-    ".git",
-    ".storage",            # <<< CRITICAL EXCLUDE
-    ".cloud",
-    "backup",
-    "backups",
-    "media",
-    "deps",
-    "__pycache__",
-    "_backup_pre_git",
-    "_ha_runtime_backups",
-    "_backup",
-    "ops"
-  ) + $optionalExcludeDirs
+$allowedDirs = @(
+  "packages",
+  "lovelace",
+  "custom_components",
+  "themes"
+)
 
-if ($LASTEXITCODE -ge 8) {
-  throw "Deploy robocopy failed (RC=$LASTEXITCODE)"
-}
+if ($IncludeBlueprints) { $allowedDirs += "blueprints" }
+if ($IncludeWww) { $allowedDirs += "www" }
+if ($IncludeTts) { $allowedDirs += "tts" }
+
+$allowedFiles = @(
+  "configuration.yaml",
+  "automations.yaml",
+  "scripts.yaml",
+  "scenes.yaml",
+  "groups.yaml",
+  "customize.yaml"
+)
+
+Copy-Allowed -SourceRoot $repoRoot -TargetRoot $Target -AllowedDirs $allowedDirs -AllowedFiles $allowedFiles
 
 # --------------------------------------------------
 # 5) Optional post-deploy config check (best effort)
