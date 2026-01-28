@@ -443,6 +443,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.vmc_vel_target
+        for: "00:00:20"
       - platform: state
         entity_id:
           - input_select.vmc_mode
