@@ -287,8 +287,7 @@ automation:
                   want_notte: false
               - condition: template
                 value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -315,8 +314,7 @@ automation:
                   want_notte: false
               - condition: template
                 value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -343,8 +341,7 @@ automation:
                   want_notte: false
               - condition: template
                 value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -451,8 +448,7 @@ automation:
           want_notte: false
       - condition: template
         value_template: >
-          {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-             (want_notte != is_state('switch.ac_notte','on')) }}
+          {{ (want_giorno != is_state('switch.ac_giorno','on')) or (want_notte != is_state('switch.ac_notte','on')) }}
       - service: switch.turn_off
         target:
           entity_id:
