@@ -1,28 +1,28 @@
-sensor:
-  - platform: template
-    sensors:
-      climateops_vmc_active_speed:
-        friendly_name: "VMC Active Speed (proxy)"
-        value_template: >
+template:
+  - sensor:
+      - name: "VMC Active Speed (proxy)"
+        unique_id: climateops_vmc_active_speed
+        state: >
           {% if is_state('switch.vmc_vel_3','on') %}3
           {% elif is_state('switch.vmc_vel_2','on') %}2
           {% elif is_state('switch.vmc_vel_1','on') %}1
           {% elif is_state('switch.vmc_vel_0','on') %}0
           {% else %}unknown{% endif %}
-        availability_template: >
+        availability: >
           {{ states('switch.vmc_vel_0') not in ['unknown','unavailable']
              and states('switch.vmc_vel_1') not in ['unknown','unavailable']
              and states('switch.vmc_vel_2') not in ['unknown','unavailable']
              and states('switch.vmc_vel_3') not in ['unknown','unavailable'] }}
 
-binary_sensor:
-  - platform: template
-    sensors:
-      climateops_vmc_is_running:
-        friendly_name: "VMC Is Running (proxy)"
-        value_template: >
-          {{ is_state('switch.vmc_vel_0','on') or is_state('switch.vmc_vel_1','on') or is_state('switch.vmc_vel_2','on') or is_state('switch.vmc_vel_3','on') }}
-        availability_template: >
+  - binary_sensor:
+      - name: "VMC Is Running (proxy)"
+        unique_id: climateops_vmc_is_running
+        state: >
+          {{ is_state('switch.vmc_vel_0','on')
+             or is_state('switch.vmc_vel_1','on')
+             or is_state('switch.vmc_vel_2','on')
+             or is_state('switch.vmc_vel_3','on') }}
+        availability: >
           {{ states('switch.vmc_vel_0') not in ['unknown','unavailable']
              and states('switch.vmc_vel_1') not in ['unknown','unavailable']
              and states('switch.vmc_vel_2') not in ['unknown','unavailable']
