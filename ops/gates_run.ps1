@@ -30,9 +30,8 @@ function Invoke-Gate {
     Write-Host ''
     $argsDisplay = if ($Args.Count -gt 0) { " $($Args -join ' ')" } else { '' }
     Write-Host ("==> [{0}] {1}{2}" -f $Name, $ScriptPath, $argsDisplay)
-    $ps = Get-PowerShellHost
-    & $ps -NoProfile -ExecutionPolicy Bypass -File $ScriptPath @Args
-    $code = $LASTEXITCODE
+    $p = Start-Process -FilePath "powershell" -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $ScriptPath) + $Args -Wait -PassThru -NoNewWindow
+    $code = $p.ExitCode
     Write-Host ("[{0}] exit={1}" -f $Name, $code)
     return $code
 }
@@ -126,13 +125,8 @@ foreach ($gate in $gates) {
         exit 1
     }
     if ($code -ne 0) {
-        $parsedCode = 0
-        if (-not [int]::TryParse($code.ToString(), [ref]$parsedCode)) {
-            Write-Host ("Gate failed: {0} (no exit code)" -f $gate.Name)
-            exit 1
-        }
-        Write-Host ("Gate failed with exit code {0}: {1}" -f $parsedCode, $gate.Name)
-        exit $parsedCode
+        Write-Host ("Gate failed: {0} (exit={1})" -f $gate.Name, $code)
+        exit $code
     }
 }
 
