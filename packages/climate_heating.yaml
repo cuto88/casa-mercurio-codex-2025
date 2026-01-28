@@ -524,10 +524,12 @@ automation:  # Gestione timeout manuale
       - platform: state
         entity_id: input_boolean.heating_manual_active
         to: "on"
+        id: manual_on
       - platform: event
         event_type: timer.finished
         event_data:
           entity_id: timer.heating_manual_timeout
+        id: timer_finished
     action:
       - choose:
           - conditions:
@@ -539,8 +541,8 @@ automation:  # Gestione timeout manuale
                 target:
                   entity_id: timer.heating_manual_timeout
           - conditions:
-              - condition: event
-                event_type: timer.finished
+              - condition: trigger
+                id: timer_finished
             sequence:
               - service: input_boolean.turn_off
                 target:
