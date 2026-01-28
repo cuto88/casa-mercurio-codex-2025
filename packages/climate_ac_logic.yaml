@@ -282,6 +282,13 @@ automation:
               - condition: template
                 value_template: "{{ vent_priority == 'P1_boost_bagno' }}"
             sequence:
+              - variables:
+                  want_giorno: false
+                  want_notte: false
+              - condition: template
+                value_template: >
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+                     (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -303,6 +310,13 @@ automation:
                 entity_id: binary_sensor.ac_failsafe_sensors_bad
                 state: "on"
             sequence:
+              - variables:
+                  want_giorno: false
+                  want_notte: false
+              - condition: template
+                value_template: >
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+                     (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -324,6 +338,13 @@ automation:
                 entity_id: binary_sensor.ac_block_by_vmc
                 state: "on"
             sequence:
+              - variables:
+                  want_giorno: false
+                  want_notte: false
+              - condition: template
+                value_template: >
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+                     (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -362,6 +383,13 @@ automation:
                 value_template: >
                   {{ URin > ur_on and URout < URin and Tin > 20 }}
             sequence:
+              - variables:
+                  want_giorno: false
+                  want_notte: true
+              - condition: template
+                value_template: >
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+                     (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_notte
@@ -391,6 +419,13 @@ automation:
                 entity_id: binary_sensor.ac_lock_min_off_ok
                 state: "on"
             sequence:
+              - variables:
+                  want_giorno: true
+                  want_notte: false
+              - condition: template
+                value_template: >
+                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+                     (want_notte != is_state('switch.ac_notte','on')) }}
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_giorno
@@ -411,6 +446,13 @@ automation:
                   mode: "cool"
               - stop: "COOL attivo"
 
+      - variables:
+          want_giorno: false
+          want_notte: false
+      - condition: template
+        value_template: >
+          {{ (want_giorno != is_state('switch.ac_giorno','on')) or
+             (want_notte != is_state('switch.ac_notte','on')) }}
       - service: switch.turn_off
         target:
           entity_id:
