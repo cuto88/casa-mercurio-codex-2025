@@ -195,6 +195,13 @@ template:
         device_class: timestamp
         state: "{{ now().isoformat() }}"
 
+counter:
+  ac_churn_suppressed:
+    name: "AC churn suppressed"
+    icon: mdi:shield-sync
+    initial: 0
+    step: 1
+
 # ============================================================================
 # 3) AUTOMAZIONI – hook VMC + controller unico priorità
 # ============================================================================
@@ -550,9 +557,16 @@ script:
       - variables:
           wg: "{{ want_giorno | bool }}"
           wn: "{{ want_notte | bool }}"
+      - variables:
+          should_apply: "{{ (wg != is_state('switch.ac_giorno','on')) or (wn != is_state('switch.ac_notte','on')) }}"
+      - choose:
+          - conditions: "{{ not should_apply }}"
+            sequence:
+              - service: counter.increment
+                target: { entity_id: counter.ac_churn_suppressed }
+              - stop: "Guard: AC already at targets"
       - condition: template
-        value_template: >
-          {{ (wg != is_state('switch.ac_giorno','on')) or (wn != is_state('switch.ac_notte','on')) }}
+        value_template: "{{ should_apply }}"
       - choose:
           - conditions: "{{ wg }}"
             sequence:
