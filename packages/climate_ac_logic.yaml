@@ -282,18 +282,10 @@ automation:
               - condition: template
                 value_template: "{{ vent_priority == 'P1_boost_bagno' }}"
             sequence:
-              - variables:
+              - service: script.ac_apply_targets
+                data:
                   want_giorno: false
                   want_notte: false
-              - condition: template
-                value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.ac_giorno
-                    - switch.ac_notte
               - event: template_event
                 event_data:
                   entity_id: sensor.ac_reason
@@ -310,18 +302,10 @@ automation:
                 entity_id: binary_sensor.ac_failsafe_sensors_bad
                 state: "on"
             sequence:
-              - variables:
+              - service: script.ac_apply_targets
+                data:
                   want_giorno: false
                   want_notte: false
-              - condition: template
-                value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.ac_giorno
-                    - switch.ac_notte
               - event: template_event
                 event_data:
                   entity_id: sensor.ac_reason
@@ -338,18 +322,10 @@ automation:
                 entity_id: binary_sensor.ac_block_by_vmc
                 state: "on"
             sequence:
-              - variables:
+              - service: script.ac_apply_targets
+                data:
                   want_giorno: false
                   want_notte: false
-              - condition: template
-                value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.ac_giorno
-                    - switch.ac_notte
               - event: template_event
                 event_data:
                   entity_id: sensor.ac_reason
@@ -383,19 +359,10 @@ automation:
                 value_template: >
                   {{ URin > ur_on and URout < URin and Tin > 20 }}
             sequence:
-              - variables:
+              - service: script.ac_apply_targets
+                data:
                   want_giorno: false
                   want_notte: true
-              - condition: template
-                value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_notte
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_giorno
               - event: template_event
                 event_data:
                   entity_id: sensor.ac_reason
@@ -419,19 +386,10 @@ automation:
                 entity_id: binary_sensor.ac_lock_min_off_ok
                 state: "on"
             sequence:
-              - variables:
+              - service: script.ac_apply_targets
+                data:
                   want_giorno: true
                   want_notte: false
-              - condition: template
-                value_template: >
-                  {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-                     (want_notte != is_state('switch.ac_notte','on')) }}
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_giorno
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_notte
               - event: template_event
                 event_data:
                   entity_id: sensor.ac_reason
@@ -446,18 +404,10 @@ automation:
                   mode: "cool"
               - stop: "COOL attivo"
 
-      - variables:
+      - service: script.ac_apply_targets
+        data:
           want_giorno: false
           want_notte: false
-      - condition: template
-        value_template: >
-          {{ (want_giorno != is_state('switch.ac_giorno','on')) or
-             (want_notte != is_state('switch.ac_notte','on')) }}
-      - service: switch.turn_off
-        target:
-          entity_id:
-            - switch.ac_giorno
-            - switch.ac_notte
       - event: template_event
         event_data:
           entity_id: sensor.ac_reason
@@ -588,3 +538,40 @@ sensor:
 #          entity_id:
 #            - switch.ac_notte
 #            - switch.ac_giorno
+
+script:
+  ac_apply_targets:
+    alias: "AC – Apply targets with guard"
+    mode: queued
+    fields:
+      want_giorno:
+      want_notte:
+    sequence:
+      - variables:
+          wg: "{{ want_giorno | bool }}"
+          wn: "{{ want_notte | bool }}"
+      - condition: template
+        value_template: >
+          {{ (wg != is_state('switch.ac_giorno','on')) or (wn != is_state('switch.ac_notte','on')) }}
+      - choose:
+          - conditions: "{{ wg }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.ac_giorno
+          - conditions: "{{ not wg }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_giorno
+      - choose:
+          - conditions: "{{ wn }}"
+            sequence:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.ac_notte
+          - conditions: "{{ not wn }}"
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.ac_notte
