@@ -30,7 +30,14 @@ function Invoke-Gate {
     Write-Host ''
     $argsDisplay = if ($Args.Count -gt 0) { " $($Args -join ' ')" } else { '' }
     Write-Host ("==> [{0}] {1}{2}" -f $Name, $ScriptPath, $argsDisplay)
-    $p = Start-Process -FilePath "powershell" -ArgumentList @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $ScriptPath) + $Args -Wait -PassThru -NoNewWindow
+    $p = Start-Process -FilePath "powershell" -ArgumentList @(
+        "-NoProfile"
+        "-ExecutionPolicy"
+        "Bypass"
+        "-File"
+        $ScriptPath
+        $Args
+    ) -Wait -PassThru -NoNewWindow
     $code = $p.ExitCode
     Write-Host ("[{0}] exit={1}" -f $Name, $code)
     return $code
