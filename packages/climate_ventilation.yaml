@@ -158,6 +158,13 @@ timer:
     name: Timeout modalità manuale
     duration: "01:00:00"
 
+counter:
+  vmc_churn_suppressed:
+    name: "VMC churn suppressed"
+    icon: mdi:shield-sync
+    initial: 0
+    step: 1
+
 # =============================
 # TEMPLATE SENSORI E FLAG LOGICI
 # =============================
@@ -457,13 +464,21 @@ automation:
     action:
       - variables:
           target: "{{ states('sensor.vmc_vel_target')|int(-1) }}"
+      - variables:
+          current: >-
+            {{ 3 if is_state('switch.vmc_vel_3','on') else
+               2 if is_state('switch.vmc_vel_2','on') else
+               1 if is_state('switch.vmc_vel_1','on') else
+               0 if is_state('switch.vmc_vel_0','on') else -1 }}
+          should_apply: "{{ target != -1 and target != current }}"
+      - choose:
+          - conditions: "{{ not should_apply }}"
+            sequence:
+              - service: counter.increment
+                target: { entity_id: counter.vmc_churn_suppressed }
+              - stop: "Guard: VMC already at target or invalid target"
       - condition: template
-        value_template: >-
-          {% set current = 3 if is_state('switch.vmc_vel_3','on') else
-            2 if is_state('switch.vmc_vel_2','on') else
-            1 if is_state('switch.vmc_vel_1','on') else
-            0 if is_state('switch.vmc_vel_0','on') else -1 %}
-          {{ target != -1 and target != current }}
+        value_template: "{{ should_apply }}"
       - service: homeassistant.turn_off
         target:
           entity_id:
