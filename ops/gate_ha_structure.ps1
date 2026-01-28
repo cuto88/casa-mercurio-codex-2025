@@ -89,18 +89,17 @@ if ($CheckEntityMap) {
     'input_text.climateops_',
     'switch.climateops_'
   )
-  $entityOutput = & (Join-Path $scriptRoot 'gate_entity_map.ps1') -Mode report_only 2>&1
+  $entityOutput = & (Join-Path $scriptRoot 'gate_entity_map.ps1') -Mode strict_clima 2>&1
   $entityOutput | ForEach-Object { Write-Host $_ }
-  $entityExit = $LASTEXITCODE
-  if ($entityExit -ne 0) {
-    $fail = $true
-    Write-Error ("Entity map gate failed with exit code {0}" -f $entityExit)
-  }
 
   $missingLines = @()
   $inMissingSection = $false
+  $hasNonMissingErrors = $false
   foreach ($line in $entityOutput) {
     $lineText = $line.ToString()
+    if ($lineText -match '^ERROR:' -and $lineText -notmatch 'Missing in map') {
+      $hasNonMissingErrors = $true
+    }
     if ($lineText -match '--- Missing in map') {
       $inMissingSection = $true
       continue
@@ -131,11 +130,14 @@ if ($CheckEntityMap) {
     }
   }
 
-  if ($missingBlocking.Count -gt 0) {
+  $missingBlockingCount = $missingBlocking.Count
+  $missingAllowedCount = $missingAllowed.Count
+
+  if ($missingBlockingCount -gt 0 -or $hasNonMissingErrors) {
     $fail = $true
-    Write-Error ("Entity map gate failed: blocking missing entities found ({0})." -f $missingBlocking.Count)
-  } elseif ($missingAllowed.Count -gt 0) {
-    Write-Warning ("Missing in map allowed for climateops prefixes: {0}" -f $missingAllowed.Count)
+    Write-Error ("Entity map gate failed: blocking missing entities found ({0})." -f $missingBlockingCount)
+  } elseif ($missingAllowedCount -gt 0) {
+    Write-Warning ("Missing in map allowed for climateops prefixes: {0}" -f $missingAllowedCount)
     Write-Warning '--- Missing in map allowed (showing up to 50) ---'
     $missingAllowedLines | Select-Object -First 50 | ForEach-Object { Write-Warning $_ }
   }
