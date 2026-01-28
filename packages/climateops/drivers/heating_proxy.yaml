@@ -1,0 +1,15 @@
+binary_sensor:
+  - platform: template
+    sensors:
+      climateops_heating_master_is_on:
+        friendly_name: "Heating Master Is On (proxy)"
+        value_template: "{{ is_state('switch.heating_master','on') }}"
+        availability_template: "{{ states('switch.heating_master') not in ['unknown','unavailable'] }}"
+
+sensor:
+  - platform: template
+    sensors:
+      climateops_heating_master_state:
+        friendly_name: "Heating Master State (proxy)"
+        value_template: "{{ states('switch.heating_master') }}"
+        availability_template: "{{ states('switch.heating_master') not in ['unknown','unavailable'] }}"
