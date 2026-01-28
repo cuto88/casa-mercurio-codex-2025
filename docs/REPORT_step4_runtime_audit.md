@@ -5,9 +5,10 @@
 ## Summary
 
 - **Blueprints**: 4 total
+  - System: 4 (core Home Assistant, auto‑installati al boot; esclusi da repo governance e deploy scope)
   - Used: 0 (runtime evidence unavailable)
   - Orphan: 0 (no runtime proof)
-  - Unknown: 4
+  - Unknown: 0
 - **Custom components**: 5 total
   - Used: 0 (runtime evidence unavailable)
   - Orphan: 0 (no runtime proof)
@@ -22,6 +23,8 @@
 - `blueprints/automation/homeassistant/notify_leaving_zone.yaml`
 - `blueprints/automation/homeassistant/motion_light.yaml`
 - `blueprints/script/homeassistant/confirmable_notification.yaml`
+
+> **Nota**: i blueprint core `homeassistant/*` sono forniti dal runtime HA e vengono **auto‑installati al boot**. Non dipendono dal repo né dallo script di deploy, sono **SYSTEM (immutabili)** e **non vanno rimossi né versionati**. Sono quindi esclusi da governance repo e deploy scope.
 
 **Custom components (with manifest domain)**
 - `custom_components/hacs` (domain: `hacs`)
@@ -41,10 +44,10 @@
 
 | ITEM | TIPO | PROVA STATICA | RISCHIO | STATO (statico) |
 | --- | --- | --- | --- | --- |
-| `inverted_binary_sensor.yaml` | Blueprint (template) | Nessun riferimento `blueprint:` trovato | Medio | UNKNOWN |
-| `notify_leaving_zone.yaml` | Blueprint (automation) | Nessun riferimento `blueprint:` trovato | Medio | UNKNOWN |
-| `motion_light.yaml` | Blueprint (automation) | Nessun riferimento `blueprint:` trovato | Medio | UNKNOWN |
-| `confirmable_notification.yaml` | Blueprint (script) | Nessun riferimento `blueprint:` trovato | Medio | UNKNOWN |
+| `inverted_binary_sensor.yaml` | Blueprint (template) | Core HA, auto‑installato al boot (runtime) | N/A | SYSTEM |
+| `notify_leaving_zone.yaml` | Blueprint (automation) | Core HA, auto‑installato al boot (runtime) | N/A | SYSTEM |
+| `motion_light.yaml` | Blueprint (automation) | Core HA, auto‑installato al boot (runtime) | N/A | SYSTEM |
+| `confirmable_notification.yaml` | Blueprint (script) | Core HA, auto‑installato al boot (runtime) | N/A | SYSTEM |
 | `custom_components/hacs` | Custom component | `configuration.yaml` include `/hacsfiles/…` (debole) | Basso | LIKELY_USED |
 | `custom_components/localtuya` | Custom component | Nessuna evidenza statica | Medio | UNKNOWN |
 | `custom_components/meross_cloud` | Custom component | Nessuna evidenza statica | Medio | UNKNOWN |
@@ -76,7 +79,7 @@
 
 ## Step 4C — Classificazione finale (evidence‑based)
 
-> In assenza di runtime access, **tutti gli elementi restano UNKNOWN** fino a prova contraria.
+> In assenza di runtime access, **tutti gli elementi restano UNKNOWN** fino a prova contraria, **eccetto i blueprint core `homeassistant/*` che sono SYSTEM** (auto‑installati al boot, esclusi da repo governance e deploy scope).
 
 ### USED (runtime evidence)
 - Nessuna evidenza runtime raccolta in questo step.
@@ -86,10 +89,7 @@
 
 ### UNKNOWN (manca evidenza)
 **Blueprints**
-- `inverted_binary_sensor.yaml`
-- `notify_leaving_zone.yaml`
-- `motion_light.yaml`
-- `confirmable_notification.yaml`
+- Nessuno (i core `homeassistant/*` sono SYSTEM).
 
 **Custom components**
 - `hacs`
