@@ -455,15 +455,14 @@ automation:
           - sensor.ventilation_priority
     action:
       - variables:
-          target: "{{ states('sensor.vmc_vel_target')|int(0) }}"
+          target: "{{ states('sensor.vmc_vel_target')|int(-1) }}"
       - condition: template
         value_template: >-
-          {% set target = states('sensor.vmc_vel_target')|int(0) %}
           {% set current = 3 if is_state('switch.vmc_vel_3','on') else
             2 if is_state('switch.vmc_vel_2','on') else
             1 if is_state('switch.vmc_vel_1','on') else
             0 if is_state('switch.vmc_vel_0','on') else -1 %}
-          {{ target != current and target != -1 }}
+          {{ target != -1 and target != current }}
       - service: homeassistant.turn_off
         target:
           entity_id:
