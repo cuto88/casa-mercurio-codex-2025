@@ -552,7 +552,11 @@ script:
     mode: queued
     fields:
       want_giorno:
+        description: "Desired state for switch.ac_giorno"
+        example: false
       want_notte:
+        description: "Desired state for switch.ac_notte"
+        example: false
     sequence:
       - variables:
           wg: "{{ want_giorno | bool }}"
