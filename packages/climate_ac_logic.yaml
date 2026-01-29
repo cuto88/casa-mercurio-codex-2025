@@ -558,8 +558,4 @@ script:
   ac_send_command:
     alias: "AC – Send command (driver wrapper)"
     mode: single
-    sequence:
-      - choose:
-          - conditions: []
-            sequence: []
-    # NOTE: intentionally empty driver (no-op)
+    sequence: []
