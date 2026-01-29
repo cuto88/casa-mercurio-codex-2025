@@ -550,48 +550,8 @@ sensor:
 
 script:
   ac_apply_targets:
-    alias: "AC – Apply targets with guard"
-    mode: queued
-    fields:
-      want_giorno:
-        description: "Desired state for switch.ac_giorno"
-        example: false
-      want_notte:
-        description: "Desired state for switch.ac_notte"
-        example: false
+    alias: "AC – Apply targets"
+    mode: single
     sequence:
-      - variables:
-          wg: "{{ want_giorno | bool }}"
-          wn: "{{ want_notte | bool }}"
-      - variables:
-          should_apply: "{{ (wg != is_state('switch.ac_giorno','on')) or (wn != is_state('switch.ac_notte','on')) }}"
-      - choose:
-          - conditions: "{{ not should_apply }}"
-            sequence:
-              - service: counter.increment
-                target: { entity_id: counter.ac_churn_suppressed }
-              - stop: "Guard: AC already at targets"
-      - condition: template
-        value_template: "{{ should_apply }}"
-      - choose:
-          - conditions: "{{ wg }}"
-            sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_giorno
-          - conditions: "{{ not wg }}"
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_giorno
-      - choose:
-          - conditions: "{{ wn }}"
-            sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.ac_notte
-          - conditions: "{{ not wn }}"
-            sequence:
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.ac_notte
+      - service: script.ac_giorno_apply
+      - service: script.ac_notte_apply
