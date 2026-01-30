@@ -121,9 +121,9 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_giorno
-      - service: switchbot.press
-        target:
-          entity_id: switch.ac_giorno
+      - service: script.ac_send_command
+        data:
+          target: "ac_giorno"
 
   ac_notte_apply:
     alias: AC Notte Apply
@@ -135,6 +135,6 @@ script:
               - service: switch.turn_on
                 target:
                   entity_id: switch.ac_notte
-      - service: switchbot.press
-        target:
-          entity_id: switch.ac_notte
+      - service: script.ac_send_command
+        data:
+          target: "ac_notte"
