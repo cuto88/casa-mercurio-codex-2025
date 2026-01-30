@@ -557,5 +557,21 @@ script:
       - service: script.ac_notte_apply
   ac_send_command:
     alias: "AC – Send command (driver wrapper)"
-    mode: single
-    sequence: []
+    mode: queued
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+        example: "ac_giorno"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_giorno' }}"
+            sequence:
+              - service: script.ac_giorno_apply
+          - conditions:
+              - condition: template
+                value_template: "{{ target == 'ac_notte' }}"
+            sequence:
+              - service: script.ac_notte_apply
+        default: []
