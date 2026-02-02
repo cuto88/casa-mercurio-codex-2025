@@ -586,3 +586,10 @@ script:
       - service: input_boolean.turn_off
         target:
           entity_id: input_boolean.ac_send_command_busy
+  ac_hw_press:
+    alias: "AC – HW press (leaf driver)"
+    mode: single
+    fields:
+      target:
+        description: "ac_giorno | ac_notte"
+    sequence: []
