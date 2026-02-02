@@ -14,9 +14,9 @@ modbus:
     host: !secret ehw_modbus_host
     port: 502
     delay: 1
-    message_wait_milliseconds: 200
-    timeout: 5
-    retries: 3
+    message_wait_milliseconds: 30
+    timeout: 2
+    retries: 0
     sensors:
       # T01..T06 RAW (A = doc_reg - 1, B = doc_reg)
       - name: "EHW T01 raw A"
