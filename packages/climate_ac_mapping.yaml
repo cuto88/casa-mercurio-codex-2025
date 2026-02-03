@@ -1,3 +1,7 @@
+# LEGACY MODULE (do not refactor)
+# Migration status: legacy-owner
+# Strangler: ClimateOps observes only (no actuation)
+# Toggle: input_boolean.climateops_migration_enabled (future cutover)
 # Mapping clima AC giorno e notte via SwitchBot (mapping fisico, senza template.climate)
 
 input_number:
