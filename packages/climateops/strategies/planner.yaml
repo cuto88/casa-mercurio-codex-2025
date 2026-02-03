@@ -19,3 +19,13 @@ template:
         unique_id: climateops_planner_reason
         state: >
           Planner heuristic based on indoor temperature vs setpoints
+
+      - name: "Planner Suggested Heat SP"
+        unique_id: climateops_planner_suggested_heat_sp
+        state: "{{ states('input_number.temp_target_risc') }}"
+        availability: "{{ states('input_number.temp_target_risc') not in ['unknown','unavailable'] }}"
+
+      - name: "Planner Suggested Cool SP"
+        unique_id: climateops_planner_suggested_cool_sp
+        state: "{{ states('input_number.ac_cool_setpoint') }}"
+        availability: "{{ states('input_number.ac_cool_setpoint') not in ['unknown','unavailable'] }}"
