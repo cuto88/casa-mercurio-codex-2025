@@ -15,6 +15,7 @@ Il sistema clima Casa Mercurio è suddiviso in:
 - `packages/climate_heating.yaml`
 - `packages/climate_ac_mapping.yaml`
 - `packages/climate_ac_logic.yaml`
+- `packages/climateops/** (drivers/strategies/overrides)`
 
 Plance Lovelace:
 
@@ -58,6 +59,8 @@ Gli `entity_id` devono essere **in inglese** SEMPRE.
    - `sensor.delta_ah_in_out`
 8. YAML deve essere valido e coerente con HA.
 9. Nessuna card Lovelace custom: usare card standard.
+10. Non chiamare mai servizi `switchbot.*`; usare solo driver `script.ac_hw_press` o wrapper script.
+11. Non spostare o rinominare file legacy finché non esiste il tag `migration_done`.
 
 ---
 
