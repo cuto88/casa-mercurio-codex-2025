@@ -22,5 +22,11 @@ template:
           {% elif is_state('binary_sensor.climateops_vmc_is_running','on') %}
             VMC running (observed)
           {% else %}
-            No active climate actuators (observed)
+            {% if is_state('binary_sensor.climateops_request_heat','on') %}
+              IDLE observed, HEAT requested (planner)
+            {% elif is_state('binary_sensor.climateops_request_cool','on') %}
+              IDLE observed, COOL requested (planner)
+            {% else %}
+              No active climate actuators (observed)
+            {% endif %}
           {% endif %}
