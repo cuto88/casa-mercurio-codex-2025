@@ -11,11 +11,6 @@ template:
           {% elif vmc %}VENT
           {% else %}IDLE
           {% endif %}
-        availability: >
-          {{ states('binary_sensor.climateops_heating_master_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_vmc_is_running') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_giorno_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_notte_is_on') not in ['unknown','unavailable'] }}
 
       - name: "Arbiter Suggested Reason"
         unique_id: climateops_arbiter_suggested_reason
@@ -29,8 +24,3 @@ template:
           {% else %}
             No active climate actuators (observed)
           {% endif %}
-        availability: >
-          {{ states('binary_sensor.climateops_heating_master_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_vmc_is_running') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_giorno_is_on') not in ['unknown','unavailable']
-             and states('binary_sensor.climateops_ac_notte_is_on') not in ['unknown','unavailable'] }}
