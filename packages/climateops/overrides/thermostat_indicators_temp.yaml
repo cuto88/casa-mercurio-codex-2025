@@ -1,0 +1,18 @@
+template:
+  - binary_sensor:
+      - name: "Thermostat Giorno (TEMP)"
+        unique_id: climateops_temp_thermostat_giorno_on
+        state: >-
+          {{ is_state('binary_sensor.ldr_camera1_thermostat_on','on')
+             or is_state('binary_sensor.ldr_camera1_thermostat_on','true') }}
+        availability: >-
+          {{ states('binary_sensor.ldr_camera1_thermostat_on')
+             not in ['unknown','unavailable'] }}
+      - name: "Thermostat Notte (TEMP)"
+        unique_id: climateops_temp_thermostat_notte_on
+        state: >-
+          {{ is_state('binary_sensor.ldr_camera2_thermostat_on','on')
+             or is_state('binary_sensor.ldr_camera2_thermostat_on','true') }}
+        availability: >-
+          {{ states('binary_sensor.ldr_camera2_thermostat_on')
+             not in ['unknown','unavailable'] }}
