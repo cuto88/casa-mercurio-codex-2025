@@ -2,6 +2,11 @@
 
 Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 
+Nota milestone (2026-02-04): il branch `climateops-skeleton` è in stato CUTOVER OK
+(VMC + HEATING + AC), con AC che può risultare `unknown` via IR (atteso).
+La nuova architettura ClimateOps è ora referenziata nella cartella `packages/climateops`,
+e il lavoro prosegue su `climateops-refactor-cleanup`.
+
 - Panoramica e struttura: [`README_struttura_sistemi.md`](README_struttura_sistemi.md)
 - Moduli principali:
   - Ventilation (ventilazione naturale + VMC):

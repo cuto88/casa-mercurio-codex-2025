@@ -4,6 +4,13 @@ Sistema unificato Ventilazione (VMC + finestre) • Riscaldamento • Climatizza
 Questo documento descrive in modo chiaro e definitivo la *struttura, logica e interazione* dei moduli clima di Casa Mercurio.  
 È la versione stabile dopo la ristrutturazione completa del 2025.
 
+## Milestones
+- Data: 2026-02-04
+- Branch: climateops-skeleton
+- Status: CUTOVER OK (VMC + HEATING + AC)
+- Note: AC may show unknown state due to IR (expected)
+- Next work continues on branch: climateops-refactor-cleanup
+
 ---
 
 # 1. Architettura del sistema
