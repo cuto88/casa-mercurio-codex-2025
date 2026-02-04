@@ -1,0 +1,59 @@
+---
+# Contract layer: evidenzia dipendenze mancanti per clima/VMC.
+
+template:
+  - binary_sensor:
+      - name: "Contract meteo stub active"
+        unique_id: contract_meteo_stub_active
+        state: >-
+          {%- set meteo_sensors = [
+            'binary_sensor.meteo_pioggia',
+            'sensor.meteo_vento_velocita'
+          ] -%}
+          {%- set meteo_states = meteo_sensors | map('states') | list -%}
+          {%- set sensors_ready = meteo_states | reject('in', ['unknown','unavailable','']) | list | count == meteo_sensors | length -%}
+          {{ not sensors_ready }}
+
+      - name: "Contract surplus ok defined"
+        unique_id: contract_surplus_ok_defined
+        state: >-
+          {{ states('binary_sensor.surplus_ok') not in ['unknown','unavailable',''] }}
+
+      - name: "Contract actuators defined"
+        unique_id: contract_actuators_defined
+        state: >-
+          {%- set actuators = [
+            'switch.heating_master',
+            'switch.ac_giorno',
+            'switch.ac_notte',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3'
+          ] -%}
+          {%- set actuator_states = actuators | map('states') | list -%}
+          {{ actuator_states | reject('in', ['unknown','unavailable','']) | list | count == actuators | length }}
+
+  - sensor:
+      - name: "Contract missing entities"
+        unique_id: contract_missing_entities
+        state: >-
+          {%- set required = [
+            'binary_sensor.surplus_ok',
+            'switch.heating_master',
+            'switch.ac_giorno',
+            'switch.ac_notte',
+            'switch.vmc_vel_0',
+            'switch.vmc_vel_1',
+            'switch.vmc_vel_2',
+            'switch.vmc_vel_3',
+            'binary_sensor.meteo_pioggia',
+            'sensor.meteo_vento_velocita'
+          ] -%}
+          {%- set ns = namespace(missing=[]) -%}
+          {%- for entity in required -%}
+            {%- if states(entity) in ['unknown','unavailable',''] -%}
+              {%- set ns.missing = ns.missing + [entity] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ ns.missing | join(', ') if ns.missing | length > 0 else 'OK' }}
