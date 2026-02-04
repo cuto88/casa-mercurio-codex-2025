@@ -41,18 +41,17 @@ views:
         cards:
           - type: markdown
             content: |
-              ## Termostati reali (TEMP)
-              Sensori ESPhome LDR: **solo osservazione** (shadow sensors).
+              ## Termostati reali (TEMP) — solo osservazione
 
           - type: glance
             title: "Termostati (stato reale)"
             show_state: true
             columns: 4
             entities:
-              - entity: binary_sensor.ldr_camera1_thermostat_on
-                name: "LDR Cam1"
-              - entity: binary_sensor.ldr_camera2_thermostat_on
-                name: "LDR Cam2"
+              - entity: binary_sensor.thermostat_giorno_temp
+                name: "Termostato Giorno"
+              - entity: binary_sensor.thermostat_notte_temp
+                name: "Termostato Notte"
 
       - type: grid
         title: "Heating  Setpoint e comandi"
