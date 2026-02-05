@@ -343,6 +343,8 @@ template:
             P_manual
           {% elif not sensors_ok %}
             P0_failsafe
+          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+            P4_baseline
           {% elif is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
             P1_boost_bagno
           {% elif is_state('binary_sensor.vmc_anti_secco','on') %}
@@ -371,6 +373,8 @@ template:
             Modalità OFF
           {% elif priority == 'P0_failsafe' %}
             P0 – failsafe sensori
+          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+            VMC BOOST BLOCKED BY POLICY
           {% elif priority == 'P1_boost_bagno' %}
             P1 – UR bagno alta / boost
           {% elif priority == 'P1_anti_secco' %}
@@ -487,6 +491,7 @@ automation:
           - binary_sensor.vmc_anti_secco
           - binary_sensor.vmc_freecooling_candidate
           - sensor.ventilation_priority
+          - binary_sensor.policy_allow_vmc_boost
     action:
       - variables:
           target: "{{ states('sensor.vmc_vel_target')|int(-1) }}"
@@ -544,6 +549,7 @@ automation:
           - sensor.ventilation_reason
           - sensor.vmc_freecooling_status
           - sensor.ventilation_priority
+          - binary_sensor.policy_allow_vmc_boost
     action:
       - service: input_text.set_value
         target:
