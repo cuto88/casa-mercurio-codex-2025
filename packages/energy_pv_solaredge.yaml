@@ -16,7 +16,7 @@ template:
         unit_of_measurement: "W"
         availability_template: >
           {{ (states('sensor.solaredge_potenza_attuale') | string | lower) not in ['unknown','unavailable','none',''] }}
-        state: >
+        value_template: >
           {{ states('sensor.solaredge_potenza_attuale') | float }}
 
 ####################################
