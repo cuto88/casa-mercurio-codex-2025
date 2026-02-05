@@ -19,6 +19,14 @@ template:
         state: >-
           {{ states('binary_sensor.surplus_ok') not in ['unknown','unavailable',''] }}
 
+
+      - name: "Contract policy arbiter ok"
+        unique_id: contract_policy_arbiter_ok
+        state: >-
+          {{
+            states('binary_sensor.policy_allow_ac') not in ['unknown','unavailable','']
+            and states('binary_sensor.policy_allow_vmc_boost') not in ['unknown','unavailable','']
+          }}
       - name: "Contract actuators defined"
         unique_id: contract_actuators_defined
         state: >-
@@ -47,6 +55,8 @@ template:
             'switch.vmc_vel_1',
             'switch.vmc_vel_2',
             'switch.vmc_vel_3',
+            'binary_sensor.policy_allow_ac',
+            'binary_sensor.policy_allow_vmc_boost',
             'binary_sensor.meteo_pioggia',
             'sensor.meteo_vento_velocita'
           ] -%}
