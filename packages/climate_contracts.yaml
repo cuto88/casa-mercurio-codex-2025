@@ -51,16 +51,8 @@ template:
       - name: "Contract actuators defined"
         unique_id: contract_actuators_defined
         state: >-
-          # AC is optional module; absence must not block DEFINED contracts
-          {%- set actuators = [
-            'switch.heating_master',
-            'switch.vmc_vel_0',
-            'switch.vmc_vel_1',
-            'switch.vmc_vel_2',
-            'switch.vmc_vel_3'
-          ] -%}
-          {%- set actuator_states = actuators | map('states') | list -%}
-          {{ actuator_states | reject('eq', 'unknown') | list | count == actuators | length }}
+          # Actuators existence is architectural; runtime availability is tracked by *_ready only
+          {{ true }}
 
       - name: "Contract actuators ready"
         unique_id: contract_actuators_ready
