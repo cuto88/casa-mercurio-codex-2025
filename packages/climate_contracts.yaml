@@ -20,6 +20,21 @@ template:
           {{ states('binary_sensor.surplus_ok') not in ['unknown','unavailable',''] }}
 
 
+
+      - name: "Contract surplus policy ok"
+        unique_id: contract_surplus_policy_ok
+        state: >-
+          {{ states('binary_sensor.policy_surplus_ok') not in ['unknown','unavailable',''] }}
+
+      - name: "Contract core fallback ok"
+        unique_id: contract_core_fallback_ok
+        state: >-
+          {{
+            states('input_number.core_backup_t_in') not in ['unknown','unavailable','']
+            and states('input_number.core_backup_ur_in') not in ['unknown','unavailable','']
+            and states('sensor.core_backup_last_update') not in ['unknown','unavailable','']
+          }}
+
       - name: "Contract policy arbiter ok"
         unique_id: contract_policy_arbiter_ok
         state: >-
@@ -48,6 +63,11 @@ template:
         state: >-
           {%- set required = [
             'binary_sensor.surplus_ok',
+            'binary_sensor.policy_surplus_ok',
+            'sensor.policy_surplus_reason',
+            'input_number.core_backup_t_in',
+            'input_number.core_backup_ur_in',
+            'sensor.core_backup_last_update',
             'switch.heating_master',
             'switch.ac_giorno',
             'switch.ac_notte',
