@@ -557,3 +557,45 @@ automation:
         data:
           value: >-
             {{ states('sensor.ventilation_reason') }} – Freecooling: {{ states('sensor.vmc_freecooling_status') }}
+
+  - id: vmc_sync_core_backup_inputs
+    alias: "VMC – Sync core/legacy backup input"
+    mode: queued
+    trigger:
+      - platform: time_pattern
+        minutes: "/5"
+      - platform: state
+        entity_id:
+          - sensor.t_in_giorno
+          - sensor.t_in_notte1
+          - sensor.t_in_notte2
+          - sensor.t_in_bagno
+          - sensor.ur_in_giorno
+          - sensor.ur_in_notte1
+          - sensor.ur_in_notte2
+          - sensor.ur_in_bagno
+    condition:
+      - condition: template
+        value_template: >-
+          {{
+            states('sensor.t_in_med') not in ['unknown','unavailable','']
+            and states('sensor.ur_in_media') not in ['unknown','unavailable','']
+          }}
+    action:
+      - variables:
+          t_in_med: "{{ states('sensor.t_in_med') | float(26) }}"
+          ur_in_media: "{{ states('sensor.ur_in_media') | float(55) }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_t_in
+            - input_number.vent_backup_t_in
+        data:
+          value: "{{ t_in_med }}"
+      - service: input_number.set_value
+        target:
+          entity_id:
+            - input_number.core_backup_ur_in
+            - input_number.vent_backup_ur_in
+        data:
+          value: "{{ ur_in_media }}"
