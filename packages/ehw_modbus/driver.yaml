@@ -1,0 +1,36 @@
+modbus:
+  - name: ehw_modbus
+    type: tcp
+    host: !secret ehw_modbus_host
+    port: !secret ehw_modbus_port
+    delay: 1
+    timeout: 2
+    retries: 0
+    message_wait_milliseconds: 30
+
+    sensors:
+      - name: "EHW reg56 status"
+        unique_id: ehw_reg56_status
+        address: 56
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg57 runtime"
+        unique_id: ehw_reg57_runtime
+        address: 57
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: !secret ehw_modbus_slave
+
+      - name: "EHW reg60 value"
+        unique_id: ehw_reg60_value
+        address: 60
+        input_type: holding
+        data_type: uint16
+        scan_interval: 10
+        slave: !secret ehw_modbus_slave
+
+template: !include canonical.yaml

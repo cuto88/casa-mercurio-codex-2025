@@ -4,98 +4,55 @@ views:
     path: ehw
     icon: mdi:water-boiler
     type: sections
-    max_columns: 3
+    max_columns: 2
 
     sections:
       - type: grid
-        title: "Stato"
+        title: "Status"
         cards:
           - type: entities
-            title: "Stato"
+            title: "Status word"
             show_header_toggle: false
             entities:
-              - entity: binary_sensor.ehw_running
-                name: In funzione
-              - entity: sensor.ehw_status
-                name: Stato
+              - entity: sensor.ehw_status_word_hex
+                name: Status word (hex)
                 secondary_info: last-updated
+              - entity: binary_sensor.ehw_status_bit_0100
+                name: Bit 0x0100
+              - entity: binary_sensor.ehw_status_bit_0200
+                name: Bit 0x0200
+              - entity: sensor.ehw_runtime_word_hex
+                name: Runtime word (hex)
           - type: entities
-            title: "RAW debug"
+            title: "Ultimo aggiornamento"
             show_header_toggle: false
             entities:
-              - entity: sensor.ehw_tank_top_raw
-                name: Tank top raw
-              - entity: sensor.ehw_tank_bottom_raw
-                name: Tank bottom raw
-              - entity: sensor.ehw_setpoint_raw
-                name: Setpoint raw
-              - entity: sensor.ehw_t02_raw_a
-                name: Tank top raw A (T02)
-              - entity: sensor.ehw_t02_raw_b
-                name: Tank top raw B (T02)
-              - entity: sensor.ehw_t03_raw_a
-                name: Tank bottom raw A (T03)
-              - entity: sensor.ehw_t03_raw_b
-                name: Tank bottom raw B (T03)
-              - entity: sensor.ehw_setpoint_raw_a
-                name: Setpoint raw A (1104)
-              - entity: sensor.ehw_setpoint_raw_b
-                name: Setpoint raw B (1105)
+              - entity: sensor.ehw_reg56_status
+                name: Reg56 status
+                secondary_info: last-updated
 
       - type: grid
-        title: "Temperature"
+        title: "Debug"
         cards:
           - type: entities
-            title: "Sonde e delta"
+            title: "Raw registers"
             show_header_toggle: false
             entities:
-              - entity: sensor.ehw_tank_top
-                name: Tank top
-              - entity: sensor.ehw_tank_bottom
-                name: Tank bottom
-              - entity: sensor.ehw_setpoint
-                name: Setpoint
-              - entity: sensor.ehw_delta_stratificazione
-                name: Delta stratificazione
+              - entity: sensor.ehw_reg56_status
+                name: Reg56 status
+              - entity: sensor.ehw_reg57_runtime
+                name: Reg57 runtime
+              - entity: sensor.ehw_reg60_value
+                name: Reg60 value
           - type: history-graph
-            title: "Temperature (24h)"
+            title: "Reg56/Reg57 (24h)"
             hours_to_show: 24
-            min_y: 20
-            max_y: 80
             entities:
-              - entity: sensor.ehw_tank_top
-                name: Tank top
-              - entity: sensor.ehw_tank_bottom
-                name: Tank bottom
-              - entity: sensor.ehw_setpoint
-                name: Setpoint
-              - entity: sensor.ehw_delta_stratificazione
-                name: Delta stratificazione
-
-      - type: grid
-        title: "Setpoint & calibrazione"
-        cards:
-          - type: entities
-            title: "Setpoint"
-            show_header_toggle: false
-            entities:
-              - entity: sensor.ehw_setpoint
-                name: Setpoint (°C)
-              - entity: sensor.ehw_setpoint_raw
-                name: Setpoint raw (selezionato)
-          - type: entities
-            title: "Calibrazione"
-            show_header_toggle: false
-            entities:
-              - entity: input_number.ehw_temp_scale
-                name: Temp scale
-              - entity: input_number.ehw_temp_offset
-                name: Temp offset
-              - entity: input_number.ehw_setpoint_scale
-                name: Setpoint scale
-              - entity: input_number.ehw_setpoint_offset
-                name: Setpoint offset
-              - entity: input_select.ehw_address_mode
-                name: Address mode
-              - entity: input_boolean.ehw_swap_top_bottom
-                name: Swap top/bottom
+              - entity: sensor.ehw_reg56_status
+                name: Reg56 status
+              - entity: sensor.ehw_reg57_runtime
+                name: Reg57 runtime
+          - type: markdown
+            title: "Note"
+            content: |-
+              Setpoint non esposto in chiaro; cambio setpoint riflette su reg56/reg57.

@@ -1,0 +1,29 @@
+- sensor:
+    - name: "EHW status word hex"
+      unique_id: ehw_status_word_hex
+      state: >-
+        {{ '0x%04X' | format(states('sensor.ehw_reg56_status') | int(0)) }}
+      availability: >-
+        {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
+
+    - name: "EHW runtime word hex"
+      unique_id: ehw_runtime_word_hex
+      state: >-
+        {{ '0x%04X' | format(states('sensor.ehw_reg57_runtime') | int(0)) }}
+      availability: >-
+        {{ states('sensor.ehw_reg57_runtime') not in ['unknown', 'unavailable', 'none'] }}
+
+  binary_sensor:
+    - name: "EHW status bit 0x0100"
+      unique_id: ehw_status_bit_0100
+      state: >-
+        {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(256) > 0 }}
+      availability: >-
+        {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
+
+    - name: "EHW status bit 0x0200"
+      unique_id: ehw_status_bit_0200
+      state: >-
+        {{ (states('sensor.ehw_reg56_status') | int(0)) | bitwise_and(512) > 0 }}
+      availability: >-
+        {{ states('sensor.ehw_reg56_status') not in ['unknown', 'unavailable', 'none'] }}
