@@ -1,0 +1,2 @@
+# EHW Modbus package (driver + canonical templates)
+!include ehw_modbus/driver.yaml
