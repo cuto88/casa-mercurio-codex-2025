@@ -32,3 +32,15 @@ template:
       - name: "CM Policy Reason"
         unique_id: cm_policy_reason
         state: "{{ states('sensor.policy_arbiter_reason') }}"
+
+      - name: "CM System Mode Suggested"
+        unique_id: cm_system_mode_suggested
+        state: >-
+          {% set candidates = [
+            states('sensor.climateops_mode_suggested'),
+            states('sensor.climateops_planner_mode'),
+            states('sensor.climateops_arbiter_mode')
+          ] %}
+          {% set valid = candidates | reject('in', ['unknown', 'unavailable', 'none', '']) | list %}
+          {{ valid[0] if valid | length > 0 else 'IDLE' }}
+        availability: "{{ true }}"
