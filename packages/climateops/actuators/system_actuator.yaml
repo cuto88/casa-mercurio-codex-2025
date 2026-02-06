@@ -48,26 +48,28 @@ automation:
                   entity_id: switch.heating_master
           - conditions: "{{ mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','on') }}"
             sequence:
-              - service: homeassistant.turn_off
+              - service: switch.turn_off
                 target:
                   entity_id:
                     - switch.vmc_vel_0
                     - switch.vmc_vel_1
                     - switch.vmc_vel_2
-                    - switch.vmc_vel_3
-              - service: homeassistant.turn_on
+              - delay: "00:00:01"
+              - service: switch.turn_on
                 target:
                   entity_id: switch.vmc_vel_3
-          - conditions: "{{ mode == 'VENT_BASE' or (mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','off')) }}"
+          - conditions: >-
+              {{
+                mode in ['VENT_BASE', 'IDLE']
+                or (mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','off'))
+              }}
             sequence:
-              - service: homeassistant.turn_off
+              - service: switch.turn_off
                 target:
                   entity_id:
-                    - switch.vmc_vel_0
-                    - switch.vmc_vel_1
-                    - switch.vmc_vel_2
                     - switch.vmc_vel_3
-              - service: homeassistant.turn_on
+              - delay: "00:00:01"
+              - service: switch.turn_on
                 target:
                   entity_id: switch.vmc_vel_1
           - conditions: >-
