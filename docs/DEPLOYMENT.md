@@ -91,3 +91,8 @@ Robocopy exit codes **0–7** are OK. **8+** indicates a failure (permissions, f
 
 - **Use:** `ops/deploy_safe.ps1`
 - **Legacy (archived):** `ops/_archive/synch_ha.ps1` (kept for reference; it now includes the same safety exclusions but is not the recommended path).
+
+## Contracts quick check
+
+- `cm_contract_missing_entities` must be OK
+- `cm_contract_actuators_defined` must be ON
