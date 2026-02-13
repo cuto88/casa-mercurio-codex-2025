@@ -565,42 +565,6 @@ automation:  # Gestione timeout manuale
                 target:
                   entity_id: input_boolean.heating_manual_active
 
-  # Attuazione comando logico
-  - id: heating_drive_master
-    alias: "HEATING  attua should_run"
-    enabled: false
-    mode: restart
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.heating_should_run
-          - switch.heating_master
-      - platform: state
-        entity_id:
-          - input_boolean.heating_manual_active
-          - input_select.heating_manual_mode
-    action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.heating_should_run
-                state: "on"
-            sequence:
-              - service: switch.turn_on
-                target:
-                  entity_id: switch.heating_master
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.heating_should_run
-                state: "off"
-            sequence:
-              - condition: state
-                entity_id: binary_sensor.heating_lock_min_on_ok
-                state: "on"
-              - service: switch.turn_off
-                target:
-                  entity_id: switch.heating_master
-
 # ENTITY MAP STATUS (heating)
 # - All entity_id aligned with logica/core/README_sensori_clima.md
 # - No unused helpers except optional diagnostics listed in README
