@@ -3,8 +3,9 @@
 
 automation:
   - id: bootstrap_cutover_on_start
-    alias: "ClimateOps – Bootstrap cutover on start (TEMP)"
+    alias: "LEGACY(DISABLED) — ClimateOps – Bootstrap cutover on start (TEMP)"
     enabled: false
+    description: "Disabled by design after ClimateOps cutover (Step 5). Do not re-enable."
     trigger:
       - platform: homeassistant
         event: start
