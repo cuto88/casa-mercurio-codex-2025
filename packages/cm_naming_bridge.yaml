@@ -7,17 +7,17 @@ template:
         unique_id: cm_contract_actuators_defined
         state: "{{ is_state('binary_sensor.contract_actuators_defined','on') }}"
 
-      - name: "CM Policy Allow AC"
-        unique_id: cm_policy_allow_ac
-        state: "{{ is_state('binary_sensor.policy_allow_ac','on') }}"
+      - name: "CM Contract Surplus OK Defined"
+        unique_id: cm_contract_surplus_ok_defined
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_defined','on') }}"
+
+      - name: "CM Contract Surplus OK Ready"
+        unique_id: cm_contract_surplus_ok_ready
+        state: "{{ is_state('binary_sensor.contract_surplus_ok_ready','on') }}"
 
       - name: "CM Policy Allow VMC Boost"
         unique_id: cm_policy_allow_vmc_boost
         state: "{{ is_state('binary_sensor.policy_allow_vmc_boost','on') }}"
-
-      - name: "CM Policy Surplus OK"
-        unique_id: cm_policy_surplus_ok
-        state: "{{ is_state('binary_sensor.policy_surplus_ok','on') }}"
 
   - sensor:
       - name: "CM Contract Missing Entities"

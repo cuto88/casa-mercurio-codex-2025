@@ -75,7 +75,7 @@ automation:
           - conditions: >-
               {{
                 mode == 'COOL_DAY'
-                and is_state('binary_sensor.cm_policy_allow_ac','on')
+                and is_state('binary_sensor.policy_allow_ac','on')
                 and ac_available
               }}
             sequence:
@@ -83,7 +83,7 @@ automation:
           - conditions: >-
               {{
                 mode == 'COOL_NIGHT'
-                and is_state('binary_sensor.cm_policy_allow_ac','on')
+                and is_state('binary_sensor.policy_allow_ac','on')
                 and ac_available
               }}
             sequence:
