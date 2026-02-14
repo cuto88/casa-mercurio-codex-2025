@@ -1,16 +1,11 @@
 ---
-# Step4 naming bridge: canonical cm_* entities mapped to legacy sources.
-# Keep legacy entities active for one migration cycle.
+# Minimal cm_* naming bridge: only canonical entities required by ClimateOps.
 
 template:
   - binary_sensor:
       - name: "CM Contract Actuators Defined"
         unique_id: cm_contract_actuators_defined
         state: "{{ is_state('binary_sensor.contract_actuators_defined','on') }}"
-
-      - name: "CM Contract Surplus Ready"
-        unique_id: cm_contract_surplus_ready
-        state: "{{ is_state('binary_sensor.contract_surplus_ok_ready','on') }}"
 
       - name: "CM Policy Allow AC"
         unique_id: cm_policy_allow_ac
