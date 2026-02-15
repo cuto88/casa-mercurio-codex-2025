@@ -44,7 +44,14 @@ function ha-gates {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  return Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+  return Invoke-HaOpsScript -ScriptName "validate.ps1" -Args $Args
+}
+
+function ha-validate {
+  [CmdletBinding()]
+  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
+
+  return Invoke-HaOpsScript -ScriptName "validate.ps1" -Args $Args
 }
 
 function ha-gates-ci {
@@ -67,7 +74,7 @@ function ha-flow {
 
   $rc = Invoke-HaOpsScript -ScriptName "repo_sync.ps1" -Args $Args
   if ($rc -eq 0) {
-    $rc = Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+    $rc = Invoke-HaOpsScript -ScriptName "validate.ps1" -Args $Args
   }
   if ($rc -eq 0) {
     $rc = Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
@@ -80,7 +87,7 @@ function dep! {
   [CmdletBinding()]
   param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
 
-  $rc = Invoke-HaOpsScript -ScriptName "gates_run.ps1" -Args $Args
+  $rc = Invoke-HaOpsScript -ScriptName "validate.ps1" -Args $Args
   if ($rc -eq 0) {
     $rc = Invoke-HaOpsScript -ScriptName "deploy_safe.ps1" -Args $Args
   }
@@ -90,5 +97,6 @@ function dep! {
 
 Set-Alias sync ha-sync
 Set-Alias gates ha-gates
+Set-Alias validate ha-validate
 Set-Alias dep ha-deploy
 Set-Alias flow ha-flow
