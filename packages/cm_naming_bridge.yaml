@@ -31,8 +31,11 @@ template:
         unique_id: cm_system_mode_suggested
         state: >-
           {% set heat = is_state('binary_sensor.heating_should_run', 'on') %}
+          {% set cool = is_state('binary_sensor.climateops_request_cool', 'on') %}
           {% set t = states('sensor.vmc_vel_target') | int(-1) %}
           {% if heat %}HEAT
+          {% elif cool and now().hour >= 8 and now().hour < 23 %}COOL_DAY
+          {% elif cool %}COOL_NIGHT
           {% elif t == 3 %}VENT_BOOST
           {% elif t in [0, 1, 2] %}IDLE
           {% else %}IDLE
