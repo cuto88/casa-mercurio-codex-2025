@@ -31,6 +31,11 @@ Compatibilità comandi/alias esistenti:
 
 Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira solo sui file tracciati da Git.
 
+## Accesso SSH runtime HA
+- Endpoint: `root@192.168.178.84` porta `2222`
+- Chiave primaria: `C:\Users\randalab\.ssh\ha_ed25519` (fallback `id_rsa`)
+- Path config runtime: `/homeassistant`
+
 ## Notifiche Telegram
 Nel package `packages/notify_telegram.yaml` è definita la notifica `notify.telegram_davide`
 per inviare messaggi alla chat principale senza hardcodare l'ID del bot nelle automazioni.
