@@ -188,7 +188,7 @@ views:
                 name: Priorità heating
               - entity: sensor.heating_reason
                 name: Motivo/azione
-              - entity: switch.4_ch_interrutore_3
+              - entity: switch.4_ch_interruttore_3
                 name: Pompa riscaldamento
               - entity: binary_sensor.heating_finestra_oraria
                 name: Finestra comfort

@@ -7,7 +7,7 @@ COLONNA 1 — STATO & COMANDI
 - Glance "Stato logiche": `binary_sensor.heating_should_run`, `binary_sensor.heating_finestra_oraria`, `binary_sensor.heating_esterna_fredda`, `binary_sensor.heating_almeno_una_stanza_sotto_target`, lock ON/OFF.
 - Markdown "Come decide" (sintesi) — evidenzia P0_failsafe, P1_anti_frost, P2_comfort, P3_pv_boost, P4_night_setback, manual/idle.
 - Pulsanti button/tile: abilitazione impianto, force on/off, pacchetto manuale con `input_boolean.heating_manual_active`, `input_select.heating_manual_mode` e timer.
-- Tile finale su `switch.4_ch_interrutore_3` per interruttore generale fisico.
+- Tile finale su `switch.4_ch_interruttore_3` per interruttore generale fisico.
 
 COLONNA 2 — KPI & SELEZIONE STANZE
 - Tile con grafico per `sensor.t_in_med`, `sensor.t_in_min`, `sensor.t_out`, `input_number.temp_target_risc` e `sensor.heating_minuti_da_ultimo_cambio`.

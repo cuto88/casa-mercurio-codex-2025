@@ -22,7 +22,7 @@
 
 homeassistant:
   customize:
-    switch.4_ch_interrutore_3:
+    switch.4_ch_interruttore_3:
       friendly_name: "Riscaldamento - Interruttore Generale"
       icon: mdi:radiator
       # NOTA: rele hardware invertito (state ON = circuito disattivo, OFF = attivo)
@@ -273,11 +273,11 @@ template:
         unique_id: heating_minutes_since_change
         unit_of_measurement: "min"
         state: >-
-          {% set relay = states('switch.4_ch_interrutore_3') %}
+          {% set relay = states('switch.4_ch_interruttore_3') %}
           {% if relay in ['unknown', 'unavailable', 'none', 'None', ''] %}
             unknown
           {% else %}
-            {{ ((as_timestamp(now()) - as_timestamp(states.switch['4_ch_interrutore_3'].last_changed)) / 60) | round(1) }}
+            {{ ((as_timestamp(now()) - as_timestamp(states.switch['4_ch_interruttore_3'].last_changed)) / 60) | round(1) }}
           {% endif %}
 
       # Reason & priority complessiva
@@ -485,12 +485,12 @@ template:
         turn_on:
           - service: switch.turn_off
             target:
-              entity_id: switch.4_ch_interrutore_3
+              entity_id: switch.4_ch_interruttore_3
         turn_off:
           - service: switch.turn_on
             target:
-              entity_id: switch.4_ch_interrutore_3
-        state: "{{ not is_state('switch.4_ch_interrutore_3','on') }}"  # MODIFICATA
+              entity_id: switch.4_ch_interruttore_3
+        state: "{{ not is_state('switch.4_ch_interruttore_3','on') }}"  # MODIFICATA
 
       - name: "Riscaldamento  blocco notturno"
         unique_id: heating_night_block
@@ -499,12 +499,12 @@ template:
         turn_on:
           - service: switch.turn_on
             target:
-              entity_id: switch.4_ch_interrutore_3
+              entity_id: switch.4_ch_interruttore_3
         turn_off:
           - service: switch.turn_off
             target:
-              entity_id: switch.4_ch_interrutore_3
-        state: "{{ is_state('switch.4_ch_interrutore_3','on') }}"
+              entity_id: switch.4_ch_interruttore_3
+        state: "{{ is_state('switch.4_ch_interruttore_3','on') }}"
 
 ###############################################################################
 # 4) SENSORI STATISTICI  runtime storico
@@ -513,7 +513,7 @@ sensor:
   - platform: history_stats
     name: "Riscaldamento  Ore ON oggi"
     unique_id: heating_hours_on_today
-    entity_id: switch.4_ch_interrutore_3
+    entity_id: switch.4_ch_interruttore_3
     state: "off"
     type: time
     start: "{{ today_at('00:00') }}"
@@ -522,7 +522,7 @@ sensor:
   - platform: history_stats
     name: "Riscaldamento  Ore ON ieri"
     unique_id: heating_hours_on_yesterday
-    entity_id: switch.4_ch_interrutore_3
+    entity_id: switch.4_ch_interruttore_3
     state: "off"
     type: time
     start: "{{ (today_at('00:00') - timedelta(days=1)) }}"

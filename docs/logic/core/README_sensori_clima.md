@@ -248,7 +248,7 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 |-------------------------------------------|--------------------------------------------|
 | Heating master (logical)                  | `switch.heating_master`                   |
 | Heating night block                       | `switch.heating_night_block`              |
-| Heating hardware relay                    | `switch.4_ch_interrutore_3`               |
+| Heating hardware relay                    | `switch.4_ch_interruttore_3`              |
 
 ### 6.4 Actuators — AC
 
@@ -309,4 +309,3 @@ Entità principali:
 - `sensor.cm_system_reason`
 
 Nota: le entità legacy restano attive per un ciclo, ma non sono più naming target.
-
