@@ -11,6 +11,10 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.cm_system_mode_suggested
+      - platform: state
+        entity_id:
+          - switch.ac_giorno
+          - switch.ac_notte
       - platform: time_pattern
         minutes: "/2"
     condition:
