@@ -14,9 +14,9 @@ views:
             title: "Potenze istantanee"
             show_header_toggle: false
             entities:
-              - entity: sensor.sensor_grid_power_w
+              - entity: sensor.mirai_power_w
                 name: Mirai Potenza W
-              - entity: sensor.sensor_pv_power_w
+              - entity: sensor.ehw_power_w
                 name: EHW Potenza W
               - entity: sensor.sensor_grid_direction
                 name: Direzione flusso
@@ -49,9 +49,9 @@ views:
             hours_to_show: 24
             refresh_interval: 60
             entities:
-              - entity: sensor.sensor_grid_power_w
+              - entity: sensor.mirai_power_w
                 name: Mirai W
-              - entity: sensor.sensor_pv_power_w
+              - entity: sensor.ehw_power_w
                 name: EHW W
 
       - type: grid

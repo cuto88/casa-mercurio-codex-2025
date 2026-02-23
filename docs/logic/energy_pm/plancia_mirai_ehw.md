@@ -5,11 +5,11 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 ## Entita usate (runtime LocalTuya `01K0AE579DTMM0ZED250CYNCT8`)
 
 - Pinza Mirai (A)
-  - `sensor.sensor_grid_power_w` (potenza istantanea W)
+  - `sensor.mirai_power_w` (potenza istantanea W, alias canonico)
   - `sensor.a_energia_prelevata_forward` (kWh cumulati)
   - `sensor.a_energia_immessa_reverse` (kWh cumulati)
 - Pinza EHW (B)
-  - `sensor.sensor_pv_power_w` (potenza istantanea W)
+  - `sensor.ehw_power_w` (potenza istantanea W, alias canonico)
   - `sensor.b_energia_prelevata_forward` (kWh cumulati)
   - `sensor.b_energia_immessa_reverse` (kWh cumulati)
 - Direzione:
@@ -25,5 +25,7 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 ## Note operative
 
 - Mapping verificato su runtime il `2026-02-23` via `core.entity_registry`.
+- Hardening naming il `2026-02-23`: alias template in `packages/cm_naming_bridge.yaml`
+  (`sensor.mirai_power_w`, `sensor.ehw_power_w`) sopra i raw LocalTuya.
 - Se in campo le pinze risultano invertite, scambiare solo le 2 entita di potenza
-  (`sensor.sensor_grid_power_w` <-> `sensor.sensor_pv_power_w`) e i blocchi A/B.
+  (`sensor.mirai_power_w` <-> `sensor.ehw_power_w`) e i blocchi A/B.

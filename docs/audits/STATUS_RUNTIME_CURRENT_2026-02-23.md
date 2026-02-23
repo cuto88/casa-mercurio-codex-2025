@@ -40,3 +40,6 @@ Scope: Operational snapshot after heating/AC runtime hardening
 - LocalTuya Dual Meter runtime mapping was renamed for clamp semantics (`Mirai` on A, `EHW` on B) and a dedicated dashboard was added:
   - `lovelace/consumi_mirai_ehw_plancia.yaml`
   - `docs/logic/energy_pm/plancia_mirai_ehw.md`
+- Power naming hardening added through template aliases:
+  - `sensor.mirai_power_w` -> source `sensor.sensor_grid_power_w`
+  - `sensor.ehw_power_w` -> source `sensor.sensor_pv_power_w`
