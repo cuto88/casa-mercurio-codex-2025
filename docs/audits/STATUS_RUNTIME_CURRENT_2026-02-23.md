@@ -37,3 +37,6 @@ Scope: Operational snapshot after heating/AC runtime hardening
 - Runtime evidence raw exports are local-only (`docs/runtime_evidence/`) and ignored by Git.
 - SSH runtime access baseline is documented in `AGENTS.md` (host, port, key, path).
 - `policy_surplus_ok` now has runtime fallback on `sensor.pv_power_now` (threshold helper `input_number.policy_surplus_pv_min_w`) when legacy `binary_sensor.surplus_ok` is not available.
+- LocalTuya Dual Meter runtime mapping was renamed for clamp semantics (`Mirai` on A, `EHW` on B) and a dedicated dashboard was added:
+  - `lovelace/consumi_mirai_ehw_plancia.yaml`
+  - `docs/logic/energy_pm/plancia_mirai_ehw.md`

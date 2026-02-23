@@ -64,6 +64,13 @@ lovelace:
     #   show_in_sidebar: true
     #   filename: lovelace/6_surplus_plancia.yaml
 
+    6-consumi:
+      mode: yaml
+      title: "6 Consumi"
+      icon: mdi:flash
+      show_in_sidebar: true
+      filename: lovelace/consumi_mirai_ehw_plancia.yaml
+
     7-ehw:
       mode: yaml
       title: "7 EHW ACS"

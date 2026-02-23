@@ -1,0 +1,77 @@
+title: "Consumi Mirai+EHW"
+views:
+  - title: "Consumi"
+    path: consumi
+    icon: mdi:flash
+    type: sections
+    max_columns: 2
+
+    sections:
+      - type: grid
+        title: "Stato attuale"
+        cards:
+          - type: entities
+            title: "Potenze istantanee"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.sensor_grid_power_w
+                name: Mirai Potenza W
+              - entity: sensor.sensor_pv_power_w
+                name: EHW Potenza W
+              - entity: sensor.sensor_grid_direction
+                name: Direzione flusso
+
+      - type: grid
+        title: "Contatori cumulati"
+        cards:
+          - type: entities
+            title: "Mirai (pinza A)"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.a_energia_prelevata_forward
+                name: Energia prelevata
+              - entity: sensor.a_energia_immessa_reverse
+                name: Energia immessa
+          - type: entities
+            title: "EHW (pinza B)"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.b_energia_prelevata_forward
+                name: Energia prelevata
+              - entity: sensor.b_energia_immessa_reverse
+                name: Energia immessa
+
+      - type: grid
+        title: "Andamento 24h"
+        cards:
+          - type: history-graph
+            title: "Potenze 24h"
+            hours_to_show: 24
+            refresh_interval: 60
+            entities:
+              - entity: sensor.sensor_grid_power_w
+                name: Mirai W
+              - entity: sensor.sensor_pv_power_w
+                name: EHW W
+
+      - type: grid
+        title: "Consumi giornalieri (7 giorni)"
+        cards:
+          - type: statistics-graph
+            title: "Mirai kWh/giorno"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.a_energia_prelevata_forward
+          - type: statistics-graph
+            title: "EHW kWh/giorno"
+            chart_type: bar
+            period: day
+            stat_types:
+              - change
+            days_to_show: 7
+            entities:
+              - entity: sensor.b_energia_prelevata_forward
