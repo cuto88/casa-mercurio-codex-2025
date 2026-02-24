@@ -8,6 +8,8 @@ Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
 - Audit Step 2 runtime evidence closure: [`../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md`](../audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md)
 - Audit Step 2-bis runtime evidence update (writer per evento): [`../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md`](../audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md)
 - Runtime status current (post stabilization): [`../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`](../audits/STATUS_RUNTIME_CURRENT_2026-02-23.md)
+- Audit Step 3 post-deploy (context correlation): [`../audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md`](../audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md)
+- WIP tracker runtime/audit: [`../audits/WIP_RUNTIME_TRACKER_2026-02-24.md`](../audits/WIP_RUNTIME_TRACKER_2026-02-24.md)
 - Moduli principali:
   - Ventilation (ventilazione naturale + VMC):
     - [`ventilation/README.md`](ventilation/README.md)

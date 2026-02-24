@@ -215,7 +215,7 @@ template:
             {% if t_med not in invalid %}
               {{ t_med|float | round(1) }}
             {% else %}
-              unknown
+              {{ none }}
             {% endif %}
           {% endif %}
 
@@ -276,7 +276,7 @@ template:
           {% set relay_state = states('switch.4_ch_interruttore_3') %}
           {% set relay_obj = states.switch | selectattr('entity_id', 'eq', 'switch.4_ch_interruttore_3') | list | first %}
           {% if relay_state in ['unknown', 'unavailable', 'none', 'None', ''] or relay_obj is none %}
-            unknown
+            {{ none }}
           {% else %}
             {{ ((as_timestamp(now()) - as_timestamp(relay_obj.last_changed)) / 60) | round(1) }}
           {% endif %}

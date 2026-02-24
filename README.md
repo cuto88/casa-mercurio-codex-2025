@@ -17,6 +17,8 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 2 runtime evidence closure: `docs/audits/STEP2_RUNTIME_EVIDENCE_2026-02-21.md`
 - Step 2-bis runtime evidence update (writer per evento): `docs/audits/STEP2BIS_RUNTIME_EVIDENCE_UPDATE_2026-02-21.md`
 - Runtime status current (post stabilization): `docs/audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`
+- Step 3 runtime evidence post-deploy: `docs/audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md`
+- WIP tracker (audit stream): `docs/audits/WIP_RUNTIME_TRACKER_2026-02-24.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:

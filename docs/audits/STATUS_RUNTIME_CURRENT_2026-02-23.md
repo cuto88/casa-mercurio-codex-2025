@@ -43,3 +43,14 @@ Scope: Operational snapshot after heating/AC runtime hardening
 - Power naming hardening added through template aliases:
   - `sensor.mirai_power_w` -> source `sensor.sensor_grid_power_w`
   - `sensor.ehw_power_w` -> source `sensor.sensor_pv_power_w`
+
+## Delta Update (2026-02-24)
+
+### FACT
+- Post-deploy runtime verification completed on Home Assistant `2026.2.3`.
+- Event-level trace correlation was reconfirmed after restart.
+- AC OFF enforcement was observed with context correlation:
+  - manual AC switch changes were reverted by ClimateOps when `mode=HEAT`.
+  - this is expected behavior (`ac_day_should_run=false`, `ac_night_should_run=false`).
+- Detailed evidence and context IDs are tracked in:
+  - `docs/audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md`
