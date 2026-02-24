@@ -15,6 +15,10 @@ Scope: ClimateOps runtime hardening and evidence closure
   - startup schema/template fixes applied
   - Modbus MIRAI polling reduced to essential registers only
   - runtime restart/check validated post-change
+- EHW raw template hardening executed:
+  - removed non-numeric outputs from raw template sensors
+  - commit `2aebc49` pushed on `main`
+  - deploy validated with `ha core check` + restart
 
 ## In Progress / Pending
 - AEB maturity closure (forecast, tariff/grid-aware logic, multi-load hierarchy, KPI closure) still open.
