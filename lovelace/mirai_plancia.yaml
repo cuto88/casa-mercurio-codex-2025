@@ -14,7 +14,11 @@ views:
             show_header_toggle: false
             entities:
               - binary_sensor.mirai_machine_running
+              - binary_sensor.mirai_machine_running_by_power
               - sensor.mirai_machine_state
+              - sensor.mirai_machine_running_source
+              - sensor.mirai_power_w
+              - input_number.mirai_running_power_on_w
               - sensor.mirai_l261_compressor_step
               - sensor.mirai_l243_internal_circulator
               - sensor.mirai_status_code_raw

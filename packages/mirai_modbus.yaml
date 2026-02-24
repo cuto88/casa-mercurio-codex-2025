@@ -16,7 +16,23 @@ modbus:
         address: 9050
         input_type: holding
         data_type: uint16
-        scan_interval: 120
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_fault_code_raw"
+        unique_id: mirai_fault_code_raw
+        address: 9086
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_status_code_raw"
+        unique_id: mirai_status_code_raw
+        address: 9087
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
         slave: 1
 
       - name: "mirai_l261_compressor_step"
@@ -24,5 +40,103 @@ modbus:
         address: 9058
         input_type: holding
         data_type: uint16
-        scan_interval: 120
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l243_internal_circulator"
+        unique_id: mirai_l243_internal_circulator
+        address: 9068
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l241_antifreeze_lvl1"
+        unique_id: mirai_l241_antifreeze_lvl1
+        address: 9078
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l242_antifreeze_lvl2"
+        unique_id: mirai_l242_antifreeze_lvl2
+        address: 9079
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l163_outdoor_air_temp"
+        unique_id: mirai_l163_outdoor_air_temp
+        address: 8986
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l162_outlet_water_temp"
+        unique_id: mirai_l162_outlet_water_temp
+        address: 8987
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_l161_inlet_water_temp"
+        unique_id: mirai_l161_inlet_water_temp
+        address: 8988
+        input_type: holding
+        data_type: int16
+        scale: 0.1
+        precision: 1
+        unit_of_measurement: "°C"
+        scan_interval: 3600
+        slave: 1
+
+      # Legacy/probe map (low frequency) to validate addressing profile.
+      - name: "mirai_probe_status_word_4000"
+        unique_id: mirai_probe_status_word_4000
+        address: 4000
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_probe_status_code_4001"
+        unique_id: mirai_probe_status_code_4001
+        address: 4001
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_probe_status_word_legacy_1003"
+        unique_id: mirai_probe_status_word_legacy_1003
+        address: 1003
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_probe_status_detail_1208"
+        unique_id: mirai_probe_status_detail_1208
+        address: 1208
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
+        slave: 1
+
+      - name: "mirai_probe_fault_code_1209"
+        unique_id: mirai_probe_fault_code_1209
+        address: 1209
+        input_type: holding
+        data_type: uint16
+        scan_interval: 3600
         slave: 1
