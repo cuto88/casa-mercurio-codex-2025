@@ -11,6 +11,7 @@ views:
         entities:
           - sensor.ventilation_priority
           - sensor.ventilation_reason
+          - sensor.vmc_boost_bagno_eta_spegnimento
           - binary_sensor.vmc_sensors_ok
 
       - type: entities

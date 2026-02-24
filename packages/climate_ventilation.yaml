@@ -403,7 +403,35 @@ template:
           dUR={{ (states('sensor.ur_in_bagno')|float(0) - states('sensor.ur_out')|float(0))|round(2) }}
           dAH={{ states('sensor.delta_ah_in_out') }}
           manual={{ states('input_boolean.vmc_boost_bagno') }}
-          timer=n/a
+          timer={{ states('sensor.vmc_boost_bagno_eta_spegnimento') }}
+
+      - name: "VMC boost bagno ETA spegnimento"
+        unique_id: vmc_boost_bagno_eta_spegnimento
+        icon: mdi:timer-sand
+        state: >-
+          {% if not is_state('binary_sensor.vmc_bagno_boost_auto','on') %}
+            off
+          {% else %}
+            {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+            {% set ur_bath = states('sensor.ur_in_bagno')|float(default=none) %}
+            {% set ur_out = states('sensor.ur_out')|float(default=none) %}
+            {% set ur_off = states('input_number.vmc_bagno_off')|float(65) %}
+            {% set delay_off_secs = 3 * 60 %}
+            {% set max_run_secs = 45 * 60 %}
+            {% set started = as_timestamp(states.binary_sensor.vmc_bagno_boost_auto.last_changed, default=now().timestamp()) %}
+            {% set timeout_eta = started + max_run_secs %}
+            {% if not sensors_ok or ur_bath is none or ur_out is none %}
+              {{ timeout_eta | timestamp_custom('%H:%M:%S', true) }} (max_run)
+            {% else %}
+              {% set delta_ur = ur_bath - ur_out %}
+              {% set off_condition = (ur_bath <= ur_off) and (delta_ur <= 6) %}
+              {% if off_condition %}
+                {{ (now().timestamp() + delay_off_secs) | timestamp_custom('%H:%M:%S', true) }} (delay_off)
+              {% else %}
+                {{ timeout_eta | timestamp_custom('%H:%M:%S', true) }} (max_run)
+              {% endif %}
+            {% endif %}
+          {% endif %}
 
   - trigger:
       - platform: state
