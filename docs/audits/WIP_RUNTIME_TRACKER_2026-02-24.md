@@ -30,7 +30,8 @@ Scope: ClimateOps runtime hardening and evidence closure
 - Step7.2 implementato a livello repo: tariff/grid policy layer + contracts + bridge (`STEP7_2_TARIFF_GRID_POLICY_2026-02-25.md`).
 - Step7.3 implementato a livello repo: hierarchy multi-load + contracts + bridge (`STEP7_3_MULTI_LOAD_HIERARCHY_2026-02-25.md`).
 - Step7.4 implementato a livello repo: KPI closure AEB + dashboard (`STEP7_4_KPI_CLOSURE_2026-02-25.md`).
-- AEB maturity closure (forecast, tariff/grid-aware logic, multi-load hierarchy, KPI closure) still open.
+- Step8 avviato: tuning baseline e finestra osservazione multi-giorno (`STEP8_TUNING_BASELINE_2026-02-25.md`).
+- AEB maturity closure Step7 completata; ottimizzazione Step8 in corso.
 - Operational task board (`AI/TASKS.md`) allineata con T2/T3 in `In Progress`.
 
 ## Evidence index
@@ -46,3 +47,4 @@ Scope: ClimateOps runtime hardening and evidence closure
 - `docs/audits/STEP7_4_KPI_CLOSURE_2026-02-25.md`
 - `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`
 - `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`
+- `docs/audits/STEP8_TUNING_BASELINE_2026-02-25.md`
