@@ -27,3 +27,5 @@ Questa cartella contiene la documentazione delle logiche di Casa Mercurio.
   - Energy PM (monitor consumi):
     - [`energy_pm/plancia.md`](energy_pm/plancia.md)
     - [`energy_pm/README.md`](energy_pm/README.md)
+  - Energy PV SolarEdge (monitor produzione FV):
+    - [`energy_pv/plancia.md`](energy_pv/plancia.md)

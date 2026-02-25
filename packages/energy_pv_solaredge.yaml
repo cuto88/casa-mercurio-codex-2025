@@ -15,9 +15,33 @@ template:
         state_class: measurement
         unit_of_measurement: "W"
         availability: >
-          {{ (states('sensor.solaredge_potenza_attuale') | string | lower) not in ['unknown','unavailable','none',''] }}
+          {% set se = states('sensor.solaredge_potenza_attuale') %}
+          {% set lt = states('sensor.sensor_pv_power_w') %}
+          {{ se not in ['unknown','unavailable','none','None',''] or lt not in ['unknown','unavailable','none','None',''] }}
         state: >
-          {{ states('sensor.solaredge_potenza_attuale') | float }}
+          {% set se = states('sensor.solaredge_potenza_attuale') %}
+          {% set lt = states('sensor.sensor_pv_power_w') %}
+          {% if se not in ['unknown','unavailable','none','None',''] %}
+            {{ se | float(0) }}
+          {% elif lt not in ['unknown','unavailable','none','None',''] %}
+            {{ lt | float(0) }}
+          {% else %}
+            {{ none }}
+          {% endif %}
+
+      - name: "PV Potenza Sorgente"
+        unique_id: pv_power_source_selected
+        icon: mdi:source-branch
+        state: >
+          {% set se = states('sensor.solaredge_potenza_attuale') %}
+          {% set lt = states('sensor.sensor_pv_power_w') %}
+          {% if se not in ['unknown','unavailable','none','None',''] %}
+            solaredge
+          {% elif lt not in ['unknown','unavailable','none','None',''] %}
+            localtuya_fallback
+          {% else %}
+            unavailable
+          {% endif %}
 
 ####################################
 # 2) TEMPLATE SENSOR – ENERGIA TOTALE PV (kWh)
@@ -28,8 +52,10 @@ template:
         device_class: energy
         state_class: total_increasing
         unit_of_measurement: "kWh"
+        availability: >
+          {{ states('sensor.solaredge_energia_dall_installazione') not in ['unknown','unavailable','none','None',''] }}
         state: >
-          {{ (states('sensor.solaredge_energia_dall_installazione') | float(0) / 1000) | round(3) }}
+          {{ (states('sensor.solaredge_energia_dall_installazione') | float / 1000) | round(3) }}
 
 ####################################
 # 3) UTILITY METER – PRODUZIONE PV
