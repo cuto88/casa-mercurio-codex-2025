@@ -4,21 +4,28 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 
 ## Verifiche eseguite (FACT)
 - Repo gates locali: `ops/validate.ps1` -> PASS (2026-02-25).
+- Merge branch Step6/Step7 su `main` completato e push su `origin/main`.
+- Deploy runtime completato con `ops/deploy_safe.ps1 -Target Z:\` (backup + sync OK).
 - Runtime core: `ha core info` -> `version: 2026.2.3`, `boot: true` (2026-02-25).
 - Runtime config check: `ha core check` -> `Command completed successfully.` (2026-02-25).
-- File runtime verificato: `/homeassistant/packages/climateops/actuators/system_actuator.yaml`.
+- Restart core completato (con retry per coda job supervisor).
+- File runtime verificati:
+  - `/homeassistant/packages/climateops/actuators/system_actuator.yaml`
+  - `/homeassistant/packages/climateops/core/kpi.yaml`
+  - `/homeassistant/packages/climate_policy_energy.yaml`
 - Tracce presenti per `automation.climateops_system_actuate` in `.storage/trace.saved_traces`.
+- Evidenza snapshot raccolta:
+  - `docs/runtime_evidence/2026-02-25/step7_state_snapshot_20260225_220506.txt`
 
 ## Stato obiettivo
 - Stabilizzazione runtime writer authority ClimateOps: QUASI CHIUSO.
 - Hardening restart/check/deploy: CHIUSO operativamente.
-- Maturita` AEB (forecast + tariff/grid-aware + gerarchia multi-load + KPI closure): APERTO.
+- Maturita` AEB (forecast + tariff/grid-aware + gerarchia multi-load + KPI closure): IMPLEMENTATA A LIVELLO REPO + DEPLOY, CHIUSURA FUNZIONALE RUNTIME PARZIALE.
 
 ## Gap residui principali
-1. Forecast-based control non implementato in arbitraggio runtime.
-2. Ottimizzazione tariff/grid-aware non implementata.
-3. Orchestrazione multi-carico esplicita (heating/AC/VMC/DHW) da formalizzare.
-4. KPI closure AEB (self-consumption, shifting, comfort vs energia) non chiusa.
+1. Conferma live post-warmup degli stati Step7 (UI state machine) ancora da completare:
+   - `policy_forecast_inputs_ready`, `policy_allow_shift_load`, `contract_hierarchy_mode_ready`, `cm_system_mode_suggested`, `aeb_*`.
+2. Chiusura evidence pack evento-level con export UI/trace/logbook per contesto post-deploy.
 
 ## Doc drift corretto in questo delta
 - `docs/climateops/ENTRYPOINTS.md`: rimosso riferimento "read-only" assoluto, allineato a stack con attuazione.
@@ -28,10 +35,16 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 - `lovelace/climate_heating_plancia.yaml`: esposti helper di tuning LDR raw/soglia/isteresi.
 - `docs/logic/heating/plancia.md`, `docs/logic/heating/README.md`, `docs/logic/core/README_sensori_clima.md`: documentazione allineata al nuovo mapping.
 - `docs/audits/STEP6_THERMOSTAT_TEMP_LDR_THRESHOLD_2026-02-25.md`: audit dedicato del fix.
+- `docs/audits/STEP7_AEB_EXECUTION_PLAN_2026-02-25.md`: piano esecutivo Step7.
+- `docs/audits/STEP7_1_FORECAST_INPUT_CONTRACTS_2026-02-25.md`: forecast contracts.
+- `docs/audits/STEP7_2_TARIFF_GRID_POLICY_2026-02-25.md`: tariff/grid policy.
+- `docs/audits/STEP7_3_MULTI_LOAD_HIERARCHY_2026-02-25.md`: hierarchy multi-load.
+- `docs/audits/STEP7_4_KPI_CLOSURE_2026-02-25.md`: KPI closure.
+- `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`: runbook post-PR.
+- `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`: verifica post-deploy.
 
-## Prossimo step consigliato (Step 7)
-- Definire backlog esecutivo AEB in 4 micro-step con test/evidenza runtime per ogni step:
-  1) forecast input contracts,
-  2) tariff/grid policy,
-  3) orchestration hierarchy,
-  4) KPI closure dashboard.
+## Prossimo step consigliato (Step 8)
+- Closure funzionale runtime Step7:
+  1) conferma stati live da UI su entita` chiave,
+  2) export evidenza in `docs/runtime_evidence/2026-02-25/`,
+  3) aggiornamento finale status da "parziale" a "chiuso".
