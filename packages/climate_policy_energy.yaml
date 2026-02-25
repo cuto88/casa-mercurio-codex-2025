@@ -10,6 +10,65 @@ input_number:
     initial: 800
     unit_of_measurement: "W"
     icon: mdi:solar-power
+  policy_forecast_pv_min_w:
+    name: "Policy forecast PV min next hour (W)"
+    min: 0
+    max: 10000
+    step: 50
+    initial: 300
+    unit_of_measurement: "W"
+    icon: mdi:solar-power-variant
+  policy_grid_price_expensive_threshold:
+    name: "Policy grid price expensive threshold (EUR/kWh)"
+    min: 0
+    max: 2
+    step: 0.01
+    initial: 0.35
+    unit_of_measurement: "EUR/kWh"
+    icon: mdi:currency-eur
+  policy_grid_price_cheap_threshold:
+    name: "Policy grid price cheap threshold (EUR/kWh)"
+    min: 0
+    max: 2
+    step: 0.01
+    initial: 0.15
+    unit_of_measurement: "EUR/kWh"
+    icon: mdi:currency-eur
+  policy_grid_import_high_w:
+    name: "Policy grid import high threshold (W)"
+    min: 0
+    max: 15000
+    step: 50
+    initial: 2500
+    unit_of_measurement: "W"
+    icon: mdi:transmission-tower-import
+
+input_boolean:
+  policy_enable_tariff_grid:
+    name: "Policy enable tariff/grid layer"
+    initial: false
+
+input_text:
+  policy_forecast_pv_power_entity:
+    name: "Policy forecast PV source entity_id"
+    max: 128
+    initial: "sensor.pv_forecast_power_next_hour"
+  policy_forecast_temp_out_entity:
+    name: "Policy forecast outdoor temp source entity_id"
+    max: 128
+    initial: "sensor.weather_forecast_temperature_1h"
+  policy_grid_price_entity:
+    name: "Policy grid price source entity_id"
+    max: 128
+    initial: "sensor.energy_price_now"
+  policy_grid_power_entity:
+    name: "Policy grid power source entity_id"
+    max: 128
+    initial: "sensor.sensor_grid_power_w"
+  policy_grid_direction_entity:
+    name: "Policy grid direction source entity_id"
+    max: 128
+    initial: "sensor.sensor_grid_direction"
 
 template:
   - binary_sensor:
@@ -39,6 +98,136 @@ template:
             {{ legacy == 'on' }}
           {% else %}
             {{ pv_ok }}
+          {% endif %}
+      - name: "Policy forecast pv next hour ready"
+        unique_id: policy_forecast_pv_next_hour_ready
+        state: >-
+          {% set custom = states('input_text.policy_forecast_pv_power_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.pv_forecast_power_next_hour',
+            'sensor.pv_forecast_next_hour_w',
+            'sensor.solcast_pv_forecast_forecast_next_hour'
+          ] %}
+          {% set ns = namespace(ok=false) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (not ns.ok) and (num is number) %}
+                {% set ns.ok = true %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.ok }}
+      - name: "Policy forecast temp next hour ready"
+        unique_id: policy_forecast_temp_next_hour_ready
+        state: >-
+          {% set custom = states('input_text.policy_forecast_temp_out_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.weather_forecast_temperature_1h',
+            'sensor.openweathermap_forecast_temperature',
+            'sensor.temperature_forecast_1h'
+          ] %}
+          {% set ns = namespace(ok=false) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (not ns.ok) and (num is number) %}
+                {% set ns.ok = true %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.ok }}
+      - name: "Policy forecast inputs ready"
+        unique_id: policy_forecast_inputs_ready
+        state: >-
+          {{
+            is_state('binary_sensor.policy_forecast_pv_next_hour_ready','on')
+            and is_state('binary_sensor.policy_forecast_temp_next_hour_ready','on')
+          }}
+      - name: "Policy grid price ready"
+        unique_id: policy_grid_price_ready
+        state: >-
+          {% set custom = states('input_text.policy_grid_price_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.energy_price_now',
+            'sensor.electricity_price',
+            'sensor.nordpool_kwh_it_eur_3_10_0'
+          ] %}
+          {% set ns = namespace(ok=false) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (not ns.ok) and (num is number) %}
+                {% set ns.ok = true %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.ok }}
+      - name: "Policy grid importing now"
+        unique_id: policy_grid_importing_now
+        state: >-
+          {% set direction_entity = states('input_text.policy_grid_direction_entity') %}
+          {% set direction = states(direction_entity) if direction_entity not in ['unknown','unavailable','', none, 'None'] else 'unknown' %}
+          {% set p = states('sensor.policy_grid_power_w') | float(0) %}
+          {% if direction in ['import','importing','prelievo','prelevando','from_grid'] %}
+            true
+          {% elif direction in ['export','exporting','immissione','immettendo','to_grid'] %}
+            false
+          {% else %}
+            {{ p > 0 }}
+          {% endif %}
+      - name: "Policy grid exporting now"
+        unique_id: policy_grid_exporting_now
+        state: "{{ is_state('binary_sensor.policy_grid_importing_now','off') and (states('sensor.policy_grid_power_w') | float(0)) != 0 }}"
+      - name: "Policy grid expensive now"
+        unique_id: policy_grid_expensive_now
+        state: >-
+          {% if is_state('binary_sensor.policy_grid_price_ready','on') %}
+            {{ states('sensor.policy_grid_price_now') | float(0) >= states('input_number.policy_grid_price_expensive_threshold') | float(0.35) }}
+          {% else %}
+            false
+          {% endif %}
+      - name: "Policy grid cheap now"
+        unique_id: policy_grid_cheap_now
+        state: >-
+          {% if is_state('binary_sensor.policy_grid_price_ready','on') %}
+            {{ states('sensor.policy_grid_price_now') | float(0) <= states('input_number.policy_grid_price_cheap_threshold') | float(0.15) }}
+          {% else %}
+            false
+          {% endif %}
+      - name: "Policy grid import high"
+        unique_id: policy_grid_import_high
+        state: >-
+          {{
+            is_state('binary_sensor.policy_grid_importing_now','on')
+            and (states('sensor.policy_grid_import_w') | float(0) >= states('input_number.policy_grid_import_high_w') | float(2500))
+          }}
+      - name: "Policy prefer self consumption"
+        unique_id: policy_prefer_self_consumption
+        state: >-
+          {{
+            is_state('binary_sensor.policy_surplus_ok','on')
+            or is_state('binary_sensor.policy_grid_exporting_now','on')
+          }}
+      - name: "Policy allow shift load"
+        unique_id: policy_allow_shift_load
+        state: >-
+          {% if is_state('input_boolean.policy_enable_tariff_grid','off') %}
+            true
+          {% else %}
+            {{
+              (
+                is_state('binary_sensor.policy_grid_cheap_now','on')
+                or is_state('binary_sensor.policy_prefer_self_consumption','on')
+              )
+              and not is_state('binary_sensor.policy_grid_import_high','on')
+            }}
           {% endif %}
 
   - sensor:
@@ -92,4 +281,148 @@ template:
             {{ s3 | float(0) }}
           {% else %}
             0
+          {% endif %}
+      - name: "Policy forecast pv next hour w"
+        unique_id: policy_forecast_pv_next_hour_w
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >-
+          {% set custom = states('input_text.policy_forecast_pv_power_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.pv_forecast_power_next_hour',
+            'sensor.pv_forecast_next_hour_w',
+            'sensor.solcast_pv_forecast_forecast_next_hour'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy forecast temp next hour c"
+        unique_id: policy_forecast_temp_next_hour_c
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        state: >-
+          {% set custom = states('input_text.policy_forecast_temp_out_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.weather_forecast_temperature_1h',
+            'sensor.openweathermap_forecast_temperature',
+            'sensor.temperature_forecast_1h'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy forecast reason"
+        unique_id: policy_forecast_reason
+        state: >-
+          {% set pv_ok = is_state('binary_sensor.policy_forecast_pv_next_hour_ready','on') %}
+          {% set t_ok = is_state('binary_sensor.policy_forecast_temp_next_hour_ready','on') %}
+          {% set pv = states('sensor.policy_forecast_pv_next_hour_w') | float(0) %}
+          {% set pv_min = states('input_number.policy_forecast_pv_min_w') | float(300) %}
+          {% set base = 'UNAVAILABLE_FAILSAFE' %}
+          {% if pv_ok and t_ok %}
+            {% set base = 'READY_PV_AND_TEMP' %}
+          {% elif pv_ok %}
+            {% set base = 'PARTIAL_ONLY_PV' %}
+          {% elif t_ok %}
+            {% set base = 'PARTIAL_ONLY_TEMP' %}
+          {% endif %}
+          {% set suffix = '' %}
+          {% if pv_ok %}
+            {% set suffix = '_PVNEXT_' ~ ('HIGH' if pv >= pv_min else 'LOW') %}
+          {% endif %}
+          {{ base ~ suffix }}
+      - name: "Policy grid price now"
+        unique_id: policy_grid_price_now
+        unit_of_measurement: "EUR/kWh"
+        state_class: measurement
+        state: >-
+          {% set custom = states('input_text.policy_grid_price_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.energy_price_now',
+            'sensor.electricity_price',
+            'sensor.nordpool_kwh_it_eur_3_10_0'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy grid power w"
+        unique_id: policy_grid_power_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: >-
+          {% set custom = states('input_text.policy_grid_power_entity') %}
+          {% set candidates = [
+            custom,
+            'sensor.sensor_grid_power_w',
+            'sensor.grid_power_w'
+          ] %}
+          {% set ns = namespace(val=none) %}
+          {% for entity in candidates %}
+            {% if entity not in ['unknown','unavailable','', none, 'None'] %}
+              {% set raw = states(entity) %}
+              {% set num = raw | float(default=none) %}
+              {% if (ns.val is not number) and (num is number) %}
+                {% set ns.val = num %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.val if ns.val is number else 0 }}
+      - name: "Policy grid import w"
+        unique_id: policy_grid_import_w
+        unit_of_measurement: "W"
+        state_class: measurement
+        device_class: power
+        state: >-
+          {% set p = states('sensor.policy_grid_power_w') | float(0) %}
+          {% if is_state('binary_sensor.policy_grid_importing_now','on') %}
+            {{ p | abs }}
+          {% else %}
+            0
+          {% endif %}
+      - name: "Policy tariff grid reason"
+        unique_id: policy_tariff_grid_reason
+        state: >-
+          {% if is_state('input_boolean.policy_enable_tariff_grid','off') %}
+            DISABLED_FALLBACK
+          {% elif is_state('binary_sensor.policy_grid_price_ready','off') %}
+            ENABLED_PRICE_UNAVAILABLE
+          {% elif is_state('binary_sensor.policy_grid_import_high','on') %}
+            BLOCK_HIGH_IMPORT
+          {% elif is_state('binary_sensor.policy_grid_cheap_now','on') %}
+            ALLOW_CHEAP_TARIFF
+          {% elif is_state('binary_sensor.policy_prefer_self_consumption','on') %}
+            ALLOW_SELF_CONSUMPTION
+          {% elif is_state('binary_sensor.policy_grid_expensive_now','on') %}
+            HOLD_EXPENSIVE_TARIFF
+          {% else %}
+            HOLD_NEUTRAL
           {% endif %}

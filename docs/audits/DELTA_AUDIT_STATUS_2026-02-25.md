@@ -24,8 +24,12 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 - `docs/climateops/ENTRYPOINTS.md`: rimosso riferimento "read-only" assoluto, allineato a stack con attuazione.
 - `docs/audits/STEP5_VMC_TARGET1_FIX_2026-02-25.md`: chiarito comportamento con `cutover_vmc=off` (applicazione `vmc_target`, non disattivazione totale writer).
 - `AI/TASKS.md`: T2/T3 portati da `Planned` a `In Progress`.
+- `packages/climateops/overrides/thermostat_indicators_temp.yaml`: remap termostati TEMP da binary source a soglia LDR raw (3.00V default) con isteresi.
+- `lovelace/climate_heating_plancia.yaml`: esposti helper di tuning LDR raw/soglia/isteresi.
+- `docs/logic/heating/plancia.md`, `docs/logic/heating/README.md`, `docs/logic/core/README_sensori_clima.md`: documentazione allineata al nuovo mapping.
+- `docs/audits/STEP6_THERMOSTAT_TEMP_LDR_THRESHOLD_2026-02-25.md`: audit dedicato del fix.
 
-## Prossimo step consigliato (Step 6)
+## Prossimo step consigliato (Step 7)
 - Definire backlog esecutivo AEB in 4 micro-step con test/evidenza runtime per ogni step:
   1) forecast input contracts,
   2) tariff/grid policy,

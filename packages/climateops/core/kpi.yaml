@@ -1,2 +1,98 @@
-# Disabled: `history_stats` YAML setup is no longer supported on HA 2026.2.x.
-# Configure equivalent KPI helpers from UI (Helpers) if needed.
+---
+# AEB KPI layer (template-only, HA 2026.2.x compatible).
+
+template:
+  - binary_sensor:
+      - name: "AEB KPI Inputs Ready"
+        unique_id: aeb_kpi_inputs_ready
+        state: >-
+          {{
+            states('sensor.pv_power_now') not in ['unknown','unavailable','']
+            and states('sensor.policy_grid_power_w') not in ['unknown','unavailable','']
+            and states('binary_sensor.policy_allow_shift_load') not in ['unknown','unavailable','']
+          }}
+
+      - name: "AEB Load Shift Effective Now"
+        unique_id: aeb_load_shift_effective_now
+        state: >-
+          {{
+            is_state('binary_sensor.policy_allow_shift_load','on')
+            and (
+              is_state('binary_sensor.policy_grid_cheap_now','on')
+              or is_state('binary_sensor.policy_prefer_self_consumption','on')
+            )
+          }}
+
+  - sensor:
+      - name: "AEB Self Consumption Ratio Pct"
+        unique_id: aeb_self_consumption_ratio_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        state: >-
+          {% set pv = states('sensor.pv_power_now') | float(0) %}
+          {% set grid_fallback = states('sensor.sensor_grid_power_w') | float(0) %}
+          {% set grid = states('sensor.policy_grid_power_w') | float(grid_fallback) %}
+          {% set export_w = (0 - grid) if grid < 0 else 0 %}
+          {% if pv <= 0 %}
+            0
+          {% else %}
+            {% set consumed = pv - export_w %}
+            {% set ratio = (consumed / pv) * 100 %}
+            {{ [0, [ratio, 100] | min] | max | round(1) }}
+          {% endif %}
+
+      - name: "AEB Shift Effectiveness Pct"
+        unique_id: aeb_shift_effectiveness_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        state: >-
+          {% if is_state('binary_sensor.aeb_load_shift_effective_now','on') %}
+            100
+          {% elif is_state('binary_sensor.policy_allow_shift_load','on') %}
+            60
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "AEB Comfort Energy Score Pct"
+        unique_id: aeb_comfort_energy_score_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        state: >-
+          {% set t = states('sensor.t_in_med') | float(default=none) %}
+          {% set heat_sp = states('input_number.temp_target_risc') | float(default=none) %}
+          {% set cool_sp = states('input_number.ac_cool_setpoint') | float(default=none) %}
+          {% if t is number and heat_sp is number and cool_sp is number %}
+            {% set comfort = 100 if (t >= (heat_sp - 1.0) and t <= (cool_sp + 1.0)) else 60 %}
+          {% else %}
+            {% set comfort = 70 %}
+          {% endif %}
+          {% set energy = 100 if is_state('binary_sensor.policy_prefer_self_consumption','on') else 70 %}
+          {% set energy = 40 if is_state('binary_sensor.policy_grid_import_high','on') else energy %}
+          {{ ((comfort * 0.6) + (energy * 0.4)) | round(1) }}
+
+      - name: "AEB Policy Activation Rate Pct"
+        unique_id: aeb_policy_activation_rate_pct
+        unit_of_measurement: "%"
+        state_class: measurement
+        state: >-
+          {% if is_state('input_boolean.policy_enable_tariff_grid','on') %}
+            100
+          {% else %}
+            0
+          {% endif %}
+
+      - name: "AEB KPI Reason"
+        unique_id: aeb_kpi_reason
+        state: >-
+          {% if is_state('binary_sensor.aeb_kpi_inputs_ready','off') %}
+            INPUTS_NOT_READY
+          {% elif is_state('binary_sensor.policy_grid_import_high','on') %}
+            GRID_IMPORT_HIGH
+          {% elif is_state('binary_sensor.policy_prefer_self_consumption','on') %}
+            SELF_CONSUMPTION_PRIORITY
+          {% elif is_state('binary_sensor.policy_grid_cheap_now','on') %}
+            CHEAP_TARIFF_WINDOW
+          {% else %}
+            NEUTRAL_WINDOW
+          {% endif %}

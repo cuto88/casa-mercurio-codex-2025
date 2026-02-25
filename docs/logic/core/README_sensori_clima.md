@@ -128,6 +128,13 @@ Note operative VMC:
 | Max daily ON hours (limit)                | `input_number.heating_hours_on_daily`         |
 | Heating window start (PV-friendly)        | `input_datetime.heating_window_start`         |
 | Heating window end (PV-friendly)          | `input_datetime.heating_window_end`           |
+| TEMP thermostat source (camera1, binary fallback) | `input_text.climateops_temp_thermostat_giorno_entity` |
+| TEMP thermostat source (camera2, binary fallback)  | `input_text.climateops_temp_thermostat_notte_entity`  |
+| TEMP thermostat raw source (camera1, Volt) | `input_text.climateops_temp_thermostat_giorno_raw_entity` |
+| TEMP thermostat raw source (camera2, Volt)  | `input_text.climateops_temp_thermostat_notte_raw_entity`  |
+| TEMP thermostat threshold camera1 (V)      | `input_number.climateops_temp_thermostat_giorno_threshold_v` |
+| TEMP thermostat threshold camera2 (V)       | `input_number.climateops_temp_thermostat_notte_threshold_v` |
+| TEMP thermostat hysteresis (V)            | `input_number.climateops_temp_thermostat_hysteresis_v` |
 
 ### 4.2 Diagnostic (core)
 
@@ -158,6 +165,8 @@ Note operative VMC:
 | Window PV-block flag                      | `binary_sensor.heating_window_pv`          |
 | Window night-block flag                   | `binary_sensor.heating_window_night`       |
 | Final “should run” decision               | `binary_sensor.heating_should_run`         |
+| Thermostat camera1 (TEMP derived)          | `binary_sensor.thermostat_giorno_temp`     |
+| Thermostat camera2 (TEMP derived)           | `binary_sensor.thermostat_notte_temp`      |
 
 ---
 
@@ -277,6 +286,50 @@ Queste entità NON sono definite nel modulo climate ma sono richieste dalla logi
   package hardware separati, non in `climate_1_ventilation`.
 - I relè AC `switch.ac_giorno` e `switch.ac_notte` possono essere definiti in
   altri package (es. bridge IR, SwitchBot) e non in `climate_ac_logic`.
+
+### 7.1 Forecast & policy contracts
+
+| Ruolo                                      | Entity ID canonico                         | Note |
+|-------------------------------------------|--------------------------------------------|------|
+| Forecast PV source override                | `input_text.policy_forecast_pv_power_entity` | Entity id custom per forecast PV orario |
+| Forecast outdoor temp source override      | `input_text.policy_forecast_temp_out_entity` | Entity id custom per forecast T esterna |
+| Forecast PV min threshold (next hour)      | `input_number.policy_forecast_pv_min_w` | Soglia minima W per classificazione forecast |
+| Forecast PV next hour ready                | `binary_sensor.policy_forecast_pv_next_hour_ready` | `on` se almeno una sorgente PV forecast numerica |
+| Forecast outdoor temp next hour ready      | `binary_sensor.policy_forecast_temp_next_hour_ready` | `on` se almeno una sorgente T forecast numerica |
+| Forecast inputs ready (policy)             | `binary_sensor.policy_forecast_inputs_ready` | `on` se PV+T forecast entrambi disponibili |
+| Forecast PV next hour (selected)           | `sensor.policy_forecast_pv_next_hour_w` | Valore normalizzato con fallback |
+| Forecast T out next hour (selected)        | `sensor.policy_forecast_temp_next_hour_c` | Valore normalizzato con fallback |
+| Forecast policy reason                     | `sensor.policy_forecast_reason` | Explainability readiness/fallback |
+| Forecast contract defined                  | `binary_sensor.contract_forecast_inputs_defined` | Contratto definito (input opzionale con fallback) |
+| Forecast contract ready                    | `binary_sensor.contract_forecast_inputs_ready` | `on` se forecast policy ready |
+| Forecast contract reason                   | `sensor.contract_forecast_reason` | Stato contratto forecast |
+| Tariff/grid policy enable                  | `input_boolean.policy_enable_tariff_grid` | Feature flag (default OFF, no side-effect) |
+| Grid price source override                 | `input_text.policy_grid_price_entity` | Entity id custom prezzo energia |
+| Grid power source override                 | `input_text.policy_grid_power_entity` | Entity id custom potenza rete |
+| Grid direction source override             | `input_text.policy_grid_direction_entity` | Entity id custom direzione import/export |
+| Grid expensive threshold                   | `input_number.policy_grid_price_expensive_threshold` | Soglia prezzo alto |
+| Grid cheap threshold                       | `input_number.policy_grid_price_cheap_threshold` | Soglia prezzo basso |
+| Grid high import threshold                 | `input_number.policy_grid_import_high_w` | Soglia import elevato |
+| Grid price ready                           | `binary_sensor.policy_grid_price_ready` | `on` se prezzo numerico disponibile |
+| Grid importing now                         | `binary_sensor.policy_grid_importing_now` | Stato import calcolato da direzione/potenza |
+| Grid exporting now                         | `binary_sensor.policy_grid_exporting_now` | Stato export calcolato da direzione/potenza |
+| Grid expensive now                         | `binary_sensor.policy_grid_expensive_now` | `on` se prezzo >= soglia expensive |
+| Grid cheap now                             | `binary_sensor.policy_grid_cheap_now` | `on` se prezzo <= soglia cheap |
+| Grid import high                           | `binary_sensor.policy_grid_import_high` | `on` se import >= soglia |
+| Prefer self-consumption                    | `binary_sensor.policy_prefer_self_consumption` | `on` con surplus/export disponibile |
+| Allow shift load                           | `binary_sensor.policy_allow_shift_load` | Segnale di abilitazione carichi flessibili |
+| Grid price now                             | `sensor.policy_grid_price_now` | Prezzo normalizzato |
+| Grid power now                             | `sensor.policy_grid_power_w` | Potenza rete normalizzata |
+| Grid import power                          | `sensor.policy_grid_import_w` | Potenza in import |
+| Tariff/grid policy reason                  | `sensor.policy_tariff_grid_reason` | Explainability layer tariff/grid |
+| Tariff/grid contract ready                 | `binary_sensor.contract_tariff_grid_policy_ready` | Contratto tariff/grid |
+| Tariff/grid contract reason                | `sensor.contract_tariff_grid_reason` | Stato contratto tariff/grid |
+| Noncritical loads allowed                  | `binary_sensor.climateops_noncritical_loads_allowed` | Gate policy per carichi non critici |
+| Hierarchy mode                             | `sensor.climateops_hierarchy_mode` | Modalita` orchestrata (HEAT/COOL/VENT/IDLE) |
+| Hierarchy reason                           | `sensor.climateops_hierarchy_reason` | Explainability gerarchia multi-load |
+| Hierarchy contract ready                   | `binary_sensor.contract_hierarchy_mode_ready` | Contratto availability hierarchy |
+| Hierarchy contract reason                  | `sensor.contract_hierarchy_reason` | Stato contratto hierarchy |
+| CM system reason                           | `sensor.cm_system_reason` | Reason bridged per attuazione runtime |
 
 ---
 

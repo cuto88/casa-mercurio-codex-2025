@@ -20,6 +20,25 @@ views:
                 name: EHW Potenza W
               - entity: sensor.sensor_grid_direction
                 name: Direzione flusso
+      - type: grid
+        title: "KPI AEB (runtime)"
+        cards:
+          - type: entities
+            title: "Indice AEB"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.aeb_kpi_inputs_ready
+                name: KPI inputs ready
+              - entity: sensor.aeb_kpi_reason
+                name: KPI reason
+              - entity: sensor.aeb_self_consumption_ratio_pct
+                name: Self-consumption %
+              - entity: sensor.aeb_shift_effectiveness_pct
+                name: Shift effectiveness %
+              - entity: sensor.aeb_comfort_energy_score_pct
+                name: Comfort-energy score %
+              - entity: sensor.aeb_policy_activation_rate_pct
+                name: Policy activation %
 
       - type: grid
         title: "Contatori cumulati"

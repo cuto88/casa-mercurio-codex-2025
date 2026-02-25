@@ -19,6 +19,14 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Runtime status current (post stabilization): `docs/audits/STATUS_RUNTIME_CURRENT_2026-02-23.md`
 - Step 3 runtime evidence post-deploy: `docs/audits/STEP3_RUNTIME_EVIDENCE_POST_DEPLOY_2026-02-24.md`
 - WIP tracker (audit stream): `docs/audits/WIP_RUNTIME_TRACKER_2026-02-24.md`
+- Step 6 thermostat TEMP LDR threshold fix: `docs/audits/STEP6_THERMOSTAT_TEMP_LDR_THRESHOLD_2026-02-25.md`
+- Step 7 AEB execution plan: `docs/audits/STEP7_AEB_EXECUTION_PLAN_2026-02-25.md`
+- Step 7.1 forecast input contracts: `docs/audits/STEP7_1_FORECAST_INPUT_CONTRACTS_2026-02-25.md`
+- Step 7.2 tariff/grid policy: `docs/audits/STEP7_2_TARIFF_GRID_POLICY_2026-02-25.md`
+- Step 7.3 multi-load hierarchy: `docs/audits/STEP7_3_MULTI_LOAD_HIERARCHY_2026-02-25.md`
+- Step 7.4 KPI closure: `docs/audits/STEP7_4_KPI_CLOSURE_2026-02-25.md`
+- Step 7 post-PR runtime checklist: `docs/audits/STEP7_POST_PR_RUNTIME_CHECKLIST_2026-02-25.md`
+- Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
 
 ## Quality gates (ops)
 Per eseguire i controlli locali:

@@ -1,31 +1,102 @@
 input_text:
   climateops_temp_thermostat_giorno_entity:
-    name: "TEMP Thermostat Giorno — source entity_id"
+    name: "TEMP Thermostat Camera1 — source entity_id"
     max: 128
     initial: "binary_sensor.ldr_camera1_camera1_richiesta_calore"
   climateops_temp_thermostat_notte_entity:
-    name: "TEMP Thermostat Notte — source entity_id"
+    name: "TEMP Thermostat Camera2 — source entity_id"
     max: 128
     initial: "binary_sensor.ldr_camera2_richiesta_calore"
+  climateops_temp_thermostat_giorno_raw_entity:
+    name: "TEMP Thermostat Camera1 — raw sensor entity_id"
+    max: 128
+    initial: "sensor.ldr_camera1_camera1_ldr_raw"
+  climateops_temp_thermostat_notte_raw_entity:
+    name: "TEMP Thermostat Camera2 — raw sensor entity_id"
+    max: 128
+    initial: "sensor.ldr_camera2_camera2_ldr_raw"
+
+input_number:
+  climateops_temp_thermostat_giorno_threshold_v:
+    name: "TEMP Thermostat Camera1 — soglia V"
+    min: 0
+    max: 3.3
+    step: 0.01
+    mode: box
+    initial: 3.00
+  climateops_temp_thermostat_notte_threshold_v:
+    name: "TEMP Thermostat Camera2 — soglia V"
+    min: 0
+    max: 3.3
+    step: 0.01
+    mode: box
+    initial: 3.00
+  climateops_temp_thermostat_hysteresis_v:
+    name: "TEMP Thermostat — isteresi V"
+    min: 0
+    max: 1.0
+    step: 0.01
+    mode: box
+    initial: 0.10
 
 template:
   - binary_sensor:
-      - name: "Thermostat Giorno (TEMP)"
+      - name: "Thermostat Camera1 (TEMP)"
         unique_id: climateops_temp_thermostat_giorno_on
         availability: >
+          {% set raw_entity = states('input_text.climateops_temp_thermostat_giorno_raw_entity') %}
           {% set src = states('input_text.climateops_temp_thermostat_giorno_entity') %}
-          {{ src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'] }}
+          {{
+            (raw_entity not in ['unknown','unavailable','', None] and states(raw_entity) not in ['unknown','unavailable'])
+            or
+            (src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'])
+          }}
         state: >
+          {% set raw_entity = states('input_text.climateops_temp_thermostat_giorno_raw_entity') %}
+          {% set raw = states(raw_entity) | float(default=none) %}
           {% set src = states('input_text.climateops_temp_thermostat_giorno_entity') %}
-          {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
-      - name: "Thermostat Notte (TEMP)"
+          {% set th = states('input_number.climateops_temp_thermostat_giorno_threshold_v') | float(3.0) %}
+          {% set h = states('input_number.climateops_temp_thermostat_hysteresis_v') | float(0.10) %}
+          {% set prev_on = is_state('binary_sensor.thermostat_giorno_temp', 'on') %}
+          {% if raw is number %}
+            {% set on_limit = th + (h / 2) %}
+            {% set off_limit = th - (h / 2) %}
+            {% if prev_on %}
+              {{ raw > off_limit }}
+            {% else %}
+              {{ raw >= on_limit }}
+            {% endif %}
+          {% else %}
+            {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
+          {% endif %}
+      - name: "Thermostat Camera2 (TEMP)"
         unique_id: climateops_temp_thermostat_notte_on
         availability: >
+          {% set raw_entity = states('input_text.climateops_temp_thermostat_notte_raw_entity') %}
           {% set src = states('input_text.climateops_temp_thermostat_notte_entity') %}
-          {{ src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'] }}
+          {{
+            (raw_entity not in ['unknown','unavailable','', None] and states(raw_entity) not in ['unknown','unavailable'])
+            or
+            (src not in ['unknown','unavailable','', None] and states(src) not in ['unknown','unavailable'])
+          }}
         state: >
+          {% set raw_entity = states('input_text.climateops_temp_thermostat_notte_raw_entity') %}
+          {% set raw = states(raw_entity) | float(default=none) %}
           {% set src = states('input_text.climateops_temp_thermostat_notte_entity') %}
-          {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
+          {% set th = states('input_number.climateops_temp_thermostat_notte_threshold_v') | float(3.0) %}
+          {% set h = states('input_number.climateops_temp_thermostat_hysteresis_v') | float(0.10) %}
+          {% set prev_on = is_state('binary_sensor.thermostat_notte_temp', 'on') %}
+          {% if raw is number %}
+            {% set on_limit = th + (h / 2) %}
+            {% set off_limit = th - (h / 2) %}
+            {% if prev_on %}
+              {{ raw > off_limit }}
+            {% else %}
+              {{ raw >= on_limit }}
+            {% endif %}
+          {% else %}
+            {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
+          {% endif %}
 
 automation:
   - id: climateops_temp_thermostat_mapping_defaults
@@ -58,3 +129,27 @@ automation:
               entity_id: input_text.climateops_temp_thermostat_notte_entity
             data:
               value: binary_sensor.ldr_camera2_richiesta_calore
+      - if:
+          - condition: template
+            value_template: >
+              {{ states('input_text.climateops_temp_thermostat_giorno_raw_entity')
+                 in ['unknown','unavailable','', 'None', 'none'] }}
+        then:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.climateops_temp_thermostat_giorno_raw_entity
+            data:
+              value: sensor.ldr_camera1_camera1_ldr_raw
+      - if:
+          - condition: template
+            value_template: >
+              {{ states('input_text.climateops_temp_thermostat_notte_raw_entity')
+                 in ['unknown','unavailable','', 'None', 'none']
+                 or states('input_text.climateops_temp_thermostat_notte_raw_entity')
+                 == states('input_text.climateops_temp_thermostat_giorno_raw_entity') }}
+        then:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.climateops_temp_thermostat_notte_raw_entity
+            data:
+              value: sensor.ldr_camera2_camera2_ldr_raw
