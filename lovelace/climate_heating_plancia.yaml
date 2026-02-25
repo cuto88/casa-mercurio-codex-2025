@@ -1,5 +1,5 @@
 views:
-  - title: "3 Riscaldamento"
+  - title: "2 Riscaldamento"
     path: heating
     icon: mdi:radiator
     type: sections

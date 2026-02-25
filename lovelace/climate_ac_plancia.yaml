@@ -1,5 +1,5 @@
 views:
-  - title: "4 Aria Condizionata"
+  - title: "3 Clima"
     path: ac
     icon: mdi:air-conditioner
     type: sections
@@ -85,7 +85,7 @@ views:
         title: "Grafici 24h / 7gg"
         cards:
           - type: history-graph
-            title: "Temperature (24h)"
+            title: "Temperature (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:
@@ -95,7 +95,7 @@ views:
                 name: T esterna
 
           - type: history-graph
-            title: "Umidità (24h)"
+            title: "Umidità (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:
@@ -139,7 +139,7 @@ views:
                 name: AC Notte – ultimo OFF
 
           - type: history-graph
-            title: "Trend ON/OFF (24h)"
+            title: "Trend ON/OFF (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:
@@ -153,7 +153,6 @@ views:
         cards:
           - type: entities
             show_header_toggle: false
-            collapsible: true
             entities:
               - entity: sensor.ac_priority
                 name: Priorità
@@ -173,7 +172,7 @@ views:
       - type: grid
         cards:
           - type: history-graph
-            title: "Timeline decisioni – AC (24h)"
+            title: "Timeline decisioni – AC (12h)"
             hours_to_show: 12
             refresh_interval: 120
             entities:

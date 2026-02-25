@@ -4,7 +4,6 @@ views:
     title: "VMC"
     path: climate_vmc_v2
     icon: mdi:fan
-    # TODO: aggiungere badge stagione (caldo/freddo) quando esisterà un'entità canonica in MAP
     badges:
       - type: entity
         entity: sensor.t_out
@@ -115,7 +114,7 @@ views:
             name: "UR camera2"
           - type: tile
             entity: sensor.t_in_notte3
-            name: "T camera2"
+            name: "T camera3"
           - type: tile
             entity: sensor.ur_in_notte3
             name: "UR camera3"
@@ -243,7 +242,6 @@ views:
                 name: "Richiesta AC dal clima"
               - entity: binary_sensor.vmc_bagno_boost_auto
                 name: "Boost bagno auto"
-          # TODO: aggiungere timer.vmc_boost_bagno se/ quando disponibile
           - type: markdown
             content: |
               ### Regole principali
@@ -257,6 +255,6 @@ views:
                 è ON, la logica VMC/AC richiede `AC giorno`
                 o `AC notte`.
               - Riferimenti: logiche condivise in
-                `logica/core/regole_core_logiche.md`, modulo in
-                `logica/2_vmc/2_vmc.txt`, linee guida UI in
-                `logica/core/regole_plancia.md`.
+                `docs/logic/core/regole_core_logiche.md`, modulo in
+                `docs/logic/ventilation/README.md`, linee guida UI in
+                `docs/logic/core/regole_plancia.md`.

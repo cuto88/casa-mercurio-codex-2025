@@ -39,7 +39,7 @@ views:
           - type: history-graph
             title: "Temperature (24h)"
             hours_to_show: 24
-            refresh_interval: 60
+            refresh_interval: 120
             entities:
               - sensor.mirai_l161_inlet_water_temp
               - sensor.mirai_l162_outlet_water_temp
@@ -58,7 +58,7 @@ views:
         cards:
           - type: history-graph
             hours_to_show: 24
-            refresh_interval: 60
+            refresh_interval: 120
             entities:
               - binary_sensor.mirai_machine_running
               - sensor.mirai_l261_compressor_step

@@ -47,7 +47,7 @@ views:
           - type: history-graph
             title: "Potenze 24h"
             hours_to_show: 24
-            refresh_interval: 60
+            refresh_interval: 120
             entities:
               - entity: sensor.mirai_power_w
                 name: Mirai W
