@@ -32,6 +32,7 @@ automation:
     action:
       - variables:
           mode: "{{ states('sensor.cm_system_mode_suggested') }}"
+          vmc_cutover_on: "{{ is_state('input_boolean.climateops_cutover_vmc','on') }}"
           policy_reason: >-
             {% set policy = states('sensor.cm_policy_reason') %}
             {% if policy not in ['unknown','unavailable',''] %}
@@ -76,7 +77,12 @@ automation:
               - service: switch.turn_off
                 target:
                   entity_id: switch.heating_master
-          - conditions: "{{ mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','on') }}"
+          - conditions: >-
+              {{
+                (vmc_cutover_on | bool)
+                and mode == 'VENT_BOOST'
+                and is_state('binary_sensor.cm_policy_allow_vmc_boost','on')
+              }}
             sequence:
               - service: switch.turn_off
                 target:
@@ -90,8 +96,11 @@ automation:
                   entity_id: switch.vmc_vel_3
           - conditions: >-
               {{
-                mode in ['VENT_BASE', 'IDLE']
-                or (mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','off'))
+                (vmc_cutover_on | bool)
+                and (
+                  mode in ['VENT_BASE', 'IDLE']
+                  or (mode == 'VENT_BOOST' and is_state('binary_sensor.cm_policy_allow_vmc_boost','off'))
+                )
               }}
             sequence:
               - service: switch.turn_off
