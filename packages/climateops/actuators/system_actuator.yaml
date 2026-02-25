@@ -33,6 +33,7 @@ automation:
       - variables:
           mode: "{{ states('sensor.cm_system_mode_suggested') }}"
           vmc_cutover_on: "{{ is_state('input_boolean.climateops_cutover_vmc','on') }}"
+          vmc_target: "{{ states('sensor.vmc_vel_target') | int(1) }}"
           policy_reason: >-
             {% set policy = states('sensor.cm_policy_reason') %}
             {% if policy not in ['unknown','unavailable',''] %}
@@ -72,11 +73,71 @@ automation:
               - service: switch.turn_on
                 target:
                   entity_id: switch.heating_master
-          - conditions: "{{ mode == 'IDLE' }}"
+      - choose:
+          - conditions: >-
+              {{
+                not (vmc_cutover_on | bool)
+                and vmc_target == 0
+              }}
             sequence:
               - service: switch.turn_off
                 target:
-                  entity_id: switch.heating_master
+                  entity_id:
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - delay: "00:00:01"
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_0
+          - conditions: >-
+              {{
+                not (vmc_cutover_on | bool)
+                and vmc_target == 1
+              }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_2
+                    - switch.vmc_vel_3
+              - delay: "00:00:01"
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_1
+          - conditions: >-
+              {{
+                not (vmc_cutover_on | bool)
+                and vmc_target == 2
+              }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_3
+              - delay: "00:00:01"
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_2
+          - conditions: >-
+              {{
+                not (vmc_cutover_on | bool)
+                and vmc_target == 3
+              }}
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.vmc_vel_0
+                    - switch.vmc_vel_1
+                    - switch.vmc_vel_2
+              - delay: "00:00:01"
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.vmc_vel_3
           - conditions: >-
               {{
                 (vmc_cutover_on | bool)
@@ -111,6 +172,7 @@ automation:
               - service: switch.turn_on
                 target:
                   entity_id: switch.vmc_vel_1
+      - choose:
           - conditions: >-
               {{
                 (ac_day_should_run | bool)
@@ -118,6 +180,7 @@ automation:
               }}
             sequence:
               - service: script.ac_giorno_apply
+      - choose:
           - conditions: >-
               {{
                 (ac_night_should_run | bool)

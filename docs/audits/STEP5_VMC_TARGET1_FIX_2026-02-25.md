@@ -43,3 +43,29 @@ Campionamento runtime (4 campioni in ~5 minuti, da `core.restore_state`):
 Dalla shell SSH add-on non e` stato possibile eseguire interrogazione completa delle API Core con correlazione `context_id` (restrizioni auth `401` sul proxy supervisor/core in questo contesto).
 
 Conclusione operativa: fix efficace sul caso riportato (`target=1` che restava a `3`) e deploy completato.
+
+## Update 2 - Boost bagno e rientro (2026-02-25)
+Durante test runtime guidato e` emerso un secondo difetto:
+- con `input_boolean.vmc_boost_bagno = on`, `sensor.vmc_vel_target` passava a `3`;
+- allo spegnimento boost, `sensor.vmc_vel_target` tornava a `1`;
+- ma la velocita` fisica poteva non seguire (restava su indice alto).
+
+### Causa
+Nel blocco `choose` principale di `automation.climateops_system_actuate`, il ramo `mode == 'IDLE'` matchava prima dei rami VMC.
+In Home Assistant, `choose` esegue solo il primo ramo vero: i rami VMC venivano quindi saltati.
+
+### Correzione
+Refactor dell'azione in blocchi separati:
+- `choose` heating dedicato
+- `choose` VMC dedicato
+- `choose` AC giorno dedicato
+- `choose` AC notte dedicato
+
+Con questa struttura, la logica VMC viene sempre valutata indipendentemente dal ramo heating.
+
+### Esito test funzionale
+Dopo deploy + `ha core restart`:
+- boost ON: velocita` sale correttamente;
+- boost OFF: rientro correttamente alla velocita` base.
+
+Stato: issue chiusa operativamente.
