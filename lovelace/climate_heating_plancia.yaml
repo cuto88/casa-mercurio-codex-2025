@@ -60,6 +60,10 @@ views:
                 name: "Termostato Giorno"
               - entity: binary_sensor.thermostat_notte_temp
                 name: "Termostato Notte"
+              - entity: sensor.ldr_camera1_camera1_ldr_raw
+                name: "LDR camera1 raw"
+              - entity: sensor.ldr_camera2_camera2_ldr_raw
+                name: "LDR camera2 raw"
               - entity: input_text.climateops_temp_thermostat_giorno_entity
                 name: "Entity ID Giorno (sorgente)"
               - entity: input_text.climateops_temp_thermostat_notte_entity

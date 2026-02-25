@@ -2,9 +2,11 @@ input_text:
   climateops_temp_thermostat_giorno_entity:
     name: "TEMP Thermostat Giorno — source entity_id"
     max: 128
+    initial: "binary_sensor.ldr_camera1_camera1_richiesta_calore"
   climateops_temp_thermostat_notte_entity:
     name: "TEMP Thermostat Notte — source entity_id"
     max: 128
+    initial: "binary_sensor.ldr_camera2_richiesta_calore"
 
 template:
   - binary_sensor:
@@ -24,3 +26,35 @@ template:
         state: >
           {% set src = states('input_text.climateops_temp_thermostat_notte_entity') %}
           {{ is_state(src,'on') or is_state(src,'true') or (states(src)|int(0) == 1) }}
+
+automation:
+  - id: climateops_temp_thermostat_mapping_defaults
+    alias: "ClimateOps TEMP thermostat mapping defaults"
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - if:
+          - condition: template
+            value_template: >
+              {{ states('input_text.climateops_temp_thermostat_giorno_entity')
+                 in ['unknown','unavailable','', 'None', 'none'] }}
+        then:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.climateops_temp_thermostat_giorno_entity
+            data:
+              value: binary_sensor.ldr_camera1_camera1_richiesta_calore
+      - if:
+          - condition: template
+            value_template: >
+              {{ states('input_text.climateops_temp_thermostat_notte_entity')
+                 in ['unknown','unavailable','', 'None', 'none']
+                 or states('input_text.climateops_temp_thermostat_notte_entity')
+                 == states('input_text.climateops_temp_thermostat_giorno_entity') }}
+        then:
+          - service: input_text.set_value
+            target:
+              entity_id: input_text.climateops_temp_thermostat_notte_entity
+            data:
+              value: binary_sensor.ldr_camera2_richiesta_calore
