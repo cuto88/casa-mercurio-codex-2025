@@ -72,6 +72,17 @@ views:
                 name: Mirai W
               - entity: sensor.ehw_power_w
                 name: EHW W
+          - type: history-graph
+            title: "KPI AEB (24h)"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.aeb_self_consumption_ratio_pct
+                name: Self-consumption %
+              - entity: sensor.aeb_shift_effectiveness_pct
+                name: Shift effectiveness %
+              - entity: sensor.aeb_comfort_energy_score_pct
+                name: Comfort-energy %
 
       - type: grid
         title: "Consumi giornalieri (7 giorni)"

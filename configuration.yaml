@@ -92,3 +92,11 @@ lovelace:
       show_in_sidebar: true
       require_admin: false
       filename: lovelace/8_mirai_plancia.yaml
+
+    9-climateops-step7:
+      mode: yaml
+      title: "9 ClimateOps Step7"
+      icon: mdi:transmission-tower
+      show_in_sidebar: true
+      require_admin: false
+      filename: lovelace/climateops_step7_plancia.yaml
