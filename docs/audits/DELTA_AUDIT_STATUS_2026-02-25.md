@@ -21,13 +21,11 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 ## Stato obiettivo
 - Stabilizzazione runtime writer authority ClimateOps: QUASI CHIUSO.
 - Hardening restart/check/deploy: CHIUSO operativamente.
-- Maturita` AEB (forecast + tariff/grid-aware + gerarchia multi-load + KPI closure): IMPLEMENTATA A LIVELLO REPO + DEPLOY, CHIUSURA FUNZIONALE RUNTIME PARZIALE.
+- Maturita` AEB (forecast + tariff/grid-aware + gerarchia multi-load + KPI closure): CHIUSO (repo + deploy + verifica funzionale UI).
 
 ## Gap residui principali
-1. Conferma live post-warmup degli stati Step7 (UI state machine) ancora da completare:
-   - `policy_forecast_inputs_ready`, `policy_allow_shift_load`, `contract_hierarchy_mode_ready`, `cm_system_mode_suggested`, `aeb_*`.
-   - tentativo API diretto da shell runtime non conclusivo (`401 Unauthorized`).
-2. Chiusura evidence pack evento-level con export UI/trace/logbook per contesto post-deploy.
+1. Nessun blocker tecnico aperto per Step7.
+2. Attivita` opzionale: consolidare evidence pack evento-level (export UI/trace/logbook) in archivio runtime.
 
 ## Doc drift corretto in questo delta
 - `docs/climateops/ENTRYPOINTS.md`: rimosso riferimento "read-only" assoluto, allineato a stack con attuazione.
@@ -46,7 +44,7 @@ Scope: allineamento documentazione/repo/runtime dopo hardening ClimateOps
 - `docs/audits/STEP7_POST_DEPLOY_RUNTIME_2026-02-25.md`: verifica post-deploy.
 
 ## Prossimo step consigliato (Step 8)
-- Closure funzionale runtime Step7:
-  1) conferma stati live da UI su entita` chiave,
-  2) export evidenza in `docs/runtime_evidence/2026-02-25/`,
-  3) aggiornamento finale status da "parziale" a "chiuso".
+- Ottimizzazione post-closure:
+  1) tuning soglie forecast/tariff/grid in base ai dati reali,
+  2) monitoraggio KPI AEB su finestra multi-giorno,
+  3) eventuale hardening aggiuntivo dei feed forecast.
