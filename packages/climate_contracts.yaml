@@ -31,6 +31,29 @@ template:
         unique_id: contract_surplus_policy_ok
         state: >-
           {{ states('binary_sensor.policy_surplus_ok') not in ['unknown','unavailable',''] }}
+      - name: "Contract forecast inputs defined"
+        unique_id: contract_forecast_inputs_defined
+        state: >-
+          # Forecast feed is optional; policy layer handles fallback when not available
+          {{ true }}
+      - name: "Contract forecast inputs ready"
+        unique_id: contract_forecast_inputs_ready
+        state: >-
+          {{ is_state('binary_sensor.policy_forecast_inputs_ready','on') }}
+      - name: "Contract tariff grid policy ready"
+        unique_id: contract_tariff_grid_policy_ready
+        state: >-
+          {{
+            states('binary_sensor.policy_allow_shift_load') not in ['unknown','unavailable','']
+            and states('sensor.policy_tariff_grid_reason') not in ['unknown','unavailable','']
+          }}
+      - name: "Contract hierarchy mode ready"
+        unique_id: contract_hierarchy_mode_ready
+        state: >-
+          {{
+            states('sensor.climateops_hierarchy_mode') not in ['unknown','unavailable','']
+            and states('sensor.climateops_hierarchy_reason') not in ['unknown','unavailable','']
+          }}
 
       - name: "Contract core fallback ok"
         unique_id: contract_core_fallback_ok
@@ -147,3 +170,27 @@ template:
             {%- endif -%}
           {%- endfor -%}
           {{ ns.missing | join(', ') if ns.missing | length > 0 else 'OK' }}
+      - name: "Contract forecast reason"
+        unique_id: contract_forecast_reason
+        state: >-
+          {% if is_state('binary_sensor.policy_forecast_inputs_ready','on') %}
+            OK_{{ states('sensor.policy_forecast_reason') }}
+          {% else %}
+            NOT_READY_{{ states('sensor.policy_forecast_reason') }}
+          {% endif %}
+      - name: "Contract tariff grid reason"
+        unique_id: contract_tariff_grid_reason
+        state: >-
+          {% if is_state('binary_sensor.contract_tariff_grid_policy_ready','on') %}
+            OK_{{ states('sensor.policy_tariff_grid_reason') }}
+          {% else %}
+            NOT_READY_{{ states('sensor.policy_tariff_grid_reason') }}
+          {% endif %}
+      - name: "Contract hierarchy reason"
+        unique_id: contract_hierarchy_reason
+        state: >-
+          {% if is_state('binary_sensor.contract_hierarchy_mode_ready','on') %}
+            OK_{{ states('sensor.climateops_hierarchy_reason') }}
+          {% else %}
+            NOT_READY_{{ states('sensor.climateops_hierarchy_reason') }}
+          {% endif %}

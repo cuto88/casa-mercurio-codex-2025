@@ -49,8 +49,9 @@ docs/logic/
 ## 🔗 Collegamento con YAML
 Ogni documento di logica corrisponde a un package YAML e alla relativa plancia Lovelace omonima, ma la cartella `docs/logic/` rimane soltanto documentale. Le soglie e i lock devono essere presi dal core; i moduli dichiarano solo le eccezioni locali. Le plance includono sempre la sezione **RIFERIMENTI LOGICI** con link al core e al file logico del modulo.
 
-## 🌡️ Clima 2025 — stack attivo
-- **Packages:** `0_sensors.yaml`, `1_ventilation.yaml`, `1_ventilation_windows.yaml`, `2_heating.yaml`, `climate_ac_mapping.yaml`, `climate_ac_logic.yaml`.
-- **Plance Lovelace:** `1_ventilation_plancia.yaml`, `1_ventilation_windows.yaml`, `2_heating_plancia.yaml`, `3_ac_plancia.yaml`.
+## 🌡️ Clima 2026 — stack attivo
+- **Packages (principali):** `packages/climate_sensors.yaml`, `packages/climate_ventilation.yaml`, `packages/climate_heating.yaml`, `packages/climate_ac_logic.yaml`, `packages/climate_ac_mapping.yaml`.
+- **ClimateOps (orchestrazione):** `packages/climateops/` (drivers, strategies, actuators, overrides).
+- **Plance Lovelace (attive):** `lovelace/climate_ventilation_plancia_v2.yaml`, `lovelace/climate_heating_plancia.yaml`, `lovelace/climate_ac_plancia_v2.yaml`.
 
-> Revisione documentazione clima Vent – allineata a implementazione attuale.
+> Revisione documentazione clima: riferimenti allineati ai file runtime attuali.

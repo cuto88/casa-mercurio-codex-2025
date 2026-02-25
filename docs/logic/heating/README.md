@@ -10,7 +10,8 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 
 ## Entrypoints
 - YAML: `packages/climate_heating.yaml`.
-- Lovelace: `lovelace/2_heating_plancia.yaml`.
+- Lovelace: `lovelace/climate_heating_plancia.yaml`.
+- Thermostat TEMP override: `packages/climateops/overrides/thermostat_indicators_temp.yaml`.
 
 ## KPI / Entità principali
 ### Mappa priorità
@@ -37,7 +38,11 @@ Heating — pavimento radiante (zone giorno/notte/bagno).
 - Manual override usa gli stessi lock hardware e restituisce il controllo al termine del timer o su toggle utente.
 
 ### Note operative
-- Plancia `lovelace/2_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
+- Plancia `lovelace/climate_heating_plancia.yaml` mostra KPI comfort, lock e selezione zone; non duplicare logica nelle card.
+- Mapping TEMP termostati ESP32:
+  - sorgenti raw default: `sensor.ldr_camera1_camera1_ldr_raw`, `sensor.ldr_camera2_camera2_ldr_raw`;
+  - soglia default: `3.00 V` (per zona) con isteresi default `0.10 V`;
+  - logica: `thermostat_*_temp` ON sopra soglia, OFF sotto soglia con isteresi per ridurre oscillazioni.
 - Tutte le automazioni e helper risiedono in `packages/climate_heating.yaml`; non esistono più riferimenti a file 3_heating.yaml legacy.
 - `sensor.heating_priority` offre descrizione leggibile (P0–P4/manual/idle) coerente con `README_ClimaSystem.md`.
 

@@ -57,17 +57,27 @@ views:
               - entity: binary_sensor.ldr_camera2_richiesta_calore
                 name: "ESP32 camera2 richiesta calore"
               - entity: binary_sensor.thermostat_giorno_temp
-                name: "Termostato Giorno"
+                name: "Termostato Camera1"
               - entity: binary_sensor.thermostat_notte_temp
-                name: "Termostato Notte"
+                name: "Termostato Camera2"
               - entity: sensor.ldr_camera1_camera1_ldr_raw
                 name: "LDR camera1 raw"
               - entity: sensor.ldr_camera2_camera2_ldr_raw
                 name: "LDR camera2 raw"
               - entity: input_text.climateops_temp_thermostat_giorno_entity
-                name: "Entity ID Giorno (sorgente)"
+                name: "Entity ID Camera1 (sorgente)"
               - entity: input_text.climateops_temp_thermostat_notte_entity
-                name: "Entity ID Notte (sorgente)"
+                name: "Entity ID Camera2 (sorgente)"
+              - entity: input_text.climateops_temp_thermostat_giorno_raw_entity
+                name: "Entity ID Camera1 (LDR raw)"
+              - entity: input_text.climateops_temp_thermostat_notte_raw_entity
+                name: "Entity ID Camera2 (LDR raw)"
+              - entity: input_number.climateops_temp_thermostat_giorno_threshold_v
+                name: "Soglia Camera1 (V)"
+              - entity: input_number.climateops_temp_thermostat_notte_threshold_v
+                name: "Soglia Camera2 (V)"
+              - entity: input_number.climateops_temp_thermostat_hysteresis_v
+                name: "Isteresi (V)"
 
       - type: grid
         title: "Heating  Setpoint e comandi"

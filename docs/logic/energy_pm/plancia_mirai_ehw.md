@@ -30,6 +30,13 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 ## Layout
 
 - Stato attuale: potenze istantanee e direzione flusso.
+- KPI AEB (runtime):
+  - `binary_sensor.aeb_kpi_inputs_ready`
+  - `sensor.aeb_kpi_reason`
+  - `sensor.aeb_self_consumption_ratio_pct`
+  - `sensor.aeb_shift_effectiveness_pct`
+  - `sensor.aeb_comfort_energy_score_pct`
+  - `sensor.aeb_policy_activation_rate_pct`
 - Contatori cumulati: blocchi separati Mirai/EHW.
 - Andamento 24h: history potenze.
 - Consumi giornalieri 7 giorni: `statistics-graph` (stat `change`) su kWh prelevati.
@@ -42,3 +49,5 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
   (`sensor.mirai_power_w`, `sensor.ehw_power_w`) sopra i raw LocalTuya.
 - Se in campo le pinze risultano invertite, scambiare solo le 2 entita di potenza
   (`sensor.mirai_power_w` <-> `sensor.ehw_power_w`) e i blocchi A/B.
+- KPI AEB derivano da `packages/climateops/core/kpi.yaml` e usano fallback su segnali
+  `policy_*`/`pv_power_now`; non dipendono da `history_stats`.
