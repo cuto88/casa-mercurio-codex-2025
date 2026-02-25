@@ -25,6 +25,13 @@ Questi sono gli entrypoint ufficiali e unici per entità, modbus e template.
 ## Riferimenti
 
 - Quarantine log: `/_quarantine/20260120_cleanup/README.md`
+- Plancia MIRAI (sidebar): `configuration.yaml` -> dashboard `8-mirai` (`title: "8 Mirai"`)
+- File plancia MIRAI: `lovelace/8_mirai_plancia.yaml`
+
+## Cleanup pendente
+
+- File legacy da eliminare: `lovelace/mirai_plancia.yaml`
+- Stato: non referenziato da `configuration.yaml` (sostituito da `lovelace/8_mirai_plancia.yaml`)
 
 ## Contract Layer
 

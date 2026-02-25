@@ -22,8 +22,8 @@ Modifiche:
   - `mode in ['VENT_BASE', 'IDLE']` (e fallback `VENT_BOOST` policy off)
 
 Effetto:
-- se `input_boolean.climateops_cutover_vmc = off`, ClimateOps non scrive piu` la velocita` VMC;
-- resta autorita` il flusso legacy, quindi `target=1` non viene ribaltato a `3` da ClimateOps.
+- se `input_boolean.climateops_cutover_vmc = off`, l'automazione non forza piu` i rami `VENT_*` ma applica direttamente `sensor.vmc_vel_target` su `switch.vmc_vel_*`;
+- quindi `target=1` non viene piu` ribaltato a `3` dal ramo di mode policy.
 
 ## Deploy e verifiche runtime
 Data verifica: 2026-02-25
