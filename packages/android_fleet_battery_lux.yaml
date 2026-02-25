@@ -79,5 +79,3 @@ mqtt:
       unit_of_measurement: "lx"
       device_class: illuminance
       state_class: measurement
-
-

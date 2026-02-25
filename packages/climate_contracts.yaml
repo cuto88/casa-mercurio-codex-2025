@@ -24,9 +24,6 @@ template:
         unique_id: contract_surplus_ok_ready
         state: >-
           {{ has_value('binary_sensor.surplus_ok') }}
-
-
-
       - name: "Contract surplus policy ok"
         unique_id: contract_surplus_policy_ok
         state: >-

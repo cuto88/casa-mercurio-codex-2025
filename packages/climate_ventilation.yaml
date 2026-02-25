@@ -340,6 +340,8 @@ template:
           {% set manual = is_state('input_boolean.vmc_manual','on') and is_state('input_select.vmc_mode','manual') %}
           {% set mode_off = is_state('input_select.vmc_mode','off') %}
           {% set sensors_ok = is_state('binary_sensor.vmc_sensors_ok','on') %}
+          {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
+          {% set boost_requested = is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
           {% set ur_in_media = states('sensor.ur_in_media')|float(default=0) %}
           {% set ur_out = states('sensor.ur_out')|float(default=0) %}
           {% if mode_off %}
@@ -348,7 +350,7 @@ template:
             P_manual
           {% elif not sensors_ok %}
             P0_failsafe
-          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+          {% elif policy_blocks_boost and boost_requested %}
             P4_baseline
           {% elif is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
             P1_boost_bagno
@@ -368,6 +370,8 @@ template:
           {% set cutover_on = is_state('input_boolean.climateops_cutover_vmc','on') %}
           {% set arbiter_mode = states('sensor.climateops_arbiter_suggested_mode') %}
           {% set arbiter_available = arbiter_mode not in ['unknown','unavailable',''] %}
+          {% set policy_blocks_boost = is_state('binary_sensor.policy_allow_vmc_boost','off') %}
+          {% set boost_requested = is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on') %}
           {% if cutover_on and arbiter_available and arbiter_mode != 'IDLE' %}
             ClimateOps: {{ arbiter_mode }} – {{ states('sensor.climateops_arbiter_suggested_reason') }}
           {% else %}
@@ -378,7 +382,7 @@ template:
             Modalità OFF
           {% elif priority == 'P0_failsafe' %}
             P0 – failsafe sensori
-          {% elif is_state('binary_sensor.policy_allow_vmc_boost','off') and (is_state('binary_sensor.vmc_bagno_boost_auto','on') or is_state('input_boolean.vmc_boost_bagno','on')) %}
+          {% elif policy_blocks_boost and boost_requested %}
             VMC BOOST BLOCKED BY POLICY
           {% elif priority == 'P1_boost_bagno' %}
             P1 – UR bagno alta / boost

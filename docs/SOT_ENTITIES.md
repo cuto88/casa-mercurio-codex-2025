@@ -33,3 +33,11 @@
 
 ## EHW
 - Package unico EHW Modbus: `packages/ehw_modbus.yaml` (flattened, non cartella).
+
+## Runtime dependencies (legacy/non-cm)
+Queste entità sono richieste dalla logica runtime ma non fanno parte del layer canonicale `cm_*`.
+
+| ENTITY | SOURCE FILE | NOTES |
+| --- | --- | --- |
+| `input_boolean.ac_send_command_busy` | `packages/climate_ac_logic.yaml` | Lock anti-recursione invio comandi AC |
+| `sensor.vmc_boost_bagno_eta_spegnimento` | `packages/climate_ventilation.yaml` | ETA diagnostica boost bagno |

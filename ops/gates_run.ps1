@@ -70,8 +70,23 @@ function Get-TrackedYamlFiles {
     return $tracked
 }
 
+function Assert-NoTrackedPyc {
+    param([string]$Root)
+    $trackedPyc = & git -C $Root ls-files -- '*.pyc' 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'Unable to enumerate tracked .pyc files.'
+        exit 1
+    }
+    if ($trackedPyc) {
+        Write-Host 'Tracked .pyc files are not allowed:'
+        $trackedPyc | ForEach-Object { Write-Host ("- {0}" -f $_) }
+        exit 1
+    }
+}
+
 $repoRoot = Get-RepoRoot
 $trackedYamlFiles = Get-TrackedYamlFiles -Root $repoRoot
+Assert-NoTrackedPyc -Root $repoRoot
 
 $gates = @(
     # HYGIENE = formatter/mutating scripts (non-validation).
@@ -114,10 +129,6 @@ foreach ($gate in $gates) {
                 } else {
                     & $gate.Command @($trackedYamlFiles)
                     $code = $LASTEXITCODE
-                    if ($code -eq 1) {
-                        Write-Host "yamllint returned warnings only; continuing."
-                        $code = 0
-                    }
                 }
             } else {
                 & $gate.Command @($gate.Args)

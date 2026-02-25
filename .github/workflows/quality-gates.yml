@@ -1,6 +1,6 @@
 name: Quality Gates
 
-on:
+'on':
   pull_request:
   push:
 

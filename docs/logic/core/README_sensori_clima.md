@@ -88,6 +88,7 @@ Tutti i package clima **devono** usare **esattamente** questi `entity_id`.
 | Ventilation priority (P0–P4)              | `sensor.ventilation_priority`              |
 | Ventilation reason (human-readable)       | `sensor.ventilation_reason`                |
 | Ventilation state change reason           | `sensor.ventilation_state_reason`          |
+| Bathroom boost ETA spegnimento (debug)    | `sensor.vmc_boost_bagno_eta_spegnimento`   |
 | Freecooling textual status                | `sensor.vmc_freecooling_status`            |
 | Open windows recommended                  | `sensor.clima_open_windows_recommended`    |
 | Season flag for ventilation (optional)    | `sensor.vent_stagione`                     |
@@ -191,6 +192,7 @@ Non è un rename: la coesistenza è intenzionale. Warning alias possibile: `clim
 | AC manual mode selection                  | `input_select.ac_manual_mode`              |
 | AC manual timeout                         | `timer.ac_manual_timeout`                  |
 | AC block-by-VMC flag                      | `input_boolean.ac_block_vmc`               |
+| AC send-command busy lock                 | `input_boolean.ac_send_command_busy`       |
 | AC block-by-VMC timeout                   | `timer.ac_block_vmc_timeout`               |
 | Cooling setpoint                          | `input_number.ac_cool_setpoint`            |
 | AC day setpoint                           | `input_number.ac_giorno_setpoint`          |
