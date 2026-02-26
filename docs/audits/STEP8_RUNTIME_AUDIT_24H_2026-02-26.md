@@ -67,3 +67,14 @@ Fonte: `ha core logs --lines 1200`
 1. Export UI trace per `automation.climateops_system_actuate` e `script.ac_giorno_apply`/`script.ac_notte_apply` e salvataggio in `docs/runtime_evidence/2026-02-26/`.
 2. Chiusura correlazione `context_id` evento-level (automation/script/switch) su evidenza UI export.
 3. Analisi sorgente log `State TIME` (ricerca automazione/script che invia `logger` con livello error).
+
+## Update post-audit (2026-02-26, remediation)
+- Root cause identificata: `sensor.mirai_snapshot` pubblicava stato multilinea >255 caratteri
+  (prefisso `TIME: ...`), causando fallback a `unknown` e spam `ERROR [homeassistant.core] State TIME: ...`.
+- Fix applicato in repo/runtime:
+  - `packages/mirai_templates.yaml` -> stato sintetico timestamp + payload diagnostico in `attributes`.
+  - Commit: `4a6f882` (`fix(mirai): move snapshot multiline payload from state to attributes`)
+  - Deploy eseguito con `ops/deploy_safe.ps1` + restart core (`ha core restart`) + `ha core check` OK.
+- Verifica post-fix:
+  - `ha core logs --lines 300 | grep -c 'State TIME:'` -> `0`
+  - nessuna nuova occorrenza del pattern nel campione recente.
