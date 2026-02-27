@@ -86,6 +86,86 @@ views:
               - entity: sensor.policy_grid_import_w
                 name: Grid import W
 
+  - title: "Diagnostics"
+    path: diagnostics
+    icon: mdi:stethoscope
+    type: sections
+    max_columns: 1
+
+    sections:
+      - type: grid
+        title: "Runtime health"
+        cards:
+          - type: entities
+            title: "Contracts & readiness"
+            show_header_toggle: false
+            entities:
+              - entity: binary_sensor.policy_forecast_inputs_ready
+                name: Forecast inputs ready
+              - entity: binary_sensor.contract_forecast_inputs_ready
+                name: Contract forecast ready
+              - entity: binary_sensor.contract_hierarchy_mode_ready
+                name: Hierarchy contract ready
+              - entity: binary_sensor.contract_tariff_grid_policy_ready
+                name: Tariff/grid contract ready
+              - entity: binary_sensor.aeb_kpi_inputs_ready
+                name: AEB KPI inputs ready
+
+      - type: grid
+        title: "Reason chain"
+        cards:
+          - type: entities
+            title: "Decision diagnostics"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.cm_system_reason
+                name: System reason
+              - entity: sensor.planner_notes
+                name: Planner notes
+              - entity: sensor.policy_forecast_reason
+                name: Forecast reason
+              - entity: sensor.policy_tariff_grid_reason
+                name: Tariff/grid reason
+              - entity: sensor.heating_reason
+                name: Heating reason
+              - entity: sensor.ventilation_reason
+                name: Ventilation reason
+
+      - type: grid
+        title: "AEB diagnostics"
+        cards:
+          - type: entities
+            title: "KPI + policy status"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.aeb_kpi_reason
+                name: AEB KPI reason
+              - entity: sensor.aeb_self_consumption_ratio_pct
+                name: Self-consumption %
+              - entity: sensor.aeb_shift_effectiveness_pct
+                name: Shift effectiveness %
+              - entity: sensor.aeb_comfort_energy_score_pct
+                name: Comfort-energy %
+              - entity: sensor.aeb_policy_activation_rate_pct
+                name: Policy activation %
+
+      - type: grid
+        title: "Health trend"
+        cards:
+          - type: history-graph
+            title: "24h diagnostics trend"
+            hours_to_show: 24
+            refresh_interval: 120
+            entities:
+              - entity: sensor.policy_grid_import_w
+                name: Grid import W
+              - entity: sensor.policy_grid_price_now
+                name: Grid price
+              - entity: sensor.climateops_kpi_comfort_band_percent_today
+                name: Comfort band %
+              - entity: sensor.climateops_kpi_vmc_boost_minutes_today
+                name: VMC boost min
+
   - title: "Step7 Ops"
     path: step7
     icon: mdi:transmission-tower

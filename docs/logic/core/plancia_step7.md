@@ -9,6 +9,7 @@ Dashboard tecnica per osservare in un unico punto:
 - hierarchy mode/reason,
 - KPI AEB runtime.
 - executive view mobile-first per lettura rapida stato operativo.
+- diagnostics view mobile-first per analisi reason/contract chain.
 
 ## Vista Executive (UI Sprint 1)
 - path: `executive`
@@ -18,6 +19,15 @@ Dashboard tecnica per osservare in un unico punto:
   - KPI giornalieri Phase1 + recommendation planner,
   - policy energetica forecast/tariff-grid,
   - trend rapido 24h (self-consumption, comfort-energy, grid import).
+
+## Vista Diagnostics (UI Sprint 2)
+- path: `diagnostics`
+- max columns: `1` (mobile-first)
+- contenuti:
+  - readiness contratti runtime (forecast/hierarchy/tariff-grid/KPI),
+  - reason chain completa (`cm_system_reason`, planner/policy/heating/ventilation),
+  - snapshot KPI AEB e stato policy,
+  - trend diagnostico 24h (grid import/price + comfort/vmc KPI).
 
 ## Sezioni
 - Stato generale: `cm_system_mode_suggested`, `cm_system_reason`, contratti hierarchy.
