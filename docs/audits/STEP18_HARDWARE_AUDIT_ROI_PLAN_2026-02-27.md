@@ -34,7 +34,13 @@ Scope: audit hardware orientato ROI per ottimizzazione AEB (senza modifiche auth
 - `sensor.pm1/pm2/pm3_*_power_w_main_channel`, `*_energy_kwh_*`
 - file: `packages/energy_pm.yaml`
 
-7. Physical actuators:
+7. Consumi termici gia` presenti (heating/ACS):
+- `sensor.mirai_power_w` (canale consumi heating, come usato in plancia consumi)
+- `sensor.ehw_power_w` (canale consumi ACS)
+- bridge: `sensor.cm_mirai_power_w`, `sensor.cm_ehw_power_w`
+- file: `lovelace/consumi_mirai_ehw_plancia.yaml`, `packages/cm_naming_bridge.yaml`
+
+8. Physical actuators:
 - Heating relay: `switch.4_ch_interruttore_3` (single-writer enforced)
 - AC: `switch.ac_giorno`, `switch.ac_notte`
 - VMC: `switch.vmc_vel_0..3`
@@ -43,7 +49,8 @@ Scope: audit hardware orientato ROI per ottimizzazione AEB (senza modifiche auth
 ## 2) Gap analysis (AEB optimization impact)
 
 1. Mancano misure elettriche granulari dedicate HVAC:
-- assorbimento elettrico dedicato per VMC/AC/Heating relay (oggi parziale o indiretto).
+- heating/ACS sono gia` monitorati (mirai + ehw), ma manca granularita` dedicata per AC e VMC.
+- utile anche separare in modo piu` netto i sottocarichi HVAC per tuning fine.
 
 2. Mancano misure termiche idroniche complete:
 - mandata/ritorno circuito heating + temperatura superficiale/inerzia (non presenti nel perimetro logico attuale).
@@ -58,10 +65,10 @@ Scope: audit hardware orientato ROI per ottimizzazione AEB (senza modifiche auth
 
 ## Priorità ALTA
 
-1. Misura potenza dedicata carichi HVAC principali (AC/VMC/Heating):
+1. Misura potenza dedicata carichi HVAC principali (AC/VMC):
 - Impatto: alto su KPI efficienza, detection cicli reali, tuning planner.
 - Costo/complessità: medio.
-- Effetto atteso: miglior attribuzione consumi e riduzione tuning “alla cieca”.
+- Effetto atteso: completamento quadro consumi HVAC (heating/ACS gia` presenti).
 
 2. Sonda/e CO2 in zone principali (giorno + notte):
 - Impatto: alto su qualità aria e controllo VMC boost/comfort.
@@ -99,7 +106,7 @@ Scope: audit hardware orientato ROI per ottimizzazione AEB (senza modifiche auth
 
 ## Wave 1 (quick wins, 1-2 settimane)
 
-1. Aggiungere misura potenza dedicata ad almeno 2 carichi HVAC.
+1. Aggiungere misura potenza dedicata ad almeno 2 carichi HVAC (AC/VMC).
 2. Installare 1-2 sonde CO2 (giorno/notte).
 3. Stabilizzare/validare feed forecast PV.
 4. Baseline KPI pre/post upgrade (7 giorni + 7 giorni).

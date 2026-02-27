@@ -10,14 +10,17 @@ Scope: definire componenti e piano esecutivo Wave1 (ROI alto) per ottimizzazione
 1. Linee da misurare:
 - AC giorno/notte (linea/e alimentazione split)
 - VMC
-- Heating relay/circuito riscaldamento
+
+Nota:
+- Consumi heating/ACS risultano gia` tracciati in plancia consumi tramite `sensor.mirai_power_w` (heating) e `sensor.ehw_power_w` (ACS).
+- Wave1 metering e` quindi focalizzata a chiudere il gap su AC/VMC e migliorare granularita`.
 
 2. Opzioni hardware:
 - Shelly Pro EM-50 (DIN, CT esterni) oppure Shelly 3EM Pro (se multi-linea)
 - Alternativa: Sonoff POW Elite / smart DIN meter con integrazione HA stabile
 
 3. Quantita` suggerita:
-- 2-3 canali misurazione (minimo), meglio 4 per separare AC giorno/notte
+- 2 canali minimi (AC + VMC), meglio 3-4 per separare AC giorno/notte e eventuale altra linea HVAC
 
 4. Costo indicativo:
 - fascia 180-450 EUR totale (dipende da numero canali + TA + quadro)
@@ -54,7 +57,6 @@ Scope: definire componenti e piano esecutivo Wave1 (ROI alto) per ottimizzazione
 1. Nuovi sensori energia (esempio naming):
 - `sensor.hvac_ac_power_w`
 - `sensor.hvac_vmc_power_w`
-- `sensor.hvac_heating_power_w`
 
 2. Nuovi sensori CO2:
 - `sensor.co2_giorno`
@@ -66,7 +68,7 @@ Scope: definire componenti e piano esecutivo Wave1 (ROI alto) per ottimizzazione
 ## 3) Sequenza installativa (operativa)
 
 1. Pre-check elettrico/quadro:
-- identificazione linee AC/VMC/heating.
+- identificazione linee AC/VMC (heating/ACS gia` monitorati nel setup attuale).
 
 2. Installazione metering HVAC:
 - montaggio e validazione letture in HA.
