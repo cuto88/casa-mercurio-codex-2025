@@ -1,0 +1,91 @@
+param(
+  [switch]$RunRestart,
+  [string]$HaHost = "root@192.168.178.84",
+  [int]$Port = 2222,
+  [string]$KeyPath = "C:\Users\randalab\.ssh\ha_ed25519"
+)
+
+$ErrorActionPreference = "Stop"
+
+function Say([string]$msg) {
+  Write-Host $msg
+}
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$date = Get-Date -Format "yyyy-MM-dd"
+$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$dateDir = Join-Path $repoRoot ("docs\runtime_evidence\" + $date)
+New-Item -ItemType Directory -Force -Path $dateDir | Out-Null
+
+$pwshExe = "C:\Program Files\PowerShell\7\pwsh.exe"
+$sshExe = "C:\Windows\System32\OpenSSH\ssh.exe"
+
+$coreCheckFile = Join-Path $dateDir ("phase4_ha_core_check_" + $stamp + ".txt")
+$summaryFile = Join-Path $dateDir ("phase4_daily_summary_" + $stamp + ".md")
+
+Say "==> HA core check"
+$checkCmd = "& '$sshExe' -p $Port -i '$KeyPath' $HaHost 'ha core check'"
+& $pwshExe -Command $checkCmd | Tee-Object -FilePath $coreCheckFile
+if ($LASTEXITCODE -ne 0) {
+  throw "ha core check failed (RC=$LASTEXITCODE)"
+}
+
+if ($RunRestart) {
+  Say "==> HA core restart + check"
+  $restartCmd = "& '$sshExe' -p $Port -i '$KeyPath' $HaHost 'ha core restart && ha core check'"
+  & $pwshExe -Command $restartCmd | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    throw "ha core restart/check failed (RC=$LASTEXITCODE)"
+  }
+}
+
+Say "==> Runtime truth scan"
+& powershell -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "phase1_runtime_truth_check.ps1") `
+  -HaHost $HaHost -Port $Port -KeyPath $KeyPath
+if ($LASTEXITCODE -ne 0) {
+  throw "phase1_runtime_truth_check failed (RC=$LASTEXITCODE)"
+}
+
+$currentBootScan = Get-ChildItem $dateDir -Filter "phase1_runtime_truth_scan_current_boot_*.txt" |
+  Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$writerScan = Get-ChildItem $dateDir -Filter "phase1_runtime_truth_writer_scan_*.txt" |
+  Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+if ($null -eq $currentBootScan -or $null -eq $writerScan) {
+  throw "Missing runtime truth outputs in $dateDir"
+}
+
+$coreCheckOk = (Get-Content $coreCheckFile -Raw) -match "Command completed successfully"
+$currentBootValue = (Get-Content $currentBootScan.FullName -Raw).Trim()
+$writerValue = (Get-Content $writerScan.FullName -Raw).Trim()
+
+$runtimeErrorsOk = ($currentBootValue -eq "NO_PHASE1_ERRORS_IN_CURRENT_BOOT_WINDOW")
+$writerOk = ($writerValue -eq "NO_WRITER_SERVICES_IN_PHASE1_FILES")
+$go = ($coreCheckOk -and $runtimeErrorsOk -and $writerOk)
+$decision = if ($go) { "GO" } else { "NO-GO" }
+
+$summary = @()
+$summary += "# Phase4 Daily Runtime Report ($date)"
+$summary += ""
+$summary += "Timestamp: $stamp"
+$summary += "Decision: **$decision**"
+$summary += ""
+$summary += "## Checks"
+$summary += "- HA core check: " + ($(if ($coreCheckOk) { "PASS" } else { "FAIL" }))
+$summary += "- Current boot Phase1 errors: " + ($(if ($runtimeErrorsOk) { "PASS" } else { "FAIL" }))
+$summary += "- Phase1 writer service scan: " + ($(if ($writerOk) { "PASS" } else { "FAIL" }))
+$summary += ""
+$summary += "## Evidence files"
+$summary += "- " + $coreCheckFile
+$summary += "- " + $currentBootScan.FullName
+$summary += "- " + $writerScan.FullName
+$summary += ""
+$summary += "## Raw values"
+$summary += "- current_boot_scan: `"$currentBootValue`""
+$summary += "- writer_scan: `"$writerValue`""
+
+$summary -join "`r`n" | Set-Content -Path $summaryFile -Encoding utf8
+
+Say "==> Daily summary"
+Say $summaryFile
+Say ("Decision: " + $decision)
