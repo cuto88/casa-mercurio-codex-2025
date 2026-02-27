@@ -30,6 +30,9 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 8 tuning baseline: `docs/audits/STEP8_TUNING_BASELINE_2026-02-25.md`
 - Step 8 runtime post strict gates: `docs/audits/STEP8_RUNTIME_POST_STRICT_GATES_2026-02-25.md`
 - Step 8 hardening plan: `docs/audits/STEP8_HARDENING_PLAN_2026-02-25.md`
+- Step 8 runtime audit 24h: `docs/audits/STEP8_RUNTIME_AUDIT_24H_2026-02-26.md`
+- Step 8 runtime closure: `docs/audits/STEP8_RUNTIME_CLOSURE_2026-02-26.md`
+- Step 8 gates policy: `docs/audits/STEP8_GATES_POLICY_2026-02-27.md`
 - Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
 
 ## Quality gates (ops)

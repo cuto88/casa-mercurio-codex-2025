@@ -25,9 +25,17 @@ Consolidare la qualita` repo/runtime riducendo artefatti non necessari e aumenta
    - Definire lista esplicita di asset consentiti in repo (`www/community`, frontend HACS, ecc.).
    - Criterio di uscita: policy documentata + check automatico.
 
+   Stato 2026-02-27: IMPLEMENTATO.
+   - Policy formalizzata in `docs/audits/STEP8_GATES_POLICY_2026-02-27.md`
+   - Enforcement attivo nel gate `ops/gate_artifact_policy.ps1`
+
 3. Gate severity model (P2)
    - Formalizzare quali warning restano warning e quali diventano blocker.
    - Criterio di uscita: matrice severita` in docs + comportamento identico locale/CI.
+
+   Stato 2026-02-27: IMPLEMENTATO.
+   - Matrice severita` documentata in `docs/audits/STEP8_GATES_POLICY_2026-02-27.md`
+   - Runner locale/CI allineati su stesso comportamento.
 
 4. Retention evidence locale (P2)
    - Script di pruning per `docs/runtime_evidence/` e `_ha_runtime_backups/`.
@@ -43,6 +51,9 @@ Consolidare la qualita` repo/runtime riducendo artefatti non necessari e aumenta
 5. Audit continuity (P3)
    - Aggiornare `DELTA_AUDIT_STATUS` a fine ogni ciclo deploy.
    - Criterio di uscita: timeline audit continua senza gap.
+
+   Stato 2026-02-27: IMPLEMENTATO.
+   - Delta audit aggiornato con cicli deploy/fix/runtime e chiusura Step8.
 
 ## Sequenza consigliata (7 giorni)
 1. Giorno 1-2: definizione policy asset consentiti e blacklist artefatti.
