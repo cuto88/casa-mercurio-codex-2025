@@ -33,6 +33,7 @@ Per dettagli tecnici e note climatizzazione leggi README_ClimaSystem.md.
 - Step 8 runtime audit 24h: `docs/audits/STEP8_RUNTIME_AUDIT_24H_2026-02-26.md`
 - Step 8 runtime closure: `docs/audits/STEP8_RUNTIME_CLOSURE_2026-02-26.md`
 - Step 8 gates policy: `docs/audits/STEP8_GATES_POLICY_2026-02-27.md`
+- Step 9 project closure: `docs/audits/STEP9_PROJECT_CLOSURE_2026-02-27.md`
 - Delta audit status: `docs/audits/DELTA_AUDIT_STATUS_2026-02-25.md`
 
 ## Quality gates (ops)
