@@ -20,6 +20,20 @@ views:
                 name: EHW Potenza W
               - entity: sensor.sensor_grid_direction
                 name: Direzione flusso
+          - type: entities
+            title: "EHW diagnostica mapping"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_mapping_health
+                name: Mapping health
+              - entity: binary_sensor.ehw_mapping_suspect
+                name: Mapping suspect
+              - entity: sensor.ehw_tank_top
+                name: Tank top
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom
+              - entity: sensor.ehw_setpoint
+                name: Setpoint
       - type: grid
         title: "KPI AEB (runtime)"
         cards:

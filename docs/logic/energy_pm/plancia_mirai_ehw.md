@@ -30,6 +30,12 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 ## Layout
 
 - Stato attuale: potenze istantanee e direzione flusso.
+- Stato attuale include anche diagnostica mapping EHW:
+  - `sensor.ehw_mapping_health`
+  - `binary_sensor.ehw_mapping_suspect`
+  - `sensor.ehw_tank_top`
+  - `sensor.ehw_tank_bottom`
+  - `sensor.ehw_setpoint`
 - KPI AEB (runtime):
   - `binary_sensor.aeb_kpi_inputs_ready`
   - `sensor.aeb_kpi_reason`
@@ -41,6 +47,8 @@ File dashboard: `lovelace/consumi_mirai_ehw_plancia.yaml`
 - Andamento 24h: history potenze.
 - Consumi giornalieri 7 giorni: `statistics-graph` (stat `change`) su kWh prelevati.
 - Smart Plug PM: sezione dedicata con potenze live, kWh giornalieri e grafici PM 24h/7gg.
+- Per diagnosi completa EHW usare anche la plancia dedicata:
+  - `lovelace/ehw_plancia.yaml`
 
 ## Note operative
 

@@ -27,3 +27,14 @@
   - `automation.climateops_system_actuate`
   - `script.ac_giorno_apply` / `script.ac_notte_apply`
   - stato `switch.ac_giorno` / `switch.ac_notte`
+
+## Progress visibility (sempre attiva)
+
+- Durante attivita` operative, inviare aggiornamenti brevi e frequenti sullo stato lavori.
+- Frequenza minima: un aggiornamento ogni 60 secondi quando un task e` in corso inserendo l'ora locale.
+- Se un comando/tool dura oltre 60 secondi, inviare almeno un messaggio intermedio "in corso".
+- Ogni update deve includere:
+  - stato: `in corso` / `completato` / `bloccato`
+  - azione corrente
+  - prossimo passo immediato
+- In caso di timeout o blocco, comunicarlo subito con causa tecnica e recovery plan.

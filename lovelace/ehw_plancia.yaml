@@ -17,9 +17,9 @@ views:
               - entity: sensor.ehw_status_word_hex
                 name: Status word (hex)
                 secondary_info: last-updated
-              - entity: binary_sensor.ehw_status_bit_0100
+              - entity: binary_sensor.ehw_status_bit_0x0100
                 name: Bit 0x0100
-              - entity: binary_sensor.ehw_status_bit_0200
+              - entity: binary_sensor.ehw_status_bit_0x0200
                 name: Bit 0x0200
               - entity: sensor.ehw_runtime_word_hex
                 name: Runtime word (hex)
@@ -44,6 +44,22 @@ views:
                 name: Reg57 runtime
               - entity: sensor.ehw_reg60_value
                 name: Reg60 value
+              - entity: sensor.ehw_mapping_health
+                name: Mapping health
+              - entity: binary_sensor.ehw_mapping_suspect
+                name: Mapping suspect
+          - type: entities
+            title: "Sonde semantiche"
+            show_header_toggle: false
+            entities:
+              - entity: sensor.ehw_t01_inlet
+                name: T01 inlet
+              - entity: sensor.ehw_t04_finned_coil
+                name: T04 finned coil
+              - entity: sensor.ehw_t05_suction
+                name: T05 suction
+              - entity: sensor.ehw_t06_outlet_solar
+                name: T06 outlet solar
           - type: history-graph
             title: "Reg56/Reg57 (24h)"
             hours_to_show: 24

@@ -77,6 +77,12 @@ Queste entità sono mantenute per retro-compatibilità con plance/automazioni es
 | `sensor.ehw_delta_stratificazione`| template sensor| top-bottom        | Δ°C |
 | `sensor.ehw_status`               | template sensor| binary            | In funzione/Spento |
 | `binary_sensor.ehw_running`       | template binary| top/setpoint      | setpoint - top >= 1.0 |
+| `sensor.ehw_t01_inlet`            | template sensor| T01 raw -> °C     | alias semantico |
+| `sensor.ehw_t04_finned_coil`      | template sensor| T04 raw -> °C     | alias semantico |
+| `sensor.ehw_t05_suction`          | template sensor| T05 raw -> °C     | alias semantico |
+| `sensor.ehw_t06_outlet_solar`     | template sensor| T06 raw -> °C     | alias semantico |
+| `sensor.ehw_mapping_health`       | template sensor| checks runtime    | `ok` / `suspect_all_zero` |
+| `binary_sensor.ehw_mapping_suspect`| template binary| mapping health   | true se mapping sospetto |
 
 ---
 
@@ -84,6 +90,8 @@ Queste entità sono mantenute per retro-compatibilità con plance/automazioni es
 
 - Il setpoint **non è esposto in chiaro**: il cambio setpoint si riflette su reg56/reg57,
   mentre reg60 resta 0x002D/45 nei test.
+- In caso di transport instability (`transaction_id mismatch`), il package riduce il polling
+  dei registri diagnostici (T01..T06 + setpoint raw) a 180s per ridurre rumore Modbus.
 
 ---
 
