@@ -7,27 +7,34 @@ Single source of truth per la mappa registri MIRAI usata in Home Assistant.
 - Hub: `mirai`
 - File: `packages/mirai_modbus.yaml`
 - Protocollo: Modbus TCP
-- Slave: `1`
 - Host: `!secret mirai_modbus_host`
 - Porta: `502`
+- Profilo attivo:
+  - probe manuale vendor su `slave/unit=1`
+  - fallback runtime su `slave/unit=3`
 
-## Mappa registri attiva
+## Registri attivi (stato/fault)
 
-| Entity ID | Registro | Tipo | Scala | Unita | Scan |
-|---|---:|---|---:|---|---:|
-| `sensor.mirai_status_word_raw` | 9050 | `uint16` | 1 | - | 120s |
-| `sensor.mirai_l261_compressor_step` | 9058 | `uint16` | 1 | - | 120s |
-| `sensor.mirai_fault_code_raw` | 9086 | `uint16` | 1 | - | 120s |
-| `sensor.mirai_status_code_raw` | 9087 | `uint16` | 1 | - | 120s |
-| `sensor.mirai_l243_internal_circulator` | 9068 | `uint16` | 1 | - | 120s |
-| `sensor.mirai_l241_antifreeze_lvl1` | 9078 | `uint16` | 1 | - | 180s |
-| `sensor.mirai_l242_antifreeze_lvl2` | 9079 | `uint16` | 1 | - | 180s |
-| `sensor.mirai_l163_outdoor_air_temp` | 8986 | `int16` | 0.1 | degC | 120s |
-| `sensor.mirai_l162_outlet_water_temp` | 8987 | `int16` | 0.1 | degC | 120s |
-| `sensor.mirai_l161_inlet_water_temp` | 8988 | `int16` | 0.1 | degC | 120s |
+| Entity ID | Slave | Registro | Tipo | Scan |
+|---|---:|---:|---|---:|
+| `sensor.mirai_u1_status_word_raw` | 1 | 1003 | `uint16` | 30s |
+| `sensor.mirai_u1_status_code_raw` | 1 | 1208 | `uint16` | 30s |
+| `sensor.mirai_u1_fault_code_raw` | 1 | 1209 | `uint16` | 30s |
+| `sensor.mirai_status_word_raw` | 3 | 1003 | `uint16` | 30s |
+| `sensor.mirai_status_code_raw` | 3 | 1208 | `uint16` | 30s |
+| `sensor.mirai_fault_code_raw` | 3 | 1209 | `uint16` | 30s |
+
+## Sensori template di riferimento
+
+- File: `packages/mirai_templates.yaml`
+- `binary_sensor.mirai_manual_unit_profile_ok`: `on` se il profilo manuale (`slave=1`) risponde con valore numerico.
+- `sensor.mirai_status_word_effective`: priorita `u1`, fallback `raw` (slave 3).
+- `sensor.mirai_status_code_effective`: priorita `u1`, fallback `raw` (slave 3).
+- `sensor.mirai_fault_code_effective`: priorita `u1`, fallback `raw` (slave 3).
+- `binary_sensor.cm_modbus_mirai_ready`: usa `sensor.mirai_status_word_effective` per readiness reale.
 
 ## Note operative
 
-- Mapping ricostruito da backup runtime (`_ha_runtime_backups`) e allineato alle entita gia presenti nel registry.
-- Se il device risponde ma i valori sono incoerenti, verificare offset addressing (0-based vs 1-based) con test guidati.
-- Stato macchina fallback da consumi rimane in `packages/mirai_templates.yaml` come resilienza quando Modbus non risponde.
+- Mappa aggiornata dopo audit runtime del 1 marzo 2026 (STEP23/STEP25).
+- Non invertire IP Mirai/EHW: la validazione runtime ha confermato mapping attuale.
+- Il fallback da consumi (`binary_sensor.mirai_machine_running_by_power`) resta attivo come resilienza se Modbus non risponde.

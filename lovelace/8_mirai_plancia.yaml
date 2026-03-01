@@ -21,9 +21,16 @@ views:
               - input_number.mirai_running_power_on_w
               - sensor.mirai_l261_compressor_step
               - sensor.mirai_l243_internal_circulator
+              - binary_sensor.mirai_manual_unit_profile_ok
+              - sensor.mirai_status_word_effective
+              - sensor.mirai_status_code_effective
+              - sensor.mirai_fault_code_effective
               - sensor.mirai_status_code_raw
               - sensor.mirai_fault_code_raw
               - sensor.mirai_status_word_raw
+              - sensor.mirai_u1_status_code_raw
+              - sensor.mirai_u1_fault_code_raw
+              - sensor.mirai_u1_status_word_raw
               - sensor.mirai_status_bits_on
               - input_boolean.mirai_debug_enable
 
@@ -48,10 +55,42 @@ views:
       - type: grid
         title: "Diagnostica"
         cards:
+          - type: entities
+            title: "Diagnostica rapida"
+            show_header_toggle: false
+            entities:
+              - binary_sensor.cm_modbus_mirai_ready
+              - sensor.mirai_machine_running_source
+              - binary_sensor.mirai_machine_running
+              - binary_sensor.mirai_manual_unit_profile_ok
+              - sensor.mirai_machine_state
+              - sensor.mirai_status_word_effective
+              - sensor.mirai_status_code_effective
+              - sensor.mirai_fault_code_effective
+              - sensor.mirai_status_word_raw
+              - sensor.mirai_status_code_raw
+              - sensor.mirai_fault_code_raw
+              - sensor.mirai_u1_status_word_raw
+              - sensor.mirai_u1_status_code_raw
+              - sensor.mirai_u1_fault_code_raw
+              - sensor.mirai_status_bits_on
           - type: markdown
-            title: "Snapshot"
+            title: "Snapshot operativo"
             content: |-
-              {{ states('sensor.mirai_snapshot') }}
+              **Ultimo update:** `{{ states('sensor.mirai_snapshot') }}`
+
+              **Verdetto rapido**
+              - Link Modbus: `{{ states('binary_sensor.cm_modbus_mirai_ready') }}`
+              - Source stato macchina: `{{ states('sensor.mirai_machine_running_source') }}`
+              - Stato macchina: `{{ states('sensor.mirai_machine_state') }}`
+
+              **Valori chiave**
+              - Power W: `{{ state_attr('sensor.mirai_snapshot','mirai_power_w') }}`
+              - Manual profile unit 1: `{{ state_attr('sensor.mirai_snapshot','manual_unit_profile_ok') }}`
+              - Status word effective: `{{ state_attr('sensor.mirai_snapshot','status_word_effective') }}`
+              - Status code effective: `{{ state_attr('sensor.mirai_snapshot','status_code_effective') }}`
+              - Fault code effective: `{{ state_attr('sensor.mirai_snapshot','fault_code_effective') }}`
+              - Status word u1/raw: `{{ state_attr('sensor.mirai_snapshot','status_word_u1_raw') }}` / `{{ state_attr('sensor.mirai_snapshot','status_word_raw') }}`
 
       - type: grid
         title: "History 24h"
