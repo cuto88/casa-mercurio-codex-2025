@@ -84,7 +84,9 @@ views:
               - Status word effective: `{{ state_attr('sensor.mirai_snapshot','status_word_effective') }}`
               - Status code effective: `{{ state_attr('sensor.mirai_snapshot','status_code_effective') }}`
               - Fault code effective: `{{ state_attr('sensor.mirai_snapshot','fault_code_effective') }}`
-              - Status word u1/raw: `{{ state_attr('sensor.mirai_snapshot','status_word_u1_raw') }}` / `{{ state_attr('sensor.mirai_snapshot','status_word_raw') }}`
+              - Status word u1/raw:
+                `{{ state_attr('sensor.mirai_snapshot','status_word_u1_raw') }}`
+                / `{{ state_attr('sensor.mirai_snapshot','status_word_raw') }}`
 
       - type: grid
         title: "History 24h"

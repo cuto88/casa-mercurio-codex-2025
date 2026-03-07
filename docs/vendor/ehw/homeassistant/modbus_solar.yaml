@@ -172,4 +172,3 @@ modbus:
         max_value: 255
         step: 1
         # Caution: writing this can immediately move the device to a new slave ID.
-

@@ -3,7 +3,7 @@
 # Keep this file self-contained so it can be dot-sourced from $PROFILE.
 # Update $HA_REPO if the repo path changes.
 
-$HA_REPO = "F:\01_PROJECT\home-assistant\casa-mercurio-codex-2025"
+$HA_REPO = "C:\2_OPS\aeb"
 
 function Invoke-HaOpsScript {
   [CmdletBinding()]

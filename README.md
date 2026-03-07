@@ -1,5 +1,5 @@
-# Casa Mercurio Codex 2025
-Configurazione Home Assistant modulare per la casa Mercurio.
+# AEB
+Repository Home Assistant per Casa Mercurio, rinominato `aeb`.
 Struttura base: packages/, docs/logic/, lovelace/.
 packages/ contiene automazioni e logica per domini HA.
 docs/logic/ ospita solo documentazione (nessun YAML runtime, automazioni o script): entry point `docs/logic/README.md`.

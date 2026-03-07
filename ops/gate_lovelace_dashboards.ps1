@@ -49,7 +49,10 @@ if ($trackedRaw) {
   $tracked = $trackedRaw | ForEach-Object { [System.IO.Path]::GetFileName($_) } | Sort-Object -Unique
 }
 
-$allowOrphans = @(".gitkeep")
+$allowOrphans = @(
+  ".gitkeep",
+  "climateops_step7_plancia.yaml"
+)
 $orphans = $tracked | Where-Object { -not $active.Contains($_) -and $_ -notin $allowOrphans }
 if ($orphans.Count -gt 0) {
   $orphans | ForEach-Object { Write-Host ("[ORPHAN] lovelace/{0}" -f $_) }
