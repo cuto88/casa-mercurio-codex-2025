@@ -1,5 +1,5 @@
 automation:
-  - alias: "Climate debug – Telegram notifications"
+  - alias: "Climate debug - Telegram HA Mercurio"
     id: climate_debug_telegram_notifications
     mode: queued
     trigger:
@@ -39,6 +39,8 @@ automation:
     action:
       - action: notify.send_message
         target:
+          # Runtime entity_id is still telegram_davide (registry lock),
+          # even if friendly name has been aligned to telegram_ha_mercurio.
           entity_id: notify.telegram_davide
         data:
           message: |

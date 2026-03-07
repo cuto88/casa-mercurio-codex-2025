@@ -11,24 +11,33 @@ views:
         title: "Status"
         cards:
           - type: entities
-            title: "Status word"
+            title: "Stato operativo"
             show_header_toggle: false
             entities:
-              - entity: sensor.ehw_status_word_hex
-                name: Status word (hex)
-                secondary_info: last-updated
-              - entity: binary_sensor.ehw_status_bit_0x0100
-                name: Bit 0x0100
-              - entity: binary_sensor.ehw_status_bit_0x0200
-                name: Bit 0x0200
-              - entity: sensor.ehw_runtime_word_hex
-                name: Runtime word (hex)
+              - entity: binary_sensor.cm_modbus_ehw_ready
+                name: Modbus ready
+              - entity: sensor.ehw_mapping_health
+                name: Mapping health
+              - entity: binary_sensor.ehw_mapping_suspect
+                name: Mapping suspect
+              - entity: sensor.ehw_tank_top
+                name: Tank top (°C)
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom (°C)
+              - entity: sensor.ehw_setpoint
+                name: Setpoint (°C)
           - type: entities
             title: "Ultimo aggiornamento"
             show_header_toggle: false
             entities:
-              - entity: sensor.ehw_reg56_status
-                name: Reg56 status
+              - entity: sensor.ehw_tank_top
+                name: Tank top
+                secondary_info: last-updated
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom
+                secondary_info: last-updated
+              - entity: sensor.ehw_setpoint
+                name: Setpoint
                 secondary_info: last-updated
 
       - type: grid
@@ -38,12 +47,20 @@ views:
             title: "Raw registers"
             show_header_toggle: false
             entities:
+              - entity: binary_sensor.cm_modbus_ehw_ready
+                name: Modbus ready
               - entity: sensor.ehw_reg56_status
                 name: Reg56 status
               - entity: sensor.ehw_reg57_runtime
                 name: Reg57 runtime
               - entity: sensor.ehw_reg60_value
                 name: Reg60 value
+              - entity: sensor.ehw_tank_top_raw_calc
+                name: Tank top raw calc
+              - entity: sensor.ehw_tank_bottom_raw_calc
+                name: Tank bottom raw calc
+              - entity: sensor.ehw_setpoint_raw_calc
+                name: Setpoint raw calc
               - entity: sensor.ehw_mapping_health
                 name: Mapping health
               - entity: binary_sensor.ehw_mapping_suspect
@@ -77,13 +94,15 @@ views:
               - entity: sensor.ehw_reg1255_modbus_address
                 name: Reg1255 Modbus address
           - type: history-graph
-            title: "Reg56/Reg57 (24h)"
+            title: "Temperature EHW (24h)"
             hours_to_show: 24
             entities:
-              - entity: sensor.ehw_reg56_status
-                name: Reg56 status
-              - entity: sensor.ehw_reg57_runtime
-                name: Reg57 runtime
+              - entity: sensor.ehw_tank_top
+                name: Tank top (°C)
+              - entity: sensor.ehw_tank_bottom
+                name: Tank bottom (°C)
+              - entity: sensor.ehw_setpoint
+                name: Setpoint (°C)
           - type: markdown
             title: "Note"
             content: |-

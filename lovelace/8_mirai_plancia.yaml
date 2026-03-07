@@ -25,9 +25,6 @@ views:
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
-              - sensor.mirai_status_code_raw
-              - sensor.mirai_fault_code_raw
-              - sensor.mirai_status_word_raw
               - sensor.mirai_u1_status_code_raw
               - sensor.mirai_u1_fault_code_raw
               - sensor.mirai_u1_status_word_raw
@@ -67,9 +64,6 @@ views:
               - sensor.mirai_status_word_effective
               - sensor.mirai_status_code_effective
               - sensor.mirai_fault_code_effective
-              - sensor.mirai_status_word_raw
-              - sensor.mirai_status_code_raw
-              - sensor.mirai_fault_code_raw
               - sensor.mirai_u1_status_word_raw
               - sensor.mirai_u1_status_code_raw
               - sensor.mirai_u1_fault_code_raw

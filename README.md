@@ -56,8 +56,14 @@ Per evitare falsi positivi e cartelle di backup/quarantena, il lint YAML gira so
 - Path config runtime: `/homeassistant`
 
 ## Notifiche Telegram
-Nel package `packages/notify_telegram.yaml` è definita la notifica `notify.telegram_davide`
-per inviare messaggi alla chat principale senza hardcodare l'ID del bot nelle automazioni.
+Canale tecnico HA Mercurio:
+- naming target: `telegram_ha_mercurio`
+- service runtime attuale: `notify.telegram_davide` (entity_id storico mantenuto dal registry HA)
+
+Canale personale:
+- naming target: `personale_davide`
+- configurato su bot separato (puo` usare anche lo stesso `chat_id` del canale tecnico)
+- service runtime attuale: `notify.personale_davide`
 
 ## Archivi opzionali
 Il package opzionale `notify_google_speaker.yaml` è stato archiviato in

@@ -37,14 +37,15 @@ modbus:
         scan_interval: 30
         slave: 1
 
-      # Runtime fallback profile currently observed on gateway: unit/slave 3.
+      # Compatibility raw sensors aligned to the active runtime profile.
+      # Keep entity IDs stable while avoiding polling a non-responsive unit.
       - name: "mirai_status_word_raw"
         unique_id: mirai_status_word_raw
         address: 1003
         input_type: holding
         data_type: uint16
         scan_interval: 30
-        slave: 3
+        slave: 1
 
       - name: "mirai_fault_code_raw"
         unique_id: mirai_fault_code_raw
@@ -52,7 +53,7 @@ modbus:
         input_type: holding
         data_type: uint16
         scan_interval: 30
-        slave: 3
+        slave: 1
 
       - name: "mirai_status_code_raw"
         unique_id: mirai_status_code_raw
@@ -60,4 +61,4 @@ modbus:
         input_type: holding
         data_type: uint16
         scan_interval: 30
-        slave: 3
+        slave: 1

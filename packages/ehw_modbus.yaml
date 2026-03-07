@@ -14,7 +14,7 @@ modbus:
         address: 56
         input_type: holding
         data_type: uint16
-        scan_interval: 20
+        scan_interval: 21600
         slave: !secret ehw_modbus_slave
 
       - name: "EHW reg57 runtime"
@@ -22,7 +22,7 @@ modbus:
         address: 57
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 21600
         slave: !secret ehw_modbus_slave
 
       - name: "EHW reg60 value"
@@ -30,7 +30,7 @@ modbus:
         address: 60
         input_type: holding
         data_type: uint16
-        scan_interval: 60
+        scan_interval: 21600
         slave: !secret ehw_modbus_slave
 
       # Vendor parameter registers (read-only diagnostics from EHW manual).
@@ -295,12 +295,20 @@ template:
         unique_id: cm_modbus_ready
         icon: mdi:check-network
         state: >-
-          {{ is_number(states('sensor.ehw_reg56_status')) or is_number(states('sensor.ehw_setpoint_raw')) }}
+          {% if has_value('sensor.ehw_reg56_status') or has_value('sensor.ehw_setpoint_raw_calc') %}
+            on
+          {% else %}
+            off
+          {% endif %}
       - name: "CM Modbus EHW ready"
         unique_id: cm_modbus_ehw_ready
         icon: mdi:check-network
         state: >-
-          {{ is_number(states('sensor.ehw_reg56_status')) or is_number(states('sensor.ehw_t02_raw_a')) }}
+          {% if has_value('sensor.ehw_reg56_status') or has_value('sensor.ehw_t02_raw_a') %}
+            on
+          {% else %}
+            off
+          {% endif %}
 
       - name: "EHW status bit 0x0100"
         unique_id: ehw_status_bit_0100
@@ -453,42 +461,48 @@ template:
           {% else %}
             {{ v | round(0) }}
           {% endif %}
-      - name: "EHW tank top raw"
-        unique_id: ehw_tank_top_raw
+      - name: "EHW tank top raw calc"
+        unique_id: ehw_tank_top_raw_calc
         availability: >-
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
-          {% set v = none %}
-          {% if is_state('input_boolean.ehw_swap_top_bottom', 'on') %}
-            {% set v = states('sensor.ehw_t03_raw') | float(default=none) %}
-          {% else %}
-            {% set v = states('sensor.ehw_t02_raw') | float(default=none) %}
+          {% set t02 = states('sensor.ehw_t02_raw') %}
+          {% if t02 in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set t02 = states('sensor.ehw_t02_raw_2') %}
           {% endif %}
+          {% set t03 = states('sensor.ehw_t03_raw') %}
+          {% if t03 in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set t03 = states('sensor.ehw_t03_raw_2') %}
+          {% endif %}
+          {% set v = (t03 | float(default=none)) if is_state('input_boolean.ehw_swap_top_bottom', 'on') else (t02 | float(default=none)) %}
           {% if v is none %}
             {{ none }}
           {% else %}
             {{ v | round(0) }}
           {% endif %}
-      - name: "EHW tank bottom raw"
-        unique_id: ehw_tank_bottom_raw
+      - name: "EHW tank bottom raw calc"
+        unique_id: ehw_tank_bottom_raw_calc
         availability: >-
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
         state: >-
-          {% set v = none %}
-          {% if is_state('input_boolean.ehw_swap_top_bottom', 'on') %}
-            {% set v = states('sensor.ehw_t02_raw') | float(default=none) %}
-          {% else %}
-            {% set v = states('sensor.ehw_t03_raw') | float(default=none) %}
+          {% set t02 = states('sensor.ehw_t02_raw') %}
+          {% if t02 in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set t02 = states('sensor.ehw_t02_raw_2') %}
           {% endif %}
+          {% set t03 = states('sensor.ehw_t03_raw') %}
+          {% if t03 in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set t03 = states('sensor.ehw_t03_raw_2') %}
+          {% endif %}
+          {% set v = (t02 | float(default=none)) if is_state('input_boolean.ehw_swap_top_bottom', 'on') else (t03 | float(default=none)) %}
           {% if v is none %}
             {{ none }}
           {% else %}
             {{ v | round(0) }}
           {% endif %}
-      - name: "EHW setpoint raw"
-        unique_id: ehw_setpoint_raw
+      - name: "EHW setpoint raw calc"
+        unique_id: ehw_setpoint_raw_calc
         availability: >-
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         unit_of_measurement: "raw"
@@ -512,7 +526,7 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_tank_top_raw') | float(none) %}
+          {% set raw = states('sensor.ehw_tank_top_raw_calc') | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
           {% if scale == 0 or scale is none %}
             {% set scale = 0.3 %}
@@ -536,7 +550,7 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_tank_bottom_raw') | float(none) %}
+          {% set raw = states('sensor.ehw_tank_bottom_raw_calc') | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0) %}
           {% if scale == 0 or scale is none %}
             {% set scale = 0.3 %}
@@ -560,7 +574,7 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_setpoint_raw') | float(none) %}
+          {% set raw = states('sensor.ehw_setpoint_raw_calc') | float(none) %}
           {% set scale = states('input_number.ehw_setpoint_scale') | float(0) %}
           {% if scale == 0 or scale is none %}
             {% set scale = 0.3 %}
@@ -584,7 +598,11 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_t01_raw') | float(none) %}
+          {% set raw_state = states('sensor.ehw_t01_raw') %}
+          {% if raw_state in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set raw_state = states('sensor.ehw_t01_raw_2') %}
+          {% endif %}
+          {% set raw = raw_state | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0.3) %}
           {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
           {% if raw is none %}
@@ -605,7 +623,11 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_t04_raw') | float(none) %}
+          {% set raw_state = states('sensor.ehw_t04_raw') %}
+          {% if raw_state in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set raw_state = states('sensor.ehw_t04_raw_2') %}
+          {% endif %}
+          {% set raw = raw_state | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0.3) %}
           {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
           {% if raw is none %}
@@ -626,7 +648,11 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_t05_raw') | float(none) %}
+          {% set raw_state = states('sensor.ehw_t05_raw') %}
+          {% if raw_state in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set raw_state = states('sensor.ehw_t05_raw_2') %}
+          {% endif %}
+          {% set raw = raw_state | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0.3) %}
           {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
           {% if raw is none %}
@@ -647,7 +673,11 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         state: >-
-          {% set raw = states('sensor.ehw_t06_raw') | float(none) %}
+          {% set raw_state = states('sensor.ehw_t06_raw') %}
+          {% if raw_state in ['unknown', 'unavailable', 'none', 'None', ''] %}
+            {% set raw_state = states('sensor.ehw_t06_raw_2') %}
+          {% endif %}
+          {% set raw = raw_state | float(none) %}
           {% set scale = states('input_number.ehw_temp_scale') | float(0.3) %}
           {% set offset = states('input_number.ehw_temp_offset') | float(0) %}
           {% if raw is none %}
@@ -696,7 +726,7 @@ template:
           {% set regs_ok = is_number(states('sensor.ehw_reg56_status'))
             or is_number(states('sensor.ehw_reg57_runtime'))
             or is_number(states('sensor.ehw_reg60_value'))
-            or is_number(states('sensor.ehw_setpoint_raw')) %}
+            or is_number(states('sensor.ehw_setpoint_raw_calc')) %}
           {% set t_ok = is_number(states('sensor.ehw_tank_top'))
             and is_number(states('sensor.ehw_tank_bottom'))
             and (states('sensor.ehw_tank_top') | float(0)) >= 0
@@ -714,7 +744,7 @@ template:
         availability: >-
           {{ is_state('binary_sensor.cm_modbus_ehw_ready', 'on') }}
         state: >-
-          {% set has_raw = is_number(states('sensor.ehw_setpoint_raw')) and is_number(states('sensor.ehw_tank_top_raw')) %}
+          {% set has_raw = is_number(states('sensor.ehw_setpoint_raw_calc')) and is_number(states('sensor.ehw_tank_top_raw_calc')) %}
           {% set has_scaled = is_number(states('sensor.ehw_setpoint')) and is_number(states('sensor.ehw_tank_top')) %}
           {% if has_raw and has_scaled %}
             {{ (states('sensor.ehw_setpoint') | float(0)) - (states('sensor.ehw_tank_top') | float(0)) >= 1.0 }}

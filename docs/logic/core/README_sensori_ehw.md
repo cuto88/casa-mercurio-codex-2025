@@ -14,6 +14,13 @@ Questa mappa copre il layer Modbus TCP EcoHotWater con lettura di registri holdi
 (FC3, addressing 0-based/PDU). Include sensori raw, hex decoding e flag binari da
 status word.
 
+Profilo runtime attivo (aggiornato 2026-03-07):
+- host: `192.168.178.190`
+- slave/unit: `3`
+- FC: `3` (holding)
+
+Nota: il profilo storico `192.168.178.191 / slave 1` resta documentato ma non e` il profilo con dati termici utili in esercizio.
+
 Sorgenti vendor correnti:
 - `docs/vendor/ehw/ehw.json` (mappa parametri/registri estratta)
 - `docs/vendor/ehw/docs/modbus_map.md` (tabella tecnica leggibile)
@@ -98,8 +105,8 @@ Queste entità sono mantenute per retro-compatibilità con plance/automazioni es
 
 ## Known constraints
 
-- Il setpoint **non è esposto in chiaro**: il cambio setpoint si riflette su reg56/reg57,
-  mentre reg60 resta 0x002D/45 nei test.
+- Su profilo runtime `190/unit3`, i registri `56/57/60` non sono affidabili per stato macchina e possono risultare non disponibili.
+- Le temperature utili provengono dal blocco `2019..2024` e dai parametri `1082/1088/1089/1104/1106`.
 - In caso di transport instability (`transaction_id mismatch`), il package riduce il polling
   dei registri diagnostici (T01..T06 + setpoint raw) a 180s per ridurre rumore Modbus.
 
@@ -107,16 +114,16 @@ Queste entità sono mantenute per retro-compatibilità con plance/automazioni es
 
 ## Validation procedure (modpoll)
 
-Assunzioni: Modbus TCP, slave 1, addressing 0-based (PDU), FC3 holding.
+Assunzioni runtime correnti: Modbus TCP, slave 3, host `192.168.178.190`, addressing 0-based (PDU), FC3 holding.
 
 1) Leggi frame 50–81 in hex:
 ```
-modpoll -m tcp -a 1 -r 50 -c 32 -t 4:hex 192.168.178.191
+modpoll -m tcp -a 3 -r 50 -c 32 -t 4:hex 192.168.178.190
 ```
 
 2) Leggi singoli registri 56/57/60:
 ```
-modpoll -m tcp -a 1 -r 56 -c 1 -t 4:hex 192.168.178.191
-modpoll -m tcp -a 1 -r 57 -c 1 -t 4:hex 192.168.178.191
-modpoll -m tcp -a 1 -r 60 -c 1 -t 4:hex 192.168.178.191
+modpoll -m tcp -a 3 -r 2019 -c 6 -t 4:hex 192.168.178.190
+modpoll -m tcp -a 3 -r 1082 -c 1 -t 4:hex 192.168.178.190
+modpoll -m tcp -a 3 -r 1088 -c 1 -t 4:hex 192.168.178.190
 ```
